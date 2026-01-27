@@ -1,0 +1,6 @@
+npm init -y
+npm install express@4.18.2
+npm audit fix
+npm install --save-dev nodemon
+npm install cors dotenv mongoose
+
