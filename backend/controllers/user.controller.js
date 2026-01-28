@@ -4,23 +4,28 @@ const User = require('../models/User');
  * GET /api/users
  * Lister tous les utilisateurs
  */
-exports.getAllUsers = async (req, res) => {
-    try {
-        const users = await User.find().select('-password');
+// exports.getAllUsers = async (req, res) => {
+//     try {
+//         const users = await User.find().select('-password');
+//
+//         res.status(200).json({
+//             success: true,
+//             count: users.length,
+//             data: users
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             success: false,
+//             message: 'Erreur lors de la récupération des utilisateurs',
+//             error: error.message
+//         });
+//     }
+// };
 
-        res.status(200).json({
-            success: true,
-            count: users.length,
-            data: users
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Erreur lors de la récupération des utilisateurs',
-            error: error.message
-        });
-    }
+exports.getAllUsers = async (req, res, next) => {
+    res.status(200).json(res.advancedResults);
 };
+
 
 /**
  * GET /api/users/:id

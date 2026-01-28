@@ -1,25 +1,132 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/user.controller');
+const advancedResults = require('../middlewares/advancedResults');
+const User = require('../models/User');
+
 
 /**
  * @swagger
- * tags:
- *   name: Users
- *   description: Gestion des utilisateurs
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: ID MongoDB
+ *         name:
+ *           type: string
+ *         email:
+ *           type: string
+ *         role:
+ *           type: string
+ *           enum: [admin, boutique, user]
+ *         isActive:
+ *           type: boolean
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *       required:
+ *         - name
+ *         - email
+ *         - role
  */
+
 
 /**
  * @swagger
  * /api/users:
  *   get:
- *     summary: Lister tous les utilisateurs
+ *     summary: Lister tous les utilisateurs avec pagination, filtres et tri
  *     tags: [Users]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Numéro de la page
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Nombre d'utilisateurs par page
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           example: "name,-createdAt"
+ *         description: "Champs pour trier (ex: name,-createdAt)"
+ *       - in: query
+ *         name: fields
+ *         schema:
+ *           type: string
+ *           example: "name,email,role"
+ *         description: Champs à inclure dans la réponse
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: Filtre par nom (regex insensible)
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         description: Filtre par email
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [admin,boutique,user]
+ *         description: Filtre par rôle
+ *       - in: query
+ *         name: isActive
+ *         schema:
+ *           type: boolean
+ *         description: Filtre par statut actif
+ *       - in: query
+ *         name: createdAt[gte]
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Date de création minimum
+ *       - in: query
+ *         name: createdAt[lte]
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Date de création maximum
  *     responses:
  *       200:
- *         description: Liste des utilisateurs
+ *         description: Liste paginée des utilisateurs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 count:
+ *                   type: integer
+ *                 totalDocs:
+ *                   type: integer
+ *                 totalPages:
+ *                   type: integer
+ *                 page:
+ *                   type: integer
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
  */
-router.get('/', userController.getAllUsers);
+
+// router.get('/', userController.getAllUsers);
+router.get('/', advancedResults(User), userController.getAllUsers);
 
 /**
  * @swagger
