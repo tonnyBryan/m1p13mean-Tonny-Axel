@@ -3,6 +3,8 @@ const router = express.Router();
 const userController = require('../controllers/user.controller');
 const advancedResults = require('../middlewares/advancedResults');
 const User = require('../models/User');
+const { protect, authorize } = require('../middlewares/auth.middleware');
+
 
 
 /**
@@ -124,9 +126,13 @@ const User = require('../models/User');
  *                   items:
  *                     $ref: '#/components/schemas/User'
  */
-
-// router.get('/', userController.getAllUsers);
-router.get('/', advancedResults(User), userController.getAllUsers);
+router.get(
+    '/',
+    protect,
+    authorize('admin', 'boutique'),
+    advancedResults(User),
+    userController.getAllUsers
+);
 
 /**
  * @swagger
@@ -146,7 +152,12 @@ router.get('/', advancedResults(User), userController.getAllUsers);
  *       404:
  *         description: Utilisateur non trouvé
  */
-router.get('/:id', userController.getUserById);
+router.get(
+    '/:id',
+    protect,
+    authorize('admin', 'boutique', 'user'),
+    userController.getUserById
+);
 
 /**
  * @swagger
@@ -198,7 +209,12 @@ router.post('/', userController.createUser);
  *       200:
  *         description: Utilisateur mis à jour
  */
-router.put('/:id', userController.updateUser);
+router.put(
+    '/:id',
+    protect,
+    authorize('admin', 'user'),
+    userController.updateUser
+);
 
 /**
  * @swagger
@@ -216,6 +232,11 @@ router.put('/:id', userController.updateUser);
  *       200:
  *         description: Utilisateur supprimé
  */
-router.delete('/:id', userController.deleteUser);
+router.delete(
+    '/:id',
+    protect,
+    authorize('admin'),
+    userController.deleteUser
+);
 
 module.exports = router;

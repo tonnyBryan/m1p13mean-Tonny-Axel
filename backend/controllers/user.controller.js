@@ -1,29 +1,16 @@
 const User = require('../models/User');
+const { successResponse, errorResponse } = require('../utils/apiResponse');
+const bcrypt = require('bcryptjs');
+
+
 
 /**
  * GET /api/users
  * Lister tous les utilisateurs
  */
-// exports.getAllUsers = async (req, res) => {
-//     try {
-//         const users = await User.find().select('-password');
-//
-//         res.status(200).json({
-//             success: true,
-//             count: users.length,
-//             data: users
-//         });
-//     } catch (error) {
-//         res.status(500).json({
-//             success: false,
-//             message: 'Erreur lors de la récupération des utilisateurs',
-//             error: error.message
-//         });
-//     }
-// };
-
 exports.getAllUsers = async (req, res, next) => {
-    res.status(200).json(res.advancedResults);
+    // res.status(200).json(res.advancedResults);
+    return successResponse(res, 200, null, res.advancedResults);
 };
 
 
@@ -36,22 +23,12 @@ exports.getUserById = async (req, res) => {
         const user = await User.findById(req.params.id).select('-password');
 
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'Utilisateur non trouvé'
-            });
+            return errorResponse(res, 404, 'Utilisateur non trouvé');
         }
 
-        res.status(200).json({
-            success: true,
-            data: user
-        });
+        return successResponse(res, 200, null, user);
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: 'ID invalide',
-            error: error.message
-        });
+        return errorResponse(res, 400, 'ID invalide');
     }
 };
 
@@ -63,31 +40,42 @@ exports.createUser = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
 
+        // 1️⃣ Vérification basique
+        if (!name || !email || !password) {
+            return errorResponse(res, 400, 'Champs obligatoires manquants');
+        }
+
+        // 2️⃣ Vérifier si email existe déjà
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return errorResponse(res, 400, 'Email déjà utilisé');
+        }
+
+        // 3️⃣ Hash du mot de passe
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // 4️⃣ Création utilisateur
         const user = await User.create({
             name,
             email,
-            password,
+            password: hashedPassword,
             role
         });
 
-        res.status(201).json({
-            success: true,
-            message: 'Utilisateur créé avec succès',
-            data: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            }
+        // 5️⃣ Réponse uniforme
+        return successResponse(res, 201, 'Utilisateur créé avec succès', {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role
         });
+
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: 'Erreur lors de la création',
-            error: error.message
-        });
+        return errorResponse(res, 400, 'Erreur lors de la création');
     }
 };
+
 
 /**
  * PUT /api/users/:id
@@ -102,25 +90,16 @@ exports.updateUser = async (req, res) => {
         ).select('-password');
 
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'Utilisateur non trouvé'
-            });
+            return errorResponse(res, 404, 'Utilisateur non trouvé');
         }
 
-        res.status(200).json({
-            success: true,
-            message: 'Utilisateur mis à jour',
-            data: user
-        });
+        return successResponse(res, 200, 'Utilisateur mis à jour', user);
+
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: 'Erreur lors de la mise à jour',
-            error: error.message
-        });
+        return errorResponse(res, 400, 'Erreur lors de la mise à jour');
     }
 };
+
 
 /**
  * DELETE /api/users/:id
@@ -131,21 +110,12 @@ exports.deleteUser = async (req, res) => {
         const user = await User.findByIdAndDelete(req.params.id);
 
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'Utilisateur non trouvé'
-            });
+            return errorResponse(res, 404, 'Utilisateur non trouvé');
         }
 
-        res.status(200).json({
-            success: true,
-            message: 'Utilisateur supprimé'
-        });
+        return successResponse(res, 200, 'Utilisateur supprimé', null);
+
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            message: 'Erreur lors de la suppression',
-            error: error.message
-        });
+        return errorResponse(res, 400, 'Erreur lors de la suppression');
     }
 };

@@ -10,10 +10,27 @@ const options = {
         },
         servers: [
             { url: "http://localhost:3000" }
+        ],
+
+        // 🔐 AJOUT ICI
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT'
+                }
+            }
+        },
+
+        // 🔐 Sécurité globale (optionnelle mais recommandée)
+        security: [
+            {
+                bearerAuth: []
+            }
         ]
     },
     apis: ["./routes/*.js"]
 };
 
 module.exports = swaggerJsdoc(options);
-

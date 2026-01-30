@@ -4,5 +4,7 @@ npm audit fix
 npm install --save-dev nodemon
 npm install cors dotenv mongoose
 npm install swagger-ui-express swagger-jsdoc --save
+npm install bcryptjs jsonwebtoken
+
 
 
