@@ -131,3 +131,19 @@ exports.logout = async (req, res) => {
     }
 };
 
+exports.verifyToken = (req, res) => {
+    const authHeader = req.headers['authorization']; // Bearer TOKEN
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return errorResponse(res, 401, 'Token manquant');
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        return successResponse(res, 200, 'Token valide', { user: decoded });
+    } catch (err) {
+        return errorResponse(res, 401, 'Token invalide ou expiré');
+    }
+};
+

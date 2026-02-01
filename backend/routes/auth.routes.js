@@ -62,4 +62,18 @@ router.post('/refresh-token', authController.refreshToken);
  */
 router.post('/logout', authController.logout);
 
+/**
+ * @swagger
+ * /api/auth/verify-token:
+ *   get:
+ *     summary: Vérifie si le token est valide
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Token valide
+ *       401:
+ *         description: Token manquant ou invalide
+ */
+router.get('/verify-token', authController.verifyToken);
+
 module.exports = router;

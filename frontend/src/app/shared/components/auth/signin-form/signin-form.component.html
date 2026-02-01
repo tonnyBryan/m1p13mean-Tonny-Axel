@@ -83,7 +83,7 @@
           <app-input-field
             type="email"
             placeholder="info@gmail.com"
-            [value]="email"
+            [(ngModel)]="email"
             name="email"
             class="form-input"
             required
@@ -96,7 +96,7 @@
             <app-input-field
               [type]="showPassword ? 'text' : 'password'"
               placeholder="Enter your password"
-              [value]="password"
+              [(ngModel)]="password"
               name="password"
               class="form-input"
               required
@@ -132,11 +132,21 @@
         <app-button
           className="w-full"
           size="sm"
+          [loading]="isLoading"
           (btnClick)="onSignIn()"
         >
           Sign in
         </app-button>
       </form>
+
+    <div class="mt-5" *ngIf="errorMessage">
+        <app-alert
+                variant="error"
+                title="Ouups !!"
+                [message]="errorMessage"
+                [showLink]="false"
+        />
+    </div>
 
       <div class="mt-5">
         <p class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">

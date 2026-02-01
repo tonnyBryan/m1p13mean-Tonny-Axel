@@ -6,6 +6,8 @@ npm install cors dotenv mongoose
 npm install swagger-ui-express swagger-jsdoc --save
 npm install bcryptjs jsonwebtoken
 npm install cookie-parser
+npm install cors
+
 
 
 

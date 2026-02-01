@@ -6,6 +6,7 @@ import { NotFoundComponent } from './pages/other-page/not-found/not-found.compon
 import { AppLayoutComponent } from './shared/layout/app-layout/app-layout.component';
 import { SignInComponent } from './pages/auth-pages/sign-in/sign-in.component';
 import { SignUpComponent } from './pages/auth-pages/sign-up/sign-up.component';
+import {AuthGuard} from "./shared/guards/auth.guard";
 
 export const routes: Routes = [
   {
@@ -13,8 +14,14 @@ export const routes: Routes = [
     component:AppLayoutComponent,
     children:[
       {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
+      {
         path: 'dashboard',
         component: EcommerceComponent,
+        canActivate: [AuthGuard],
         pathMatch: 'full',
         title:
           'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
@@ -22,11 +29,13 @@ export const routes: Routes = [
       {
         path:'profile',
         component:ProfileComponent,
+        canActivate: [AuthGuard],
         title:'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
       {
         path:'blank',
         component:BlankComponent,
+        canActivate: [AuthGuard],
         title:'Angular Blank Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
     ]

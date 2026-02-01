@@ -54,4 +54,3 @@ exports.authorize = (...roles) => {
         next();
     };
 };
-
