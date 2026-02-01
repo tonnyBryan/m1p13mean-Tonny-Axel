@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import { DropdownItemTwoComponent } from '../../ui/dropdown/dropdown-item/dropdown-item.component-two';
 import {AuthService} from "../../../services/auth.service";
+import {User} from "../../../../core/models/user.model";
+import {Observable} from "rxjs";
 
 @Component({
   selector: 'app-user-dropdown',
@@ -11,7 +13,13 @@ import {AuthService} from "../../../services/auth.service";
   imports:[CommonModule,RouterModule,DropdownComponent,DropdownItemTwoComponent]
 })
 export class UserDropdownComponent {
+  user$!: Observable<User | null>;
+
   constructor(private authService : AuthService, private router: Router) {
+  }
+
+  ngOnInit() {
+    this.user$ = this.authService.user$;
   }
 
   isOpen = false;

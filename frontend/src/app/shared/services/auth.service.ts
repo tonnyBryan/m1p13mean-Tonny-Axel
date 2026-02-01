@@ -1,14 +1,32 @@
 import { Injectable } from '@angular/core';
 import {ApiService} from "./api.service";
-import {Observable, tap} from "rxjs";
+import {BehaviorSubject, Observable, tap} from "rxjs";
 import {HttpHeaders} from "@angular/common/http";
+import {User} from "../../core/models/user.model";
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
 
-    constructor(private api: ApiService) { }
+    constructor(private api: ApiService) {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+            this.userSubject.next(JSON.parse(savedUser));
+        }
+    }
+
+    private userSubject = new BehaviorSubject<User | null>(null);
+    user$ = this.userSubject.asObservable();
+
+    setUser(user: User) {
+        this.userSubject.next(user);
+        localStorage.setItem('user', JSON.stringify(user));
+    }
+
+    get user(): User | null {
+        return this.userSubject.value;
+    }
 
     isLoggedIn(): boolean {
         return !!localStorage.getItem('token'); // true si token existe
@@ -28,6 +46,7 @@ export class AuthService {
             tap(res => {
                 if (res.success && res.data?.accessToken) {
                     localStorage.setItem('token', res.data.accessToken);
+                    this.setUser(res.data.user);
                 }
             })
         );
