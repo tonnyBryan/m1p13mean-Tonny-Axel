@@ -29,7 +29,7 @@ export const routes: Routes = [
         path: 'dashboard',
         component: EcommerceComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: [environment.adminRole, environment.userRole] },
+        data: { roles: [environment.adminRole, environment.userRole, environment.boutiqueRole] },
         pathMatch: 'full',
         title:
           'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
