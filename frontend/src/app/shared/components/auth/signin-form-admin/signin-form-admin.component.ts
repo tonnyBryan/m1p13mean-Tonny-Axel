@@ -53,7 +53,7 @@ export class SigninFormAdminComponent {
             next: res => {
                 this.isLoading = false;
                 if (res.success) {
-                    this.router.navigate(['/dashboard']);
+                    this.router.navigate(['/admin/app']);
                 } else {
                     this.errorMessage = res.message || ERROR_MESSAGES.UNKNOWN;
                 }

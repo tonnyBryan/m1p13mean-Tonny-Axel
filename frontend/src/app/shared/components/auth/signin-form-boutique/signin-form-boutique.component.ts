@@ -53,7 +53,7 @@ export class SigninFormBoutiqueComponent {
             next: res => {
                 this.isLoading = false;
                 if (res.success) {
-                    this.router.navigate(['/dashboard']);
+                    this.router.navigate(['/store/app']);
                 } else {
                     this.errorMessage = res.message || ERROR_MESSAGES.UNKNOWN;
                 }

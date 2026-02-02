@@ -29,7 +29,7 @@ export const routes: Routes = [
         path: 'dashboard',
         component: EcommerceComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: [environment.adminRole, environment.userRole, environment.boutiqueRole] },
+        data: { roles: [environment.userRole] },
         pathMatch: 'full',
         title:
           'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
@@ -38,14 +38,14 @@ export const routes: Routes = [
         path:'profile',
         component:ProfileComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: [environment.adminRole, environment.userRole] },
+        data: { roles: [environment.adminRole, environment.userRole, environment.boutiqueRole] },
         title:'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
       {
         path:'blank',
         component:BlankComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: [environment.adminRole, environment.userRole] },
+        data: { roles: [environment.adminRole, environment.userRole, environment.boutiqueRole] },
         title:'Angular Blank Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
     ]
@@ -64,15 +64,71 @@ export const routes: Routes = [
   // ADMIN
   {
     path:'admin',
+    redirectTo: 'admin/signin',
+    pathMatch: 'full'
+  },
+  {
+    path:'admin/signin',
     component:SignInAdminComponent,
     title:'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template'
   },
+  {
+    path:'admin/app',
+    component:AppLayoutComponent,
+    children: [
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
+      {
+        path: 'dashboard',
+        component: EcommerceComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole] },
+        pathMatch: 'full',
+        title:
+            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+      },
+    ]
+  },
+
+
+
   // BOUTIQUE
   {
     path:'store',
+    redirectTo: 'store/signin',
+    pathMatch: 'full'
+  },
+  {
+    path:'store/signin',
     component:SignInBoutiqueComponent,
     title:'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template'
   },
+  {
+    path:'store/app',
+    component:AppLayoutComponent,
+    children: [
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
+      {
+        path: 'dashboard',
+        component: EcommerceComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        pathMatch: 'full',
+        title:
+            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+      },
+    ]
+  },
+
+
+
   // error pages
   {
     path:'**',
