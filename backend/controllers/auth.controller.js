@@ -10,17 +10,17 @@ exports.login = async (req, res) => {
         const { email, password, role } = req.body;
 
         if (!email || !password || !role) {
-            return errorResponse(res, 400, 'Email, mot de passe et rôle sont obligatoires');
+            return errorResponse(res, 400, 'Email, password are required.');
         }
 
         const user = await User.findOne({ email, role });
         if (!user || !user.isActive) {
-            return errorResponse(res, 401, 'Identifiants invalides');
+            return errorResponse(res, 401, 'Invalid credentials');
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return errorResponse(res, 401, 'Identifiants invalides');
+            return errorResponse(res, 401, 'Invalid credentials');
         }
 
         // 🔐 Access token
@@ -56,7 +56,7 @@ exports.login = async (req, res) => {
             sameSite: 'strict'
         });
 
-        return successResponse(res, 200, 'Connexion réussie', {
+        return successResponse(res, 200, 'Connection successful', {
             accessToken,
             user: {
                 id: user._id,
@@ -67,7 +67,7 @@ exports.login = async (req, res) => {
         });
 
     } catch (error) {
-        return errorResponse(res, 500, 'Erreur lors du login');
+        return errorResponse(res, 500, 'Error during login');
     }
 };
 
@@ -76,7 +76,7 @@ exports.refreshToken = async (req, res) => {
     try {
         const tokenFromCookie = req.cookies.refreshToken;
         if (!tokenFromCookie) {
-            return errorResponse(res, 401, 'Refresh token manquant');
+            return errorResponse(res, 401, 'Refresh token missing');
         }
 
         // 1️⃣ Vérifier le refresh token
@@ -97,13 +97,13 @@ exports.refreshToken = async (req, res) => {
         });
 
         if (!storedToken) {
-            return errorResponse(res, 403, 'Refresh token invalide');
+            return errorResponse(res, 403, 'Invalid refresh token');
         }
 
         // 3️⃣ Recharger l’utilisateur
         const user = await User.findById(decoded.id);
         if (!user || !user.isActive) {
-            return errorResponse(res, 401, 'Utilisateur invalide');
+            return errorResponse(res, 401, 'Invalid user');
         }
 
         // 4️⃣ Nouveau access token AVEC role
@@ -116,12 +116,12 @@ exports.refreshToken = async (req, res) => {
             { expiresIn: process.env.JWT_EXPIRE }
         );
 
-        return successResponse(res, 200, 'Token rafraîchi', {
+        return successResponse(res, 200, 'Refreshed token', {
             accessToken: newAccessToken
         });
 
     } catch (error) {
-        return errorResponse(res, 401, 'Refresh token expiré');
+        return errorResponse(res, 401, 'Refresh token expired');
     }
 };
 
@@ -136,9 +136,9 @@ exports.logout = async (req, res) => {
 
         res.clearCookie('refreshToken');
 
-        return successResponse(res, 200, 'Déconnexion réussie');
+        return successResponse(res, 200, 'Logout successful');
     } catch (error) {
-        return errorResponse(res, 500, 'Erreur lors de la déconnexion');
+        return errorResponse(res, 500, 'Error during disconnection');
     }
 };
 
@@ -147,14 +147,14 @@ exports.verifyToken = (req, res) => {
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-        return errorResponse(res, 401, 'Token manquant');
+        return errorResponse(res, 401, 'Missing token');
     }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        return successResponse(res, 200, 'Token valide', { user: decoded });
+        return successResponse(res, 200, 'Valid token', { user: decoded });
     } catch (err) {
-        return errorResponse(res, 401, 'Token invalide ou expiré');
+        return errorResponse(res, 401, 'Invalid or expired token');
     }
 };
 

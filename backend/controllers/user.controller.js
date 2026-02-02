@@ -23,12 +23,12 @@ exports.getUserById = async (req, res) => {
         const user = await User.findById(req.params.id).select('-password');
 
         if (!user) {
-            return errorResponse(res, 404, 'Utilisateur non trouvé');
+            return errorResponse(res, 404, 'User not found');
         }
 
         return successResponse(res, 200, null, user);
     } catch (error) {
-        return errorResponse(res, 400, 'ID invalide');
+        return errorResponse(res, 400, 'Invalid ID');
     }
 };
 
@@ -42,13 +42,13 @@ exports.createUser = async (req, res) => {
 
         // 1️⃣ Vérification basique
         if (!name || !email || !password) {
-            return errorResponse(res, 400, 'Champs obligatoires manquants');
+            return errorResponse(res, 400, 'Missing required fields');
         }
 
         // 2️⃣ Vérifier si email existe déjà
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return errorResponse(res, 400, 'Email déjà utilisé');
+            return errorResponse(res, 400, 'Email already used');
         }
 
         // 3️⃣ Hash du mot de passe
@@ -64,7 +64,7 @@ exports.createUser = async (req, res) => {
         });
 
         // 5️⃣ Réponse uniforme
-        return successResponse(res, 201, 'Utilisateur créé avec succès', {
+        return successResponse(res, 201, 'User successfully created', {
             id: user._id,
             name: user.name,
             email: user.email,
@@ -72,7 +72,7 @@ exports.createUser = async (req, res) => {
         });
 
     } catch (error) {
-        return errorResponse(res, 400, 'Erreur lors de la création');
+        return errorResponse(res, 400, 'Error during creation');
     }
 };
 
@@ -90,13 +90,13 @@ exports.updateUser = async (req, res) => {
         ).select('-password');
 
         if (!user) {
-            return errorResponse(res, 404, 'Utilisateur non trouvé');
+            return errorResponse(res, 404, 'User not found');
         }
 
-        return successResponse(res, 200, 'Utilisateur mis à jour', user);
+        return successResponse(res, 200, 'User updated', user);
 
     } catch (error) {
-        return errorResponse(res, 400, 'Erreur lors de la mise à jour');
+        return errorResponse(res, 400, 'Error during update');
     }
 };
 
@@ -110,12 +110,12 @@ exports.deleteUser = async (req, res) => {
         const user = await User.findByIdAndDelete(req.params.id);
 
         if (!user) {
-            return errorResponse(res, 404, 'Utilisateur non trouvé');
+            return errorResponse(res, 404, 'User not found');
         }
 
-        return successResponse(res, 200, 'Utilisateur supprimé', null);
+        return successResponse(res, 200, 'User deleted', null);
 
     } catch (error) {
-        return errorResponse(res, 400, 'Erreur lors de la suppression');
+        return errorResponse(res, 400, 'Error during deletion');
     }
 };

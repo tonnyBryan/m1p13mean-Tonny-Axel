@@ -15,7 +15,7 @@ exports.protect = async (req, res, next) => {
 
     // 2️⃣ Token absent
     if (!token) {
-        return errorResponse(res, 401, 'Accès non autorisé, token manquant');
+        return errorResponse(res, 401, 'Unauthorized access, missing token');
     }
 
     try {
@@ -26,11 +26,11 @@ exports.protect = async (req, res, next) => {
         const user = await User.findById(decoded.id).select('-password');
 
         if (!user) {
-            return errorResponse(res, 401, 'Utilisateur non valide');
+            return errorResponse(res, 401, 'Invalid user');
         }
 
         if (!user.isActive) {
-            return errorResponse(res, 403, 'Compte désactivé');
+            return errorResponse(res, 403, 'Account disabled');
         }
 
         // 5️⃣ Injecter l'utilisateur dans la requête
@@ -38,7 +38,7 @@ exports.protect = async (req, res, next) => {
 
         next();
     } catch (error) {
-        return errorResponse(res, 401, 'Token invalide ou expiré');
+        return errorResponse(res, 401, 'Invalid or expired token');
     }
 };
 
@@ -48,7 +48,7 @@ exports.authorize = (...roles) => {
             return errorResponse(
                 res,
                 403,
-                'Accès refusé : permissions insuffisantes'
+                'Access denied: insufficient permissions'
             );
         }
         next();

@@ -10,6 +10,8 @@ import {AuthService} from "../../../services/auth.service";
 import {CommonModule} from "@angular/common";
 import {AlertComponent} from "../../ui/alert/alert.component";
 import { environment } from '../../../../../environments/environment';
+import { ERROR_MESSAGES } from '../../../../core/constants/error-messages';
+
 
 
 @Component({
@@ -53,7 +55,7 @@ export class SigninFormBoutiqueComponent {
                 if (res.success) {
                     this.router.navigate(['/dashboard']);
                 } else {
-                    this.errorMessage = res.message || 'Erreur inconnue';
+                    this.errorMessage = res.message || ERROR_MESSAGES.UNKNOWN;
                 }
             },
             error: err => {
@@ -61,7 +63,7 @@ export class SigninFormBoutiqueComponent {
                 if (err.error && err.error.message) {
                     this.errorMessage = err.error.message;
                 } else {
-                    this.errorMessage = 'Impossible de se connecter, réessayez plus tard.';
+                    this.errorMessage = ERROR_MESSAGES.AUTH.IMPOSSIBLE_CONNECTION;
                 }
             }
         });
