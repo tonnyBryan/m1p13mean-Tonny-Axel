@@ -10,6 +10,9 @@ import {AuthGuard} from "./shared/guards/auth.guard";
 import {SignInAdminComponent} from "./pages/admin/auth-pages-admin/sign-in-admin/sign-in-admin.component";
 import {RoleGuard} from "./shared/guards/role.guard";
 import { environment } from '../environments/environment';
+import {
+  SignInBoutiqueComponent
+} from "./pages/boutique/auth-pages-boutique/sign-in-boutique/sign-in-boutique.component";
 
 
 export const routes: Routes = [
@@ -62,6 +65,12 @@ export const routes: Routes = [
   {
     path:'admin',
     component:SignInAdminComponent,
+    title:'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template'
+  },
+  // BOUTIQUE
+  {
+    path:'store',
+    component:SignInBoutiqueComponent,
     title:'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template'
   },
   // error pages
