@@ -3,6 +3,13 @@ import {ApiService} from "./api.service";
 import {BehaviorSubject, Observable, tap} from "rxjs";
 import {HttpHeaders} from "@angular/common/http";
 import {User} from "../../core/models/user.model";
+import { jwtDecode } from 'jwt-decode';
+
+
+export interface JwtPayload {
+    id: string;
+    role: string;
+}
 
 @Injectable({
     providedIn: 'root'
@@ -14,10 +21,32 @@ export class AuthService {
         if (savedUser) {
             this.userSubject.next(JSON.parse(savedUser));
         }
+
+        this.loadUserFromToken();
     }
 
     private userSubject = new BehaviorSubject<User | null>(null);
     user$ = this.userSubject.asObservable();
+
+    private userToken = new BehaviorSubject<JwtPayload | null>(null);
+    userToken$ = this.userToken.asObservable();
+
+    private loadUserFromToken() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        try {
+            const decoded = jwtDecode<JwtPayload>(token);
+            this.userToken.next(decoded);
+        } catch (e) {
+            console.warn('Token invalide, nettoyage…');
+            this.logout();
+        }
+    }
+
+    getRole(): string | null {
+        return this.userToken.value?.role ?? null;
+    }
 
     setUser(user: User) {
         this.userSubject.next(user);
@@ -38,6 +67,7 @@ export class AuthService {
 
     logout(): void {
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
     }
 
     login(email: string, password: string, role: string = 'user'): Observable<any> {
@@ -47,6 +77,7 @@ export class AuthService {
                 if (res.success && res.data?.accessToken) {
                     localStorage.setItem('token', res.data.accessToken);
                     this.setUser(res.data.user);
+                    this.loadUserFromToken();
                 }
             })
         );

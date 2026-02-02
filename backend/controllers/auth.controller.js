@@ -75,16 +75,17 @@ exports.login = async (req, res) => {
 exports.refreshToken = async (req, res) => {
     try {
         const tokenFromCookie = req.cookies.refreshToken;
-
         if (!tokenFromCookie) {
             return errorResponse(res, 401, 'Refresh token manquant');
         }
 
+        // 1️⃣ Vérifier le refresh token
         const decoded = jwt.verify(
             tokenFromCookie,
             process.env.JWT_REFRESH_SECRET
         );
 
+        // 2️⃣ Vérifier qu’il existe en DB
         const tokenHash = crypto
             .createHash('sha256')
             .update(tokenFromCookie)
@@ -99,8 +100,18 @@ exports.refreshToken = async (req, res) => {
             return errorResponse(res, 403, 'Refresh token invalide');
         }
 
+        // 3️⃣ Recharger l’utilisateur
+        const user = await User.findById(decoded.id);
+        if (!user || !user.isActive) {
+            return errorResponse(res, 401, 'Utilisateur invalide');
+        }
+
+        // 4️⃣ Nouveau access token AVEC role
         const newAccessToken = jwt.sign(
-            { id: decoded.id },
+            {
+                id: user._id,
+                role: user.role
+            },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRE }
         );

@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import {AuthService} from "../../../services/auth.service";
 import {CommonModule} from "@angular/common";
 import {AlertComponent} from "../../ui/alert/alert.component";
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-signin-form',
@@ -45,7 +46,7 @@ export class SigninFormComponent {
 
   onSignIn() {
     this.isLoading = true;
-    this.authService.login(this.email, this.password, 'admin').subscribe({
+    this.authService.login(this.email, this.password, environment.userRole).subscribe({
       next: res => {
         this.isLoading = false;
         if (res.success) {

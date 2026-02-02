@@ -7,6 +7,10 @@ import { AppLayoutComponent } from './shared/layout/app-layout/app-layout.compon
 import { SignInComponent } from './pages/auth-pages/sign-in/sign-in.component';
 import { SignUpComponent } from './pages/auth-pages/sign-up/sign-up.component';
 import {AuthGuard} from "./shared/guards/auth.guard";
+import {SignInAdminComponent} from "./pages/admin/auth-pages-admin/sign-in-admin/sign-in-admin.component";
+import {RoleGuard} from "./shared/guards/role.guard";
+import { environment } from '../environments/environment';
+
 
 export const routes: Routes = [
   {
@@ -21,7 +25,8 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: EcommerceComponent,
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole, environment.userRole] },
         pathMatch: 'full',
         title:
           'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
@@ -29,13 +34,15 @@ export const routes: Routes = [
       {
         path:'profile',
         component:ProfileComponent,
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole, environment.userRole] },
         title:'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
       {
         path:'blank',
         component:BlankComponent,
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole, environment.userRole] },
         title:'Angular Blank Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
     ]
@@ -49,6 +56,12 @@ export const routes: Routes = [
   {
     path:'signup',
     component:SignUpComponent,
+    title:'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template'
+  },
+  // ADMIN
+  {
+    path:'admin',
+    component:SignInAdminComponent,
     title:'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template'
   },
   // error pages
