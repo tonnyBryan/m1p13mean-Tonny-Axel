@@ -10,11 +10,16 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(express.json());
+// pour JSON
+app.use(express.json({ limit: '20mb' }));
+// pour les formulaires urlencoded
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
+
 app.use(cookieParser());
 app.use(cors({
     origin: process.env.FRONTEND_URL,
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 
@@ -25,6 +30,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/', require('./routes/index.routes'));
 app.use('/', require('./routes/test.routes'));
 app.use('/api/users', require('./routes/user.routes'));
+app.use('/api/products', require('./routes/product.routes'));
 app.use('/api/auth', require('./routes/auth.routes'));
 
 

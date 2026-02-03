@@ -13,6 +13,8 @@ import { environment } from '../environments/environment';
 import {
   SignInBoutiqueComponent
 } from "./pages/boutique/auth-pages-boutique/sign-in-boutique/sign-in-boutique.component";
+import {ProductListBoutiqueComponent} from "./pages/boutique/product-list-boutique/product-list-boutique.component";
+import {AddProductBoutiqueComponent} from "./pages/boutique/add-product-boutique/add-product-boutique.component";
 
 
 export const routes: Routes = [
@@ -118,6 +120,24 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: EcommerceComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        pathMatch: 'full',
+        title:
+            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+      },
+      {
+        path: 'products',
+        component: ProductListBoutiqueComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        pathMatch: 'full',
+        title:
+            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+      },
+      {
+        path: 'products/add',
+        component: AddProductBoutiqueComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
