@@ -40,6 +40,7 @@ export class AddProductBoutiqueComponent implements OnInit  {
 
     // ── Images ────────────────────────────────
     imageUrls: string[] = [];
+    selectedFiles: File[] = [];
     previewImages: { url: string; source: 'file' | 'url' }[] = [];
     isDragActive: boolean = false;
 
@@ -110,16 +111,23 @@ export class AddProductBoutiqueComponent implements OnInit  {
 
     private processFiles(files: FileList): void {
         Array.from(files).forEach(file => {
-            if (file.type.match(/image\/(png|jpeg|webp|svg\+xml)/)) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const url = e.target?.result as string;
-                    this.previewImages.push({ url, source: 'file' });
-                };
-                reader.readAsDataURL(file);
-            }
+            if (!file.type.match(/image\/(png|jpeg|webp|svg\+xml)/)) return;
+
+            // 1️⃣ stocker le vrai fichier (upload)
+            this.selectedFiles.push(file);
+
+            // 2️⃣ preview uniquement
+            const reader = new FileReader();
+            reader.onload = e => {
+                this.previewImages.push({
+                    url: e.target?.result as string,
+                    source: 'file'
+                });
+            };
+            reader.readAsDataURL(file);
         });
     }
+
 
     // ── URL manuelle ──────────────────────────
     currentImageUrl: string = '';
@@ -142,12 +150,19 @@ export class AddProductBoutiqueComponent implements OnInit  {
 
     removeImage(index: number): void {
         const removed = this.previewImages[index];
+
+        if (removed.source === 'file') {
+            this.selectedFiles.splice(index, 1);
+        }
+
         if (removed.source === 'url') {
             const urlIndex = this.imageUrls.indexOf(removed.url);
             if (urlIndex > -1) this.imageUrls.splice(urlIndex, 1);
         }
+
         this.previewImages.splice(index, 1);
     }
+
 
     // ════════════════════════════════════════════
     //  COMPUTED
@@ -178,18 +193,28 @@ export class AddProductBoutiqueComponent implements OnInit  {
 
         this.isLoading = true;
 
-        const product = {
-            name: this.name.trim(),
-            description: this.description.trim(),
-            regularPrice: this.regularPrice,
-            salePrice: this.salePrice,
-            tags: this.tags,
-            images: this.previewImages.map(img => img.url)
-        };
+        const formData = new FormData();
 
-        console.log('Product to save:', product);
+        formData.append('name', this.name.trim());
+        formData.append('description', this.description.trim());
+        formData.append('regularPrice', String(this.regularPrice));
+        if (this.salePrice !== null) {
+            formData.append('salePrice', String(this.salePrice));
+        }
 
-        this.storeService.createProduct(product).subscribe({
+        formData.append('tags', JSON.stringify(this.tags));
+
+        // 🔥 fichiers images
+        this.selectedFiles.forEach(file => {
+            formData.append('images', file);
+        });
+
+        // URLs manuelles (optionnel)
+        if (this.imageUrls.length > 0) {
+            formData.append('imageUrls', JSON.stringify(this.imageUrls));
+        }
+
+        this.storeService.createProduct(formData).subscribe({
             next: res => {
                 this.isLoading = false;
                 if (res.success) {
@@ -200,14 +225,11 @@ export class AddProductBoutiqueComponent implements OnInit  {
             },
             error: err => {
                 this.isLoading = false;
-                if (err.error && err.error.message) {
-                    alert(err.error.message);
-                } else {
-                    alert(ERROR_MESSAGES.AUTH.IMPOSSIBLE_CONNECTION);
-                }
+                alert(err?.error?.message || ERROR_MESSAGES.AUTH.IMPOSSIBLE_CONNECTION);
             }
         });
     }
+
 
     onCancel(): void {
         this.name = '';

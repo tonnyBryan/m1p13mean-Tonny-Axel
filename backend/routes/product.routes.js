@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/product.controller');
 const { protect, authorize } = require('../middlewares/auth.middleware');
-// const { protect, authorize } = require('../middlewares/auth'); // à activer plus tard
+const upload = require('../middlewares/upload.middleware');
 
 /**
  * @swagger
@@ -52,6 +52,7 @@ router.post(
     '/',
     protect,
     authorize('boutique'),
+    upload.array('images', 5),
     productController.createProduct
 );
 

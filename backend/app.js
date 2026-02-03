@@ -6,8 +6,6 @@ const swaggerSpec = require('./config/swagger');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
-
-
 const app = express();
 
 // pour JSON
@@ -22,6 +20,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
+
 
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
