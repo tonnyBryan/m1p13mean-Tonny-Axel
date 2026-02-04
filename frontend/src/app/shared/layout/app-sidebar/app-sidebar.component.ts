@@ -50,12 +50,10 @@ export class AppSidebarComponent implements OnInit {
 
     // ADMIN MENU
     {
-      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-           <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
-         </svg>`,
-      name: "Clients",
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 13V3H3v10h2v-8h14v8h2zm-4 4v-3h-2v3h-3v2h3v3h2v-3h3v-2h-3z" fill="currentColor"/></svg>`,
+      name: "Boutiques",
       roles: [environment.adminRole],
-      path: "/admin/app/clients",
+      path: "/admin/app/boutiques",
     },
     //...
     // BOUTIQUE

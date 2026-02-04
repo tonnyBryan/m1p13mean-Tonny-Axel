@@ -1,0 +1,247 @@
+<div class="space-y-6">
+  <!-- Breadcrumb -->
+  <app-page-breadcrumb [pageTitle]="pageTitle"></app-page-breadcrumb>
+
+  <!-- Statistics Cards -->
+  <div class="grid gap-6 grid-cols-1 md:grid-cols-4">
+    <div
+      class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/[0.05] dark:bg-white/[0.03] shadow-lg">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-theme-xs font-medium text-gray-600 dark:text-gray-400">Total Boutiques</p>
+          <p class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">{{ totalDocs }}</p>
+        </div>
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+          <svg class="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m0 0v6m0 0a2 2 0 100 4m0-4a2 2 0 110 4m0 0V4m0 0h4m-6 0h-4" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/[0.05] dark:bg-white/[0.03] shadow-lg">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-theme-xs font-medium text-gray-600 dark:text-gray-400">Active</p>
+          <p class="mt-2 text-2xl font-bold text-green-600 dark:text-green-400">{{ totalActiveBoutiques }}</p>
+        </div>
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+          <svg class="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/[0.05] dark:bg-white/[0.03] shadow-lg">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-theme-xs font-medium text-gray-600 dark:text-gray-400">Validated</p>
+          <p class="mt-2 text-2xl font-bold text-blue-600 dark:text-blue-400">{{ totalValidatedBoutiques }}</p>
+        </div>
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+          <svg class="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/[0.05] dark:bg-white/[0.03] shadow-lg">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-theme-xs font-medium text-gray-600 dark:text-gray-400">Pending</p>
+          <p class="mt-2 text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ totalPendingBoutiques }}</p>
+        </div>
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30">
+          <svg class="h-6 w-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div
+    class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] shadow-lg">
+
+    <!-- Header Section -->
+    <div class="px-4 pt-4 sm:px-6">
+      <div class="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
+            Boutiques
+          </h3>
+        </div>
+
+        <button (click)="addBoutique()"
+          class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-theme-sm font-medium text-white shadow-theme-xs hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 5V15M5 10H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          Add Boutique
+        </button>
+      </div>
+
+      <!-- Search and Filters -->
+      <div class="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
+        <!-- Search Input -->
+        <div class="flex-1">
+          <input type="text" placeholder="Search boutiques..." [(ngModel)]="searchTerm" (input)="onSearch(searchTerm)"
+            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm text-gray-900 placeholder-gray-500 shadow-theme-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 dark:placeholder-gray-500 dark:focus:border-blue-400" />
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="flex items-center gap-2">
+          <button *ngFor="let filter of ['all', 'active', 'inactive', 'validated', 'pending']"
+            (click)="onFilterChange(filter)" [ngClass]="{
+              'bg-blue-600 text-white dark:bg-blue-600': statusFilter === filter,
+              'border border-gray-300 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400': statusFilter !== filter
+            }"
+            class="inline-flex items-center rounded-lg px-3 py-2 text-theme-sm font-medium shadow-theme-xs hover:shadow-theme-sm transition-all whitespace-nowrap">
+            {{ filter | titlecase }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="max-w-full overflow-x-auto">
+      <table class="w-full">
+        <thead class="border-gray-100 border-y dark:border-white/[0.05]">
+          <tr>
+            <th scope="col"
+              class="px-4 py-3 font-medium text-gray-500 sm:px-6 text-start text-theme-xs dark:text-gray-400">
+              Boutique
+            </th>
+            <th scope="col"
+              class="px-4 py-3 font-medium text-gray-500 sm:px-6 text-start text-theme-xs dark:text-gray-400">
+              Owner
+            </th>
+            <th scope="col"
+              class="px-4 py-3 font-medium text-gray-500 sm:px-6 text-start text-theme-xs dark:text-gray-400">
+              Status
+            </th>
+            <th scope="col"
+              class="px-4 py-3 font-medium text-gray-500 sm:px-6 text-start text-theme-xs dark:text-gray-400">
+              Created
+            </th>
+            <th scope="col"
+              class="px-4 py-3 font-medium text-gray-500 sm:px-6 text-center text-theme-xs dark:text-gray-400">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
+          @for (boutique of boutiques; track boutique._id) {
+          <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+            <!-- Boutique Name with Logo -->
+            <td class="px-4 py-3 font-medium text-gray-800 sm:px-6 text-start text-theme-sm dark:text-white/90">
+              <div class="flex items-center gap-3">
+                <img [src]="boutique.logo" [alt]="boutique.name"
+                  class="h-10 w-10 rounded-full object-cover border border-gray-200 dark:border-gray-700" />
+                <div>
+                  <p class="font-medium">{{ boutique.name }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ boutique.description | slice:0:40 }}...</p>
+                </div>
+              </div>
+            </td>
+
+            <!-- Owner ID -->
+            <td class="px-4 py-3 text-gray-500 sm:px-6 text-start text-theme-sm dark:text-gray-400">
+              {{ boutique.owner }}
+            </td>
+
+            <!-- Status Badge -->
+            <td class="px-4 py-3 sm:px-6 text-start text-theme-sm">
+              <span [ngClass]="getStatusBgColor(boutique.isActive, boutique.isValidated)"
+                class="inline-flex px-2.5 py-1 rounded-md text-xs font-medium">
+                {{ getStatusText(boutique.isActive, boutique.isValidated) }}
+              </span>
+            </td>
+
+            <!-- Created Date -->
+            <td class="px-4 py-3 text-gray-500 sm:px-6 text-start text-theme-sm dark:text-gray-400">
+              {{ formatDate(boutique.createdAt) }}
+            </td>
+
+            <!-- Actions -->
+            <td class="px-4 py-3 sm:px-6 text-center text-theme-sm">
+              <div class="flex items-center justify-center gap-2">
+                <button (click)="editBoutique(boutique)"
+                  class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11.3333 2L14 4.66667M1 15H3.66667L12.3333 6.33333L9.66667 3.66667L1 12.3333V15Z"
+                      stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  Edit
+                </button>
+                <button (click)="deleteBoutique(boutique)"
+                  class="inline-flex items-center gap-1 rounded-md border border-red-300 bg-white px-2.5 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 dark:border-red-900/30 dark:bg-red-900/10 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M2 4H14M6.5 7V12M9.5 7V12M3 4L4 13C4 13.5304 4.21071 14.0391 4.58579 14.4142C4.96086 14.7893 5.46957 15 6 15H10C10.5304 15 11.0391 14.7893 11.4142 14.4142C11.7893 14.0391 12 13.5304 12 13L13 4M5.5 4V3C5.5 2.73478 5.60536 2.48043 5.79289 2.29289C5.98043 2.10536 6.23478 2 6.5 2H9.5C9.76522 2 10.0196 2.10536 10.2071 2.29289C10.3946 2.48043 10.5 2.73478 10.5 3V4"
+                      stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+          }
+          @empty {
+          <tr>
+            <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+              <p class="text-theme-sm">No boutiques found</p>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer with Pagination -->
+    <div class="border-t border-gray-100 px-4 py-4 sm:px-6 dark:border-white/[0.05]">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-theme-sm text-gray-600 dark:text-gray-400">
+          Showing
+          <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span>
+          to
+          <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, totalDocs) }}</span>
+          of
+          <span class="font-medium">{{ totalDocs }}</span>
+          results
+        </p>
+
+        <!-- Pagination Controls -->
+        <div class="flex items-center gap-2">
+          <button (click)="previousPage()" [disabled]="currentPage === 1"
+            class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] transition-colors">
+            Previous
+          </button>
+
+          @for (page of [].constructor(totalPages); track $index; let i = $index) {
+          <button (click)="goToPage(i + 1)"
+            [ngClass]="currentPage === i + 1 ? 'bg-blue-600 text-white border-blue-600 dark:bg-blue-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]'"
+            class="inline-flex items-center rounded-lg border px-3 py-2 text-theme-sm font-medium shadow-theme-xs transition-colors">
+            {{ i + 1 }}
+          </button>
+          }
+
+          <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+            class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] transition-colors">
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
