@@ -131,6 +131,71 @@
                     </div>
                 </div>
 
+                <!-- Card: Category & Order Settings -->
+                <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                    <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+                        <h2 class="text-base font-semibold text-gray-800 dark:text-white">Category & Order Settings</h2>
+                    </div>
+                    <div class="p-6 space-y-5">
+
+                        <!-- Category Select -->
+                        <div>
+                            <app-label for="category">Category <span class="text-red-500">*</span></app-label>
+                            <select
+                                    id="category"
+                                    [(ngModel)]="categoryId"
+                                    class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-800 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                                    [ngClass]="submitted && !categoryId ? 'border-red-500 focus:ring-red-500' : ''"
+                            >
+                                <option value="" disabled>Select a category...</option>
+                                @for (cat of categories; track cat._id) {
+                                    <option [value]="cat._id">{{ cat.name }}</option>
+                                }
+                            </select>
+                            @if (submitted && !categoryId) {
+                                <p class="mt-1.5 text-xs text-red-500">Category is required.</p>
+                            }
+                        </div>
+
+                        <!-- Order Quantities -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <!-- Min Order Qty -->
+                            <div>
+                                <app-label for="min-qty">Min Order Qty <span class="text-red-500">*</span></app-label>
+                                <input
+                                        type="number"
+                                        id="min-qty"
+                                        [(ngModel)]="minOrderQty"
+                                        [min]="1"
+                                        step="1"
+                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                                        [ngClass]="submitted && minOrderQty < 1 ? 'border-red-500 focus:ring-red-500' : ''"
+                                />
+                                @if (submitted && minOrderQty < 1) {
+                                    <p class="mt-1.5 text-xs text-red-500">Minimum quantity must be at least 1.</p>
+                                }
+                            </div>
+
+                            <!-- Max Order Qty -->
+                            <div>
+                                <app-label for="max-qty">Max Order Qty <span class="text-red-500">*</span></app-label>
+                                <input
+                                        type="number"
+                                        id="max-qty"
+                                        [(ngModel)]="maxOrderQty"
+                                        [min]="minOrderQty"
+                                        step="1"
+                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                                        [ngClass]="submitted && maxOrderQty < minOrderQty ? 'border-red-500 focus:ring-red-500' : ''"
+                                />
+                                @if (submitted && maxOrderQty < minOrderQty) {
+                                    <p class="mt-1.5 text-xs text-red-500">Max quantity must be ≥ min quantity.</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Card: Product Images (Dropzone + URL + Previews) -->
                 <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
                     <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
@@ -326,6 +391,13 @@
                             <span class="font-medium text-gray-800 dark:text-white truncate ml-2 max-w-[140px] text-right">{{ name || '—' }}</span>
                         </div>
                         <div class="flex items-center justify-between">
+                            <span class="text-gray-500 dark:text-gray-400">Category</span>
+                            <span class="font-medium text-gray-800 dark:text-white">
+                            {{ getCategoryName() }}
+                          </span>
+                        </div>
+
+                        <div class="flex items-center justify-between">
                             <span class="text-gray-500 dark:text-gray-400">Price</span>
                             <span class="font-medium text-gray-800 dark:text-white">{{ regularPrice ? ('$' + regularPrice) : '—' }}</span>
                         </div>
@@ -335,6 +407,10 @@
                                 <span class="font-semibold text-emerald-600 dark:text-emerald-400">${{ salePrice }}</span>
                             </div>
                         }
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 dark:text-gray-400">Order Range</span>
+                            <span class="font-medium text-gray-800 dark:text-white">{{ minOrderQty }} - {{ maxOrderQty }}</span>
+                        </div>
                         <div class="flex items-center justify-between">
                             <span class="text-gray-500 dark:text-gray-400">Tags</span>
                             <span class="font-medium text-gray-800 dark:text-white">{{ tags.length }}</span>

@@ -16,6 +16,30 @@ const ProductSchema = new mongoose.Schema(
         description: {
             type: String
         },
+        sku: {
+            type: String,
+            required: true,
+            default : "sku"
+        },
+        category: {
+            type: String,
+            required: true
+        },
+        stock: {
+            type: Number,
+            required: true,
+            default : 0
+        },
+        minOrderQty: {
+            type: Number,
+            required: true,
+            default : 1
+        },
+        maxOrderQty: {
+            type: Number,
+            required: true,
+            default : 50
+        },
         regularPrice: {
             type: Number,
             required: true

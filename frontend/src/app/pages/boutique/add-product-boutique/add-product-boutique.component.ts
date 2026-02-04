@@ -34,6 +34,24 @@ export class AddProductBoutiqueComponent implements OnInit  {
     regularPrice: number | null = null;
     salePrice: number | null = null;
 
+    categoryId: string = '';
+    categories = [
+        { _id: '65e9b8d21a4c7f0019cc1122', name: 'Chaussures' },
+        { _id: '65e9b8d21a4c7f0019cc1123', name: 'Vêtements' },
+        { _id: '65e9b8d21a4c7f0019cc1124', name: 'Électronique' },
+        { _id: '65e9b8d21a4c7f0019cc1125', name: 'Accessoires' },
+        { _id: '65e9b8d21a4c7f0019cc1126', name: 'Sport' },
+        { _id: '65e9b8d21a4c7f0019cc1127', name: 'Maison' }
+    ];
+
+    getCategoryName(): string {
+        const category = this.categories.find(cat => cat._id === this.categoryId);
+        return category ? category.name : '—';
+    }
+
+    minOrderQty: number = 1;
+    maxOrderQty: number = 20;
+
     // ── Tags ──────────────────────────────────
     tags: string[] = [];
     currentTag: string = '';
@@ -180,6 +198,9 @@ export class AddProductBoutiqueComponent implements OnInit  {
             this.description.trim().length > 0 &&
             this.regularPrice !== null &&
             this.regularPrice > 0 &&
+            this.categoryId.trim().length > 0 &&
+            this.minOrderQty >= 1 &&
+            this.maxOrderQty >= this.minOrderQty &&
             this.previewImages.length > 0
         );
     }
@@ -198,6 +219,11 @@ export class AddProductBoutiqueComponent implements OnInit  {
         formData.append('name', this.name.trim());
         formData.append('description', this.description.trim());
         formData.append('regularPrice', String(this.regularPrice));
+
+        formData.append('minOrderQty', String(this.minOrderQty));
+        formData.append('maxOrderQty', String(this.maxOrderQty));
+        formData.append('category', String(this.categoryId));
+
         if (this.salePrice !== null) {
             formData.append('salePrice', String(this.salePrice));
         }
@@ -236,6 +262,9 @@ export class AddProductBoutiqueComponent implements OnInit  {
         this.description = '';
         this.regularPrice = null;
         this.salePrice = null;
+        this.categoryId = '';
+        this.minOrderQty = 1;
+        this.maxOrderQty = 20;
         this.tags = [];
         this.currentTag = '';
         this.previewImages = [];

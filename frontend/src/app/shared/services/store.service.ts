@@ -27,4 +27,15 @@ export class StoreService {
         return this.api.post<any>('products', product, headers);
     }
 
+    getProductById(productId: string): Observable<any> {
+        const token = this.auth.getToken();
+
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
+        });
+
+        return this.api.get<any>(`products/${productId}`, headers);
+    }
+
+
 }

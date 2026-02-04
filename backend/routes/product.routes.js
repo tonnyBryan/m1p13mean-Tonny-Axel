@@ -56,4 +56,31 @@ router.post(
     productController.createProduct
 );
 
+
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   get:
+ *     summary: Récupérer un produit par ID
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Produit trouvé
+ *       404:
+ *         description: Produit non trouvé
+ */
+router.get(
+    '/:id',
+    protect,
+    authorize('admin', 'boutique', 'user'),
+    productController.getProductById
+);
+
 module.exports = router;

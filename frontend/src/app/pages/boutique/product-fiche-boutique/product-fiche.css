@@ -1,0 +1,40 @@
+/* ════════════════════════════════════════════ */
+/*  CUSTOM SCROLLBAR                            */
+/* ════════════════════════════════════════════ */
+
+.scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+    border-radius: 9999px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.7);
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.5);
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(75, 85, 99, 0.7);
+}
+
+/* ════════════════════════════════════════════ */
+/*  TRANSITIONS                                 */
+/* ════════════════════════════════════════════ */
+
+button {
+    transition: all 0.2s ease;
+}
+
+button:active {
+    transform: scale(0.97);
+}

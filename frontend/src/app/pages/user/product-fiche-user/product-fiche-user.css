@@ -1,0 +1,87 @@
+/* ════════════════════════════════════════════ */
+/*  ANIMATIONS                                  */
+/* ════════════════════════════════════════════ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* ════════════════════════════════════════════ */
+/*  CUSTOM SCROLLBAR                            */
+/* ════════════════════════════════════════════ */
+
+.scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+    border-radius: 9999px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.7);
+}
+
+/* Dark mode scrollbar */
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.5);
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(75, 85, 99, 0.7);
+}
+
+/* ════════════════════════════════════════════ */
+/*  IMAGE TRANSITIONS                           */
+/* ════════════════════════════════════════════ */
+
+.group:hover img {
+    transform: scale(1.05);
+}
+
+/* ════════════════════════════════════════════ */
+/*  BUTTON HOVER EFFECTS                        */
+/* ════════════════════════════════════════════ */
+
+button:active {
+    transform: scale(0.96);
+}
+
+/* ════════════════════════════════════════════ */
+/*  GRADIENT BACKGROUNDS                        */
+/* ════════════════════════════════════════════ */
+
+.bg-gradient-mesh {
+    background:
+            radial-gradient(at 27% 37%, hsla(215, 98%, 61%, 0.1) 0px, transparent 50%),
+            radial-gradient(at 97% 21%, hsla(125, 98%, 72%, 0.1) 0px, transparent 50%),
+            radial-gradient(at 52% 99%, hsla(354, 98%, 61%, 0.1) 0px, transparent 50%),
+            radial-gradient(at 10% 29%, hsla(256, 96%, 67%, 0.1) 0px, transparent 50%);
+}
+
+/* ════════════════════════════════════════════ */
+/*  RESPONSIVE UTILITIES                        */
+/* ════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+    .sticky {
+        position: relative;
+        top: 0;
+    }
+}
