@@ -243,8 +243,10 @@ export class AddProductBoutiqueComponent implements OnInit  {
         this.storeService.createProduct(formData).subscribe({
             next: res => {
                 this.isLoading = false;
+
+                console.log(res.data);
                 if (res.success) {
-                    this.router.navigate(['/store/app/products']);
+                    this.router.navigate(['/store/app/products/' + res.data._id]);
                 } else {
                     alert(res.message);
                 }

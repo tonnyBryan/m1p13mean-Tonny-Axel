@@ -38,6 +38,11 @@ exports.protect = async (req, res, next) => {
 
         next();
     } catch (error) {
+        console.log("error = " + error.name)
+        if (error.name === 'TokenExpiredError') {
+            return errorResponse(res, 420, 'ACCESS_TOKEN_EXPIRED');
+        }
+
         return errorResponse(res, 401, 'Invalid or expired token');
     }
 };

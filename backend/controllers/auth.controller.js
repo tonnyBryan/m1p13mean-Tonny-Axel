@@ -73,19 +73,17 @@ exports.login = async (req, res) => {
 
 
 exports.refreshToken = async (req, res) => {
+
     try {
         const tokenFromCookie = req.cookies.refreshToken;
+
         if (!tokenFromCookie) {
-            return errorResponse(res, 401, 'Refresh token missing');
+            return errorResponse(res, 450, 'Refresh token missing');
         }
 
-        // 1️⃣ Vérifier le refresh token
-        const decoded = jwt.verify(
-            tokenFromCookie,
-            process.env.JWT_REFRESH_SECRET
-        );
 
-        // 2️⃣ Vérifier qu’il existe en DB
+        let decoded = jwt.verify(tokenFromCookie, process.env.JWT_REFRESH_SECRET);
+
         const tokenHash = crypto
             .createHash('sha256')
             .update(tokenFromCookie)
@@ -97,13 +95,14 @@ exports.refreshToken = async (req, res) => {
         });
 
         if (!storedToken) {
-            return errorResponse(res, 403, 'Invalid refresh token');
+            return errorResponse(res, 450, 'Invalid refresh token');
         }
 
         // 3️⃣ Recharger l’utilisateur
         const user = await User.findById(decoded.id);
+
         if (!user || !user.isActive) {
-            return errorResponse(res, 401, 'Invalid user');
+            return errorResponse(res, 450, 'Invalid user');
         }
 
         // 4️⃣ Nouveau access token AVEC role
@@ -121,7 +120,7 @@ exports.refreshToken = async (req, res) => {
         });
 
     } catch (error) {
-        return errorResponse(res, 401, 'Refresh token expired');
+        return errorResponse(res, 450, 'Refresh token expired');
     }
 };
 
@@ -154,7 +153,10 @@ exports.verifyToken = (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         return successResponse(res, 200, 'Valid token', { user: decoded });
     } catch (err) {
-        return errorResponse(res, 401, 'Invalid or expired token');
+        if (err.name === 'TokenExpiredError') {
+            return errorResponse(res, 420, 'ACCESS_TOKEN_EXPIRED');
+        }
+        return errorResponse(res, 401, 'Invalid token');
     }
 };
 

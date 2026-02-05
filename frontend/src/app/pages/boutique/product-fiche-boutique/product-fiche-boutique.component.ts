@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import {ActivatedRoute} from "@angular/router";
 import {StoreService} from "../../../shared/services/store.service";
 import {NotFoundComponent} from "../../other-page/not-found/not-found.component";
+import {ProductSkeletonComponent} from "../../../shared/components/product/product-skeleton/product-skeleton.component";
+import {ProductErrorComponent} from "../../../shared/components/product/product-error/product-error.component";
 
 interface Category {
     _id: string;
@@ -30,7 +32,7 @@ interface Product {
 
 @Component({
     selector: 'app-product-fiche-boutique',
-    imports: [CommonModule, NotFoundComponent],
+    imports: [CommonModule, NotFoundComponent, ProductSkeletonComponent, ProductErrorComponent],
     templateUrl: './product-fiche-boutique.component.html',
     styleUrls: ['./product-fiche.css']
 })

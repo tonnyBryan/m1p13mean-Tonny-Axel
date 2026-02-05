@@ -65,10 +65,23 @@ export class AuthService {
         return localStorage.getItem('token');
     }
 
+    setToken(token : string): void {
+        localStorage.setItem('token', token);
+    }
+
     logout(): void {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
     }
+
+    refreshToken(): Observable<any> {
+        return this.api.post<any>(
+            'auth/refresh-token',
+            {},
+            undefined
+        );
+    }
+
 
     login(email: string, password: string, role: string = 'user'): Observable<any> {
         const body = { email, password, role };
