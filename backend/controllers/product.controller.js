@@ -1,6 +1,8 @@
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 const Product = require("../models/Product");
 const { uploadImage } = require('../utils/cloudinary');
+const Boutique = require('../models/Boutique');
+
 
 
 /**
@@ -94,13 +96,19 @@ exports.createProduct = async (req, res) => {
         // const imageUrls = uploadedImages.map(img => img.secure_url);
         // console.log(imageUrls)
 
-        const storeId = req.user.boutiqueId;
+        const boutique = await Boutique
+            .findOne({ owner: req.user._id })
+            .select('_id');
+
+        if (!boutique) {
+            return errorResponse(res, 403, 'Store not found for this user');
+        }
 
         /* =========================
            6️⃣ Création produit
         ========================= */
         const product = await Product.create({
-            boutique: storeId,
+            boutique: boutique._id,
             name: name.trim(),
             description: description?.trim() || '',
             regularPrice: regPrice,

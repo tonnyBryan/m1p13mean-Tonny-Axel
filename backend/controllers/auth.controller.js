@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 const RefreshToken = require('../models/RefreshToken');
 const crypto = require('crypto');
+const { generateAccessToken } = require('../utils/auth.utils');
+
 
 exports.login = async (req, res) => {
     try {
@@ -23,12 +25,7 @@ exports.login = async (req, res) => {
             return errorResponse(res, 401, 'Invalid credentials');
         }
 
-        // 🔐 Access token
-        const accessToken = jwt.sign(
-            { id: user._id, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRE }
-        );
+        const accessToken = generateAccessToken(user);
 
         // 🔄 Refresh token
         const refreshToken = jwt.sign(
@@ -73,7 +70,6 @@ exports.login = async (req, res) => {
 
 
 exports.refreshToken = async (req, res) => {
-
     try {
         const tokenFromCookie = req.cookies.refreshToken;
 
@@ -105,15 +101,7 @@ exports.refreshToken = async (req, res) => {
             return errorResponse(res, 450, 'Invalid user');
         }
 
-        // 4️⃣ Nouveau access token AVEC role
-        const newAccessToken = jwt.sign(
-            {
-                id: user._id,
-                role: user.role
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRE }
-        );
+        const newAccessToken = generateAccessToken(user);
 
         return successResponse(res, 200, 'Refreshed token', {
             accessToken: newAccessToken
