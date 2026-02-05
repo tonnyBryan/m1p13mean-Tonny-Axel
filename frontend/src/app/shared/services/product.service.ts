@@ -38,4 +38,18 @@ export class ProductService {
         const url = queryString ? `products?${queryString}` : 'products';
         return this.api.get<any>(url, headers);
     }
+
+    // Met à jour un produit (PUT /api/products/:id)
+    updateProduct(productId: string, data: any): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
+        });
+        return this.api.put<any>(`products/${productId}`, data, headers);
+    }
+
+    // Convenience : activer/désactiver un produit
+    toggleActive(productId: string, isActive: boolean): Observable<any> {
+        return this.updateProduct(productId, { isActive });
+    }
 }

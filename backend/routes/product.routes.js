@@ -180,5 +180,34 @@ router.get(
 );
 
 
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   put:
+ *     summary: Mettre à jour un produit
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Produit mis à jour
+ */
+router.put(
+    '/:id',
+    protect,
+    authorize('admin', 'boutique'),
+    productController.updateProduct
+);
+
 
 module.exports = router;

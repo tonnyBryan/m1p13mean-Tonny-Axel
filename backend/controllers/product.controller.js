@@ -159,3 +159,26 @@ exports.getProductById = async (req, res) => {
 exports.getAllProducts = async (req, res, next) => {
     return successResponse(res, 200, null, res.advancedResults);
 };
+
+/**
+ * PUT /api/products/:id
+ * Mettre à jour un produit
+ */
+exports.updateProduct = async (req, res) => {
+    try {
+        const user = await Product.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
+        ).select();
+
+        if (!user) {
+            return errorResponse(res, 404, 'Product not found');
+        }
+
+        return successResponse(res, 200, 'Product updated', user);
+
+    } catch (error) {
+        return errorResponse(res, 400, 'Error during update');
+    }
+};

@@ -5,6 +5,7 @@ import {StoreService} from "../../../shared/services/store.service";
 import {ProductSkeletonComponent} from "../../../shared/components/product/product-skeleton/product-skeleton.component";
 import {ProductErrorComponent} from "../../../shared/components/product/product-error/product-error.component";
 import {PageBreadcrumbComponent} from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
+import { ProductService } from '../../../shared/services/product.service';
 
 interface Category {
     _id: string;
@@ -47,7 +48,8 @@ export class ProductFicheBoutiqueComponent implements OnInit {
 
     constructor(
         private route: ActivatedRoute,
-        private storeService: StoreService
+        private storeService: StoreService,
+        private productService: ProductService
     ) {}
 
     ngOnInit(): void {
@@ -142,9 +144,24 @@ export class ProductFicheBoutiqueComponent implements OnInit {
     }
 
     toggleActiveStatus(): void {
-        console.log('Toggle active status:', !this.product.isActive);
-        // → Appel API pour activer/désactiver
-        // this.product.isActive = !this.product.isActive;
+        const newStatus = !this.product.isActive;
+        // Option: optimistic update
+        const previous = this.product.isActive;
+        this.product.isActive = newStatus;
+
+        this.productService.toggleActive(this.product._id, newStatus).subscribe({
+            next: (res: any) => {
+                // If API returns success, keep the new status; otherwise revert
+                if (!res?.success) {
+                    this.product.isActive = previous;
+                    console.error('Failed to toggle product status', res);
+                }
+            },
+            error: (err) => {
+                this.product.isActive = previous;
+                console.error('Error toggling product status', err);
+            }
+        });
     }
 
     copySku(): void {
