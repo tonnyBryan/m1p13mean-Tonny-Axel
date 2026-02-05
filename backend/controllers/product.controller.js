@@ -94,11 +94,13 @@ exports.createProduct = async (req, res) => {
         // const imageUrls = uploadedImages.map(img => img.secure_url);
         // console.log(imageUrls)
 
+        const storeId = req.user.boutiqueId;
+
         /* =========================
            6️⃣ Création produit
         ========================= */
         const product = await Product.create({
-            boutique: "haha",
+            boutique: storeId,
             name: name.trim(),
             description: description?.trim() || '',
             regularPrice: regPrice,

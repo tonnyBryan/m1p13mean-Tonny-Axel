@@ -37,7 +37,7 @@
               }">
           <span class="h-2 w-2 rounded-full"
                 [ngClass]="product.isActive ? 'bg-emerald-500' : 'bg-gray-400'"></span>
-                    {{ product.isActive ? 'Actif' : 'Inactif' }}
+                    {{ product.isActive ? 'Active' : 'Inactive' }}
         </span>
             </div>
         </div>
@@ -48,13 +48,13 @@
                     type="button"
                     (click)="duplicateProduct()"
                     class="flex items-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
-                    title="Dupliquer"
+                    title="Duplicate"
             >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
                     <path d="M11 2H3C2.4 2 2 2.4 2 3V11" stroke="currentColor" stroke-width="1.5"/>
                 </svg>
-                Dupliquer
+                Duplicate
             </button>
 
             <button
@@ -66,14 +66,14 @@
                     <path d="M11.3 2.3L13.7 4.7L5 13.4L2 14L2.6 11L11.3 2.3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M10 3.5L12.5 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
-                Modifier
+                Edit
             </button>
 
             <button
                     type="button"
                     (click)="deleteProduct()"
                     class="flex h-10 w-10 items-center justify-center rounded-lg border border-red-300 dark:border-red-800 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors shadow-sm"
-                    title="Supprimer"
+                    title="Delete"
             >
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                     <path d="M3.75 5.25H14.25M7.5 8.25V12.75M10.5 8.25V12.75M13.5 5.25V14.25C13.5 14.6478 13.342 15.0294 13.0607 15.3107C12.7794 15.592 12.3978 15.75 12 15.75H6C5.60218 15.75 5.22064 15.592 4.93934 15.3107C4.65804 15.0294 4.5 14.6478 4.5 14.25V5.25M6 5.25V3.75C6 3.35218 6.15804 2.97064 6.43934 2.68934C6.72064 2.40804 7.10218 2.25 7.5 2.25H10.5C10.8978 2.25 11.2794 2.40804 11.5607 2.68934C11.842 2.97064 12 3.35218 12 3.75V5.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -188,15 +188,15 @@
                                 <path d="M8 2H3C2.4 2 2 2.4 2 3V8L8 14L15 7L9 1C8.6 0.6 8.4 0 8 0H3C2.4 0 2 0.4 2 1V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                 <circle cx="5" cy="5" r="1" fill="currentColor"/>
                             </svg>
-                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">Prix</h3>
+                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">Price</h3>
                         </div>
                         <div class="space-y-1">
                             <div class="flex items-baseline gap-2">
-                                <span class="text-xs text-gray-500 dark:text-gray-400">Régulier:</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Regular:</span>
                                 <span class="text-lg font-bold text-gray-900 dark:text-white">${{ product.regularPrice }}</span>
                             </div>
                             <div class="flex items-baseline gap-2">
-                                <span class="text-xs text-gray-500 dark:text-gray-400">Promo:</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Sale:</span>
                                 <span class="text-lg font-bold text-emerald-600 dark:text-emerald-400">${{ product.salePrice }}</span>
                             </div>
                         </div>
@@ -224,7 +224,7 @@
                         'bg-amber-500': stockStatus === 'low-stock',
                         'bg-red-500': stockStatus === 'out-of-stock'
                       }"></span>
-                                {{ stockStatus === 'out-of-stock' ? 'Rupture' : stockStatus === 'low-stock' ? 'Faible' : 'OK' }}
+                                {{ stockStatus === 'out-of-stock' ? 'Out of stock' : stockStatus === 'low-stock' ? 'Low stock' : 'In stock' }}
               </span>
                         </div>
                     </div>
@@ -232,14 +232,14 @@
 
                 <!-- Informations de commande -->
                 <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Commandes</h3>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Order Info</h3>
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                            <p class="text-gray-500 dark:text-gray-400 mb-1">Qté min</p>
+                            <p class="text-gray-500 dark:text-gray-400 mb-1">Min qty</p>
                             <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ product.minOrderQty }}</p>
                         </div>
                         <div>
-                            <p class="text-gray-500 dark:text-gray-400 mb-1">Qté max</p>
+                            <p class="text-gray-500 dark:text-gray-400 mb-1">Max qty</p>
                             <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ product.maxOrderQty }}</p>
                         </div>
                     </div>
@@ -264,7 +264,7 @@
                                 </svg>
                                 @if (showCopiedSku) {
                                     <span class="absolute -top-9 left-1/2 -translate-x-1/2 rounded-md bg-gray-800 dark:bg-gray-700 px-2.5 py-1 text-xs text-white whitespace-nowrap shadow-lg">
-                    Copié !
+                    Copied!
                   </span>
                                 }
                             </button>
@@ -288,18 +288,18 @@
 
                 <!-- Métadonnées -->
                 <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Informations système</h3>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">System info</h3>
                     <div class="space-y-3 text-sm">
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-500 dark:text-gray-400">ID Produit</span>
+                            <span class="text-gray-500 dark:text-gray-400">Product ID</span>
                             <span class="font-mono text-xs text-gray-900 dark:text-white">{{ product._id }}</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-500 dark:text-gray-400">Créé le</span>
+                            <span class="text-gray-500 dark:text-gray-400">Created</span>
                             <span class="font-medium text-gray-900 dark:text-white">{{ formatDate(product.createdAt) }}</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-500 dark:text-gray-400">Modifié le</span>
+                            <span class="text-gray-500 dark:text-gray-400">Updated</span>
                             <span class="font-medium text-gray-900 dark:text-white">{{ formatDate(product.updatedAt) }}</span>
                         </div>
                     </div>
@@ -319,12 +319,12 @@
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <path d="M14 7L9 2L4 7M9 2V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-                Désactiver le produit
+                Desactivate product
             } @else {
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <path d="M9 2V15M14 10L9 15L4 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-                Activer le produit
+                Activate product
             }
           </span>
                 </button>
