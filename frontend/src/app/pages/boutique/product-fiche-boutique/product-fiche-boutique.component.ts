@@ -167,7 +167,7 @@ export class ProductFicheBoutiqueComponent implements OnInit {
 
     formatDate(dateString: string): string {
         const date = new Date(dateString);
-        return date.toLocaleDateString('fr-FR', {
+        return date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
@@ -175,4 +175,5 @@ export class ProductFicheBoutiqueComponent implements OnInit {
             minute: '2-digit'
         });
     }
+
 }

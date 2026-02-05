@@ -117,7 +117,7 @@ exports.createProduct = async (req, res) => {
             maxOrderQty: maxQty,
             category,
             tags: parsedTags,
-            image: [],
+            images: ['https://e7.pngegg.com/pngimages/199/143/png-clipart-black-controller-art-emoji-video-game-sms-game-game-multimedia-messaging-service-thumbnail.png'],
             isActive: true
         });
 

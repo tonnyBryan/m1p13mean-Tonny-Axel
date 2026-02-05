@@ -6,6 +6,7 @@ const upload = require('../middlewares/upload.middleware');
 const advancedResults = require("../middlewares/advancedResults");
 const Product = require("../models/Product");
 const userController = require("../controllers/user.controller");
+const injectBoutiqueFilter = require('../middlewares/boutiqueFilter.middleware');
 
 
 /**
@@ -173,6 +174,7 @@ router.get(
     '/',
     protect,
     authorize('user', 'boutique'),
+    injectBoutiqueFilter,        // 👈 ICI
     advancedResults(Product),
     productController.getAllProducts
 );

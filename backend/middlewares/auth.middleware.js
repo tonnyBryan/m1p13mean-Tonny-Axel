@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { errorResponse } = require('../utils/apiResponse');
-const Boutique = require('../models/Boutique');
 
 
 exports.protect = async (req, res, next) => {
@@ -37,19 +36,6 @@ exports.protect = async (req, res, next) => {
 
         // 5️⃣ Injecter l'utilisateur dans la requête
         req.user = user.toObject();
-
-        // if (user.role === 'boutique') {
-        //     const boutique = await Boutique
-        //         .findOne({ owner: user._id })
-        //         .select('_id');
-        //
-        //     if (!boutique) {
-        //         return errorResponse(res, 403, 'Store not found for this user');
-        //     }
-        //
-        //     req.user.boutiqueId = boutique._id;
-        // }
-
 
         next();
     } catch (error) {
