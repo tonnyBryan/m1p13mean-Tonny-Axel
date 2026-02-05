@@ -3,6 +3,72 @@ const router = express.Router();
 const productController = require('../controllers/product.controller');
 const { protect, authorize } = require('../middlewares/auth.middleware');
 const upload = require('../middlewares/upload.middleware');
+const advancedResults = require("../middlewares/advancedResults");
+const Product = require("../models/Product");
+const userController = require("../controllers/user.controller");
+
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Product:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: ID MongoDB
+ *         boutique:
+ *           type: string
+ *           description: ID de la boutique propriétaire du produit
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ *         sku:
+ *           type: string
+ *         category:
+ *           type: string
+ *         stock:
+ *           type: integer
+ *         minOrderQty:
+ *           type: integer
+ *         maxOrderQty:
+ *           type: integer
+ *         regularPrice:
+ *           type: number
+ *         salePrice:
+ *           type: number
+ *         tags:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Liste des tags associés au produit
+ *         images:
+ *           type: array
+ *           items:
+ *             type: string
+ *             format: url
+ *           description: URLs des images du produit
+ *         isActive:
+ *           type: boolean
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *       required:
+ *         - boutique
+ *         - name
+ *         - sku
+ *         - category
+ *         - stock
+ *         - minOrderQty
+ *         - maxOrderQty
+ *         - regularPrice
+ */
+
 
 /**
  * @swagger
@@ -82,5 +148,35 @@ router.get(
     authorize('admin', 'boutique', 'user'),
     productController.getProductById
 );
+
+
+
+/**
+ * @swagger
+ * /api/products:
+ *   get:
+ *     summary: Récupère tous les produits
+ *     description: Retourne la liste de tous les produits.
+ *     tags:
+ *       - Products
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Liste des produits récupérée avec succès
+ *       401:
+ *         description: Non authentifié / token invalide
+ *       403:
+ *         description: Accès interdit (pas le rôle approprié)
+ */
+router.get(
+    '/',
+    protect,
+    authorize('user', 'boutique'),
+    advancedResults(Product),
+    productController.getAllProducts
+);
+
+
 
 module.exports = router;

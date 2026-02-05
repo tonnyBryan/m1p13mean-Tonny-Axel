@@ -26,8 +26,6 @@ export const authInterceptor: HttpInterceptorFn = (
 
     const accessToken = authService.getToken();
 
-    console.log("acess = " + accessToken);
-
     const authReq = accessToken
         ? req.clone({
             setHeaders: {
@@ -39,8 +37,6 @@ export const authInterceptor: HttpInterceptorFn = (
     return next(authReq).pipe(
         catchError((error: HttpErrorResponse) => {
 
-
-            console.log("status = " + error.status);
             /* 🔵 420 → access token expiré → refresh */
             if (error.status === 420 && !isRefreshing) {
                 isRefreshing = true;

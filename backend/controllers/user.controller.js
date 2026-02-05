@@ -9,7 +9,6 @@ const bcrypt = require('bcryptjs');
  * Lister tous les utilisateurs
  */
 exports.getAllUsers = async (req, res, next) => {
-    // res.status(200).json(res.advancedResults);
     return successResponse(res, 200, null, res.advancedResults);
 };
 

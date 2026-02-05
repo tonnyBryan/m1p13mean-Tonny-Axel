@@ -140,3 +140,14 @@ exports.getProductById = async (req, res) => {
         return errorResponse(res, 400, 'Invalid ID');
     }
 };
+
+
+
+
+/**
+ * GET /api/products
+ * Lister tous les produits
+ */
+exports.getAllProducts = async (req, res, next) => {
+    return successResponse(res, 200, null, res.advancedResults);
+};

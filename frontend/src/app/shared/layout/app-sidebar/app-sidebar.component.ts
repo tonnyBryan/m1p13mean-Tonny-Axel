@@ -96,8 +96,6 @@ export class AppSidebarComponent implements OnInit {
     this.isExpanded$ = this.sidebarService.isExpanded$;
     this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
     this.isHovered$ = this.sidebarService.isHovered$;
-
-    console.log("Sidebar role = " + authService.getRole())
   }
 
   ngOnInit() {
