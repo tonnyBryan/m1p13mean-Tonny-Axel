@@ -101,8 +101,5 @@ exports.getBoutiques = async (req, res) => {
     if (!res.advancedResults) {
         return errorResponse(res, 500, 'Advanced Results Middleware not running');
     }
-    res.status(200).json({
-        success: true,
-        data: res.advancedResults
-    });
+    return successResponse(res, 200, null, res.advancedResults);
 };
