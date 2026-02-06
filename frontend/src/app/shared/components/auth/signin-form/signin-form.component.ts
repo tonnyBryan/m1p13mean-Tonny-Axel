@@ -52,7 +52,7 @@ export class SigninFormComponent {
       next: res => {
         this.isLoading = false;
         if (res.success) {
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/v1/stores']);
         } else {
           this.errorMessage = res.message || ERROR_MESSAGES.UNKNOWN;
         }

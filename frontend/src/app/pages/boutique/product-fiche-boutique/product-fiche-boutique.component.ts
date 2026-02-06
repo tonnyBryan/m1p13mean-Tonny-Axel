@@ -6,30 +6,8 @@ import {ProductSkeletonComponent} from "../../../shared/components/product/produ
 import {ProductErrorComponent} from "../../../shared/components/product/product-error/product-error.component";
 import {PageBreadcrumbComponent} from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
 import { ProductService } from '../../../shared/services/product.service';
+import {Product} from "../../../core/models/product.model";
 
-interface Category {
-    _id: string;
-    name: string;
-}
-
-interface Product {
-    _id: string;
-    boutique: string;
-    name: string;
-    description: string;
-    regularPrice: number;
-    salePrice: number;
-    sku: string;
-    stock: number;
-    minOrderQty: number;
-    maxOrderQty: number;
-    category: Category;
-    tags: string[];
-    images: string[];
-    isActive: boolean;
-    createdAt: string;
-    updatedAt: string;
-}
 
 @Component({
     selector: 'app-product-fiche-boutique',

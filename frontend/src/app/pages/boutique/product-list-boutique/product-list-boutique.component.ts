@@ -6,6 +6,7 @@ import { ButtonComponent } from '../../../shared/components/ui/button/button.com
 import { Router } from '@angular/router';
 import { ProductService } from '../../../shared/services/product.service';
 import { FormsModule } from '@angular/forms';
+import {Product} from "../../../core/models/product.model";
 
 @Component({
     selector: 'product-list-boutique',
@@ -29,7 +30,7 @@ export class ProductListBoutiqueComponent implements OnInit {
     totalDocs = 0;
     totalPages = 0;
 
-    products: any[] = [];
+    products: Product[] = [];
     loading = false;
     error = '';
 

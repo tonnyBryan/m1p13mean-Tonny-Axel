@@ -18,6 +18,7 @@ import {AddProductBoutiqueComponent} from "./pages/boutique/add-product-boutique
 import {BoutiqueListComponent} from "./pages/admin/boutique-list/boutique-list.component";
 import {AddBoutiqueComponent} from "./pages/admin/boutique-list/add-boutique/add-boutique.component";
 import {ProductFicheBoutiqueComponent} from "./pages/boutique/product-fiche-boutique/product-fiche-boutique.component";
+import {BoutiqueListeUserComponent} from "./pages/user/boutique-liste-user/boutique-liste-user.component";
 
 
 export const routes: Routes = [
@@ -34,10 +35,10 @@ export const routes: Routes = [
         path: 'dashboard',
         component: EcommerceComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: [environment.userRole] },
+        data: { roles: [environment.userRole, environment.boutiqueRole, environment.adminRole] },
         pathMatch: 'full',
         title:
-          'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
       },
       {
         path:'profile',
@@ -46,12 +47,25 @@ export const routes: Routes = [
         data: { roles: [environment.adminRole, environment.userRole, environment.boutiqueRole] },
         title:'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
+    ]
+  },
+  {
+    path:'v1',
+    component:AppLayoutComponent,
+    children:[
       {
-        path:'blank',
-        component:BlankComponent,
+        path: '',
+        redirectTo: 'stores',
+        pathMatch: 'full'
+      },
+      {
+        path: 'stores',
+        component: BoutiqueListeUserComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: [environment.adminRole, environment.userRole, environment.boutiqueRole] },
-        title:'Angular Blank Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        data: { roles: [environment.userRole] },
+        pathMatch: 'full',
+        title:
+          'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
       },
     ]
   },
