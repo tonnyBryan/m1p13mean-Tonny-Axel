@@ -139,3 +139,55 @@ exports.deleteUser = async (req, res) => {
         return errorResponse(res, 400, 'Error during deletion');
     }
 };
+
+
+/**
+ * PUT /api/users/me/profile
+ * Create or update the profile of the logged user
+ */
+exports.upsertMyProfile = async (req, res) => {
+    try {
+        const userId = req.user._id || req.user.id;
+        const payload = req.body || {};
+
+        // Ensure the user field is set and cannot be changed by payload
+        payload.user = userId;
+
+        const profile = await UserProfile.findOneAndUpdate(
+            { user: userId },
+            { $set: payload },
+            { new: true, upsert: true, runValidators: true }
+        );
+
+        return successResponse(res, 200, 'Profile saved', profile);
+    } catch (error) {
+        console.error(error);
+        return errorResponse(res, 400, 'Error saving profile');
+    }
+};
+
+/**
+ * POST /api/users/me/profile/addresses
+ * Add a new address to the user's profile
+ */
+exports.addAddress = async (req, res) => {
+    try {
+        const userId = req.user._id || req.user.id;
+        const address = req.body;
+
+        if (!address) {
+            return errorResponse(res, 400, 'Address data required');
+        }
+
+        const profile = await UserProfile.findOneAndUpdate(
+            { user: userId },
+            { $push: { addresses: address } },
+            { new: true, upsert: true }
+        );
+
+        return successResponse(res, 200, 'Address added', profile);
+    } catch (error) {
+        console.error(error);
+        return errorResponse(res, 400, 'Error adding address');
+    }
+};

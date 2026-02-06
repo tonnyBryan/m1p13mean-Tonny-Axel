@@ -1,10 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { ModalService } from '../../../services/modal.service';
+import { FormsModule } from '@angular/forms';
 
 import { InputFieldComponent } from '../../form/input/input-field.component';
 import { ButtonComponent } from '../../ui/button/button.component';
 import { LabelComponent } from '../../form/label/label.component';
 import { ModalComponent } from '../../ui/modal/modal.component';
+import { UserService } from '../../../services/user.service';
+import {ERROR_MESSAGES} from "../../../../core/constants/error-messages";
 
 @Component({
   selector: 'app-user-info-card',
@@ -12,36 +15,67 @@ import { ModalComponent } from '../../ui/modal/modal.component';
     InputFieldComponent,
     ButtonComponent,
     LabelComponent,
-    ModalComponent
-],
+    ModalComponent,
+    FormsModule
+  ],
   templateUrl: './user-info-card.component.html',
   styles: ``
 })
-export class UserInfoCardComponent {
+export class UserInfoCardComponent implements OnChanges {
 
-  constructor(public modal: ModalService) {}
+  @Input() profile: any | null = null;
+  @Output() profileSaved = new EventEmitter<any>();
+
+  constructor(public modal: ModalService, private userService: UserService) {}
 
   isOpen = false;
+  isLoading = false;
   openModal() { this.isOpen = true; }
   closeModal() { this.isOpen = false; }
 
-  user = {
-    firstName: 'Musharof',
-    lastName: 'Chowdhury',
-    email: 'randomuser@pimjo.com',
-    phone: '+09 363 398 46',
-    bio: 'Team Manager',
-    social: {
-      facebook: 'https://www.facebook.com/PimjoHQ',
-      x: 'https://x.com/PimjoHQ',
-      linkedin: 'https://www.linkedin.com/company/pimjo',
-      instagram: 'https://instagram.com/PimjoHQ',
-    },
-  };
+  // local form model
+  form: any = {};
+
+  ngOnChanges(changes: SimpleChanges) {
+    // copy profile to form
+    this.form = {
+      firstName: this.profile?.firstName || '',
+      lastName: this.profile?.lastName || '',
+      phoneNumber: this.profile?.phoneNumber || '',
+      description: this.profile?.description || '',
+      photo: this.profile?.photo || ''
+    };
+  }
 
   handleSave() {
-    // Handle save logic here
-    console.log('Saving changes...');
-    this.modal.closeModal();
+    // call API to upsert profile
+    const payload = {
+      firstName: this.form.firstName,
+      lastName: this.form.lastName,
+      phoneNumber: this.form.phoneNumber,
+      description: this.form.description,
+      photo: this.form.photo
+    };
+
+    this.isLoading = true;
+    this.userService.updateMyProfile(payload).subscribe({
+      next: (res) => {
+        if (res && res.success) {
+          this.profileSaved.emit(res.data || null);
+          console.log('Profile updated successfully', res);
+        } else {
+          console.warn('Profile update response indicates failure', res);
+        }
+        this.isLoading = false;
+        this.modal.closeModal();
+      },
+      error: (err) => {
+        console.error('Error updating profile', err);
+        this.isLoading = false;
+        if (err.error && err.error.message) {
+          alert(err.error.message);
+        }
+      }
+    });
   }
 }

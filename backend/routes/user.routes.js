@@ -247,4 +247,20 @@ router.get(
     userController.getMyProfile
 );
 
+// Upsert profile
+router.put(
+    '/me/profile',
+    protect,
+    authorize('user','admin'),
+    userController.upsertMyProfile
+);
+
+// Add address to profile
+router.post(
+    '/me/profile/addresses',
+    protect,
+    authorize('user','admin'),
+    userController.addAddress
+);
+
 module.exports = router;

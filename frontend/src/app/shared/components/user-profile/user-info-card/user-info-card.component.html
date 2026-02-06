@@ -10,7 +10,7 @@
             First Name
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
-            {{ user.firstName }}
+            {{ profile?.firstName }}
           </p>
         </div>
         <div>
@@ -18,7 +18,7 @@
             Last Name
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
-            {{ user.lastName }}
+            {{ profile?.lastName }}
           </p>
         </div>
         <div>
@@ -26,7 +26,8 @@
             Email address
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
-            {{ user.email }}
+            <!-- Email handled in account settings; show placeholder if profile doesn't contain it -->
+            {{ profile?.email || '—' }}
           </p>
         </div>
         <div>
@@ -34,7 +35,7 @@
             Phone
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
-            {{ user.phone }}
+            {{ profile?.phoneNumber || '—' }}
           </p>
         </div>
         <div>
@@ -42,7 +43,7 @@
             Bio
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
-            {{ user.bio }}
+            {{ profile?.description || '—' }}
           </p>
         </div>
       </div>
@@ -85,62 +86,41 @@
           Update your details to keep your profile up-to-date.
         </p>
       </div>
-      <form class="flex flex-col" (ngSubmit)="handleSave()">
+      <form class="flex flex-col">
         <div class="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
           <div>
-            <h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-              Social Links
-            </h5>
-            <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-              <div>
-                <app-label>Facebook</app-label>
-                <app-input-field type="text" [value]="user.social.facebook" />
-              </div>
-              <div>
-                <app-label>X.com</app-label>
-                <app-input-field type="text" [value]="user.social.x" />
-              </div>
-              <div>
-                <app-label>Linkedin</app-label>
-                <app-input-field type="text" [value]="user.social.linkedin" />
-              </div>
-              <div>
-                <app-label>Instagram</app-label>
-                <app-input-field type="text" [value]="user.social.instagram" />
-              </div>
-            </div>
-          </div>
-          <div class="mt-7">
-            <h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-              Personal Information
-            </h5>
-            <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-              <div class="col-span-2 lg:col-span-1">
-                <app-label>First Name</app-label>
-                <app-input-field type="text" [value]="user.firstName" />
-              </div>
-              <div class="col-span-2 lg:col-span-1">
-                <app-label>Last Name</app-label>
-                <app-input-field type="text" [value]="user.lastName" />
-              </div>
-              <div class="col-span-2 lg:col-span-1">
-                <app-label>Email Address</app-label>
-                <app-input-field type="text" [value]="user.email" />
-              </div>
-              <div class="col-span-2 lg:col-span-1">
-                <app-label>Phone</app-label>
-                <app-input-field type="text" [value]="user.phone" />
-              </div>
-              <div class="col-span-2">
-                <app-label>Bio</app-label>
-                <app-input-field type="text" [value]="user.bio" />
+            <div class="mt-7">
+              <h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
+                Personal Information
+              </h5>
+              <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div class="col-span-2 lg:col-span-1">
+                  <app-label>First Name</app-label>
+                  <app-input-field type="text" [(ngModel)]="form.firstName" name="firstName" />
+                </div>
+                <div class="col-span-2 lg:col-span-1">
+                  <app-label>Last Name</app-label>
+                  <app-input-field type="text" [(ngModel)]="form.lastName" name="lastName" />
+                </div>
+                <div class="col-span-2 lg:col-span-1">
+                  <app-label>Email Address</app-label>
+                  <p class="text-sm text-gray-500">{{ profile?.email || '—' }}</p>
+                </div>
+                <div class="col-span-2 lg:col-span-1">
+                  <app-label>Phone</app-label>
+                  <app-input-field type="text" [(ngModel)]="form.phoneNumber" name="phoneNumber" />
+                </div>
+                <div class="col-span-2">
+                  <app-label>Bio</app-label>
+                  <app-input-field type="text" [(ngModel)]="form.description" name="description" />
+                </div>
               </div>
             </div>
           </div>
         </div>
         <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
           <app-button size="sm" variant="outline" (btnClick)="closeModal()">Close</app-button>
-          <app-button size="sm" (btnClick)="handleSave()">Save Changes</app-button>
+          <app-button size="sm" [loading]="isLoading" (btnClick)="handleSave()">Save Changes</app-button>
         </div>
       </form>
     </div>

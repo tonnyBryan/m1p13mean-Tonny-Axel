@@ -18,6 +18,7 @@ import {BoutiqueListComponent} from "./pages/admin/boutique-list/boutique-list.c
 import {AddBoutiqueComponent} from "./pages/admin/boutique-list/add-boutique/add-boutique.component";
 import {ProductFicheBoutiqueComponent} from "./pages/boutique/product-fiche-boutique/product-fiche-boutique.component";
 import {BoutiqueListeUserComponent} from "./pages/user/boutique-liste-user/boutique-liste-user.component";
+import {ProfileUserComponent} from "./pages/user/profile-user/profile-user.component";
 
 
 export const routes: Routes = [
@@ -68,7 +69,7 @@ export const routes: Routes = [
       },
       {
         path:'profile',
-        component:ProfileComponent,
+        component:ProfileUserComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.adminRole, environment.userRole, environment.boutiqueRole] },
         title:'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
