@@ -239,4 +239,12 @@ router.delete(
     userController.deleteUser
 );
 
+// Route to get current user's profile
+router.get(
+    '/me/profile',
+    protect,
+    authorize('user', 'admin', 'boutique'),
+    userController.getMyProfile
+);
+
 module.exports = router;

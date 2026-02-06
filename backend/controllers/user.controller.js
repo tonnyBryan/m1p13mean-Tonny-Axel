@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const UserProfile = require('../models/UserProfile');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 const bcrypt = require('bcryptjs');
 
@@ -12,6 +13,26 @@ exports.getAllUsers = async (req, res, next) => {
     return successResponse(res, 200, null, res.advancedResults);
 };
 
+
+/**
+ * GET /api/users/me/profile
+ * Récupérer le profil de l'utilisateur connecté
+ */
+exports.getMyProfile = async (req, res) => {
+    try {
+        const userId = req.user._id || req.user.id;
+        const profile = await UserProfile.findOne({ user: userId });
+
+        if (!profile) {
+            return successResponse(res, 200, 'Profile not found', null);
+        }
+
+        return successResponse(res, 200, null, profile);
+    } catch (error) {
+        console.error(error);
+        return errorResponse(res, 400, 'Error fetching profile');
+    }
+};
 
 /**
  * GET /api/users/:id

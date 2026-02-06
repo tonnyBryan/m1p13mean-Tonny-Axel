@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { EcommerceComponent } from './pages/dashboard/ecommerce/ecommerce.component';
 import { ProfileComponent } from './pages/profile/profile.component';
-import { BlankComponent } from './pages/blank/blank.component';
 import { NotFoundComponent } from './pages/other-page/not-found/not-found.component';
 import { AppLayoutComponent } from './shared/layout/app-layout/app-layout.component';
 import { SignInComponent } from './pages/auth-pages/sign-in/sign-in.component';
@@ -66,6 +65,13 @@ export const routes: Routes = [
         pathMatch: 'full',
         title:
           'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+      },
+      {
+        path:'profile',
+        component:ProfileComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole, environment.userRole, environment.boutiqueRole] },
+        title:'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
     ]
   },
