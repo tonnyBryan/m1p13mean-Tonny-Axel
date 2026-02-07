@@ -4,14 +4,18 @@
 
     <!-- Success Alert -->
     @if (showSuccessAlert) {
-    <app-alert variant="success" title="Success!" [message]="alertMessage">
-    </app-alert>
+    <div class="mb-6" [ngClass]="isSuccessFadingOut ? 'alert-fade-out' : 'alert-fade-in'">
+        <app-alert variant="success" title="Success!" [message]="alertMessage">
+        </app-alert>
+    </div>
     }
 
     <!-- Error Alert -->
     @if (showErrorAlert) {
-    <app-alert variant="error" title="Error" [message]="alertMessage">
-    </app-alert>
+    <div class="mb-6" [ngClass]="isErrorFadingOut ? 'alert-fade-out' : 'alert-fade-in'">
+        <app-alert variant="error" title="Error" [message]="alertMessage">
+        </app-alert>
+    </div>
     }
 
     <!-- Confirmation Modal -->

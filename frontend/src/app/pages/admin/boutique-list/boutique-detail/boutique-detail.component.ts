@@ -33,6 +33,8 @@ export class BoutiqueDetailComponent implements OnInit {
     // Alert states
     showSuccessAlert = false;
     showErrorAlert = false;
+    isSuccessFadingOut = false;
+    isErrorFadingOut = false;
     alertMessage = '';
 
 
@@ -65,8 +67,14 @@ export class BoutiqueDetailComponent implements OnInit {
                 console.error('Error loading boutique:', err);
                 this.alertMessage = 'Error loading boutique details';
                 this.showErrorAlert = true;
+                this.isErrorFadingOut = false;
                 setTimeout(() => {
-                    this.goBack();
+                    this.isErrorFadingOut = true;
+                    setTimeout(() => {
+                        this.showErrorAlert = false;
+                        this.isErrorFadingOut = false;
+                        this.goBack();
+                    }, 300);
                 }, 2000);
             }
         });
@@ -93,8 +101,13 @@ export class BoutiqueDetailComponent implements OnInit {
                     this.boutique = res.data;
                     this.alertMessage = `Boutique ${newStatus ? 'activated' : 'deactivated'} successfully!`;
                     this.showSuccessAlert = true;
+                    this.isSuccessFadingOut = false;
                     setTimeout(() => {
-                        this.showSuccessAlert = false;
+                        this.isSuccessFadingOut = true;
+                        setTimeout(() => {
+                            this.showSuccessAlert = false;
+                            this.isSuccessFadingOut = false;
+                        }, 300);
                     }, 5000);
                 }
             },
@@ -103,8 +116,13 @@ export class BoutiqueDetailComponent implements OnInit {
                 console.error('Error updating boutique status:', err);
                 this.alertMessage = 'Error updating boutique status. Please try again.';
                 this.showErrorAlert = true;
+                this.isErrorFadingOut = false;
                 setTimeout(() => {
-                    this.showErrorAlert = false;
+                    this.isErrorFadingOut = true;
+                    setTimeout(() => {
+                        this.showErrorAlert = false;
+                        this.isErrorFadingOut = false;
+                    }, 300);
                 }, 5000);
             }
         });

@@ -64,7 +64,7 @@
         <!-- Name -->
         <div>
           <label for="userName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Owner Name *
+            Owner Name <span class="text-red-500">*</span>
           </label>
           <input type="text" id="userName" [(ngModel)]="userData.name" placeholder="John Doe"
             [ngClass]="{'border-red-500 focus:border-red-500 focus:ring-red-500/50': (!userData.name || userData.name.trim() === '') && userNameIpt.touched}"
@@ -78,7 +78,7 @@
         <!-- Email -->
         <div>
           <label for="userEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Email Address *
+            Email Address <span class="text-red-500">*</span>
           </label>
           <input type="email" id="userEmail" [(ngModel)]="userData.email" placeholder="john@example.com"
             [ngClass]="{'border-red-500 focus:border-red-500 focus:ring-red-500/50': (!userData.email || userData.email.trim() === '' || !userData.email.includes('@')) && userEmailIpt.touched}"
@@ -103,7 +103,7 @@
         <!-- Shop Name -->
         <div>
           <label for="boutiqueName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Shop Name *
+            Shop Name <span class="text-red-500">*</span>
           </label>
           <input type="text" id="boutiqueName" [(ngModel)]="boutiqueData.name" placeholder="My Awesome Shop"
             [ngClass]="{'border-red-500 focus:border-red-500 focus:ring-red-500/50': (!boutiqueData.name || boutiqueData.name.trim() === '') && boutiqueName.touched}"
@@ -117,7 +117,7 @@
         <!-- Logo -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Shop Logo *
+            Shop Logo <span class="text-red-500">*</span>
           </label>
 
           <!-- Logo Preview -->
@@ -168,7 +168,7 @@
         <!-- Description -->
         <div>
           <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Description *
+            Description <span class="text-red-500">*</span>
           </label>
           <textarea id="description" [(ngModel)]="boutiqueData.description" #descIpt="ngModel"
             [ngClass]="{'border-red-500 focus:border-red-500 focus:ring-red-500/50': (!boutiqueData.description || boutiqueData.description.trim() === '') && descIpt.touched}"
