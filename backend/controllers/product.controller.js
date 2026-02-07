@@ -2,6 +2,7 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
 const Product = require("../models/Product");
 const { uploadImage } = require('../utils/cloudinary');
 const Boutique = require('../models/Boutique');
+const { generateSku } = require('../utils/product.util');
 
 
 
@@ -115,6 +116,7 @@ exports.createProduct = async (req, res) => {
             salePrice: sale,
             minOrderQty: minQty,
             maxOrderQty: maxQty,
+            sku: generateSku(name),
             category,
             tags: parsedTags,
             images: ['https://e7.pngegg.com/pngimages/199/143/png-clipart-black-controller-art-emoji-video-game-sms-game-game-multimedia-messaging-service-thumbnail.png'],
@@ -128,7 +130,6 @@ exports.createProduct = async (req, res) => {
         return errorResponse(res, 500, 'Error while creating product');
     }
 };
-
 
 
 /**
@@ -159,26 +160,144 @@ exports.getProductById = async (req, res) => {
 exports.getAllProducts = async (req, res, next) => {
     return successResponse(res, 200, null, res.advancedResults);
 };
-
 /**
  * PUT /api/products/:id
  * Mettre à jour un produit
  */
 exports.updateProduct = async (req, res) => {
     try {
-        const user = await Product.findByIdAndUpdate(
+        // Validate only provided fields similar to create
+        const payload = {};
+        const {
+            name,
+            description,
+            regularPrice,
+            salePrice,
+            minOrderQty,
+            maxOrderQty,
+            sku,
+            tags,
+            images,
+            category,
+            isActive,
+            isSale
+        } = req.body;
+
+        // Name
+        if (name !== undefined) {
+            if (!name || typeof name !== 'string' || name.trim().length < 3) {
+                return errorResponse(res, 400, 'Invalid product name');
+            }
+            payload.name = name.trim();
+        }
+
+        // Category
+        if (category !== undefined) {
+            if (!category || typeof category !== 'string') {
+                return errorResponse(res, 400, 'Invalid category');
+            }
+            payload.category = category;
+        }
+
+        // Regular Price
+        if (regularPrice !== undefined) {
+            const regPrice = Number(regularPrice);
+            if (isNaN(regPrice) || regPrice <= 0) {
+                return errorResponse(res, 400, 'Invalid regular price');
+            }
+            payload.regularPrice = regPrice;
+
+            // If salePrice provided, validate it against regPrice or existing product regularPrice
+            if (salePrice !== undefined && salePrice !== '') {
+                const sale = Number(salePrice);
+                if (isNaN(sale) || sale < 0 || sale >= regPrice) {
+                    return errorResponse(res, 400, 'Invalid sale price');
+                }
+                payload.salePrice = sale;
+            }
+        } else if (salePrice !== undefined) {
+            // regularPrice not provided, need to check against existing product
+            const existing = await Product.findById(req.params.id).select('regularPrice');
+            if (!existing) return errorResponse(res, 404, 'Product not found');
+            const baseReg = existing.regularPrice;
+            const sale = Number(salePrice);
+            if (isNaN(sale) || sale < 0 || sale >= baseReg) {
+                return errorResponse(res, 400, 'Invalid sale price');
+            }
+            payload.salePrice = sale;
+        }
+
+        // min/max qty
+        if (minOrderQty !== undefined) {
+            const minQty = Number(minOrderQty);
+            if (isNaN(minQty) || minQty <= 0) return errorResponse(res, 400, 'Invalid minimum order quantity');
+            payload.minOrderQty = minQty;
+        }
+
+        if (maxOrderQty !== undefined) {
+            const maxQty = Number(maxOrderQty);
+            if (isNaN(maxQty) || maxQty < (payload.minOrderQty ?? 1)) return errorResponse(res, 400, 'Invalid max order quantity');
+            payload.maxOrderQty = maxQty;
+        }
+
+        // description
+        if (description !== undefined) {
+            if (description && typeof description !== 'string') return errorResponse(res, 400, 'Invalid description');
+            payload.description = description ? description.trim() : '';
+        }
+
+        // tags
+        if (tags !== undefined) {
+            let parsedTags = [];
+            if (tags) {
+                try {
+                    parsedTags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+                    if (!Array.isArray(parsedTags)) return errorResponse(res, 400, 'Tags must be an array');
+                } catch {
+                    return errorResponse(res, 400, 'Invalid tags format');
+                }
+            }
+            payload.tags = parsedTags;
+        }
+
+        // images
+        if (images !== undefined) {
+            if (!images || !Array.isArray(images) || images.length === 0) return errorResponse(res, 400, 'At least one image is required');
+            payload.images = images;
+        }
+
+        // sku: if missing/null, generate from name or existing name
+        if (!sku) {
+            const baseName = payload.name || (await Product.findById(req.params.id).select('name')).name;
+            payload.sku = generateSku(baseName);
+        } else if (sku !== undefined) {
+            payload.sku = sku;
+        }
+
+        // isActive
+        if (isActive !== undefined) {
+            payload.isActive = isActive;
+        }
+
+        // isActive
+        if (isSale !== undefined) {
+            payload.isSale = isSale;
+        }
+
+        const product = await Product.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            payload,
             { new: true, runValidators: true }
         ).select();
 
-        if (!user) {
+        if (!product) {
             return errorResponse(res, 404, 'Product not found');
         }
 
-        return successResponse(res, 200, 'Product updated', user);
+        return successResponse(res, 200, 'Product updated', product);
 
     } catch (error) {
+        console.error(error);
         return errorResponse(res, 400, 'Error during update');
     }
 };

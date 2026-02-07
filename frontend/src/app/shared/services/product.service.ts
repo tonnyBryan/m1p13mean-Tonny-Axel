@@ -52,4 +52,9 @@ export class ProductService {
     toggleActive(productId: string, isActive: boolean): Observable<any> {
         return this.updateProduct(productId, { isActive });
     }
+
+    // Activer / désactiver le sale flag (isSale)
+    toggleSalePrice(productId: string, isSale: boolean): Observable<any> {
+        return this.updateProduct(productId, { isSale });
+    }
 }

@@ -12,12 +12,12 @@ const ProductSchema = new mongoose.Schema(
             required: true
         },
         description: {
-            type: String
+            type: String,
+            required: true
         },
         sku: {
             type: String,
             required: true,
-            default : "sku"
         },
         category: {
             type: String,
@@ -44,6 +44,10 @@ const ProductSchema = new mongoose.Schema(
         },
         salePrice: {
             type: Number
+        },
+        isSale: {
+            type: Boolean,
+            default: false
         },
         tags: {
             type: [String],

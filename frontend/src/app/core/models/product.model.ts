@@ -15,6 +15,7 @@ export interface Product {
     tags: string[];
     images: string[];
     isActive: boolean;
+    isSale: boolean;
     createdAt: string;
     updatedAt: string;
 }
