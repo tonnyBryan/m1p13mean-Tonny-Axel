@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit, ViewChild, booleanAttribute} from '@angular/core';
 import { GoogleMap, MapMarker } from '@angular/google-maps';
 import { ModalService } from '../../../services/modal.service';
 import { InputFieldComponent } from '../../form/input/input-field.component';
@@ -29,6 +29,7 @@ import { NgForOf, NgIf, CommonModule } from "@angular/common";
 })
 export class UserAddressCardComponent implements OnInit {
   @Input() addresses: any[] = [];
+  @Input({transform: booleanAttribute}) userExist: boolean = false;
   @Output() addressAdded = new EventEmitter<any>();
 
   @ViewChild(GoogleMap) map!: GoogleMap;
@@ -84,6 +85,10 @@ export class UserAddressCardComponent implements OnInit {
   }
 
   openAddModal() {
+    if (!this.userExist) {
+      alert("Complete personal information first");
+      return;
+    }
     this.isAddModalOpen = true;
     this.resetForm();
     // Set initial coordinates from marker
@@ -157,11 +162,42 @@ export class UserAddressCardComponent implements OnInit {
     });
   }
 
-  removeAddress(index: number) {
-    if (confirm('Are you sure you want to remove this address?')) {
-      this.addresses.splice(index, 1);
-      // Optional: Call API to remove from backend
-      // this.userService.removeAddress(addressId).subscribe(...)
+  removeAddress(indexOrId: any) {
+
+    console.log("ioid = " + indexOrId)
+    // Accept either index (legacy) or address _id
+    const addr = typeof indexOrId === 'number' ? this.addresses[indexOrId] : this.addresses.find(a => a._id === indexOrId);
+    if (!addr) {
+      alert('Address not found');
+      return;
+    }
+
+    if (!confirm('Are you sure you want to remove this address?')) return;
+
+    // If address has _id, call backend API; otherwise fallback to splice by index
+    if (addr._id) {
+      this.userService.removeAddress(addr._id).subscribe({
+        next: (res) => {
+          console.log(res);
+          console.log('Address removed', res);
+          // Update local list from response if provided
+          if (res && res.data && res.data.addresses) {
+            this.addresses = res.data.addresses;
+          } else {
+            // fallback: remove locally
+            const idx = this.addresses.findIndex(a => a._id === addr._id);
+            if (idx > -1) this.addresses.splice(idx, 1);
+          }
+        },
+        error: (err) => {
+          console.error('Error removing address', err);
+          alert('Failed to remove address');
+        }
+      });
+    } else {
+      // legacy: remove by index
+      const idx = this.addresses.indexOf(addr);
+      if (idx > -1) this.addresses.splice(idx, 1);
     }
   }
 }

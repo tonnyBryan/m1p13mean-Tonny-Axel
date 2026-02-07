@@ -33,4 +33,12 @@ export class UserService {
     });
     return this.api.post<any>('users/me/profile/addresses', address, headers);
   }
+
+  removeAddress(addressId: string): Observable<any> {
+    const token = this.auth.getToken();
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+    return this.api.delete<any>(`users/me/profile/addresses/${addressId}`, headers);
+  }
 }

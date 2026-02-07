@@ -263,4 +263,12 @@ router.post(
     userController.addAddress
 );
 
+// Delete address from profile by address id
+router.delete(
+    '/me/profile/addresses/:addressId',
+    protect,
+    authorize('user','admin'),
+    userController.deleteAddress
+);
+
 module.exports = router;

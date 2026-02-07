@@ -191,3 +191,38 @@ exports.addAddress = async (req, res) => {
         return errorResponse(res, 400, 'Error adding address');
     }
 };
+
+/**
+ * DELETE /api/users/me/profile/addresses/:addressId
+ * Remove an address from the user's profile by address _id
+ */
+exports.deleteAddress = async (req, res) => {
+    try {
+        const userId = req.user._id || req.user.id;
+        const { addressId } = req.params;
+
+        console.log("id add = " + addressId)
+
+        if (!addressId) {
+            return errorResponse(res, 400, 'Address id required');
+        }
+
+        // Pull the subdocument by its _id
+        const profile = await UserProfile.findOneAndUpdate(
+            { user: userId },
+            { $pull: { addresses: { _id: addressId } } },
+            { new: true }
+        );
+
+        console.log(profile);
+
+        if (!profile) {
+            return errorResponse(res, 404, 'Profile not found');
+        }
+
+        return successResponse(res, 200, 'Address removed', profile);
+    } catch (error) {
+        console.error(error);
+        return errorResponse(res, 400, 'Error removing address');
+    }
+};

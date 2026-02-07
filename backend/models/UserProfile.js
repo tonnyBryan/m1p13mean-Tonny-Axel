@@ -6,7 +6,7 @@ const AddressSchema = new mongoose.Schema({
     longitude: { type: Number },
     description: { type: String },
     isDefault: { type: Boolean, default: false }
-}, { _id: false });
+});
 
 const UserProfileSchema = new mongoose.Schema(
     {

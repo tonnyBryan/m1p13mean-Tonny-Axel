@@ -29,6 +29,7 @@ export class ProfileUserComponent implements OnInit {
 
     // fallback mocked user data when profile not found
     mockedUser = {
+        _id: null,
         firstName: '--',
         lastName: '--',
         phoneNumber: '--',
@@ -49,7 +50,6 @@ export class ProfileUserComponent implements OnInit {
         this.userService.getMyProfile().subscribe({
             next: (res) => {
                 this.isLoading = false;
-                console.log(res);
                 if (res && res.success && res.data) {
                     this.profile = res.data;
                     this.profile.email = this.authService.user?.email;

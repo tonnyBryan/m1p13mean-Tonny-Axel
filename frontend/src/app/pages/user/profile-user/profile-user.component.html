@@ -44,6 +44,6 @@
     <div *ngIf="!isLoading" class="space-y-6">
         <div><app-user-meta-card [profile]="profile || mockedUser"/></div>
         <div><app-user-info-card [profile]="profile || mockedUser" (profileSaved)="onProfileSaved($event)"/></div>
-        <div><app-user-address-card [addresses]="(profile?.addresses || mockedUser.addresses)" (addressAdded)="onAddressAdded($event)"/></div>
+        <div><app-user-address-card [userExist]="profile != null" [addresses]="(profile?.addresses || mockedUser.addresses)" (addressAdded)="onAddressAdded($event)"/></div>
     </div>
 </div>
