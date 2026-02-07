@@ -165,3 +165,25 @@ exports.updateBoutiqueStatus = async (req, res) => {
     }
 };
 
+/**
+ * GET /api/boutiques/stats
+ * Get boutique statistics (Total, Active, Validated, Pending)
+ */
+exports.getBoutiqueStats = async (req, res) => {
+    try {
+        const total = await Boutique.countDocuments();
+        const active = await Boutique.countDocuments({ isActive: true, isValidated: true });
+        const inactive = await Boutique.countDocuments({ isActive: false });
+        const pending = await Boutique.countDocuments({ isValidated: false });
+
+        return successResponse(res, 200, 'Boutique statistics retrieved', {
+            total,
+            active,
+            inactive,
+            pending
+        });
+    } catch (error) {
+        console.error('Error fetching boutique stats:', error);
+        return errorResponse(res, 500, 'Server Error while fetching statistics');
+    }
+};

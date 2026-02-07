@@ -130,8 +130,21 @@ router.get(
     '/',
     protect,
     authorize('admin', 'boutique'),
-    advancedResults(User),
+    advancedResults(User, 'profile'),
     userController.getAllUsers
+);
+
+/**
+ * @swagger
+ * /api/users/profile/{id}:
+ *   get:
+ *     summary: Récupérer le profil détaillé d'un utilisateur (Admin)
+ */
+router.get(
+    '/profile/:id',
+    protect,
+    authorize('admin'),
+    userController.getUserProfileById
 );
 
 /**
@@ -251,7 +264,7 @@ router.get(
 router.put(
     '/me/profile',
     protect,
-    authorize('user','admin'),
+    authorize('user', 'admin'),
     userController.upsertMyProfile
 );
 
@@ -259,7 +272,7 @@ router.put(
 router.post(
     '/me/profile/addresses',
     protect,
-    authorize('user','admin'),
+    authorize('user', 'admin'),
     userController.addAddress
 );
 
@@ -267,7 +280,7 @@ router.post(
 router.delete(
     '/me/profile/addresses/:addressId',
     protect,
-    authorize('user','admin'),
+    authorize('user', 'admin'),
     userController.deleteAddress
 );
 

@@ -226,3 +226,36 @@ exports.deleteAddress = async (req, res) => {
         return errorResponse(res, 400, 'Error removing address');
     }
 };
+
+/**
+ * GET /api/users/profile/:id
+ * Récupérer le profil d'un utilisateur par ID de profil (Admin)
+ */
+exports.getUserProfileById = async (req, res) => {
+    try {
+        let profile = await UserProfile.findById(req.params.id).populate('user', 'name email role isActive');
+
+        if (!profile) {
+            // Check if ID is a user ID instead
+            const user = await User.findById(req.params.id).select('name email role isActive');
+            if (user) {
+                return successResponse(res, 200, 'User found (no profile skeleton)', {
+                    user,
+                    firstName: user.name.split(' ')[0] || '',
+                    lastName: user.name.split(' ').slice(1).join(' ') || '',
+                    addresses: [],
+                    description: ''
+                });
+            }
+            return errorResponse(res, 404, 'Profile or User not found');
+        }
+
+        return successResponse(res, 200, 'Profile retrieved successfully', profile);
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+        if (error.kind === 'ObjectId') {
+            return errorResponse(res, 400, 'Invalid ID format');
+        }
+        return errorResponse(res, 500, 'Server Error while fetching profile');
+    }
+};

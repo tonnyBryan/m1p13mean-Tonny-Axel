@@ -69,6 +69,29 @@ router.get(
 
 /**
  * @swagger
+ * /api/boutiques/stats:
+ *   get:
+ *     summary: Récupérer les statistiques des boutiques
+ *     tags: [Boutiques]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Statistiques récupérées
+ *       401:
+ *         description: Non autorisé
+ */
+
+// GET /api/boutiques/stats - Get boutique statistics
+router.get(
+    '/stats',
+    protect,
+    authorize('user', 'admin'),
+    boutiqueController.getBoutiqueStats
+);
+
+/**
+ * @swagger
  * /api/boutiques/{id}:
  *   get:
  *     summary: Récupérer une boutique par son ID

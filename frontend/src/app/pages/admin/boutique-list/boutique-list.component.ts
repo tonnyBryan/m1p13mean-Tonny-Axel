@@ -28,9 +28,17 @@ export class BoutiqueListComponent implements OnInit {
   currentPage = 1;
   totalDocs = 0;
   totalPages = 0;
-
   boutiques: Boutique[] = [];
   isLoading = false;
+
+  // Stats
+  stats = {
+    total: 0,
+    active: 0,
+    inactive: 0,
+    pending: 0
+  };
+
 
   // Filters
   searchTerm = '';
@@ -43,6 +51,20 @@ export class BoutiqueListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadBoutiques();
+    this.loadStats();
+  }
+
+  loadStats(): void {
+    this.boutiqueService.getBoutiqueStats().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.stats = res.data;
+        }
+      },
+      error: (err) => {
+        console.error('Error loading stats:', err);
+      }
+    });
   }
 
   loadBoutiques(): void {
@@ -166,8 +188,7 @@ export class BoutiqueListComponent implements OnInit {
     return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
-  // Placeholder stats - would require separate API endpoints to be accurate now
-  get totalActiveBoutiques(): number { return 0; }
-  get totalValidatedBoutiques(): number { return 0; }
-  get totalPendingBoutiques(): number { return 0; }
+  get totalActiveBoutiques(): number { return this.stats.active; }
+  get totalInactiveBoutiques(): number { return this.stats.inactive; }
+  get totalPendingBoutiques(): number { return this.stats.pending; }
 }

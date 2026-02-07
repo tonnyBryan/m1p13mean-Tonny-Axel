@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
-import {Component, ElementRef, QueryList, ViewChildren, ChangeDetectorRef, OnInit} from '@angular/core';
+import { Component, ElementRef, QueryList, ViewChildren, ChangeDetectorRef, OnInit } from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { SafeHtmlPipe } from '../../pipe/safe-html.pipe';
 import { SidebarWidgetComponent } from './app-sidebar-widget.component';
 import { combineLatest, Subscription } from 'rxjs';
-import {AuthService} from "../../services/auth.service";
+import { AuthService } from "../../services/auth.service";
 import { environment } from '../../../../environments/environment';
 
 
@@ -43,9 +43,15 @@ export class AppSidebarComponent implements OnInit {
     // ADMIN MENU
     {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 13V3H3v10h2v-8h14v8h2zm-4 4v-3h-2v3h-3v2h3v3h2v-3h3v-2h-3z" fill="currentColor"/></svg>`,
-      name: "Boutiques",
+      name: "Shops",
       roles: [environment.adminRole],
       path: "/admin/app/boutiques",
+    },
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/></svg>`,
+      name: "Users",
+      roles: [environment.adminRole],
+      path: "/admin/app/users",
     },
     //...
     // BOUTIQUE
@@ -56,7 +62,7 @@ export class AppSidebarComponent implements OnInit {
       path: "/store/app/dashboard",
     },
     {
-      icon:`<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 7L12 2L3 7V17L12 22L21 17V7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 7L12 12L21 7" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 12V22" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>`,
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 7L12 2L3 7V17L12 22L21 17V7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 7L12 12L21 7" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 12V22" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>`,
       name: "Products",
       roles: [environment.boutiqueRole],
       path: "/store/app/products",
@@ -202,14 +208,14 @@ export class AppSidebarComponent implements OnInit {
     if (!role) return [];
 
     return items
-        .filter(item => !item.roles || item.roles.includes(role))
-        .map(item => ({
-          ...item,
-          subItems: item.subItems
-              ? item.subItems.filter(sub => !sub.roles || sub.roles.includes(role))
-              : undefined
-        }))
-        .filter(item => !item.subItems || item.subItems.length > 0);
+      .filter(item => !item.roles || item.roles.includes(role))
+      .map(item => ({
+        ...item,
+        subItems: item.subItems
+          ? item.subItems.filter(sub => !sub.roles || sub.roles.includes(role))
+          : undefined
+      }))
+      .filter(item => !item.subItems || item.subItems.length > 0);
   }
 
 

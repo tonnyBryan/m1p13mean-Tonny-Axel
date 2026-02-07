@@ -110,7 +110,7 @@ export class AddBoutiqueComponent {
           (this.userData.email?.includes('@') ?? false);
       case 2: // Boutique
         return (this.boutiqueData.name?.trim().length ?? 0) > 0 &&
-          (this.boutiqueData.logo?.trim().length ?? 0) > 0 &&
+          ((this.boutiqueData.logo?.trim().length ?? 0) > 0 || !!this.selectedLogoFile) &&
           (this.boutiqueData.description?.trim().length ?? 0) > 0;
       case 3: // Livraison
         if (!this.livraisonData.isDeliveryAvailable) return true;
@@ -130,10 +130,10 @@ export class AddBoutiqueComponent {
     const file = event.target.files?.[0];
     if (file) {
       this.selectedLogoFile = file;
+      this.boutiqueData.logo = ''; // Clear URL field if file selected
       const reader = new FileReader();
       reader.onload = (e) => {
         this.logoPreview = e.target?.result as string;
-        this.boutiqueData.logo = this.logoPreview;
       };
       reader.readAsDataURL(file);
     }
@@ -143,8 +143,10 @@ export class AddBoutiqueComponent {
     const validUrl = url || '';
     this.boutiqueData.logo = validUrl;
     this.logoPreview = validUrl;
-    // Clear file selection if URL is manually entered (optional logic)
-    // this.selectedLogoFile = null; 
+    // Clear file selection if URL is manually entered
+    if (validUrl) {
+      this.selectedLogoFile = null;
+    }
   }
 
   toggleDay(dayId: number): void {

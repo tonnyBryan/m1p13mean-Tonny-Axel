@@ -123,7 +123,7 @@ export const routes: Routes = [
         data: { roles: [environment.adminRole] },
         pathMatch: 'full',
         title:
-          'Boutiques Management | TailAdmin - Angular Admin Dashboard Template',
+          'Shop Management | TailAdmin - Angular Admin Dashboard Template',
       },
       {
         path: 'boutiques/add',
@@ -142,6 +142,24 @@ export const routes: Routes = [
         pathMatch: 'full',
         title:
           'Boutique Details | TailAdmin - Angular Admin Dashboard Template',
+      },
+      {
+        path: 'users',
+        loadComponent: () => import('./pages/admin/user-management/users-list/users-list.component').then(m => m.UsersListComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole] },
+        pathMatch: 'full',
+        title:
+          'User Management | TailAdmin - Angular Admin Dashboard Template',
+      },
+      {
+        path: 'users/:id',
+        loadComponent: () => import('./pages/admin/user-management/user-detail/user-detail.component').then(m => m.UserDetailComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole] },
+        pathMatch: 'full',
+        title:
+          'User Details | TailAdmin - Angular Admin Dashboard Template',
       },
     ]
   },
