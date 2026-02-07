@@ -47,4 +47,22 @@ export class BoutiqueService {
         return this.api.get<any>(`boutiques?${queryString}`, headers);
     }
 
+    getBoutiqueById(id: string): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
+        });
+
+        return this.api.get<any>(`boutiques/${id}`, headers);
+    }
+
+    updateBoutiqueStatus(id: string, isActive: boolean): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        });
+
+        return this.api.patch<any>(`boutiques/${id}/status`, { isActive }, headers);
+    }
 }

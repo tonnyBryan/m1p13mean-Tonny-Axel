@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PageBreadcrumbComponent } from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
+import { ButtonComponent } from "../../../shared/components/ui/button/button.component";
 import { Boutique } from "../../../core/models/boutique.model";
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,17 +13,18 @@ import { BoutiqueService } from '../../../shared/services/boutique.service';
   imports: [
     CommonModule,
     PageBreadcrumbComponent,
+    ButtonComponent,
     FormsModule
   ],
   templateUrl: './boutique-list.component.html',
   styleUrls: ['./boutique-list.component.css']
 })
 export class BoutiqueListComponent implements OnInit {
-  pageTitle = 'Boutiques Management';
+  pageTitle = 'Shops Management';
 
   // Expose Math to template
   Math = Math;
-  itemsPerPage = 2;
+  itemsPerPage = 10;
   currentPage = 1;
   totalDocs = 0;
   totalPages = 0;
@@ -131,8 +133,7 @@ export class BoutiqueListComponent implements OnInit {
   }
 
   editBoutique(boutique: Boutique): void {
-    // TODO: Navigate to edit boutique form
-    console.log('Edit boutique:', boutique._id);
+    this.router.navigate(['/admin/app/boutiques', boutique._id]);
   }
 
   deleteBoutique(boutique: Boutique): void {

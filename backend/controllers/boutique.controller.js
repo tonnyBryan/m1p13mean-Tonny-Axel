@@ -66,7 +66,7 @@ exports.createBoutiqueFull = async (req, res) => {
             description: boutiquePayload.description,
             logo: logoUrl,
             isActive: true, // Default as per frontend
-            isValidated: false
+            isValidated: true
         });
 
         // 5. Create LivraisonConfig
@@ -103,3 +103,65 @@ exports.getBoutiques = async (req, res) => {
     }
     return successResponse(res, 200, null, res.advancedResults);
 };
+
+/**
+ * GET /api/boutiques/:id
+ * Get a single boutique by ID
+ */
+exports.getBoutiqueById = async (req, res) => {
+    try {
+        const boutique = await Boutique.findById(req.params.id);
+
+        if (!boutique) {
+            return errorResponse(res, 404, 'Boutique not found');
+        }
+
+        return successResponse(res, 200, 'Boutique retrieved successfully', boutique);
+    } catch (error) {
+        console.error('Error fetching boutique:', error);
+
+        // Handle invalid ObjectId format
+        if (error.kind === 'ObjectId') {
+            return errorResponse(res, 400, 'Invalid boutique ID format');
+        }
+
+        return errorResponse(res, 500, 'Server Error while fetching boutique');
+    }
+};
+
+/**
+ * PATCH /api/boutiques/:id/status
+ * Update boutique active status (Admin only)
+ */
+exports.updateBoutiqueStatus = async (req, res) => {
+    try {
+        const { isActive } = req.body;
+
+        // Validate input
+        if (typeof isActive !== 'boolean') {
+            return errorResponse(res, 400, 'isActive must be a boolean value');
+        }
+
+        const boutique = await Boutique.findById(req.params.id);
+
+        if (!boutique) {
+            return errorResponse(res, 404, 'Boutique not found');
+        }
+
+        // Update the status
+        boutique.isActive = isActive;
+        await boutique.save();
+
+        return successResponse(res, 200, 'Boutique status updated successfully', boutique);
+    } catch (error) {
+        console.error('Error updating boutique status:', error);
+
+        // Handle invalid ObjectId format
+        if (error.kind === 'ObjectId') {
+            return errorResponse(res, 400, 'Invalid boutique ID format');
+        }
+
+        return errorResponse(res, 500, 'Server Error while updating boutique status');
+    }
+};
+

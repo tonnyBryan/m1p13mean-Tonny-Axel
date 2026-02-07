@@ -10,7 +10,7 @@ export class ApiService {
 
     private baseUrl = environment.apiBaseUrl;
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) { }
 
     get<T>(endpoint: string, headers?: HttpHeaders): Observable<T> {
         return this.http.get<T>(`${this.baseUrl}/${endpoint}`, { headers, withCredentials: true });
@@ -22,6 +22,10 @@ export class ApiService {
 
     put<T>(endpoint: string, body: any, headers?: HttpHeaders): Observable<T> {
         return this.http.put<T>(`${this.baseUrl}/${endpoint}`, body, { headers, withCredentials: true });
+    }
+
+    patch<T>(endpoint: string, body: any, headers?: HttpHeaders): Observable<T> {
+        return this.http.patch<T>(`${this.baseUrl}/${endpoint}`, body, { headers, withCredentials: true });
     }
 
     delete<T>(endpoint: string, headers?: HttpHeaders): Observable<T> {

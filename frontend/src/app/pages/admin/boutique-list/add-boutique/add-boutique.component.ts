@@ -22,7 +22,7 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
   styleUrls: ['./add-boutique.component.css']
 })
 export class AddBoutiqueComponent {
-  pageTitle = 'Add New Boutique';
+  pageTitle = 'Add New Shop';
   currentStep = 1;
   totalSteps = 3;
 

@@ -4,7 +4,7 @@ const boutiqueController = require('../controllers/boutique.controller');
 const upload = require('../middlewares/upload.middleware');
 const advancedResults = require('../middlewares/advancedResults');
 const Boutique = require('../models/Boutique');
-const {protect, authorize} = require("../middlewares/auth.middleware");
+const { protect, authorize } = require("../middlewares/auth.middleware");
 
 /**
  * @swagger
@@ -66,5 +66,84 @@ router.get(
     advancedResults(Boutique),
     boutiqueController.getBoutiques
 );
+
+/**
+ * @swagger
+ * /api/boutiques/{id}:
+ *   get:
+ *     summary: Récupérer une boutique par son ID
+ *     tags: [Boutiques]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la boutique
+ *     responses:
+ *       200:
+ *         description: Détails de la boutique
+ *       404:
+ *         description: Boutique non trouvée
+ *       401:
+ *         description: Non autorisé
+ */
+
+// GET /api/boutiques/:id - Get a single boutique by ID
+router.get(
+    '/:id',
+    protect,
+    authorize('user', 'admin'),
+    boutiqueController.getBoutiqueById
+);
+
+/**
+ * @swagger
+ * /api/boutiques/{id}/status:
+ *   patch:
+ *     summary: Mettre à jour le statut actif d'une boutique
+ *     tags: [Boutiques]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la boutique
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               isActive:
+ *                 type: boolean
+ *                 description: Nouveau statut actif
+ *             required:
+ *               - isActive
+ *     responses:
+ *       200:
+ *         description: Statut mis à jour avec succès
+ *       400:
+ *         description: Requête invalide
+ *       404:
+ *         description: Boutique non trouvée
+ *       401:
+ *         description: Non autorisé
+ */
+
+// PATCH /api/boutiques/:id/status - Update boutique active status (Admin only)
+router.patch(
+    '/:id/status',
+    protect,
+    authorize('admin'),
+    boutiqueController.updateBoutiqueStatus
+);
+
 
 module.exports = router;
