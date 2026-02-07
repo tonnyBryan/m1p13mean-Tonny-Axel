@@ -105,6 +105,37 @@ exports.getBoutiques = async (req, res) => {
 };
 
 /**
+ * GET /api/boutiques/:id/full
+ * Get a boutique by ID along with its LivraisonConfig (if exists)
+ */
+exports.getBoutiqueFull = async (req, res) => {
+    try {
+        // Populate owner basic info for convenience
+        const boutiqueDoc = await Boutique.findById(req.params.id).populate('owner', 'name email role');
+
+        if (!boutiqueDoc) {
+            return errorResponse(res, 404, 'Boutique not found');
+        }
+
+        // Try to find an associated LivraisonConfig, may be null
+        const livraisonConfig = await LivraisonConfig.findOne({ boutique: boutiqueDoc._id }) || null;
+
+        // Convert to plain object to allow attaching the livraisonConfig property
+        const boutique = boutiqueDoc.toObject ? boutiqueDoc.toObject() : boutiqueDoc;
+        boutique.livraisonConfig = livraisonConfig;
+
+        return successResponse(res, 200, 'Boutique with livraisonConfig retrieved', boutique);
+    } catch (error) {
+        console.error('Error fetching boutique full:', error);
+        // Handle invalid ObjectId format
+        if (error.kind === 'ObjectId') {
+            return errorResponse(res, 400, 'Invalid boutique ID format');
+        }
+        return errorResponse(res, 500, 'Server Error while fetching boutique full');
+    }
+};
+
+/**
  * GET /api/boutiques/:id
  * Get a single boutique by ID
  */
@@ -185,5 +216,95 @@ exports.getBoutiqueStats = async (req, res) => {
     } catch (error) {
         console.error('Error fetching boutique stats:', error);
         return errorResponse(res, 500, 'Server Error while fetching statistics');
+    }
+};
+
+/**
+ * PATCH /api/boutiques/:id
+ * Update boutique general information (name, description, logo...)
+ */
+exports.updateBoutique = async (req, res) => {
+    try {
+        const { name, description, logo } = req.body;
+
+        // Basic validation
+        if (!name || typeof name !== 'string' || name.trim().length === 0) {
+            return errorResponse(res, 400, 'Name is required and must be a non-empty string');
+        }
+
+        const boutique = await Boutique.findById(req.params.id);
+        if (!boutique) {
+            return errorResponse(res, 404, 'Boutique not found');
+        }
+
+        boutique.name = name;
+        boutique.description = description || boutique.description;
+        boutique.logo = logo || boutique.logo;
+
+        await boutique.save();
+
+        // Return boutique with livraisonConfig injected for frontend convenience
+        const livraisonConfig = await LivraisonConfig.findOne({ boutique: boutique._id }) || null;
+        const boutiqueObj = boutique.toObject ? boutique.toObject() : boutique;
+        boutiqueObj.livraisonConfig = livraisonConfig;
+
+        return successResponse(res, 200, 'Boutique updated successfully', boutiqueObj);
+    } catch (error) {
+        console.error('Error updating boutique:', error);
+        if (error.kind === 'ObjectId') {
+            return errorResponse(res, 400, 'Invalid boutique ID format');
+        }
+        return errorResponse(res, 500, 'Server Error while updating boutique');
+    }
+};
+
+/**
+ * PATCH /api/boutiques/:id/delivery
+ * Update or create the LivraisonConfig for a boutique
+ */
+exports.updateDeliveryConfig = async (req, res) => {
+    try {
+        const { isDeliveryAvailable, orderCutoffTime, deliveryDays, deliveryRules } = req.body;
+
+        console.log(req.body);
+
+        const boutique = await Boutique.findById(req.params.id);
+        if (!boutique) {
+            return errorResponse(res, 404, 'Boutique not found');
+        }
+
+        // Find existing config
+        let livraisonConfig = await LivraisonConfig.findOne({ boutique: boutique._id });
+
+        if (livraisonConfig) {
+            // Update fields if provided
+            if (typeof isDeliveryAvailable === 'boolean') livraisonConfig.isDeliveryAvailable = isDeliveryAvailable;
+            if (orderCutoffTime) livraisonConfig.orderCutoffTime = orderCutoffTime;
+            if (deliveryDays) livraisonConfig.deliveryDays = deliveryDays;
+            if (deliveryRules) livraisonConfig.deliveryRules = deliveryRules;
+
+            await livraisonConfig.save();
+        } else {
+            // Create new config
+            livraisonConfig = await LivraisonConfig.create({
+                boutique: boutique._id,
+                isDeliveryAvailable: typeof isDeliveryAvailable === 'boolean' ? isDeliveryAvailable : true,
+                deliveryRules: deliveryRules || { minPrice: 0, baseDistanceKm: 0, extraPricePerKm: 0 },
+                deliveryDays: deliveryDays || [],
+                orderCutoffTime: orderCutoffTime || '18:00',
+                isActive: true
+            });
+        }
+
+        const boutiqueObj = boutique.toObject ? boutique.toObject() : boutique;
+        boutiqueObj.livraisonConfig = livraisonConfig;
+
+        return successResponse(res, 200, 'Boutique updated successfully', boutiqueObj);
+    } catch (error) {
+        console.error('Error updating livraison config:', error);
+        if (error.kind === 'ObjectId') {
+            return errorResponse(res, 400, 'Invalid boutique ID format');
+        }
+        return errorResponse(res, 500, 'Server Error while updating livraison config');
     }
 };

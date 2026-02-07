@@ -92,6 +92,36 @@ router.get(
 
 /**
  * @swagger
+ * /api/boutiques/{id}/full:
+ *   get:
+ *     summary: Récupérer une boutique complet avec config par son ID
+ *     tags: [Boutiques]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la boutique
+ *     responses:
+ *       200:
+ *         description: Détails de la boutique
+ *       404:
+ *         description: Boutique non trouvée
+ *       401:
+ *         description: Non autorisé
+ */
+router.get(
+    '/:id/full',
+    protect,
+    authorize('user', 'boutique', 'admin'),
+    boutiqueController.getBoutiqueFull
+);
+
+/**
+ * @swagger
  * /api/boutiques/{id}:
  *   get:
  *     summary: Récupérer une boutique par son ID
@@ -112,13 +142,10 @@ router.get(
  *         description: Boutique non trouvée
  *       401:
  *         description: Non autorisé
- */
-
-// GET /api/boutiques/:id - Get a single boutique by ID
-router.get(
+ */router.get(
     '/:id',
     protect,
-    authorize('user', 'admin'),
+    authorize('user', 'boutique', 'admin'),
     boutiqueController.getBoutiqueById
 );
 
@@ -166,6 +193,22 @@ router.patch(
     protect,
     authorize('admin'),
     boutiqueController.updateBoutiqueStatus
+);
+
+// PATCH /api/boutiques/:id - Update boutique general info
+router.patch(
+    '/:id',
+    protect,
+    authorize('boutique', 'admin'),
+    boutiqueController.updateBoutique
+);
+
+// PATCH /api/boutiques/:id/delivery - Update or create delivery config
+router.patch(
+    '/:id/delivery',
+    protect,
+    authorize('boutique', 'admin'),
+    boutiqueController.updateDeliveryConfig
 );
 
 

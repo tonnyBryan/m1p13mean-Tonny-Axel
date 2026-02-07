@@ -65,6 +65,41 @@ export class BoutiqueService {
         return this.api.get<any>(`boutiques/${id}`, headers);
     }
 
+    getBoutiqueFullById(id: string): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
+        });
+
+        return this.api.get<any>(`boutiques/${id}/full`, headers);
+    }
+
+    /**
+     * Update boutique general info (name, description, logo...)
+     */
+    updateBoutique(id: string, payload: any): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        });
+
+        return this.api.patch<any>(`boutiques/${id}`, payload, headers);
+    }
+
+    /**
+     * Update or create the livraison (delivery) config for a boutique
+     */
+    updateDeliveryConfig(id: string, payload: any): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        });
+
+        return this.api.patch<any>(`boutiques/${id}/delivery`, payload, headers);
+    }
+
     updateBoutiqueStatus(id: string, isActive: boolean): Observable<any> {
         const token = this.auth.getToken();
         const headers = new HttpHeaders({
