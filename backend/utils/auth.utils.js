@@ -1,16 +1,9 @@
+// utils/auth.utils.js
 const jwt = require('jsonwebtoken');
 
-/**
- * Génère un access token JWT
- * @param {Object} user - utilisateur Mongo
- * @returns {String} JWT access token
- */
-const generateAccessToken = (user) => {
+const generateAccessToken = (payload) => {
     return jwt.sign(
-        {
-            id: user._id,
-            role: user.role
-        },
+        payload,
         process.env.JWT_SECRET,
         {
             expiresIn: process.env.JWT_EXPIRE

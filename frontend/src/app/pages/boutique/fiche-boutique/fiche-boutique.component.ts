@@ -5,6 +5,8 @@ import { BoutiqueService } from '../../../shared/services/boutique.service';
 import { LabelComponent } from '../../../shared/components/form/label/label.component';
 import { InputFieldComponent } from '../../../shared/components/form/input/input-field.component';
 import {ButtonComponent} from "../../../shared/components/ui/button/button.component";
+import {AuthService} from "../../../shared/services/auth.service";
+import {Router} from "@angular/router";
 
 @Component({
     selector: 'app-fiche-boutique',
@@ -53,6 +55,8 @@ export class FicheBoutiqueComponent implements OnInit {
 
     constructor(
         private boutiqueService: BoutiqueService,
+        private authService: AuthService,
+        private router: Router,
     ) {}
 
     ngOnInit(): void {
@@ -60,20 +64,19 @@ export class FicheBoutiqueComponent implements OnInit {
     }
 
     loadBoutique(): void {
-        // ne pas toucher actuellement
-        // const boutiqueId = '69858cfa80bcf553def88fd1';
-        const boutiqueId = '6984c9698d7113e9af10e905';
+        const boutiqueId   = this.authService.userHash?.boutiqueId;
+        if (boutiqueId === undefined) {
+            this.authService.logout();
+            this.router.navigate(['/v1/stores']);
+            return;
+        }
+
         this.boutiqueService.getBoutiqueFullById(boutiqueId).subscribe({
             next: (res) => {
-                console.log('getBoutiqueFullById response:', res);
-
                 if (res && res.data) {
                     this.boutique = res.data;
-                    console.log(this.boutique);
                     this.initializeEditFields();
                 }
-
-                console.log('Loaded boutique:', this.boutique);
             },
             error: (err) => {
                 console.error('Error loading boutique:', err);
@@ -179,8 +182,6 @@ export class FicheBoutiqueComponent implements OnInit {
             logo: this.editLogo
         };
 
-        console.log('💾 Saving General Info:', payload);
-
         // Update local state optimistically
         const previous = { name: this.boutique.name, description: this.boutique.description, logo: this.boutique.logo };
         this.boutique.name = this.editName;
@@ -195,7 +196,6 @@ export class FicheBoutiqueComponent implements OnInit {
                     // backend returns the updated boutique as data
                     this.boutique = res.data;
                     this.initializeEditFields();
-                    console.log('Boutique updated:', this.boutique);
                 } else {
                     // revert optimistic update
                     this.boutique.name = previous.name;
@@ -227,7 +227,6 @@ export class FicheBoutiqueComponent implements OnInit {
 
     toggleGlobalDelivery(): void {
         this.editDeliveryConfig.isDeliveryAvailable = !this.editDeliveryConfig.isDeliveryAvailable;
-        console.log('🚚 Global Delivery Toggle:', this.editDeliveryConfig.isDeliveryAvailable);
     }
 
     toggleDeliveryDay(day: any): void {
@@ -277,8 +276,6 @@ export class FicheBoutiqueComponent implements OnInit {
                 extraPricePerKm: this.editDeliveryConfig.deliveryRules.extraPricePerKm
             }
         };
-
-        console.log('🚚 Saving Delivery Config:', payload);
 
         this.isDeliveryLoading = true;
         this.boutiqueService.updateDeliveryConfig(this.boutique._id, payload).subscribe({

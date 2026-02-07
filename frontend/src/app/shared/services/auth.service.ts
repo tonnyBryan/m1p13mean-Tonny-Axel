@@ -9,6 +9,7 @@ import { jwtDecode } from 'jwt-decode';
 export interface JwtPayload {
     id: string;
     role: string;
+    boutiqueId? : string;
 }
 
 @Injectable({
@@ -55,6 +56,10 @@ export class AuthService {
 
     get user(): User | null {
         return this.userSubject.value;
+    }
+
+    get userHash(): JwtPayload | null {
+        return this.userToken.value;
     }
 
     isLoggedIn(): boolean {

@@ -38,8 +38,6 @@ export class AppLayoutComponent implements OnInit {
 
   ngOnInit() {
     this.user$ = this.authService.user$;
-    console.log("hereeeee")
-    console.log(this.user$);
   }
 
   get containerClasses() {

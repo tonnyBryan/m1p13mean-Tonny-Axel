@@ -5,6 +5,8 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
 const RefreshToken = require('../models/RefreshToken');
 const crypto = require('crypto');
 const { generateAccessToken } = require('../utils/auth.utils');
+const Boutique = require('../models/Boutique');
+
 
 
 exports.login = async (req, res) => {
@@ -25,7 +27,22 @@ exports.login = async (req, res) => {
             return errorResponse(res, 401, 'Invalid credentials');
         }
 
-        const accessToken = generateAccessToken(user);
+        const tokenPayload = {
+            id: user._id,
+            role: user.role
+        };
+
+        if (user.role === 'boutique') {
+            const boutique = await Boutique.findOne({ owner: user._id }).select('_id');
+
+            if (boutique) {
+                tokenPayload.boutiqueId = boutique._id;
+            } else {
+                tokenPayload.boutiqueId = null;
+            }
+        }
+
+        const accessToken = generateAccessToken(tokenPayload);
 
         // 🔄 Refresh token
         const refreshToken = jwt.sign(
@@ -101,7 +118,22 @@ exports.refreshToken = async (req, res) => {
             return errorResponse(res, 450, 'Invalid user');
         }
 
-        const newAccessToken = generateAccessToken(user);
+        const tokenPayload = {
+            id: user._id,
+            role: user.role
+        };
+
+        if (user.role === 'boutique') {
+            const boutique = await Boutique.findOne({ owner: user._id }).select('_id');
+
+            if (boutique) {
+                tokenPayload.boutiqueId = boutique._id;
+            } else {
+                tokenPayload.boutiqueId = null;
+            }
+        }
+
+        const accessToken = generateAccessToken(tokenPayload);
 
         return successResponse(res, 200, 'Refreshed token', {
             accessToken: newAccessToken

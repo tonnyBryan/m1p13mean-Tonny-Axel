@@ -72,7 +72,7 @@ export const routes: Routes = [
         path: 'profile',
         component: ProfileUserComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: [environment.adminRole, environment.userRole, environment.boutiqueRole] },
+        data: { roles: [environment.userRole] },
         title: 'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
     ]
