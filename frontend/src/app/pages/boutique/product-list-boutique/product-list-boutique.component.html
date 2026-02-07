@@ -57,7 +57,7 @@
           <!-- Loop products -->
           <tr *ngFor="let product of products" class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
             <td class="px-4 py-3 sm:px-6 text-theme-sm text-gray-800 dark:text-white/90">
-              <img [src]="product.images?.[0] || '/assets/images/product-placeholder.png'" [alt]="product.name"
+              <img [src]="product.images[0] || '/assets/images/product-placeholder.png'" [alt]="product.name"
                 class="h-12 w-12 rounded-md object-cover border border-gray-200 dark:border-gray-700" />
             </td>
 
@@ -102,7 +102,7 @@
           </tr>
 
           <!-- Empty state -->
-          <tr *ngIf="!products?.length && !loading">
+          <tr *ngIf="!products.length && !loading">
             <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                <p class="text-theme-sm">No products found</p>
              </td>

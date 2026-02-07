@@ -4,12 +4,11 @@ import { RouterModule } from '@angular/router';
 import { BoutiqueService } from '../../../shared/services/boutique.service';
 import { Boutique } from '../../../core/models/boutique.model';
 import {PageBreadcrumbComponent} from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
-import {ButtonComponent} from "../../../shared/components/ui/button/button.component";
 
 @Component({
   selector: 'app-boutique-liste-user',
   standalone: true,
-  imports: [CommonModule, RouterModule, PageBreadcrumbComponent, ButtonComponent],
+  imports: [CommonModule, RouterModule, PageBreadcrumbComponent],
   templateUrl: './boutique-liste-user.component.html',
   styleUrls: ['./boutique-liste-user.component.css']
 })
