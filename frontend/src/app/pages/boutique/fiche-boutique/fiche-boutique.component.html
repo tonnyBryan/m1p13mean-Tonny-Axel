@@ -194,6 +194,7 @@
                             className="w-full"
                             size="sm"
                             [loading]="isGeneralLoading"
+                            [disabled]="!hasGeneralChanged()"
                             (btnClick)="saveGeneralInfo()"
                     >
                         Save Changes
@@ -356,6 +357,7 @@
                         className="w-full"
                         size="sm"
                         [loading]="isDeliveryLoading"
+                        [disabled]="!hasDeliveryChanged()"
                         (btnClick)="saveDeliveryConfig()"
                 >
                     Save Delivery Settings

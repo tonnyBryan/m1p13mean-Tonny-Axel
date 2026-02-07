@@ -24,11 +24,23 @@ export class FicheBoutiqueComponent implements OnInit {
     editDescription: string = '';
     editLogo: string = '';
 
+    DEFAULT_DELIVERY_DAYS = [
+        { _id: 1, day: 1, isActive: true },
+        { _id: 2, day: 2, isActive: true },
+        { _id: 3, day: 3, isActive: true },
+        { _id: 4, day: 4, isActive: true },
+        { _id: 5, day: 5, isActive: true },
+        { _id: 6, day: 6, isActive: true },
+        { _id: 7, day: 7, isActive: true }
+    ];
+
+
+
     // Edit fields for delivery config
     editDeliveryConfig: any = {
         isDeliveryAvailable: true,
         orderCutoffTime: '18:00',
-        deliveryDays: [],
+        deliveryDays: [...this.DEFAULT_DELIVERY_DAYS],
         deliveryRules: {
             minPrice: 0,
             baseDistanceKm: 0,
@@ -49,13 +61,15 @@ export class FicheBoutiqueComponent implements OnInit {
 
     loadBoutique(): void {
         // ne pas toucher actuellement
-        const boutiqueId = '69858cfa80bcf553def88fd1';
+        // const boutiqueId = '69858cfa80bcf553def88fd1';
+        const boutiqueId = '6984c9698d7113e9af10e905';
         this.boutiqueService.getBoutiqueFullById(boutiqueId).subscribe({
             next: (res) => {
                 console.log('getBoutiqueFullById response:', res);
 
                 if (res && res.data) {
                     this.boutique = res.data;
+                    console.log(this.boutique);
                     this.initializeEditFields();
                 }
 
@@ -92,7 +106,73 @@ export class FicheBoutiqueComponent implements OnInit {
     //  GENERAL INFO FUNCTIONS
     // ════════════════════════════════════════════
 
+    private normalizeString(s?: string): string {
+        return (s || '').trim().replace(/\s+/g, ' ');
+    }
+
+    isNameValid(): boolean {
+        const name = this.normalizeString(this.editName);
+        if (!name) return false;
+        const words = name.split(' ').filter(w => w.length > 0);
+        return words.length >= 3;
+    }
+
+    isDeliveryRulesValid(): boolean {
+        const r = this.editDeliveryConfig?.deliveryRules || {};
+        const minPrice = Number(r.minPrice);
+        const baseDistance = Number(r.baseDistanceKm);
+        const extra = Number(r.extraPricePerKm);
+        // doivent être strictement supérieurs à 0
+        return (
+            Number.isFinite(minPrice) && minPrice > 0 &&
+            Number.isFinite(baseDistance) && baseDistance > 0 &&
+            Number.isFinite(extra) && extra > 0
+        );
+    }
+
+    private deliveryConfigEqual(a: any, b: any): boolean {
+        if (!a && !b) return true;
+        if (!a || !b) return false;
+        // compare isDeliveryAvailable and orderCutoffTime
+        if ((a.isDeliveryAvailable ?? false) !== (b.isDeliveryAvailable ?? false)) return false;
+        if ((a.orderCutoffTime || '') !== (b.orderCutoffTime || '')) return false;
+        // compare deliveryDays deeply (order and values)
+        if (JSON.stringify(a.deliveryDays || []) !== JSON.stringify(b.deliveryDays || [])) return false;
+        // compare deliveryRules
+        if (JSON.stringify(a.deliveryRules || {}) !== JSON.stringify(b.deliveryRules || {})) return false;
+        return true;
+    }
+
+    hasGeneralChanged(): boolean {
+        if (!this.boutique) return false;
+        const nameChanged = this.normalizeString(this.boutique.name) !== this.normalizeString(this.editName);
+        const descChanged = (this.boutique.description || '') !== (this.editDescription || '');
+        const logoChanged = (this.boutique.logo || '') !== (this.editLogo || '');
+        return nameChanged || descChanged || logoChanged;
+    }
+
+    hasDeliveryChanged(): boolean {
+        if (!this.boutique) return false;
+        const existing = this.boutique.livraisonConfig || {};
+        return !this.deliveryConfigEqual(existing, this.editDeliveryConfig);
+    }
+
+    get isSaveGeneralDisabled(): boolean {
+        return this.isGeneralLoading || !this.hasGeneralChanged() || !this.isNameValid();
+    }
+
+    get isSaveDeliveryDisabled(): boolean {
+        return this.isDeliveryLoading || !this.hasDeliveryChanged() || !this.isDeliveryRulesValid();
+    }
+
     saveGeneralInfo(): void {
+        if (this.isSaveGeneralDisabled) {
+            if (!this.isNameValid()) {
+                alert('Shop name must be at least 3 words.');
+            }
+            return;
+        }
+
         const payload = {
             name: this.editName,
             description: this.editDescription,
@@ -152,7 +232,6 @@ export class FicheBoutiqueComponent implements OnInit {
 
     toggleDeliveryDay(day: any): void {
         day.isActive = !day.isActive;
-        console.log(`📅 Toggle Day ${day.day} (${this.getDayName(day.day)}):`, day.isActive);
     }
 
     getDayName(dayNumber: number): string {
@@ -179,6 +258,12 @@ export class FicheBoutiqueComponent implements OnInit {
     }
 
     saveDeliveryConfig(): void {
+        if (this.isSaveDeliveryDisabled) {
+            if (!this.isDeliveryRulesValid()) {
+                alert('Delivery rules must be numeric values strictly greater than 0 (minPrice, baseDistanceKm, extraPricePerKm).');
+            }
+            return;
+        }
         const payload = {
             isDeliveryAvailable: this.editDeliveryConfig.isDeliveryAvailable,
             orderCutoffTime: this.editDeliveryConfig.orderCutoffTime,
