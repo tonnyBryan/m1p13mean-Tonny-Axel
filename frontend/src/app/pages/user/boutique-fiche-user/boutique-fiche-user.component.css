@@ -1,0 +1,27 @@
+/* Smooth details animation */
+details summary::-webkit-details-marker {
+    display: none;
+}
+
+details[open] > summary {
+    margin-bottom: 0.5rem;
+}
+
+/* Custom scrollbar for potential overflow */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #475569;
+}

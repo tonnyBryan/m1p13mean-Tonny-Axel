@@ -20,6 +20,7 @@ import { ProductFicheBoutiqueComponent } from "./pages/boutique/product-fiche-bo
 import { BoutiqueListeUserComponent } from "./pages/user/boutique-liste-user/boutique-liste-user.component";
 import { ProfileUserComponent } from "./pages/user/profile-user/profile-user.component";
 import {FicheBoutiqueComponent} from "./pages/boutique/fiche-boutique/fiche-boutique.component";
+import {BoutiqueFicheUserComponent} from "./pages/user/boutique-fiche-user/boutique-fiche-user.component";
 
 
 export const routes: Routes = [
@@ -67,6 +68,15 @@ export const routes: Routes = [
         pathMatch: 'full',
         title:
           'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+      },
+      {
+        path: 'stores/:id',
+        component: BoutiqueFicheUserComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.userRole] },
+        pathMatch: 'full',
+        title:
+            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
       },
       {
         path: 'profile',

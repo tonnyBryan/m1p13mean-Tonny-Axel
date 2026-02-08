@@ -6,7 +6,7 @@ import { LabelComponent } from '../../../shared/components/form/label/label.comp
 import { InputFieldComponent } from '../../../shared/components/form/input/input-field.component';
 import {ButtonComponent} from "../../../shared/components/ui/button/button.component";
 import {AuthService} from "../../../shared/services/auth.service";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
     selector: 'app-fiche-boutique',
@@ -67,7 +67,7 @@ export class FicheBoutiqueComponent implements OnInit {
         const boutiqueId   = this.authService.userHash?.boutiqueId;
         if (boutiqueId === undefined) {
             this.authService.logout();
-            this.router.navigate(['/v1/stores']);
+            this.router.navigate(['/store/signin']);
             return;
         }
 
