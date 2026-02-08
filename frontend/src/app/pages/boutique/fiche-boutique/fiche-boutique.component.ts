@@ -7,11 +7,12 @@ import { InputFieldComponent } from '../../../shared/components/form/input/input
 import {ButtonComponent} from "../../../shared/components/ui/button/button.component";
 import {AuthService} from "../../../shared/services/auth.service";
 import {ActivatedRoute, Router} from "@angular/router";
+import {FicheBoutiqueSkeletonComponent} from "./fiche-boutique-skeleton/fiche-boutique-skeleton.component";
 
 @Component({
     selector: 'app-fiche-boutique',
     standalone: true,
-    imports: [CommonModule, FormsModule, LabelComponent, InputFieldComponent, ButtonComponent],
+    imports: [CommonModule, FormsModule, LabelComponent, InputFieldComponent, ButtonComponent, FicheBoutiqueSkeletonComponent],
     templateUrl: './fiche-boutique.component.html',
     styleUrls: ['./fiche-boutique.component.css']
 })
@@ -20,6 +21,9 @@ export class FicheBoutiqueComponent implements OnInit {
 
     // Active tab
     activeTab: 'general' | 'delivery' = 'general';
+
+    isLoading: boolean = true;
+
 
     // Edit fields for general info
     editName: string = '';
@@ -71,15 +75,18 @@ export class FicheBoutiqueComponent implements OnInit {
             return;
         }
 
+        this.isLoading = true;
         this.boutiqueService.getBoutiqueFullById(boutiqueId).subscribe({
             next: (res) => {
                 if (res && res.data) {
                     this.boutique = res.data;
                     this.initializeEditFields();
                 }
+                this.isLoading = false;
             },
             error: (err) => {
                 console.error('Error loading boutique:', err);
+                this.isLoading = false;
             }
         });
     }

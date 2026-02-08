@@ -53,61 +53,117 @@
               <th class="px-4 py-3 font-medium text-gray-500 sm:px-6 text-center text-theme-xs dark:text-gray-400">Actions</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
-          <!-- Loop products -->
-          <tr *ngFor="let product of products" class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
-            <td class="px-4 py-3 sm:px-6 text-theme-sm text-gray-800 dark:text-white/90">
-              <img [src]="product.images[0] || '/assets/images/product-placeholder.png'" [alt]="product.name"
-                class="h-12 w-12 rounded-md object-cover border border-gray-200 dark:border-gray-700" />
-            </td>
+          <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
+              @if (loading) {
+                  @for (i of [1,2,3,4,5]; track i) {
+                      <tr class="animate-pulse">
+                          <!-- Image Column -->
+                          <td class="px-4 py-3 sm:px-6">
+                              <div class="h-12 w-12 rounded-md bg-gray-200 dark:bg-gray-700"></div>
+                          </td>
 
-            <td class="px-4 py-3 font-medium text-gray-800 sm:px-6 text-start text-theme-sm dark:text-white/90">
-              <div class="flex flex-col">
-                <span class="font-medium">{{ product.name }}</span>
-                <span class="text-xs text-gray-500 dark:text-gray-400">{{ product.description | slice:0:60 }}...</span>
-              </div>
-            </td>
+                          <!-- Name & Description Column -->
+                          <td class="px-4 py-3 sm:px-6">
+                              <div class="flex flex-col space-y-2">
+                                  <div class="h-4 w-32 rounded bg-gray-200 dark:bg-gray-700"></div>
+                                  <div class="h-3 w-48 rounded bg-gray-200 dark:bg-gray-700"></div>
+                              </div>
+                          </td>
 
-            <td class="px-4 py-3 text-gray-500 sm:px-6 text-start text-theme-sm dark:text-gray-400">{{ product.salePrice || product.regularPrice }} </td>
+                          <!-- Price Column -->
+                          <td class="px-4 py-3 sm:px-6">
+                              <div class="h-4 w-16 rounded bg-gray-200 dark:bg-gray-700"></div>
+                          </td>
 
-            <td class="px-4 py-3 text-gray-500 sm:px-6 text-start text-theme-sm dark:text-gray-400">
-              <div class="flex items-center gap-3">
-                <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ product.stock }}</span>
-                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold" [ngClass]="getStockBadgeClasses(getStockStatus(product))">
-                  <span class="h-1.5 w-1.5 rounded-full"
-                        [ngClass]="getStockStatus(product) === 'in-stock' ? 'bg-emerald-500' : getStockStatus(product) === 'low-stock' ? 'bg-amber-500' : 'bg-red-500'"></span>
-                  {{ getStockStatus(product) === 'out-of-stock' ? 'Out of stock' : getStockStatus(product) === 'low-stock' ? 'Low stock' : 'In stock' }}
+                          <!-- Stock Column -->
+                          <td class="px-4 py-3 sm:px-6">
+                              <div class="flex items-center gap-3">
+                                  <div class="h-4 w-8 rounded bg-gray-200 dark:bg-gray-700"></div>
+                                  <div class="h-6 w-20 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                              </div>
+                          </td>
+
+                          <!-- Status Column -->
+                          <td class="px-4 py-3 sm:px-6">
+                              <div class="h-6 w-16 rounded-md bg-gray-200 dark:bg-gray-700"></div>
+                          </td>
+
+                          <!-- Created Date Column -->
+                          <td class="px-4 py-3 sm:px-6">
+                              <div class="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700"></div>
+                          </td>
+
+                          <!-- Actions Column -->
+                          <td class="px-4 py-3 sm:px-6">
+                              <div class="flex items-center justify-center">
+                                  <div class="h-8 w-16 rounded-md bg-gray-200 dark:bg-gray-700"></div>
+                              </div>
+                          </td>
+                      </tr>
+                  }
+              } @else {
+                  <!-- Loop products -->
+                  <tr *ngFor="let product of products" class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                      <td class="px-4 py-3 sm:px-6 text-theme-sm text-gray-800 dark:text-white/90">
+                          <img [src]="product.images[0] || '/assets/images/product-placeholder.png'" [alt]="product.name"
+                               class="h-12 w-12 rounded-md object-cover border border-gray-200 dark:border-gray-700" />
+                      </td>
+
+                      <td class="px-4 py-3 font-medium text-gray-800 sm:px-6 text-start text-theme-sm dark:text-white/90">
+                          <div class="flex flex-col">
+                              <span class="font-medium">{{ product.name }}</span>
+                              <span class="text-xs text-gray-500 dark:text-gray-400">{{ product.description | slice:0:60 }}...</span>
+                          </div>
+                      </td>
+
+                      <td class="px-4 py-3 text-gray-500 sm:px-6 text-start text-theme-sm dark:text-gray-400">
+                          {{ product.salePrice || product.regularPrice }}
+                      </td>
+
+                      <td class="px-4 py-3 text-gray-500 sm:px-6 text-start text-theme-sm dark:text-gray-400">
+                          <div class="flex items-center gap-3">
+                              <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ product.stock }}</span>
+                              <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
+                                    [ngClass]="getStockBadgeClasses(getStockStatus(product))">
+                        <span class="h-1.5 w-1.5 rounded-full"
+                              [ngClass]="getStockStatus(product) === 'in-stock' ? 'bg-emerald-500' : getStockStatus(product) === 'low-stock' ? 'bg-amber-500' : 'bg-red-500'"></span>
+                                  {{ getStockStatus(product) === 'out-of-stock' ? 'Out of stock' : getStockStatus(product) === 'low-stock' ? 'Low stock' : 'In stock' }}
+                    </span>
+                          </div>
+                      </td>
+
+                      <td class="px-4 py-3 sm:px-6 text-start text-theme-sm">
+                <span [ngClass]="getStatusBgColor(product.isActive)"
+                      class="inline-flex px-2.5 py-1 rounded-md text-xs font-medium">
+                    {{ getStatusText(product.isActive) }}
                 </span>
-              </div>
-            </td>
+                      </td>
 
-            <td class="px-4 py-3 sm:px-6 text-start text-theme-sm">
-              <span [ngClass]="getStatusBgColor(product.isActive)" class="inline-flex px-2.5 py-1 rounded-md text-xs font-medium">{{ getStatusText(product.isActive) }}</span>
-            </td>
+                      <td class="px-4 py-3 text-gray-500 sm:px-6 text-start text-theme-sm dark:text-gray-400">
+                          {{ formatDate(product.createdAt) }}
+                      </td>
 
-              <td class="px-4 py-3 text-gray-500 sm:px-6 text-start text-theme-sm dark:text-gray-400">
-                  {{ formatDate(product.createdAt) }}
-              </td>
+                      <td class="px-4 py-3 sm:px-6 text-center text-theme-sm">
+                          <div class="flex items-center justify-center gap-2">
+                              <button (click)="viewProduct(product._id)"
+                                      class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] transition-colors">
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="currentColor"/>
+                                  </svg>
+                                  View
+                              </button>
+                          </div>
+                      </td>
+                  </tr>
 
-            <td class="px-4 py-3 sm:px-6 text-center text-theme-sm">
-              <div class="flex items-center justify-center gap-2">
-              <button (click)="viewProduct(product._id)"
-                      class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] transition-colors">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="currentColor"/></svg>
-                  View
-              </button>
-              </div>
-            </td>
-          </tr>
-
-          <!-- Empty state -->
-          <tr *ngIf="!products.length && !loading">
-            <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-               <p class="text-theme-sm">No products found</p>
-             </td>
-           </tr>
-        </tbody>
+                  <!-- Empty state -->
+                  <tr *ngIf="!products.length && !loading">
+                      <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                          <p class="text-theme-sm">No products found</p>
+                      </td>
+                  </tr>
+              }
+          </tbody>
       </table>
     </div>
 
