@@ -1,4 +1,3 @@
-// typescript
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
@@ -37,6 +36,7 @@ export class ProductListBoutiqueComponent implements OnInit {
     // Filters
     searchTerm = '';
     statusFilter = 'all'; // all, active, inactive
+    saleFilter = 'all'; // all, true, false
 
     constructor(
         private router: Router,
@@ -69,11 +69,20 @@ export class ProductListBoutiqueComponent implements OnInit {
             }
         }
 
+        if (this.saleFilter !== 'all') {
+            if (this.saleFilter === 'true') {
+                params.isSale = true;
+            } else if (this.saleFilter === 'false') {
+                params.isSale = false;
+            }
+        }
+
         this.productService.getProducts(params).subscribe({
             next: (res) => {
                 this.loading = false;
                 if (res?.success) {
                     this.products = res.data.items || [];
+                    console.log(this.products);
                     const pagination = res.data.pagination || { page: 1, totalDocs: 0, totalPages: 0 };
                     this.currentPage = pagination.page || 1;
                     this.totalDocs = pagination.totalDocs || 0;
@@ -85,7 +94,7 @@ export class ProductListBoutiqueComponent implements OnInit {
             },
             error: (err) => {
                 this.loading = false;
-                this.error = err?.message || 'Erreur lors du chargement des produits';
+                this.error = err?.message || 'Error loading products';
                 console.error('Error loading products:', err);
             }
         });
@@ -97,8 +106,14 @@ export class ProductListBoutiqueComponent implements OnInit {
         this.loadProducts();
     }
 
-    onFilterChange(filter: string): void {
+    onStatusFilterChange(filter: string): void {
         this.statusFilter = filter;
+        this.currentPage = 1;
+        this.loadProducts();
+    }
+
+    onSaleFilterChange(filter: string): void {
+        this.saleFilter = filter;
         this.currentPage = 1;
         this.loadProducts();
     }
@@ -133,14 +148,12 @@ export class ProductListBoutiqueComponent implements OnInit {
     }
 
     editProduct(product: any): void {
-        // Implement edit navigation if needed
         console.log('Edit product', product._id);
     }
 
     deleteProduct(product: any): void {
         if (confirm('Are you sure you want to delete this product?')) {
             console.log('Delete product', product._id);
-            // call productService.deleteProduct if implemented
         }
     }
 
@@ -153,12 +166,22 @@ export class ProductListBoutiqueComponent implements OnInit {
         return isActive ? 'Active' : 'Inactive';
     }
 
+    getSaleBadgeClasses(isSale: boolean): string {
+        if (isSale) {
+            return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400';
+        }
+        return 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400';
+    }
+
+    getSaleText(isSale: boolean): string {
+        return isSale ? 'On Sale' : 'Regular';
+    }
+
     formatDate(date: Date | string): string {
         const d = new Date(date);
         return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     }
 
-    // Stock helpers (copié du product-fiche)
     getStockStatus(product: any): 'in-stock' | 'low-stock' | 'out-of-stock' {
         if (product?.stock === 0) return 'out-of-stock';
         if (product?.stock <= 10) return 'low-stock';
