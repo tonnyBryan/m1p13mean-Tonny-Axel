@@ -1,22 +1,29 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { BoutiqueService } from '../../../shared/services/boutique.service';
-import { ActivatedRoute, Router, RouterModule } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { PageBreadcrumbComponent } from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
+import { BoutiqueSkeletonComponent } from "./boutique-skeleton/boutique-skeleton.component";
+import { BoutiqueDetailsComponent } from "./boutique-details/boutique-details.component";
+import { ProductListComponent } from "./product-list/product-list.component";
 
 @Component({
     selector: 'app-boutique-fiche-user',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterModule, PageBreadcrumbComponent],
+    imports: [
+        CommonModule,
+        PageBreadcrumbComponent,
+        BoutiqueSkeletonComponent,
+        BoutiqueDetailsComponent,
+        ProductListComponent,
+        BoutiqueSkeletonComponent
+    ],
     templateUrl: './boutique-fiche-user.component.html',
     styleUrls: ['./boutique-fiche-user.component.css']
 })
 export class BoutiqueFicheUserComponent implements OnInit {
-
     pageTitle = 'Shop info';
     boutiqueName = 'Shop';
-
     boutique: any = null;
     isLoading = false;
 
@@ -53,25 +60,5 @@ export class BoutiqueFicheUserComponent implements OnInit {
                 this.router.navigate(['/v1/stores']);
             }
         });
-    }
-
-    getDayName(dayNumber: number): string {
-        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        return days[dayNumber] || '';
-    }
-
-    isDeliveryAvailableToday(): boolean {
-        if (!this.boutique?.livraisonConfig?.deliveryDays) return false;
-
-        const jsDay = new Date().getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-        const apiDay = jsDay === 0 ? 7 : jsDay;
-        const todayDelivery = this.boutique.livraisonConfig.deliveryDays.find((d: any) => d.day === apiDay);
-        return todayDelivery?.isActive || false;
-    }
-
-    getCurrentDayName(): string {
-        const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-        const apiDay = today === 0 ? 7 : today;
-        return this.getDayName(apiDay);
     }
 }
