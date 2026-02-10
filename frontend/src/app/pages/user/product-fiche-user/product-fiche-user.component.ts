@@ -1,81 +1,84 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface Category {
-    _id: string;
-    name: string;
-}
-
-interface Product {
-    _id: string;
-    boutique: string;
-    name: string;
-    description: string;
-    regularPrice: number;
-    salePrice: number;
-    sku: string;
-    stock: number;
-    minOrderQty: number;
-    maxOrderQty: number;
-    category: Category;
-    tags: string[];
-    images: string[];
-    isActive: boolean;
-    createdAt: string;
-    updatedAt: string;
-}
+import {ActivatedRoute, Router} from "@angular/router";
+import {StoreService} from "../../../shared/services/store.service";
+import {Product} from "../../../core/models/product.model";
+import {PageBreadcrumbComponent} from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
 
 @Component({
     selector: 'app-product-fiche-user',
-    imports: [CommonModule],
+    imports: [CommonModule, PageBreadcrumbComponent],
     templateUrl: './product-fiche-user.component.html',
     styleUrls: ['./product-fiche-user.css']
 })
 export class ProductFicheUserComponent implements OnInit {
-
-    product: Product = {
-        _id: "65f1c2a9e12b4c0012a45abc",
-        boutique: "65f0a1b8d92c3f0011b22aaa",
-        name: "Chaussure Sport Air Max",
-        description: "Chaussure de sport confortable, idéale pour la course et l'usage quotidien.",
-        regularPrice: 120,
-        salePrice: 95,
-        sku: "AIRMAX-2025-BLK-42",
-        stock: 48,
-        minOrderQty: 1,
-        maxOrderQty: 3,
-        category: {
-            _id: "65e9b8d21a4c7f0019cc1122",
-            name: "Chaussures"
-        },
-        tags: ["sport", "chaussure", "airmax", "nike"],
-        images: [
-            "https://cdn.maboutique.com/products/airmax-1.jpg",
-            "https://cdn.maboutique.com/products/airmax-2.jpg",
-            "https://cdn.maboutique.com/products/airmax-3.jpg"
-        ],
-        isActive: true,
-        createdAt: "2025-02-04T10:30:00.000Z",
-        updatedAt: "2025-02-04T10:30:00.000Z"
-    };
+    pageTitle: string = 'Product details';
+    product: Product | null = null;
+    idStore: string = '';
 
     selectedImageIndex: number = 0;
     quantity: number = 1;
     showCopiedSku: boolean = false;
 
-    ngOnInit(): void {
-        // Simulate image loading animation
-        setTimeout(() => {
-            this.animateImageEntry();
-        }, 100);
+    constructor(private route : ActivatedRoute, private router : Router, private storeService : StoreService ) {
     }
+
+    ngOnInit(): void {
+        const idStore = this.route.snapshot.paramMap.get('idStore');
+        const idProduct = this.route.snapshot.paramMap.get('idProduct');
+
+        if (idStore === null) {
+            this.router.navigate(['/v1/stores']);
+            return;
+        } else if (idProduct === null) {
+            this.router.navigate([`/v1/stores/${idStore}`]);
+            return;
+        }
+
+        this.idStore = idStore;
+        this.loadProduct(idProduct, idStore);
+    }
+
+    loadProduct(productId : string, storeId : string): void {
+        this.storeService.getProductById(productId).subscribe({
+            next: (res: any) => {
+                if (!res.success || !res.data) {
+                    // this.errorMessage = res.message || 'Product not found';
+                    return;
+                }
+
+                if (res.data.boutique != storeId) {
+                    throw new Error("Product does not belong to the specified store");
+                }
+
+                this.product = res.data;
+
+                setTimeout(() => {
+                    this.animateImageEntry();
+                }, 100);
+            },
+            error: (err) => {
+                // this.errorMessage =
+                //     err?.error?.message || 'Error fetching product';
+                console.error(err);
+            }
+        });
+    }
+
+    get p(): Product {
+        if (!this.product) {
+            throw new Error('Product not loaded yet');
+        }
+        return this.product;
+    }
+
 
     // ════════════════════════════════════════════
     //  IMAGE GALLERY
     // ════════════════════════════════════════════
 
     get selectedImage(): string {
-        return this.product.images[this.selectedImageIndex];
+        return this.p.images[this.selectedImageIndex];
     }
 
     selectImage(index: number): void {
@@ -86,14 +89,14 @@ export class ProductFicheUserComponent implements OnInit {
     }
 
     nextImage(): void {
-        this.selectedImageIndex = (this.selectedImageIndex + 1) % this.product.images.length;
+        this.selectedImageIndex = (this.selectedImageIndex + 1) % this.p.images.length;
         this.animateImageEntry();
     }
 
     previousImage(): void {
         this.selectedImageIndex =
             this.selectedImageIndex === 0
-                ? this.product.images.length - 1
+                ? this.p.images.length - 1
                 : this.selectedImageIndex - 1;
         this.animateImageEntry();
     }
@@ -107,20 +110,20 @@ export class ProductFicheUserComponent implements OnInit {
     // ════════════════════════════════════════════
 
     get discountPercent(): number {
-        if (this.product.regularPrice > this.product.salePrice) {
+        if (this.p.regularPrice > this.p.salePrice) {
             return Math.round(
-                ((this.product.regularPrice - this.product.salePrice) / this.product.regularPrice) * 100
+                ((this.p.regularPrice - this.p.salePrice) / this.p.regularPrice) * 100
             );
         }
         return 0;
     }
 
     get totalPrice(): number {
-        return this.product.salePrice * this.quantity;
+        return this.p.salePrice * this.quantity;
     }
 
     get savings(): number {
-        return (this.product.regularPrice - this.product.salePrice) * this.quantity;
+        return (this.p.regularPrice - this.p.salePrice) * this.quantity;
     }
 
     // ════════════════════════════════════════════
@@ -128,23 +131,23 @@ export class ProductFicheUserComponent implements OnInit {
     // ════════════════════════════════════════════
 
     incrementQuantity(): void {
-        if (this.quantity < this.product.maxOrderQty && this.quantity < this.product.stock) {
+        if (this.quantity < this.p.maxOrderQty && this.quantity < this.p.stock) {
             this.quantity++;
         }
     }
 
     decrementQuantity(): void {
-        if (this.quantity > this.product.minOrderQty) {
+        if (this.quantity > this.p.minOrderQty) {
             this.quantity--;
         }
     }
 
     get canIncrement(): boolean {
-        return this.quantity < this.product.maxOrderQty && this.quantity < this.product.stock;
+        return this.quantity < this.p.maxOrderQty && this.quantity < this.p.stock;
     }
 
     get canDecrement(): boolean {
-        return this.quantity > this.product.minOrderQty;
+        return this.quantity > this.p.minOrderQty;
     }
 
     // ════════════════════════════════════════════
@@ -152,16 +155,16 @@ export class ProductFicheUserComponent implements OnInit {
     // ════════════════════════════════════════════
 
     get stockStatus(): 'in-stock' | 'low-stock' | 'out-of-stock' {
-        if (this.product.stock === 0) return 'out-of-stock';
-        if (this.product.stock <= 10) return 'low-stock';
+        if (this.p.stock === 0) return 'out-of-stock';
+        if (this.p.stock <= 10) return 'low-stock';
         return 'in-stock';
     }
 
     get stockLabel(): string {
         switch (this.stockStatus) {
             case 'out-of-stock': return 'Out of Stock';
-            case 'low-stock': return `Only ${this.product.stock} left!`;
-            case 'in-stock': return `In Stock (${this.product.stock} available)`;
+            case 'low-stock': return `Only ${this.p.stock} left!`;
+            case 'in-stock': return `In Stock (${this.p.stock} available)`;
         }
     }
 
@@ -171,7 +174,7 @@ export class ProductFicheUserComponent implements OnInit {
 
     addToCart(): void {
         console.log('Add to cart:', {
-            productId: this.product._id,
+            productId: this.p._id,
             quantity: this.quantity,
             price: this.totalPrice
         });
@@ -180,14 +183,14 @@ export class ProductFicheUserComponent implements OnInit {
 
     buyNow(): void {
         console.log('Buy now:', {
-            productId: this.product._id,
+            productId: this.p._id,
             quantity: this.quantity
         });
         // → Redirection vers checkout
     }
 
     copySku(): void {
-        navigator.clipboard.writeText(this.product.sku).then(() => {
+        navigator.clipboard.writeText(this.p.sku).then(() => {
             this.showCopiedSku = true;
             setTimeout(() => {
                 this.showCopiedSku = false;
@@ -198,8 +201,8 @@ export class ProductFicheUserComponent implements OnInit {
     shareProduct(): void {
         if (navigator.share) {
             navigator.share({
-                title: this.product.name,
-                text: this.product.description,
+                title: this.p.name,
+                text: this.p.description,
                 url: window.location.href
             });
         } else {

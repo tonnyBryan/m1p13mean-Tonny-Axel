@@ -76,7 +76,7 @@ export class ProductFicheBoutiqueComponent implements OnInit {
                 this.isLoading = false;
 
                 if (!res.success || !res.data) {
-                    this.errorMessage = res.message || 'Produit introuvable';
+                    this.errorMessage = res.message || 'Product not found';
                     return;
                 }
 
@@ -85,7 +85,7 @@ export class ProductFicheBoutiqueComponent implements OnInit {
             error: (err) => {
                 this.isLoading = false;
                 this.errorMessage =
-                    err?.error?.message || 'Erreur lors du chargement du produit';
+                    err?.error?.message || 'Error fetching product';
             }
         });
     }

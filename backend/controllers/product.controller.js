@@ -138,6 +138,23 @@ exports.createProduct = async (req, res) => {
  */
 exports.getProductById = async (req, res) => {
     try {
+        const user = req.user;
+        if (user.role === 'boutique') {
+            const boutique = await Boutique.findOne({ owner: user._id }).select('_id');
+            if (!boutique) {
+                return errorResponse(res, 403, 'Store not found for this user');
+            }
+
+            const product = await Product.findOne({ _id: req.params.id, boutique: boutique._id }).select();
+
+            if (!product) {
+                return errorResponse(res, 404, 'Product not found in your store');
+            }
+
+            return successResponse(res, 200, null, product);
+        }
+
+
         const product = await Product.findById(req.params.id).select();
 
         if (!product) {

@@ -174,7 +174,7 @@ router.get(
     '/',
     protect,
     authorize('user', 'boutique'),
-    injectBoutiqueFilter,        // 👈 ICI
+    injectBoutiqueFilter,
     advancedResults(Product),
     productController.getAllProducts
 );
