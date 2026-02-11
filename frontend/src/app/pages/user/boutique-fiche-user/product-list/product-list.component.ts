@@ -25,8 +25,14 @@ export class ProductListComponent implements OnInit {
 
     // Filters
     searchTerm = '';
-    sortBy = '-createdAt'; // newest first
+    sortBy = '-createdAt';
     onSaleOnly = false;
+    minPrice: number | null = null;
+    maxPrice: number | null = null;
+    minRating: number = 0;
+
+    // Filter panel state
+    showFilters = false;
 
     constructor(
         private productService: ProductService,
@@ -44,7 +50,7 @@ export class ProductListComponent implements OnInit {
 
         const params: any = {
             boutique: this.boutiqueId,
-            isActive: true, // Only show active products
+            isActive: true,
             page: this.currentPage,
             limit: this.itemsPerPage,
             sort: this.sortBy
@@ -57,6 +63,16 @@ export class ProductListComponent implements OnInit {
 
         if (this.onSaleOnly) {
             params.isSale = true;
+        }
+
+        if (this.minPrice !== null && this.minPrice > 0) {
+            // Send generic minPrice param. Backend middleware will map it to salePrice or regularPrice
+            params['minPrice'] = this.minPrice;
+        }
+
+        if (this.maxPrice !== null && this.maxPrice > 0) {
+            // Send generic maxPrice param. Backend middleware will map it to salePrice or regularPrice
+            params['maxPrice'] = this.maxPrice;
         }
 
         this.productService.getProducts(params).subscribe({
@@ -94,10 +110,38 @@ export class ProductListComponent implements OnInit {
         this.loadProducts();
     }
 
+    applyPriceFilter(): void {
+        this.currentPage = 1;
+        this.loadProducts();
+    }
+
+    setMinRating(rating: number): void {
+        this.minRating = rating;
+        this.currentPage = 1;
+        // Note: Rating filter is client-side only for now (static ratings)
+        // In production, you'd send this to the API
+    }
+
+    clearFilters(): void {
+        this.searchTerm = '';
+        this.onSaleOnly = false;
+        this.minPrice = null;
+        this.maxPrice = null;
+        this.minRating = 0;
+        this.sortBy = '-createdAt';
+        this.currentPage = 1;
+        this.loadProducts();
+    }
+
+    toggleFilters(): void {
+        this.showFilters = !this.showFilters;
+    }
+
     goToPage(page: number): void {
         if (page >= 1 && page <= this.totalPages) {
             this.currentPage = page;
             this.loadProducts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
 
@@ -111,20 +155,29 @@ export class ProductListComponent implements OnInit {
         return product.isSale && product.salePrice ? product.salePrice : product.regularPrice;
     }
 
-    addToCart(product: any): void {
-        // TODO: Implement add to cart functionality
-        console.log('Add to cart:', product);
-        alert(`Added "${product.name}" to cart!`);
-    }
-
     viewProduct(productId: string): void {
-
-        this.router.navigate([
-            '/v1/stores',
-            this.boutiqueId,
-            'products',
-            productId
-        ]);
+        this.router.navigate(['/v1/stores', this.boutiqueId, 'products', productId]);
     }
 
+    // Static rating for demo (3/5, 2 votes)
+    getProductRating(): number {
+        return 3;
+    }
+
+    getProductVotes(): string {
+        const nbVote = 2;
+        // @ts-ignore
+        if (nbVote != 0) {
+            return nbVote + ' people rated';
+        }
+        return '';
+    }
+
+    // Filter products by rating (client-side for static ratings)
+    get filteredProducts(): any[] {
+        if (this.minRating === 0) return this.products;
+        return this.products.filter(() => this.getProductRating() >= this.minRating);
+    }
+
+    protected readonly Math = Math;
 }

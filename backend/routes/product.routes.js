@@ -5,8 +5,8 @@ const { protect, authorize } = require('../middlewares/auth.middleware');
 const upload = require('../middlewares/upload.middleware');
 const advancedResults = require("../middlewares/advancedResults");
 const Product = require("../models/Product");
-const userController = require("../controllers/user.controller");
 const injectBoutiqueFilter = require('../middlewares/boutiqueFilter.middleware');
+const priceFilter = require('../middlewares/priceFilter.middleware');
 
 
 /**
@@ -175,6 +175,7 @@ router.get(
     protect,
     authorize('user', 'boutique'),
     injectBoutiqueFilter,
+    priceFilter,
     advancedResults(Product),
     productController.getAllProducts
 );

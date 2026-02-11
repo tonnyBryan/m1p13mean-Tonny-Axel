@@ -63,8 +63,19 @@ const ProductSchema = new mongoose.Schema(
         }
     },
     {
-        timestamps: true // createdAt / updatedAt automatiques
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true }
     }
 );
+
+// Champ virtuel pour le prix effectif
+ProductSchema.virtual('effectivePrice').get(function() {
+    return this.isSale && this.salePrice ? this.salePrice : this.regularPrice;
+});
+
+// Index pour optimiser les recherches par prix
+ProductSchema.index({ regularPrice: 1 });
+ProductSchema.index({ salePrice: 1 });
 
 module.exports = mongoose.model('Product', ProductSchema);

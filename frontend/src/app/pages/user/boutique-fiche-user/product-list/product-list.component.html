@@ -1,196 +1,261 @@
 <div class="mt-8">
-    <!-- Header with Search and Filters -->
-    <div class="mb-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Products</h2>
-            <div class="text-sm text-gray-600 dark:text-gray-400">
-                {{ totalDocs }} product{{ totalDocs !== 1 ? 's' : '' }} available
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Products</h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    {{ totalDocs }} product{{ totalDocs !== 1 ? 's' : '' }} available
+                </p>
             </div>
+
+            <!-- Mobile Filter Toggle -->
+            <button
+                    (click)="toggleFilters()"
+                    class="md:hidden inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                </svg>
+                Filters
+            </button>
         </div>
 
-        <!-- Search and Sort Bar -->
-        <div class="flex flex-col sm:flex-row gap-3 mb-4">
-            <!-- Search -->
-            <div class="flex-1 relative">
-                <input
-                        type="text"
-                        [(ngModel)]="searchTerm"
-                        (keyup.enter)="onSearch()"
-                        placeholder="Search products..."
-                        class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                />
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
+        <!-- Search Bar -->
+        <div class="relative mb-6">
+            <input
+                    type="text"
+                    [(ngModel)]="searchTerm"
+                    (keyup.enter)="onSearch()"
+                    placeholder="Search for products..."
+                    class="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:shadow-md"
+            />
+            <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+        </div>
+
+        <!-- Filters Panel -->
+        <div [class.hidden]="!showFilters"
+             class="md:!block bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-6 mb-6 border border-gray-200 dark:border-gray-700">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Sort -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Sort By</label>
+                    <select
+                            [(ngModel)]="sortBy"
+                            (change)="onSortChange(sortBy)"
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        <option value="-createdAt">Newest</option>
+                        <option value="createdAt">Oldest</option>
+                        <option value="regularPrice">Price ↑</option>
+                        <option value="-regularPrice">Price ↓</option>
+                        <option value="name">A → Z</option>
+                        <option value="-name">Z → A</option>
+                    </select>
+                </div>
+
+                <!-- Min Price -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Min Price</label>
+                    <input
+                            type="number"
+                            [(ngModel)]="minPrice"
+                            (change)="applyPriceFilter()"
+                            placeholder="0"
+                            min="0"
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    />
+                </div>
+
+                <!-- Max Price -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Max Price</label>
+                    <input
+                            type="number"
+                            [(ngModel)]="maxPrice"
+                            (change)="applyPriceFilter()"
+                            placeholder="∞"
+                            min="0"
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    />
+                </div>
+
+                <!-- Rating Filter -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Min Rating</label>
+                    <div class="flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl p-2">
+                        <button
+                                *ngFor="let star of [1,2,3,4,5]"
+                                (click)="setMinRating(star)"
+                                class="p-1 hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6 transition-colors"
+                                 [class.text-yellow-400]="star <= minRating"
+                                 [class.text-gray-300]="star > minRating"
+                                 [class.dark:text-gray-600]="star > minRating"
+                                 fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col gap-2">
+                    <button
+                            (click)="toggleSaleFilter()"
+                            [ngClass]="onSaleOnly
+                            ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg shadow-red-500/30'
+                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'"
+                            class="px-4 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-[1.02]">
+                        {{ onSaleOnly ? '🔥 On Sale' : 'All Products' }}
+                    </button>
+                    <button
+                            (click)="clearFilters()"
+                            class="px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
+                        Clear Filters
+                    </button>
+                </div>
             </div>
-
-            <!-- Sort Dropdown -->
-            <select
-                    [(ngModel)]="sortBy"
-                    (change)="onSortChange(sortBy)"
-                    class="px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
-                <option value="-createdAt">Newest First</option>
-                <option value="createdAt">Oldest First</option>
-                <option value="regularPrice">Price: Low to High</option>
-                <option value="-regularPrice">Price: High to Low</option>
-                <option value="name">Name: A to Z</option>
-                <option value="-name">Name: Z to A</option>
-            </select>
-
-            <!-- Sale Filter Toggle -->
-            <button
-                    (click)="toggleSaleFilter()"
-                    [ngClass]="onSaleOnly ? 'bg-red-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700'"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all hover:shadow-md">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
-                </svg>
-                {{ onSaleOnly ? 'On Sale' : 'All Products' }}
-            </button>
         </div>
     </div>
 
     <!-- Loading Skeleton -->
-    <div *ngIf="isLoading" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div *ngIf="isLoading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <div *ngFor="let i of [1,2,3,4,5,6,7,8]" class="animate-pulse">
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div class="aspect-square bg-gray-200 dark:bg-gray-700"></div>
-                <div class="p-4 space-y-3">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="aspect-square bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"></div>
+                <div class="p-5 space-y-3">
                     <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
                     <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                    <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Empty State -->
-    <div *ngIf="!isLoading && products.length === 0" class="bg-gray-50 dark:bg-gray-800/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 p-12 text-center">
-        <svg class="w-16 h-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div *ngIf="!isLoading && filteredProducts.length === 0" class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 p-16 text-center">
+        <svg class="w-20 h-20 mx-auto text-gray-400 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
         </svg>
-        <p class="text-lg font-medium text-gray-900 dark:text-white mb-2">No products found</p>
-        <p class="text-sm text-gray-600 dark:text-gray-400">Try adjusting your search or filters</p>
+        <p class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No products found</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Try adjusting your filters or search terms</p>
+        <button
+                (click)="clearFilters()"
+                class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-all">
+            Clear All Filters
+        </button>
     </div>
 
     <!-- Products Grid -->
-    <div *ngIf="!isLoading && products.length > 0" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div *ngFor="let product of products"
-             class="group bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 overflow-hidden">
+    <div *ngIf="!isLoading && filteredProducts.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div *ngFor="let product of filteredProducts"
+             class="group bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 overflow-hidden">
 
             <!-- Product Image -->
-            <div class="relative aspect-square bg-gray-100 dark:bg-gray-900 overflow-hidden">
+            <div class="relative aspect-square bg-gray-50 dark:bg-gray-900 overflow-hidden cursor-pointer"
+                 (click)="viewProduct(product._id)">
                 <img
                         [src]="product.images[0] || '/assets/images/product-placeholder.png'"
                         [alt]="product.name"
-                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300 cursor-pointer"
-                        (click)="viewProduct(product._id)"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
 
                 <!-- Sale Badge -->
                 <div *ngIf="product.isSale && calculateDiscount(product) > 0"
-                     class="absolute top-2 left-2 z-10">
+                     class="absolute top-3 left-3 z-10">
                     <div class="relative">
-                        <div class="absolute inset-0 bg-red-600 blur-sm opacity-50"></div>
-                        <div class="relative flex items-center justify-center w-12 h-12 bg-red-600 text-white rounded-full shadow-lg transform -rotate-12 animate-pulse">
-                            <div class="text-center">
-                                <div class="text-xs font-bold leading-none">-{{ calculateDiscount(product) }}%</div>
-                            </div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 blur-lg opacity-70"></div>
+                        <div class="relative px-3 py-1 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-full shadow-lg">
+                            <span class="text-xs font-black">-{{ calculateDiscount(product) }}%</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Stock Badge -->
-                <div class="absolute top-2 right-2 z-10">
+                <div *ngIf="product.stock <= 10" class="absolute top-3 right-3 z-10">
                     <span *ngIf="product.stock === 0"
-                          class="inline-flex items-center gap-1 px-2 py-1 bg-gray-900/90 text-white text-xs font-semibold rounded-full backdrop-blur-sm">
-                        Out of Stock
+                          class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-900/95 text-white text-xs font-bold rounded-full backdrop-blur-sm">
+                        <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                        Out of stock
                     </span>
-                    <span *ngIf="product.stock > 0 && product.stock <= 10"
-                          class="inline-flex items-center gap-1 px-2 py-1 bg-amber-600/90 text-white text-xs font-semibold rounded-full backdrop-blur-sm">
+                    <span *ngIf="product.stock > 0"
+                          class="inline-flex px-2.5 py-1 bg-amber-500/95 text-white text-xs font-bold rounded-full backdrop-blur-sm">
                         Only {{ product.stock }} left
                     </span>
                 </div>
-
-                <!-- Quick View Button -->
-                <button
-                        (click)="viewProduct(product._id)"
-                        class="absolute inset-x-0 bottom-0 bg-black/60 backdrop-blur-sm text-white py-2 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    Quick View
-                </button>
             </div>
 
             <!-- Product Info -->
-            <div class="p-4">
+            <!-- Product Info -->
+            <div class="p-5">
                 <!-- Product Name -->
-                <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-1 line-clamp-2 min-h-[2.5rem] cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                <h3 class="font-semibold text-gray-900 dark:text-white text-base mb-2 line-clamp-2 min-h-[3rem] cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-snug"
                     (click)="viewProduct(product._id)">
                     {{ product.name }}
                 </h3>
 
-                <!-- Category/Tags -->
-                <div *ngIf="product.tags && product.tags.length > 0" class="flex flex-wrap gap-1 mb-2">
-                    <span class="inline-flex items-center px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded">
-                        {{ product.tags[0] }}
-                    </span>
+                <!-- Product Description -->
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2 min-h-[2.5rem]">
+                    {{ product.description || 'No description available' }}
+                </p>
+
+                <!-- Rating -->
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="flex items-center">
+                        <svg *ngFor="let star of [1,2,3]" class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                        <svg *ngFor="let star of [4,5]" class="w-4 h-4 text-gray-300 dark:text-gray-600 fill-current" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">({{ getProductVotes() }})</span>
                 </div>
+
+                <!-- Stock Status -->
+                <p *ngIf="product.stock > 10" class="text-sm text-green-600 dark:text-green-400 font-medium mb-3">In Stock</p>
 
                 <!-- Price -->
-                <div class="mb-3">
-                    <div *ngIf="product.isSale && product.salePrice" class="space-y-1">
-                        <div class="flex items-center gap-2">
-                            <span class="text-3xl font-bold text-red-600 dark:text-red-500">
-                                {{ product.salePrice }} Ar
-                            </span>
-                        </div>
-                        <span class="text-sm text-gray-500 line-through">
-                            {{ product.regularPrice }} Ar
-                        </span>
-                    </div>
-                    <div *ngIf="!product.isSale || !product.salePrice">
-                        <span class="text-lg font-bold text-gray-900 dark:text-white">
-                            {{ product.regularPrice }} Ar
-                        </span>
+                <div class="mb-2">
+                    <div *ngIf="product.isSale && product.salePrice" class="flex items-baseline gap-2 flex-wrap">
+                    <span class="text-2xl font-bold text-gray-900 dark:text-white">
+                        {{ product.salePrice | number:'1.0-0' }} Ar
+                    </span>
+                                <span class="text-base text-gray-500 dark:text-gray-400 line-through">
+                        {{ product.regularPrice | number:'1.0-0' }} Ar
+                    </span>
+                            </div>
+                            <div *ngIf="!product.isSale || !product.salePrice">
+                    <span class="text-2xl font-bold text-gray-900 dark:text-white">
+                        {{ product.regularPrice | number:'1.0-0' }} Ar
+                    </span>
                     </div>
                 </div>
-
-                <!-- Add to Cart Button -->
-                <button
-                        (click)="addToCart(product)"
-                        [disabled]="product.stock === 0"
-                        [ngClass]="product.stock === 0
-                        ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed'
-                        : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white shadow-sm hover:shadow-md'"
-                        class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                    {{ product.stock === 0 ? 'Out of Stock' : 'Add to Cart' }}
-                </button>
             </div>
         </div>
     </div>
 
     <!-- Pagination -->
-    <div *ngIf="!isLoading && totalPages > 1" class="mt-8 flex items-center justify-center gap-2">
+    <div *ngIf="!isLoading && totalPages > 1" class="mt-12 flex items-center justify-center gap-2">
         <button
                 (click)="goToPage(currentPage - 1)"
                 [disabled]="currentPage === 1"
-                class="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                class="inline-flex items-center justify-center w-10 h-10 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-105">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
             </svg>
         </button>
 
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-2">
             <button
-                    *ngFor="let page of [].constructor(totalPages); let i = index"
+                    *ngFor="let page of [].constructor(Math.min(totalPages, 5)); let i = index"
                     (click)="goToPage(i + 1)"
                     [ngClass]="currentPage === i + 1
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
-                    class="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-700 font-medium transition-colors">
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/30'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                    class="inline-flex items-center justify-center w-10 h-10 rounded-xl border-2 font-semibold transition-all hover:scale-105">
                 {{ i + 1 }}
             </button>
         </div>
@@ -198,8 +263,8 @@
         <button
                 (click)="goToPage(currentPage + 1)"
                 [disabled]="currentPage === totalPages"
-                class="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                class="inline-flex items-center justify-center w-10 h-10 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-105">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
             </svg>
         </button>

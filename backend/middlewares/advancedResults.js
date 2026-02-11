@@ -1,6 +1,26 @@
 const advancedResults = (model) => async (req, res, next) => {
     let queryObj = { ...req.query }; // copie des query params
 
+    console.log('Original queryObj:', JSON.stringify(queryObj, null, 2));
+
+    // Coerce booleans in query object ("true"/"false" -> true/false), recursively
+    const coerceBooleans = (val) => {
+        if (Array.isArray(val)) {
+            return val.map(v => coerceBooleans(v));
+        }
+        if (val && typeof val === 'object') {
+            Object.keys(val).forEach(k => {
+                val[k] = coerceBooleans(val[k]);
+            });
+            return val;
+        }
+        if (val === 'true') return true;
+        if (val === 'false') return false;
+        return val;
+    };
+
+    queryObj = coerceBooleans(queryObj);
+
     // On exclut certains champs réservés pour pagination et tri
     const excludeFields = ['page', 'limit', 'sort', 'fields'];
     excludeFields.forEach(f => delete queryObj[f]);
@@ -9,11 +29,26 @@ const advancedResults = (model) => async (req, res, next) => {
     // Ex: ?age[gte]=18&age[lte]=30 => { age: { $gte: 18, $lte: 30 } }
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(
-        /\b(gte|gt|lte|lt|regex|ne|in|nin)\b/g,
+        /\b(gte|gt|lte|lt|regex|ne|in|nin|options)\b/g,
         match => `$${match}`
     );
 
     let query = JSON.parse(queryStr);
+
+    // CORRECTION: Gérer les regex avec options
+    // MongoDB attend $regex et $options au même niveau
+    Object.keys(query).forEach(key => {
+        if (query[key] && typeof query[key] === 'object') {
+            // Si on a à la fois $regex et $options
+            if (query[key].$regex !== undefined && query[key].$options !== undefined) {
+                // C'est déjà dans le bon format, ne rien faire
+            } else if (query[key].$regex !== undefined) {
+                // Si on a seulement $regex sans $options, c'est OK aussi
+            }
+        }
+    });
+
+    console.log('Processed query:', JSON.stringify(query, null, 2));
 
     // Options de pagination
     const page = parseInt(req.query.page, 10) || 1;
@@ -49,6 +84,7 @@ const advancedResults = (model) => async (req, res, next) => {
 
         next();
     } catch (err) {
+        console.error('Advanced results error:', err);
         next(err);
     }
 };
