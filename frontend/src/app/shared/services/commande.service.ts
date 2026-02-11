@@ -47,4 +47,9 @@ export class CommandeService {
     getDraft(): Observable<any> {
         return this.api.get('commandes/draft');
     }
+
+    // New: get full draft with populated boutique and products information
+    getDraftFull(): Observable<any> {
+        return this.api.get('commandes/draft/full');
+    }
 }

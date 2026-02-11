@@ -11,6 +11,8 @@ npm install multer
 npm install cloudinary (asorina)
 npm install axios
 npm install form-data
+npm install node-cron
+
 
 
 

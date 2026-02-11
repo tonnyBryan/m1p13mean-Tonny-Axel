@@ -110,4 +110,24 @@ exports.getDraft = async (req, res, next) => {
     }
 };
 
+// GET /api/commandes/draft/full
+// return the draft with boutique and product details populated
+exports.getDraftFull = async (req, res, next) => {
+    try {
+        const userId = req.user && req.user._id;
+        if (!userId) return errorResponse(res, 401, 'Unauthorized');
+
+        const now = new Date();
+        const commande = await Commande.findOne({ user: userId, status: 'draft', $or: [ { expiredAt: { $exists: false } }, { expiredAt: { $gt: now } } ] })
+            .populate('boutique')
+            .populate({ path: 'products.product', model: 'Product' })
+            .exec();
+
+        return successResponse(res, 200, null, commande);
+    } catch (err) {
+        console.error('getDraftFull error:', err);
+        return errorResponse(res, 500, 'Server error');
+    }
+};
+
 // additional helper: remove product, update qty etc could be added later
