@@ -1,0 +1,13 @@
+/* Smooth transitions */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Sticky summary positioning */
+@media (max-width: 1024px) {
+    .sticky {
+        position: relative;
+        top: 0;
+    }
+}

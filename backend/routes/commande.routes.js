@@ -12,4 +12,10 @@ router.get('/draft', protect, authorize('user', 'boutique'), commandeController.
 // Get full draft (populated)
 router.get('/draft/full', protect, authorize('user', 'boutique'), commandeController.getDraftFull);
 
+// Update quantity for a product in draft (increment/decrement/set)
+router.patch('/products/:productId/quantity', protect, authorize('user'), commandeController.updateItemQuantity);
+
+// Remove a product from draft
+router.delete('/products/:productId', protect, authorize('user'), commandeController.removeItemFromCart);
+
 module.exports = router;
