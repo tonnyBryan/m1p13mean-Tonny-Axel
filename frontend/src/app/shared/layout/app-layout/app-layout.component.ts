@@ -9,6 +9,8 @@ import {Observable} from "rxjs";
 import {User} from "../../../core/models/user.model";
 import {AuthService} from "../../services/auth.service";
 import {AppHeaderUserComponent} from "../app-header-user/app-header-user.component";
+import {AppHeaderBoutiqueComponent} from "../app-header-boutique/app-header-boutique.component";
+import {AppHeaderAdminComponent} from "../app-header-admin/app-header-admin.component";
 
 @Component({
   selector: 'app-layout',
@@ -18,7 +20,9 @@ import {AppHeaderUserComponent} from "../app-header-user/app-header-user.compone
     AppHeaderComponent,
     AppSidebarComponent,
     BackdropComponent,
-    AppHeaderUserComponent
+    AppHeaderUserComponent,
+    AppHeaderBoutiqueComponent,
+    AppHeaderAdminComponent
   ],
   templateUrl: './app-layout.component.html',
 })

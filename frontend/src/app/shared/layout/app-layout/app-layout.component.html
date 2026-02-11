@@ -12,18 +12,35 @@
       }"
   >
     <!-- app header start -->
-    <ng-container *ngIf="user$ | async as user; else noUser">
-      <app-header-user *ngIf="user?.role === 'user'; else defaultHeader"></app-header-user>
-    </ng-container>
+      <!-- app header start -->
+      <ng-container *ngIf="user$ | async as user; else noUser">
+          <ng-container [ngSwitch]="user?.role">
 
-    <ng-template #defaultHeader>
-      <app-header></app-header>
-    </ng-template>
+              <app-header-user
+                      *ngSwitchCase="'user'">
+              </app-header-user>
 
-    <ng-template #noUser>
-      <app-header></app-header>
-    </ng-template>
-    <!-- app header end -->
+              <app-header-boutique
+                      *ngSwitchCase="'boutique'">
+              </app-header-boutique>
+
+              <app-header-admin
+                      *ngSwitchCase="'admin'">
+              </app-header-admin>
+
+              <app-header
+                      *ngSwitchDefault>
+              </app-header>
+
+          </ng-container>
+      </ng-container>
+
+      <ng-template #noUser>
+          <app-header></app-header>
+      </ng-template>
+      <!-- app header end -->
+
+      <!-- app header end -->
     <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
         <div class="container mx-auto px-4 py-8">
             <router-outlet></router-outlet>

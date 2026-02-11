@@ -8,11 +8,11 @@ import {User} from "../../../../core/models/user.model";
 import {Observable} from "rxjs";
 
 @Component({
-  selector: 'app-user-dropdown',
-  templateUrl: './user-dropdown.component.html',
+  selector: 'app-boutique-dropdown',
+  templateUrl: './boutique-dropdown.component.html',
   imports:[CommonModule,RouterModule,DropdownComponent,DropdownItemTwoComponent]
 })
-export class UserDropdownComponent implements OnInit {
+export class BoutiqueDropdownComponent implements OnInit {
   user$!: Observable<User | null>;
 
   constructor(private authService : AuthService, private router: Router) {
