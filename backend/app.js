@@ -32,6 +32,7 @@ app.use('/api/users', require('./routes/user.routes'));
 app.use('/api/products', require('./routes/product.routes'));
 app.use('/api/boutiques', require('./routes/boutique.routes'));
 app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/commandes', require('./routes/commande.routes'));
 
 
 module.exports = app;

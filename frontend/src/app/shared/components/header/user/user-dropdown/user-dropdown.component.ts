@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
-import { DropdownComponent } from '../../ui/dropdown/dropdown.component';
+import { DropdownComponent } from '../../../ui/dropdown/dropdown.component';
 import { CommonModule } from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
-import { DropdownItemTwoComponent } from '../../ui/dropdown/dropdown-item/dropdown-item.component-two';
-import {AuthService} from "../../../services/auth.service";
-import {User} from "../../../../core/models/user.model";
+import { DropdownItemTwoComponent } from '../../../ui/dropdown/dropdown-item/dropdown-item.component-two';
+import {AuthService} from "../../../../services/auth.service";
+import {User} from "../../../../../core/models/user.model";
 import {Observable} from "rxjs";
 
 @Component({

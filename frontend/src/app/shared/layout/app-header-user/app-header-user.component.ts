@@ -4,9 +4,10 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ThemeToggleButtonComponent } from '../../components/common/theme-toggle/theme-toggle-button.component';
 import { NotificationDropdownComponent } from '../../components/header/notification-dropdown/notification-dropdown.component';
-import { UserDropdownComponent } from '../../components/header/user-dropdown/user-dropdown.component';
+import { UserDropdownComponent } from '../../components/header/user/user-dropdown/user-dropdown.component';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
+import {UserCartComponent} from "../../components/header/user/user-cart/user-cart.component";
 
 @Component({
     selector: 'app-header-user',
@@ -16,6 +17,7 @@ import { AuthService } from '../../services/auth.service';
         ThemeToggleButtonComponent,
         NotificationDropdownComponent,
         UserDropdownComponent,
+        UserCartComponent,
     ],
     templateUrl: './app-header-user.component.html',
 })

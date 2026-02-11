@@ -4,6 +4,8 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {StoreService} from "../../../shared/services/store.service";
 import {Product} from "../../../core/models/product.model";
 import {PageBreadcrumbComponent} from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
+import { CommandeService } from '../../../shared/services/commande.service';
+import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
     selector: 'app-product-fiche-user',
@@ -20,7 +22,12 @@ export class ProductFicheUserComponent implements OnInit {
     quantity: number = 1;
     showCopiedSku: boolean = false;
 
-    constructor(private route : ActivatedRoute, private router : Router, private storeService : StoreService ) {
+    // UI states for add-to-cart flow
+    isAddingToCart: boolean = false;
+    addedToCartSuccess: boolean = false;
+    addToCartErrorMessage: string | null = null;
+
+    constructor(private route : ActivatedRoute, private router : Router, private storeService : StoreService , private commandeService: CommandeService, private authService: AuthService) {
     }
 
     ngOnInit(): void {
@@ -48,7 +55,8 @@ export class ProductFicheUserComponent implements OnInit {
                 }
 
                 if (res.data.boutique != storeId) {
-                    throw new Error("Product does not belong to the specified store");
+                    this.router.navigate(['/v1/stores']);
+                    return;
                 }
 
                 this.product = res.data;
@@ -173,12 +181,46 @@ export class ProductFicheUserComponent implements OnInit {
     // ════════════════════════════════════════════
 
     addToCart(): void {
-        console.log('Add to cart:', {
-            productId: this.p._id,
-            quantity: this.quantity,
-            price: this.totalPrice
+        if (!this.product) return;
+        const productId = this.product._id;
+        const qty = this.quantity > 0 ? this.quantity : 1;
+
+        // Reset states
+        this.isAddingToCart = true;
+        this.addedToCartSuccess = false;
+        this.addToCartErrorMessage = null;
+
+        this.commandeService.addToCart(productId, qty).subscribe({
+            next: (res) => {
+                this.isAddingToCart = false;
+                if (res?.success) {
+                    this.addedToCartSuccess = true;
+                    this.commandeService.refreshDraftCount().subscribe();
+
+                    // Reset after 3 seconds
+                    setTimeout(() => {
+                        this.addedToCartSuccess = false;
+                    }, 3000);
+
+                    console.log('Added to cart', res.data);
+                } else {
+                    const msg = res?.message || 'Unable to add to cart';
+                    this.addToCartErrorMessage = msg;
+                    setTimeout(() => {
+                        this.addToCartErrorMessage = null;
+                    }, 3000);
+                }
+            },
+            error: (err) => {
+                this.isAddingToCart = false;
+                console.error('Add to cart error:', err);
+                const message = err?.error?.message || err?.message || 'Error adding to cart';
+                this.addToCartErrorMessage = message;
+                setTimeout(() => {
+                    this.addToCartErrorMessage = null;
+                }, 3000);
+            }
         });
-        // → Votre logique d'ajout au panier
     }
 
     buyNow(): void {
