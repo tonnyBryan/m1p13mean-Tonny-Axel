@@ -13,6 +13,7 @@ const CommandeProductSchema = new Schema({
 const DeliveryAddressSchema = new Schema({
     latitude: { type: Number, default: null },
     longitude: { type: Number, default: null },
+    label: { type: String, default: '' },
     description: { type: String, default: '' },
     price: { type: Number, default: 0 }
 }, { _id: false });
@@ -21,7 +22,7 @@ const CommandeSchema = new Schema({
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     boutique: { type: Schema.Types.ObjectId, ref: 'Boutique', required: true },
     products: { type: [CommandeProductSchema], default: [] },
-    deliveryMode: { type: String, enum: ['dine-in', 'delivery'], default: null },
+    deliveryMode: { type: String, enum: ['pickup', 'delivery'], default: null },
     // structured delivery address (nullable)
     deliveryAddress: { type: DeliveryAddressSchema, default: null },
     paymentMethod: { type: String, default: null },

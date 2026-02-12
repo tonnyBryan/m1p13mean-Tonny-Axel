@@ -15,6 +15,7 @@ import {PageBreadcrumbComponent} from "../../../shared/components/common/page-br
   styleUrl: './checkout-user.component.css',
 })
 export class CheckoutUserComponent implements OnInit {
+  tax: number = 0; // percentage
 
   profile: any = null;
   cart: any = null;
@@ -30,6 +31,7 @@ export class CheckoutUserComponent implements OnInit {
   // New address (if user wants to add one)
   showNewAddressForm = false;
   saveNewAddress = false;
+  savePaymentInfo = false;
   newAddress = {
     label: '',
     description: '',
@@ -189,12 +191,17 @@ export class CheckoutUserComponent implements OnInit {
     return this.getPrixLivraison(centreCoords, addr);
   }
 
-  get tax(): number {
-    return this.subtotal * 0.1;
+  get taxPrice(): number {
+    return this.subtotal * (this.tax / 100);
   }
 
+  get taxPercentage(): number {
+    return this.tax;
+  }
+
+
   get total(): number {
-    return this.subtotal + this.deliveryFee + this.tax;
+    return this.subtotal + this.deliveryFee + this.taxPrice;
   }
 
   // Compute haversine distance (km) between two coordinates {latitude, longitude}
@@ -282,21 +289,73 @@ export class CheckoutUserComponent implements OnInit {
 
     this.isProcessing = true;
 
-    // TODO: Call API to process payment
-    console.log('Processing payment...', {
-      deliveryMode: this.deliveryMode,
-      addressId: this.selectedAddressId,
-      newAddress: this.showNewAddressForm ? this.newAddress : null,
-      paymentInfo: this.paymentInfo,
-      total: this.total
-    });
+    // Build deliveryAddress payload or set null for pickup
+    let deliveryAddressPayload: any = null;
+    if (this.deliveryMode === 'delivery') {
+      if (this.showNewAddressForm) {
+        const addr = {
+          id: null,
+          label: this.newAddress.label || '',
+          description: this.newAddress.description || '',
+          latitude: Number(this.newAddress.latitude),
+          longitude: Number(this.newAddress.longitude),
+          price: 0,
+          saveNewAddress: this.saveNewAddress
+        };
+        // compute price using existing helper
+        const centreCoords = this.centre?.location?.coordinates || this.centre?.location;
+        addr.price = this.getPrixLivraison(centreCoords, addr);
+        deliveryAddressPayload = addr;
+      } else {
+        const addr = this.getSelectedAddress();
+        const latitude = addr?.latitude ?? addr?.location?.latitude ?? addr?.coordinates?.latitude ?? null;
+        const longitude = addr?.longitude ?? addr?.location?.longitude ?? addr?.coordinates?.longitude ?? null;
+        const addrPayload = {
+          id: addr?._id ?? null,
+          label: addr?.label ?? (addr?.description ?? ''),
+          description: addr?.description ?? '',
+          latitude: Number(latitude),
+          longitude: Number(longitude),
+          price: 0,
+          saveNewAddress: false
+        };
+        const centreCoords = this.centre?.location?.coordinates || this.centre?.location;
+        addrPayload.price = this.getPrixLivraison(centreCoords, addrPayload);
+        deliveryAddressPayload = addrPayload;
+      }
+    }
 
-    // Simulate API call
-    setTimeout(() => {
-      this.isProcessing = false;
-      alert('Payment processed successfully!');
-      // this.router.navigate(['/v1/orders']);
-    }, 2000);
+    const payload = {
+      deliveryMode: this.deliveryMode,
+      deliveryAddress: deliveryAddressPayload, // nullable
+      paymentInfo: this.paymentInfo,
+      savePaymentInfo: this.savePaymentInfo,
+      totalAmount: this.total
+    };
+
+    // Print the prepared payload (for debug)
+    console.log('Prepared payment payload:', payload);
+
+    // Call backend pay API
+    this.commandeService.payCommand(payload).subscribe({
+      next: (res: any) => {
+        this.isProcessing = false;
+        if (res?.success) {
+          console.log('Payment successful:', res.data);
+          // navigate to orders or show success message
+          alert('Payment successful');
+        } else {
+          console.error('Payment failed:', res);
+          alert(res?.message || 'Payment failed');
+        }
+      },
+      error: (err: any) => {
+        this.isProcessing = false;
+        console.error('Payment API error:', err);
+        const message = err?.error?.message || err?.message || 'Payment error';
+        alert(message);
+      }
+    });
   }
 
   // ════════════════════════════════════════════
@@ -344,13 +403,18 @@ export class CheckoutUserComponent implements OnInit {
     }
   }
 
-  isPaymentFormValid(): boolean {
-    return !!(
-        this.paymentInfo.cardNumber.replace(/\s/g, '').length >= 15 &&
-        this.paymentInfo.cardName.trim() &&
-        this.paymentInfo.expiryDate.length === 5 &&
-        this.paymentInfo.cvv.length >= 3
-    );
+  isDeliveryAvailableToday(): boolean {
+    if (!this.cart.boutique?.livraisonConfig?.deliveryDays) return false;
+
+    const jsDay = new Date().getDay();
+    const apiDay = jsDay === 0 ? 7 : jsDay;
+    const todayDelivery = this.cart.boutique.livraisonConfig.deliveryDays.find((d: any) => d.day === apiDay);
+
+    return todayDelivery?.isActive || false;
+  }
+
+  isDeliveryEnabled(): boolean {
+    return !!(this.cart && this.cart.boutique && this.cart.boutique.livraisonConfig && this.cart.boutique.livraisonConfig.isDeliveryAvailable);
   }
 
   isReadyToPay(): boolean {

@@ -72,36 +72,83 @@
                     <!-- Delivery -->
                     <button
                             (click)="selectDeliveryMode('delivery')"
+                            [disabled]="!isDeliveryEnabled() || !isDeliveryAvailableToday()"
                             [ngClass]="{
-              'border-brand-500 bg-brand-50 dark:bg-brand-900/20': deliveryMode === 'delivery',
-              'border-gray-300 dark:border-gray-600 hover:border-gray-400': deliveryMode !== 'delivery'
+              'border-brand-500 bg-brand-50 dark:bg-brand-900/20': deliveryMode === 'delivery' && isDeliveryEnabled() && isDeliveryAvailableToday(),
+              'border-gray-300 dark:border-gray-600 hover:border-gray-400': deliveryMode !== 'delivery' && isDeliveryEnabled() && isDeliveryAvailableToday(),
+              'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 opacity-60 cursor-not-allowed': !isDeliveryEnabled() || !isDeliveryAvailableToday()
             }"
                             class="relative p-6 rounded-xl border-2 transition-all text-left group">
                         <div class="flex items-start gap-4">
                             <div class="flex-shrink-0">
-                                <div [ngClass]="deliveryMode === 'delivery' ? 'bg-brand-500' : 'bg-gray-300 dark:bg-gray-600'"
+                                <div [ngClass]="{
+                        'bg-brand-500': deliveryMode === 'delivery' && isDeliveryEnabled() && isDeliveryAvailableToday(),
+                        'bg-gray-300 dark:bg-gray-600': (deliveryMode !== 'delivery' && isDeliveryEnabled() && isDeliveryAvailableToday()) || !isDeliveryEnabled() || !isDeliveryAvailableToday()
+                    }"
                                      class="w-6 h-6 rounded-full flex items-center justify-center transition-colors">
-                                    <svg *ngIf="deliveryMode === 'delivery'" class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg *ngIf="deliveryMode === 'delivery' && isDeliveryEnabled() && isDeliveryAvailableToday()" class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <!-- X icon when disabled -->
+                                    <svg *ngIf="!isDeliveryEnabled() || !isDeliveryAvailableToday()" class="w-3.5 h-3.5 text-gray-500 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
                                 </div>
                             </div>
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1">
-                                    <svg class="w-5 h-5" [ngClass]="deliveryMode === 'delivery' ? 'text-brand-600 dark:text-brand-400' : 'text-gray-600 dark:text-gray-400'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <svg class="w-5 h-5"
+                                         [ngClass]="{
+                                 'text-brand-600 dark:text-brand-400': deliveryMode === 'delivery' && isDeliveryEnabled() && isDeliveryAvailableToday(),
+                                 'text-gray-400 dark:text-gray-600': !isDeliveryEnabled() || !isDeliveryAvailableToday(),
+                                 'text-gray-600 dark:text-gray-400': deliveryMode !== 'delivery' && isDeliveryEnabled() && isDeliveryAvailableToday()
+                             }"
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
                                     </svg>
-                                    <h3 class="font-semibold" [ngClass]="deliveryMode === 'delivery' ? 'text-brand-900 dark:text-brand-100' : 'text-gray-900 dark:text-white'">
+                                    <h3 class="font-semibold"
+                                        [ngClass]="{
+                                'text-brand-900 dark:text-brand-100': deliveryMode === 'delivery' && isDeliveryEnabled() && isDeliveryAvailableToday(),
+                                'text-gray-400 dark:text-gray-600': !isDeliveryEnabled() || !isDeliveryAvailableToday(),
+                                'text-gray-900 dark:text-white': deliveryMode !== 'delivery' && isDeliveryEnabled() && isDeliveryAvailableToday()
+                            }">
                                         Home Delivery
                                     </h3>
                                 </div>
-                                <p class="text-sm" [ngClass]="deliveryMode === 'delivery' ? 'text-brand-700 dark:text-brand-300' : 'text-gray-600 dark:text-gray-400'">
-                                    Delivered to your address
+                                <p class="text-sm"
+                                   [ngClass]="{
+                           'text-brand-700 dark:text-brand-300': deliveryMode === 'delivery' && isDeliveryEnabled() && isDeliveryAvailableToday(),
+                           'text-gray-400 dark:text-gray-600': !isDeliveryEnabled() || !isDeliveryAvailableToday(),
+                           'text-gray-600 dark:text-gray-400': deliveryMode !== 'delivery' && isDeliveryEnabled() && isDeliveryAvailableToday()
+                       }">
+                        <span *ngIf="isDeliveryEnabled() && isDeliveryAvailableToday()">
+                            Delivered to your address
+                        </span>
+                                    <span *ngIf="!isDeliveryEnabled() || !isDeliveryAvailableToday()" class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>
+                                <span *ngIf="!isDeliveryEnabled()">Delivery not available</span>
+                                <span *ngIf="isDeliveryEnabled() && !isDeliveryAvailableToday()">Not available today</span>
+                            </span>
+                        </span>
                                 </p>
-                                <p class="text-xs mt-2 font-semibold text-gray-900 dark:text-white">{{ formatPrice(deliveryFee) }} Ar</p>
+                                <p class="text-xs mt-2 font-semibold"
+                                   [ngClass]="{
+                           'text-gray-900 dark:text-white': isDeliveryEnabled() && isDeliveryAvailableToday(),
+                           'text-gray-400 dark:text-gray-600': !isDeliveryEnabled() || !isDeliveryAvailableToday()
+                       }">
+                                    <span *ngIf="isDeliveryEnabled() && isDeliveryAvailableToday()">{{ formatPrice(deliveryFee) }} Ar</span>
+                                    <span *ngIf="!isDeliveryEnabled() || !isDeliveryAvailableToday()">Unavailable</span>
+                                </p>
                             </div>
                         </div>
+
+                        <!-- Disabled overlay effect -->
+                        <div *ngIf="!isDeliveryEnabled() || !isDeliveryAvailableToday()"
+                             class="absolute inset-0 bg-gray-100/50 dark:bg-gray-900/50 rounded-xl pointer-events-none"></div>
                     </button>
                 </div>
             </div>
@@ -510,6 +557,7 @@
                         <div class="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
                             <input
                                     type="checkbox"
+                                    [(ngModel)]="savePaymentInfo"
                                     id="saveCard"
                                     class="mt-1 w-4 h-4 text-brand-600 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-brand-500"
                             />
@@ -682,9 +730,9 @@
                                     <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                                     </svg>
-                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Tax (10%)</span>
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Tax ({{ taxPercentage }}%)</span>
                                 </div>
-                                <span class="text-sm font-bold text-gray-900 dark:text-white">{{ formatPrice(tax) }} Ar</span>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">{{ formatPrice(taxPrice) }} Ar</span>
                             </div>
 
                             <!-- Divider -->

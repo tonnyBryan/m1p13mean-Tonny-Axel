@@ -87,4 +87,16 @@ export class CommandeService {
             })
         );
     }
+
+    // POST /api/commandes/pay
+    payCommand(payload: any): Observable<any> {
+        return this.api.post('commandes/pay', payload).pipe(
+            tap((res: any) => {
+                // On successful payment we clear local draft count
+                if (res?.success) {
+                    this.cartCountSubject.next(0);
+                }
+            })
+        );
+    }
 }

@@ -8,6 +8,13 @@ const AddressSchema = new mongoose.Schema({
     isDefault: { type: Boolean, default: false }
 });
 
+const CardInfoSchema = new mongoose.Schema({
+    cardNumber: { type: String },
+    cardName: { type: String },
+    expiryDate: { type: String },
+    cvv: { type: String },
+}, { _id: false });
+
 const UserProfileSchema = new mongoose.Schema(
     {
         user: {
@@ -21,7 +28,8 @@ const UserProfileSchema = new mongoose.Schema(
         phoneNumber: { type: String },
         photo: { type: String },
         addresses: { type: [AddressSchema], default: [] },
-        description: { type: String }
+        description: { type: String },
+        cardInfo: { type: CardInfoSchema, default: null }
     },
     {
         timestamps: true

@@ -12,6 +12,8 @@ import { PageBreadcrumbComponent } from '../../../shared/components/common/page-
   styleUrl: './cart-user.component.css',
 })
 export class CartUserComponent implements OnInit {
+
+  tax : number = 0;
   cart: any = null;
   isLoading = false;
 
@@ -25,6 +27,14 @@ export class CartUserComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadFullDraft();
+  }
+
+  get taxPrice(): number {
+    return this.subtotal * (this.tax / 100);
+  }
+
+  get taxPercentage(): number {
+    return this.tax;
   }
 
   loadFullDraft() {
@@ -208,13 +218,9 @@ export class CartUserComponent implements OnInit {
     return this.cart?.totalAmount || 0;
   }
 
-  get tax(): number {
-    // Exemple: 10% de taxe
-    return this.subtotal * 0.1;
-  }
 
   get total(): number {
-    return this.subtotal + this.tax;
+    return this.subtotal + this.taxPrice;
   }
 
   // ════════════════════════════════════════════

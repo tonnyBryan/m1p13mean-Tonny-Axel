@@ -2,6 +2,7 @@ const Commande = require('../models/Commande');
 const Product = require('../models/Product');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 const LivraisonConfig = require('../models/LivraisonConfig');
+const UserProfile = require('../models/UserProfile');
 
 async function findOpenDraft(userId) {
     // Find non-expired draft
@@ -227,6 +228,58 @@ exports.removeItemFromCart = async (req, res) => {
         return successResponse(res, 200, null, commande);
     } catch (err) {
         console.error('removeItemFromCart error:', err);
+        return errorResponse(res, 500, 'Server error');
+    }
+};
+
+// POST /api/commandes/pay
+exports.payCommand = async (req, res) => {
+    try {
+        const userId = req.user && req.user._id;
+        if (!userId) return errorResponse(res, 401, 'Unauthorized');
+
+        const { deliveryMode, deliveryAddress, paymentInfo, savePaymentInfo, totalAmount } = req.body;
+        const saveNewAddress = deliveryAddress?.saveNewAddress;
+
+        // Find open draft
+        const commande = await findOpenDraft(userId);
+        if (!commande) return errorResponse(res, 404, 'No open draft found');
+
+        // Update commande details
+        commande.status = 'paid';
+        commande.deliveryMode = deliveryMode || null;
+        commande.deliveryAddress = deliveryAddress || null;
+        commande.paymentMethod = 'card'; // Default to card for now
+        commande.totalAmount = totalAmount;
+
+        // Save new delivery address if required
+        if (deliveryAddress && deliveryAddress.id === null && saveNewAddress) {
+            const userProfile = await UserProfile.findOne({ user: userId });
+            if (userProfile) {
+                userProfile.addresses.push({
+                    label: deliveryAddress.label,
+                    description: deliveryAddress.description,
+                    latitude: deliveryAddress.latitude,
+                    longitude: deliveryAddress.longitude,
+                    price: deliveryAddress.price
+                });
+                await userProfile.save();
+            }
+        }
+
+        // Save or update payment info if required
+        if (savePaymentInfo) {
+            const userProfile = await UserProfile.findOne({ user: userId });
+            if (userProfile) {
+                userProfile.cardInfo = paymentInfo;
+                await userProfile.save();
+            }
+        }
+
+        await commande.save();
+        return successResponse(res, 200, 'Payment processed successfully', commande);
+    } catch (err) {
+        console.error('payCommand error:', err);
         return errorResponse(res, 500, 'Server error');
     }
 };

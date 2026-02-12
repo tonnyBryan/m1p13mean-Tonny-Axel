@@ -18,4 +18,7 @@ router.patch('/products/:productId/quantity', protect, authorize('user'), comman
 // Remove a product from draft
 router.delete('/products/:productId', protect, authorize('user'), commandeController.removeItemFromCart);
 
+// Pay the current draft
+router.post('/pay', protect, authorize('user'), commandeController.payCommand);
+
 module.exports = router;
