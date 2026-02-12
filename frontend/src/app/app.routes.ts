@@ -19,11 +19,11 @@ import { AddBoutiqueComponent } from "./pages/admin/boutique-list/add-boutique/a
 import { ProductFicheBoutiqueComponent } from "./pages/boutique/product-fiche-boutique/product-fiche-boutique.component";
 import { BoutiqueListeUserComponent } from "./pages/user/boutique-liste-user/boutique-liste-user.component";
 import { ProfileUserComponent } from "./pages/user/profile-user/profile-user.component";
-import {FicheBoutiqueComponent} from "./pages/boutique/fiche-boutique/fiche-boutique.component";
-import {BoutiqueFicheUserComponent} from "./pages/user/boutique-fiche-user/boutique-fiche-user.component";
-import {ProductFicheUserComponent} from "./pages/user/product-fiche-user/product-fiche-user.component";
-import {CartUserComponent} from "./pages/user/cart-user/cart-user.component";
-import {CheckoutUserComponent} from "./pages/user/checkout-user/checkout-user.component";
+import { FicheBoutiqueComponent } from "./pages/boutique/fiche-boutique/fiche-boutique.component";
+import { BoutiqueFicheUserComponent } from "./pages/user/boutique-fiche-user/boutique-fiche-user.component";
+import { ProductFicheUserComponent } from "./pages/user/product-fiche-user/product-fiche-user.component";
+import { CartUserComponent } from "./pages/user/cart-user/cart-user.component";
+import { CheckoutUserComponent } from "./pages/user/checkout-user/checkout-user.component";
 
 
 export const routes: Routes = [
@@ -79,7 +79,7 @@ export const routes: Routes = [
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
         title:
-            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+          'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
       },
       {
         path: 'profile',
@@ -264,7 +264,31 @@ export const routes: Routes = [
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
         title:
-            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+          'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+      },
+      {
+        path: 'vente-directe',
+        loadComponent: () => import('./pages/boutique/vente-directe/vente-directe.component').then(m => m.VenteDirecteComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        pathMatch: 'full',
+        title: 'Direct Sale | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
+        path: 'vente-liste',
+        loadComponent: () => import('./pages/boutique/vente-list/vente-list.component').then(m => m.VenteListComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        pathMatch: 'full',
+        title: 'Sales History | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
+        path: 'vente-detail/:id',
+        loadComponent: () => import('./pages/boutique/vente-detail/vente-detail.component').then(m => m.VenteDetailComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        pathMatch: 'full',
+        title: 'Sale Details | TailAdmin - Angular Admin Dashboard Template'
       },
     ]
   },
