@@ -262,7 +262,11 @@ export class CartUserComponent implements OnInit {
   }
 
   continueShopping(): void {
-    this.router.navigate(['/v1/stores']);
+    this.router.navigate(['/v1/stores/' , this.cart.boutique._id]);
+  }
+
+  explore() : void {
+    this.router.navigate(['/v1/stores/']);
   }
 
   goToShop(): void {

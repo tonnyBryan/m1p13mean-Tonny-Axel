@@ -116,32 +116,92 @@
                             *ngFor="let address of profile.addresses"
                             (click)="selectAddress(address._id)"
                             [ngClass]="{
-              'border-brand-500 bg-brand-50 dark:bg-brand-900/20': selectedAddressId === address._id,
-              'border-gray-300 dark:border-gray-600 hover:border-gray-400': selectedAddressId !== address._id
-            }"
-                            class="p-4 rounded-xl border-2 cursor-pointer transition-all">
-                        <div class="flex items-start gap-3">
-                            <div class="flex-shrink-0 mt-0.5">
-                                <div [ngClass]="selectedAddressId === address._id ? 'bg-brand-500' : 'bg-gray-300 dark:bg-gray-600'"
-                                     class="w-5 h-5 rounded-full flex items-center justify-center transition-colors">
-                                    <svg *ngIf="selectedAddressId === address._id" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+      'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-md': selectedAddressId === address._id,
+      'border-gray-300 dark:border-gray-600 hover:border-gray-400 hover:shadow-sm': selectedAddressId !== address._id
+    }"
+                            class="p-4 rounded-xl border-2 cursor-pointer transition-all group"
+                    >
+                        <div class="flex items-start gap-4">
+                            <!-- Radio Button -->
+                            <div class="flex-shrink-0 mt-1">
+                                <div [ngClass]="selectedAddressId === address._id ? 'bg-brand-500 ring-4 ring-brand-100 dark:ring-brand-900/50' : 'bg-gray-300 dark:bg-gray-600 group-hover:bg-gray-400'"
+                                     class="w-6 h-6 rounded-full flex items-center justify-center transition-all">
+                                    <svg *ngIf="selectedAddressId === address._id" class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                     </svg>
                                 </div>
                             </div>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <h4 class="font-semibold text-gray-900 dark:text-white">{{ address.label }}</h4>
-                                    <span *ngIf="address.isDefault" class="text-xs px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full">
+
+                            <!-- Address Info -->
+                            <div class="flex-1 min-w-0">
+                                <!-- Label & Default Badge -->
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <div class="flex items-center gap-1.5">
+                                        <svg class="w-4 h-4" [ngClass]="selectedAddressId === address._id ? 'text-brand-600 dark:text-brand-400' : 'text-gray-500 dark:text-gray-400'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        </svg>
+                                        <h4 class="font-bold text-base" [ngClass]="selectedAddressId === address._id ? 'text-gray-900 dark:text-white' : 'text-gray-800 dark:text-gray-200'">
+                                            {{ address.label }}
+                                        </h4>
+                                    </div>
+                                    <span *ngIf="address.isDefault" class="inline-flex items-center gap-1 text-xs px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full font-medium">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
                     Default
-                  </span>
+                </span>
                                 </div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ address.description }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                                    Lat: {{ address.latitude }}, Lng: {{ address.longitude }}
+
+                                <!-- Description -->
+                                <p class="text-sm leading-relaxed mb-2" [ngClass]="selectedAddressId === address._id ? 'text-gray-700 dark:text-gray-300' : 'text-gray-600 dark:text-gray-400'">
+                                    {{ address.description }}
                                 </p>
+
+                                <!-- Coordinates -->
+                                <div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-500">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                                    </svg>
+                                    <span class="font-mono">{{ address.latitude.toFixed(4) }}, {{ address.longitude.toFixed(4) }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Delivery Price (Right Side) -->
+                            <div class="flex-shrink-0 text-right">
+                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Delivery Fee</p>
+                                <div *ngIf="cart?.boutique?.livraisonConfig?.isDeliveryAvailable; else noDelivery">
+                                    <div class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg"
+                                         [ngClass]="selectedAddressId === address._id? 'bg-brand-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                                        </svg>
+                                        <span class="font-bold text-base">
+                                            {{ formatPrice(getPrixLivraison(centre?.location?.coordinates || centre?.location, address)) }}
+                                        </span>
+                                        <span class="text-xs font-medium opacity-90">Ar</span>
+                                    </div>
+                                    <!-- Distance indicator (optional) -->
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        ~{{ getDistanceKmForAddress(address) }} km
+                                    </p>
+                                </div>
+                                <ng-template #noDelivery>
+                                    <div class="inline-flex items-center gap-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                        </svg>
+                                        <span class="text-sm font-medium">N/A</span>
+                                    </div>
+                                </ng-template>
                             </div>
                         </div>
+
+                        <!-- Hover indicator -->
+                        <div *ngIf="selectedAddressId !== address._id"
+                             class="h-0.5 bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent mt-3 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </div>
                 </div>
 
@@ -158,51 +218,160 @@
                 </button>
 
                 <!-- New Address Form -->
-                <div *ngIf="showNewAddressForm" class="mt-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl space-y-4">
+                <!-- New Address Form -->
+                <div *ngIf="showNewAddressForm" class="mt-4 p-6 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700 space-y-5">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">New Address</h3>
+                        <!-- Live Delivery Price -->
+                        <div *ngIf="cart?.boutique?.livraisonConfig?.isDeliveryAvailable && newAddress.latitude && newAddress.longitude"
+                             class="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-100 dark:bg-brand-900/30 rounded-lg border border-brand-300 dark:border-brand-700">
+                            <svg class="w-4 h-4 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                            </svg>
+                            <div class="text-right">
+                                <p class="text-xs font-medium text-brand-700 dark:text-brand-300">Delivery Fee</p>
+                                <p class="text-sm font-bold text-brand-900 dark:text-brand-100">
+                                    {{ formatPrice(getPrixLivraison(centre?.location?.coordinates || centre?.location, newAddress)) }} Ar
+                                    <span class="text-xs font-normal">(~{{ getDistanceKmForAddress(newAddress) }} km)</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Label -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Label</label>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                <span class="flex items-center gap-1">
+                    Label
+                    <span class="text-red-500">*</span>
+                </span>
+                            </label>
                             <input
                                     type="text"
                                     [(ngModel)]="newAddress.label"
-                                    placeholder="e.g., Home, Office"
-                                    class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 transition-colors"
+                                    placeholder="e.g., Home, Office, Work"
+                                    class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
                             />
                         </div>
+
+                        <!-- Description -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                <span class="flex items-center gap-1">
+                    Description
+                    <span class="text-red-500">*</span>
+                </span>
+                            </label>
                             <input
                                     type="text"
                                     [(ngModel)]="newAddress.description"
-                                    placeholder="Address details"
-                                    class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 transition-colors"
+                                    placeholder="Street, Building, Floor..."
+                                    class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
                             />
                         </div>
                     </div>
 
                     <!-- Google Map Placeholder -->
-                    <div class="aspect-video bg-gray-200 dark:bg-gray-700 rounded-xl flex items-center justify-center">
-                        <p class="text-gray-500 dark:text-gray-400 text-sm">Google Map Integration (Click to select location)</p>
+                    <div class="relative">
+                        <div class="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-xl flex flex-col items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-brand-500 dark:hover:border-brand-500 transition-colors cursor-pointer group">
+                            <svg class="w-12 h-12 text-gray-400 dark:text-gray-500 mb-3 group-hover:text-brand-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1">Google Map Integration</p>
+                            <p class="text-gray-500 dark:text-gray-500 text-xs">Click to select location on map</p>
+                        </div>
+                        <!-- Live coordinates indicator -->
+                        <div *ngIf="newAddress.latitude && newAddress.longitude"
+                             class="absolute top-3 right-3 px-3 py-1.5 bg-green-500 text-white text-xs font-semibold rounded-full shadow-lg flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Location Set
+                        </div>
                     </div>
 
+                    <!-- Coordinates with live update indicator -->
                     <div class="grid grid-cols-2 gap-4">
+                        <!-- Latitude -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Latitude</label>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                <span class="flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Latitude
+                    <span class="text-red-500">*</span>
+                </span>
+                            </label>
                             <input
                                     type="number"
                                     [(ngModel)]="newAddress.latitude"
                                     step="0.0001"
-                                    class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 transition-colors"
+                                    placeholder="-18.9134"
+                                    class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
                             />
                         </div>
+
+                        <!-- Longitude -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Longitude</label>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                <span class="flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Longitude
+                    <span class="text-red-500">*</span>
+                </span>
+                            </label>
                             <input
                                     type="number"
                                     [(ngModel)]="newAddress.longitude"
                                     step="0.0001"
-                                    class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 transition-colors"
+                                    placeholder="47.5296"
+                                    class="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
                             />
+                        </div>
+                    </div>
+
+                    <!-- Save Address Checkbox -->
+                    <div class="flex items-start gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
+                        <input
+                                type="checkbox"
+                                id="saveNewAddress"
+                                [(ngModel)]="saveNewAddress"
+                                class="mt-0.5 w-5 h-5 text-brand-600 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-brand-500 cursor-pointer"
+                        />
+                        <label for="saveNewAddress" class="flex-1 cursor-pointer">
+                            <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                    Save this address to my profile
+                </span>
+                                <svg class="w-4 h-4 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                                </svg>
+                            </div>
+                            <span class="text-xs text-gray-600 dark:text-gray-400 block">
+                You can reuse this address for future orders without re-entering the details
+            </span>
+                        </label>
+                    </div>
+
+                    <!-- Validation Info -->
+                    <div class="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                        <div class="text-xs text-blue-800 dark:text-blue-200">
+                            <p class="font-semibold mb-1">Important:</p>
+                            <ul class="list-disc list-inside space-y-0.5 text-blue-700 dark:text-blue-300">
+                                <li>Make sure the coordinates are accurate for precise delivery</li>
+                                <li>Delivery fee is calculated based on distance from the store</li>
+                                <li *ngIf="saveNewAddress" class="text-blue-900 dark:text-blue-100 font-medium">This address will be saved to your profile ✓</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -345,12 +514,12 @@
                                     class="mt-1 w-4 h-4 text-brand-600 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-brand-500"
                             />
                             <label for="saveCard" class="flex-1 cursor-pointer">
-          <span class="text-sm font-medium text-gray-900 dark:text-white block">
-            Save this card for future payments
-          </span>
+                                  <span class="text-sm font-medium text-gray-900 dark:text-white block">
+                                    Save this card for future payments
+                                  </span>
                                 <span class="text-xs text-gray-600 dark:text-gray-400 mt-0.5 block">
-            Your card details will be securely encrypted and stored
-          </span>
+                                    Your card details will be securely encrypted and stored
+                                  </span>
                             </label>
                         </div>
 
@@ -358,7 +527,7 @@
                         <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                             <button
                                     (click)="processPayment()"
-                                    [disabled]="isProcessing || !isPaymentFormValid()"
+                                    [disabled]="isProcessing || !isReadyToPay()"
                                     class="w-full bg-gradient-to-r from-brand-500 to-brand-600 text-white font-bold py-4 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-brand-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 relative overflow-hidden group">
 
                                 <!-- Button Background Effect -->
@@ -366,20 +535,20 @@
 
                                 <!-- Button Content -->
                                 <span class="relative flex items-center justify-center gap-3">
-            <svg *ngIf="!isProcessing" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-            </svg>
+                                    <svg *ngIf="!isProcessing" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
 
-            <svg *ngIf="isProcessing" class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
+                                    <svg *ngIf="isProcessing" class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
 
-            <span class="text-lg">
-              {{ isProcessing ? 'Processing Payment...' : 'Pay ' + formatPrice(total) + ' Ar' }}
-            </span>
-          </span>
-                            </button>
+                                    <span class="text-lg">
+                                      {{ isProcessing ? 'Processing Payment...' : 'Pay ' + formatPrice(total) + ' Ar' }}
+                                    </span>
+                                  </span>
+                                                    </button>
 
                             <!-- Security Badges -->
                             <div class="mt-4 flex items-center justify-center gap-6">

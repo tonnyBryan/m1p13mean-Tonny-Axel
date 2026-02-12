@@ -4,6 +4,7 @@ import {FormsModule} from '@angular/forms';
 import {Router, RouterModule} from '@angular/router';
 import {UserService} from "../../../shared/services/user.service";
 import {CommandeService} from "../../../shared/services/commande.service";
+import {CentreService} from '../../../shared/services/centre.service';
 import {PageBreadcrumbComponent} from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
 
 @Component({
@@ -18,6 +19,7 @@ export class CheckoutUserComponent implements OnInit {
   profile: any = null;
   cart: any = null;
   isLoading = false;
+  centre: any = null;
 
   // Delivery mode: 'pickup' or 'delivery'
   deliveryMode: 'pickup' | 'delivery' = 'pickup';
@@ -27,11 +29,12 @@ export class CheckoutUserComponent implements OnInit {
 
   // New address (if user wants to add one)
   showNewAddressForm = false;
+  saveNewAddress = false;
   newAddress = {
     label: '',
     description: '',
-    latitude: -18.913,
-    longitude: 47.5296
+    latitude: '',
+    longitude: ''
   };
 
   // Payment info
@@ -47,11 +50,13 @@ export class CheckoutUserComponent implements OnInit {
   constructor(
       private userService: UserService,
       private commandeService: CommandeService,
+      private centreService: CentreService,
       private router: Router
   ) {}
 
   ngOnInit(): void {
     this.isLoading = true;
+    this.loadCentre();
     this.loadFullDraft();
     this.loadProfile();
   }
@@ -97,6 +102,22 @@ export class CheckoutUserComponent implements OnInit {
     });
   }
 
+  loadCentre(): void {
+    this.centreService.getCentreCommercial().subscribe({
+      next: (res: any) => {
+        if (res?.success && res?.data) {
+          this.centre = res.data;
+        } else {
+          this.centre = null;
+        }
+      },
+      error: (err) => {
+        console.error('Error loading centre commercial', err);
+        this.centre = null;
+      }
+    });
+  }
+
   checkLoadingComplete(): void {
     if (this.cart && this.profile) {
       this.isLoading = false;
@@ -108,6 +129,16 @@ export class CheckoutUserComponent implements OnInit {
   // ════════════════════════════════════════════
 
   selectDeliveryMode(mode: 'pickup' | 'delivery'): void {
+    // If choosing delivery but boutique doesn't allow delivery, ignore and keep pickup
+    if (mode === 'delivery') {
+      const isAllowed = !!(this.cart && this.cart.boutique && this.cart.boutique.livraisonConfig && this.cart.boutique.livraisonConfig.isDeliveryAvailable);
+      if (!isAllowed) {
+        // keep pickup and optionally show a message
+        alert('Home delivery is not available for this boutique');
+        return;
+      }
+    }
+
     this.deliveryMode = mode;
     if (mode === 'pickup') {
       this.selectedAddressId = null;
@@ -145,8 +176,17 @@ export class CheckoutUserComponent implements OnInit {
   }
 
   get deliveryFee(): number {
-    // TODO: Calculate based on distance if delivery mode
-    return this.deliveryMode === 'delivery' ? 500 : 0;
+    if (this.deliveryMode !== 'delivery') return 0;
+
+    // Need both boutique livraisonConfig and a selected address (or new address)
+    const livraison = this.cart?.boutique?.livraisonConfig;
+    if (!livraison || !livraison.deliveryRules) return 0;
+
+    const addr = this.showNewAddressForm ? this.newAddress : this.getSelectedAddress();
+    if (!addr) return 0;
+
+    const centreCoords = this.centre?.location?.coordinates || this.centre?.location;
+    return this.getPrixLivraison(centreCoords, addr);
   }
 
   get tax(): number {
@@ -155,6 +195,73 @@ export class CheckoutUserComponent implements OnInit {
 
   get total(): number {
     return this.subtotal + this.deliveryFee + this.tax;
+  }
+
+  // Compute haversine distance (km) between two coordinates {latitude, longitude}
+  haversineDistanceKm(c1: { latitude: number; longitude: number } | any, c2: { latitude: number; longitude: number } | any): number {
+    try {
+      if (!c1 || !c2) return 5; // fallback
+      const lat1 = Number(c1.latitude);
+      const lon1 = Number(c1.longitude);
+      const lat2 = Number(c2.latitude);
+      const lon2 = Number(c2.longitude);
+      if ([lat1, lon1, lat2, lon2].some(v => !isFinite(v))) return 5;
+
+      const toRad = (deg: number) => deg * Math.PI / 180;
+      const R = 6371; // Earth radius km
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const d = R * c;
+      return d;
+    } catch (e) {
+      return 5;
+    }
+  }
+
+  // Calculate delivery price between centre coords and an address object
+  getPrixLivraison(centreCoords: any, address: any): number {
+    // If no boutique or no delivery rules, return 0
+    const livraison = this.cart?.boutique?.livraisonConfig;
+    if (!livraison || !livraison.deliveryRules) return 0;
+
+    // If delivery not available, return 0
+    if (!livraison.isDeliveryAvailable) return 0;
+
+    // Prepare coordinates
+    let centre = centreCoords;
+    if (centre && centre.coordinates) centre = centre.coordinates; // support different shapes
+
+    // fallback to 5 km when coordinates missing
+    const distanceKm = this.haversineDistanceKm(centre, address) || 5;
+
+    const rules = livraison.deliveryRules || { minPrice: 0, baseDistanceKm: 0, extraPricePerKm: 0 };
+    const baseKm = Number(rules.baseDistanceKm || 0);
+    const minPrice = Number(rules.minPrice || 0);
+    const extraPerKm = Number(rules.extraPricePerKm || 0);
+
+    let price = 0;
+    if (distanceKm <= baseKm) {
+      price = minPrice;
+    } else {
+      price = minPrice + (distanceKm - baseKm) * extraPerKm;
+    }
+
+    return Math.max(0, Math.round(price));
+  }
+
+  // Retourne la distance en km (arrondie à 1 décimale) entre le centre commercial et l'adresse fournie
+  getDistanceKmForAddress(address: any): number {
+    try {
+      const centreCoords = this.centre?.location?.coordinates || this.centre?.location;
+      const d = this.haversineDistanceKm(centreCoords, address);
+      if (!isFinite(d) || d <= 0) return 5;
+      // arrondir à 1 décimale
+      return Math.round(d * 10) / 10;
+    } catch (e) {
+      return 5;
+    }
   }
 
   // ════════════════════════════════════════════
@@ -188,7 +295,7 @@ export class CheckoutUserComponent implements OnInit {
     setTimeout(() => {
       this.isProcessing = false;
       alert('Payment processed successfully!');
-      this.router.navigate(['/v1/orders']);
+      // this.router.navigate(['/v1/orders']);
     }, 2000);
   }
 
@@ -244,5 +351,44 @@ export class CheckoutUserComponent implements OnInit {
         this.paymentInfo.expiryDate.length === 5 &&
         this.paymentInfo.cvv.length >= 3
     );
+  }
+
+  isReadyToPay(): boolean {
+    // 1. Validate payment info
+    const isPaymentValid = !!(
+        this.paymentInfo.cardNumber.replace(/\s/g, '').length >= 15 &&
+        this.paymentInfo.cardName.trim() &&
+        this.paymentInfo.expiryDate.length === 5 &&
+        this.paymentInfo.cvv.length >= 3
+    );
+
+    if (!isPaymentValid) return false;
+
+    // 2. If delivery mode is pickup, payment info is enough
+    if (this.deliveryMode === 'pickup') return true;
+
+    // 3. If delivery mode is 'delivery', we need an address
+    if (this.deliveryMode === 'delivery') {
+      // Case A: User selected an existing address
+      if (this.selectedAddressId) return true;
+
+      // Case B: User is adding a new address
+      if (this.showNewAddressForm) {
+        const isNewAddressValid = !!(
+            this.newAddress.label.trim() &&
+            this.newAddress.description.trim() &&
+            this.newAddress.latitude &&
+            this.newAddress.longitude &&
+            !isNaN(Number(this.newAddress.latitude)) &&
+            !isNaN(Number(this.newAddress.longitude))
+        );
+        return isNewAddressValid;
+      }
+
+      // Case C: No address selected and not showing new address form
+      return false;
+    }
+
+    return false;
   }
 }

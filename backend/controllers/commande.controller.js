@@ -1,6 +1,7 @@
 const Commande = require('../models/Commande');
 const Product = require('../models/Product');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
+const LivraisonConfig = require('../models/LivraisonConfig');
 
 async function findOpenDraft(userId) {
     // Find non-expired draft
@@ -117,6 +118,20 @@ exports.getDraftFull = async (req, res) => {
             .populate('boutique')
             .populate({ path: 'products.product', model: 'Product' })
             .exec();
+
+        // If a draft and boutique exists, try to attach its LivraisonConfig
+        if (commande && commande.boutique) {
+            try {
+                const livraisonConfig = await LivraisonConfig.findOne({ boutique: commande.boutique._id }) || null;
+                // convert boutique doc to plain object if possible so we can attach the config
+                const boutiqueObj = commande.boutique.toObject ? commande.boutique.toObject() : commande.boutique;
+                boutiqueObj.livraisonConfig = livraisonConfig;
+                commande.boutique = boutiqueObj;
+            } catch (e) {
+                // don't fail the whole request if livraisonConfig lookup fails; log and continue
+                console.error('Failed to load livraisonConfig for boutique:', e);
+            }
+        }
 
         return successResponse(res, 200, null, commande);
     } catch (err) {
