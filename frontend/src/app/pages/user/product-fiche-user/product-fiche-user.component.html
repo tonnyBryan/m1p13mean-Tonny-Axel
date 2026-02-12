@@ -1,441 +1,410 @@
 @if (product) {
-    <app-page-breadcrumb [pageTitle]="pageTitle" [breadcrumbs]="[{ label: 'Home', link: '/v1/stores' },{ label: 'Stores', link: '/v1/stores' }, { label: 'Store name', link: '/v1/stores/' + idStore }, { label: product.name }]" />
+<app-page-breadcrumb [pageTitle]="pageTitle"
+    [breadcrumbs]="[{ label: 'Home', link: '/v1/stores' },{ label: 'Stores', link: '/v1/stores' }, { label: 'Store name', link: '/v1/stores/' + idStore }, { label: product.name }]" />
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
 
-            <!-- ══════════════════════════════════════════ -->
-            <!--  LEFT: IMAGE GALLERY (7 cols)             -->
-            <!-- ══════════════════════════════════════════ -->
-            <div class="lg:col-span-7">
-                <div class="sticky top-8 space-y-4">
+        <!-- ══════════════════════════════════════════ -->
+        <!--  LEFT: IMAGE GALLERY (7 cols)             -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="lg:col-span-7">
+            <div class="sticky top-8 space-y-4">
 
-                    <!-- Main Image Display -->
-                    <div class="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 shadow-xl group">
+                <!-- Main Image Display -->
+                <div
+                    class="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 shadow-xl group">
 
-                        <!-- Image -->
-                        <img
-                                [src]="selectedImage"
-                                [alt]="product.name"
-                                class="absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out"
-                                [class.opacity-0]="false"
-                        />
+                    <!-- Image -->
+                    <img [src]="selectedImage" [alt]="product.name"
+                        class="absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out"
+                        [class.opacity-0]="false" />
 
-                        <!-- Gradient overlay on hover -->
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <!-- Gradient overlay on hover -->
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    </div>
 
-                        <!-- Navigation Arrows -->
-                        @if (product.images.length > 1) {
-                            <!-- Previous -->
-                            <button
-                                    type="button"
-                                    (click)="previousImage()"
-                                    class="absolute left-4 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 dark:bg-gray-800/90 text-gray-800 dark:text-white shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-white dark:hover:bg-gray-700 transition-all duration-300 hover:scale-110"
-                            >
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <path d="M12 16L6 10L12 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
+                    <!-- Navigation Arrows -->
+                    @if (product.images.length > 1) {
+                    <!-- Previous -->
+                    <button type="button" (click)="previousImage()"
+                        class="absolute left-4 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 dark:bg-gray-800/90 text-gray-800 dark:text-white shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-white dark:hover:bg-gray-700 transition-all duration-300 hover:scale-110">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M12 16L6 10L12 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
 
-                            <!-- Next -->
-                            <button
-                                    type="button"
-                                    (click)="nextImage()"
-                                    class="absolute right-4 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 dark:bg-gray-800/90 text-gray-800 dark:text-white shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-white dark:hover:bg-gray-700 transition-all duration-300 hover:scale-110"
-                            >
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <path d="M8 4L14 10L8 16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
-                        }
+                    <!-- Next -->
+                    <button type="button" (click)="nextImage()"
+                        class="absolute right-4 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 dark:bg-gray-800/90 text-gray-800 dark:text-white shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-white dark:hover:bg-gray-700 transition-all duration-300 hover:scale-110">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M8 4L14 10L8 16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    }
 
-                        <!-- Discount Badge (Top Left) -->
-                        @if (product.isSale && discountPercent > 0) {
-                            <div class="absolute top-4 left-4 animate-fade-in">
-                                <div class="rounded-full bg-gradient-to-br from-red-500 to-pink-600 px-4 py-2 shadow-lg">
-                                    <span class="text-sm font-bold text-white">-{{ discountPercent }}%</span>
-                                </div>
-                            </div>
-                        }
+                    <!-- Discount Badge (Top Left) -->
+                    @if (product.isSale && discountPercent > 0) {
+                    <div class="absolute top-4 left-4 animate-fade-in">
+                        <div class="rounded-full bg-gradient-to-br from-red-500 to-pink-600 px-4 py-2 shadow-lg">
+                            <span class="text-sm font-bold text-white">-{{ discountPercent }}%</span>
+                        </div>
+                    </div>
+                    }
 
-                        <!-- Stock Badge (Top Right) -->
-                        <div class="absolute top-4 right-4">
-                            <div class="rounded-full px-3 py-1.5 text-xs font-semibold shadow-lg backdrop-blur-sm"
-                                 [ngClass]="{
+                    <!-- Stock Badge (Top Right) -->
+                    <div class="absolute top-4 right-4">
+                        <div class="rounded-full px-3 py-1.5 text-xs font-semibold shadow-lg backdrop-blur-sm"
+                            [ngClass]="{
                      'bg-emerald-500/90 text-white': stockStatus === 'in-stock',
                      'bg-amber-500/90 text-white': stockStatus === 'low-stock',
                      'bg-red-500/90 text-white': stockStatus === 'out-of-stock'
                    }">
-                                {{ stockLabel }}
-                            </div>
-                        </div>
-
-                        <!-- Image Counter -->
-                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/60 backdrop-blur-sm px-3 py-1.5">
-                            <span class="text-xs font-medium text-white">{{ selectedImageIndex + 1 }} / {{ product.images.length }}</span>
+                            {{ stockLabel }}
                         </div>
                     </div>
 
-                    <!-- Thumbnail Gallery -->
-                    @if (product.images.length > 1) {
-                        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
-                            @for (image of product.images; track $index) {
-                                <button
-                                        type="button"
-                                        (click)="selectImage($index)"
-                                        class="relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden transition-all duration-300 hover:scale-105"
-                                        [class.ring-2]="selectedImageIndex === $index"
-                                        [class.ring-brand-500]="selectedImageIndex === $index"
-                                        [class.opacity-50]="selectedImageIndex !== $index"
-                                >
-                                    <img [src]="image" [alt]="'Image ' + ($index + 1)" class="w-full h-full object-cover" />
-                                    @if (selectedImageIndex === $index) {
-                                        <div class="absolute inset-0 bg-brand-500/20"></div>
-                                    }
-                                </button>
-                            }
-                        </div>
-                    }
-
+                    <!-- Image Counter -->
+                    <div
+                        class="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/60 backdrop-blur-sm px-3 py-1.5">
+                        <span class="text-xs font-medium text-white">{{ selectedImageIndex + 1 }} / {{
+                            product.images.length }}</span>
+                    </div>
                 </div>
+
+                <!-- Thumbnail Gallery -->
+                @if (product.images.length > 1) {
+                <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+                    @for (image of product.images; track $index) {
+                    <button type="button" (click)="selectImage($index)"
+                        class="relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden transition-all duration-300 hover:scale-105"
+                        [class.ring-2]="selectedImageIndex === $index"
+                        [class.ring-brand-500]="selectedImageIndex === $index"
+                        [class.opacity-50]="selectedImageIndex !== $index">
+                        <img [src]="image" [alt]="'Image ' + ($index + 1)" class="w-full h-full object-cover" />
+                        @if (selectedImageIndex === $index) {
+                        <div class="absolute inset-0 bg-brand-500/20"></div>
+                        }
+                    </button>
+                    }
+                </div>
+                }
+
             </div>
+        </div>
 
-            <!-- ══════════════════════════════════════════ -->
-            <!--  RIGHT: PRODUCT INFO (5 cols)             -->
-            <!-- ══════════════════════════════════════════ -->
-            <div class="lg:col-span-5">
-                <div class="space-y-6">
+        <!-- ══════════════════════════════════════════ -->
+        <!--  RIGHT: PRODUCT INFO (5 cols)             -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="lg:col-span-5">
+            <div class="space-y-6">
 
-                    <!-- Title & Actions -->
-                    <div>
-                        <div class="flex items-start justify-between gap-4 mb-3">
-                            <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
-                                {{ product.name }}
-                            </h1>
-                            <div class="flex gap-2">
-                                <button
-                                        type="button"
-                                        (click)="toggleFavorite()"
-                                        class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:border-red-500 transition-all duration-200"
-                                >
-                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                        <path d="M10 17.5L8.8 16.4C4.4 12.4 1.5 9.8 1.5 6.7C1.5 4.1 3.6 2 6.2 2C7.7 2 9.1 2.7 10 3.8C10.9 2.7 12.3 2 13.8 2C16.4 2 18.5 4.1 18.5 6.7C18.5 9.8 15.6 12.4 11.2 16.4L10 17.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                                    </svg>
-                                </button>
-                                <button
-                                        type="button"
-                                        (click)="shareProduct()"
-                                        class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-brand-500 dark:hover:text-brand-400 hover:border-brand-500 transition-all duration-200"
-                                >
-                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                        <path d="M15 6.5C16.38 6.5 17.5 5.38 17.5 4C17.5 2.62 16.38 1.5 15 1.5C13.62 1.5 12.5 2.62 12.5 4C12.5 5.38 13.62 6.5 15 6.5ZM5 11.5C6.38 11.5 7.5 10.38 7.5 9C7.5 7.62 6.38 6.5 5 6.5C3.62 6.5 2.5 7.62 2.5 9C2.5 10.38 3.62 11.5 5 11.5ZM15 13.5C13.62 13.5 12.5 14.62 12.5 16C12.5 17.38 13.62 18.5 15 18.5C16.38 18.5 17.5 17.38 17.5 16C17.5 14.62 16.38 13.5 15 13.5ZM7.2 10.3L12.8 13.7M12.8 6.3L7.2 9.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Category & SKU -->
-                        <div class="flex flex-wrap items-center gap-3 text-sm">
-              <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 px-3 py-1 text-brand-700 dark:text-brand-300 font-medium">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M7 1L8.5 5L13 5.5L9.5 8.5L10.5 13L7 10.5L3.5 13L4.5 8.5L1 5.5L5.5 5L7 1Z" fill="currentColor"/>
-                </svg>
-                  {{ product.category?.name || product.category }}
-              </span>
-                            <button
-                                    type="button"
-                                    (click)="copySku()"
-                                    class="group relative inline-flex items-center gap-2 rounded-lg bg-gray-100 dark:bg-gray-800 px-3 py-1 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                            >
-                                <span class="font-mono text-xs">{{ product.sku }}</span>
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="opacity-60">
-                                    <rect x="4" y="4" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/>
-                                    <path d="M10 2H3C2.4 2 2 2.4 2 3V10" stroke="currentColor" stroke-width="1.3"/>
+                <!-- Title & Actions -->
+                <div>
+                    <div class="flex items-start justify-between gap-4 mb-3">
+                        <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
+                            {{ product.name }}
+                        </h1>
+                        <div class="flex gap-2">
+                            <button type="button" (click)="toggleFavorite()"
+                                class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:border-red-500 transition-all duration-200">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path
+                                        d="M10 17.5L8.8 16.4C4.4 12.4 1.5 9.8 1.5 6.7C1.5 4.1 3.6 2 6.2 2C7.7 2 9.1 2.7 10 3.8C10.9 2.7 12.3 2 13.8 2C16.4 2 18.5 4.1 18.5 6.7C18.5 9.8 15.6 12.4 11.2 16.4L10 17.5Z"
+                                        stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
                                 </svg>
-                                @if (showCopiedSku) {
-                                    <span class="absolute -top-8 left-1/2 -translate-x-1/2 rounded-md bg-gray-800 dark:bg-gray-700 px-2 py-1 text-xs text-white whitespace-nowrap animate-fade-in">
-                    Copied!
-                  </span>
-                                }
+                            </button>
+                            <button type="button" (click)="shareProduct()"
+                                class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-brand-500 dark:hover:text-brand-400 hover:border-brand-500 transition-all duration-200">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path
+                                        d="M15 6.5C16.38 6.5 17.5 5.38 17.5 4C17.5 2.62 16.38 1.5 15 1.5C13.62 1.5 12.5 2.62 12.5 4C12.5 5.38 13.62 6.5 15 6.5ZM5 11.5C6.38 11.5 7.5 10.38 7.5 9C7.5 7.62 6.38 6.5 5 6.5C3.62 6.5 2.5 7.62 2.5 9C2.5 10.38 3.62 11.5 5 11.5ZM15 13.5C13.62 13.5 12.5 14.62 12.5 16C12.5 17.38 13.62 18.5 15 18.5C16.38 18.5 17.5 17.38 17.5 16C17.5 14.62 16.38 13.5 15 13.5ZM7.2 10.3L12.8 13.7M12.8 6.3L7.2 9.7"
+                                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                                </svg>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Divider -->
-                    <div class="border-t border-gray-200 dark:border-gray-800"></div>
-
-                    <!-- Price Section -->
-                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
-                        <div class="flex items-end justify-between mb-4">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Price</p>
-                                <div class="flex items-baseline gap-3">
-                                  <span class="text-4xl font-bold text-gray-900 dark:text-white">
-                                    ${{ product.isSale? product.salePrice : product.regularPrice }}
-                                  </span>
-                                                    @if (product.isSale && discountPercent > 0) {
-                                                        <span class="text-xl text-gray-400 dark:text-gray-500 line-through">
-                                      ${{ product.regularPrice }}
-                                    </span>
-                                    }
-                                </div>
-                            </div>
-                            @if (product.isSale && savings > 0 && quantity > 1) {
-                                <div class="text-right">
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">you save</p>
-                                    <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                                        ${{ savings }}
-                                    </p>
-                                </div>
+                    <!-- Category & SKU -->
+                    <div class="flex flex-wrap items-center gap-3 text-sm">
+                        <span
+                            class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 px-3 py-1 text-brand-700 dark:text-brand-300 font-medium">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                <path d="M7 1L8.5 5L13 5.5L9.5 8.5L10.5 13L7 10.5L3.5 13L4.5 8.5L1 5.5L5.5 5L7 1Z"
+                                    fill="currentColor" />
+                            </svg>
+                            {{ product.category.name || product.category }}
+                        </span>
+                        <button type="button" (click)="copySku()"
+                            class="group relative inline-flex items-center gap-2 rounded-lg bg-gray-100 dark:bg-gray-800 px-3 py-1 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                            <span class="font-mono text-xs">{{ product.sku }}</span>
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="opacity-60">
+                                <rect x="4" y="4" width="8" height="8" rx="1" stroke="currentColor"
+                                    stroke-width="1.3" />
+                                <path d="M10 2H3C2.4 2 2 2.4 2 3V10" stroke="currentColor" stroke-width="1.3" />
+                            </svg>
+                            @if (showCopiedSku) {
+                            <span
+                                class="absolute -top-8 left-1/2 -translate-x-1/2 rounded-md bg-gray-800 dark:bg-gray-700 px-2 py-1 text-xs text-white whitespace-nowrap animate-fade-in">
+                                Copied!
+                            </span>
                             }
-                        </div>
+                        </button>
+                    </div>
+                </div>
 
-                        <div
-                                class="pt-4 border-t transition-all duration-200"
-                                [ngClass]="{
+                <!-- Divider -->
+                <div class="border-t border-gray-200 dark:border-gray-800"></div>
+
+                <!-- Price Section -->
+                <div
+                    class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-end justify-between mb-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Price</p>
+                            <div class="flex items-baseline gap-3">
+                                <span class="text-4xl font-bold text-gray-900 dark:text-white">
+                                    ${{ product.isSale? product.salePrice : product.regularPrice }}
+                                </span>
+                                @if (product.isSale && discountPercent > 0) {
+                                <span class="text-xl text-gray-400 dark:text-gray-500 line-through">
+                                    ${{ product.regularPrice }}
+                                </span>
+                                }
+                            </div>
+                        </div>
+                        @if (product.isSale && savings > 0 && quantity > 1) {
+                        <div class="text-right">
+                            <p class="text-xs text-gray-500 dark:text-gray-400">you save</p>
+                            <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                                ${{ savings }}
+                            </p>
+                        </div>
+                        }
+                    </div>
+
+                    <div class="pt-4 border-t transition-all duration-200" [ngClass]="{
                                     'border-gray-200 dark:border-gray-700': quantity > 1,
                                     'border-gray-100 dark:border-gray-800': quantity <= 1
-                                  }"
-                                style="min-height: 56px;"
-                        >
-                            <div class="flex items-center justify-between">
+                                  }" style="min-height: 56px;">
+                        <div class="flex items-center justify-between">
 
-                                <span
-                                        class="text-sm transition-colors duration-200"
-                                        [ngClass]="{
+                            <span class="text-sm transition-colors duration-200" [ngClass]="{
                                     'text-gray-600 dark:text-gray-400': quantity > 1,
                                     'text-gray-400 dark:text-gray-600': quantity <= 1
-                                  }"
-                                >
-                                  Total ({{ quantity }} items)
-                                </span>
+                                  }">
+                                Total ({{ quantity }} items)
+                            </span>
 
-                                <span
-                                    class="text-2xl font-bold transition-colors duration-200"
-                                    [ngClass]="{
+                            <span class="text-2xl font-bold transition-colors duration-200" [ngClass]="{
                                         'text-gray-900 dark:text-white': quantity > 1,
                                         'text-gray-300 dark:text-gray-600': quantity <= 1
-                                      }"
-                                                            >
-                                  ${{ quantity > 1 ? totalPrice : '0.00' }}
-                                </span>
+                                      }">
+                                ${{ quantity > 1 ? totalPrice : '0.00' }}
+                            </span>
 
-                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Description -->
-                    <div>
-                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Description</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
-                            {{ product.description }}
-                        </p>
+                <!-- Description -->
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">
+                        Description</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        {{ product.description }}
+                    </p>
+                </div>
+
+                <!-- Tags -->
+                @if (product.tags.length > 0) {
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide">Tags
+                    </h3>
+                    <div class="flex flex-wrap gap-2">
+                        @for (tag of product.tags; track tag) {
+                        <span
+                            class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300">
+                            #{{ tag }}
+                        </span>
+                        }
                     </div>
+                </div>
+                }
 
-                    <!-- Tags -->
-                    @if (product.tags.length > 0) {
-                        <div>
-                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide">Tags</h3>
-                            <div class="flex flex-wrap gap-2">
-                                @for (tag of product.tags; track tag) {
-                                    <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300">
-                    #{{ tag }}
-                  </span>
-                                }
-                            </div>
+                <!-- Quantity Selector -->
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide">
+                        Quantity</h3>
+                    <div
+                        class="inline-flex items-center rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+                        <button type="button" (click)="decrementQuantity()" [disabled]="!canDecrement"
+                            class="flex h-12 w-12 items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M3 8H13" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+                            </svg>
+                        </button>
+                        <div
+                            class="flex h-12 w-16 items-center justify-center border-x-2 border-gray-300 dark:border-gray-700">
+                            <span class="text-lg font-bold text-gray-900 dark:text-white">{{ quantity }}</span>
                         </div>
-                    }
-
-                    <!-- Quantity Selector -->
-                    <div>
-                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide">Quantity</h3>
-                        <div class="inline-flex items-center rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
-                            <button
-                                    type="button"
-                                    (click)="decrementQuantity()"
-                                    [disabled]="!canDecrement"
-                                    class="flex h-12 w-12 items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                            >
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                    <path d="M3 8H13" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                                </svg>
-                            </button>
-                            <div class="flex h-12 w-16 items-center justify-center border-x-2 border-gray-300 dark:border-gray-700">
-                                <span class="text-lg font-bold text-gray-900 dark:text-white">{{ quantity }}</span>
-                            </div>
-                            <button
-                                    type="button"
-                                    (click)="incrementQuantity()"
-                                    [disabled]="!canIncrement"
-                                    class="flex h-12 w-12 items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                            >
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                    <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                            Min: {{ product.minOrderQty }} • Max: {{ product.maxOrderQty }}
-                        </p>
+                        <button type="button" (click)="incrementQuantity()" [disabled]="!canIncrement"
+                            class="flex h-12 w-12 items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </button>
                     </div>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        Min: {{ product.minOrderQty }} • Max: {{ product.maxOrderQty }}
+                    </p>
+                </div>
 
-                    <!-- Action Buttons -->
-                    <!-- Action Buttons -->
-                    <div class="space-y-3 pt-2">
-                        <button
-                                type="button"
-                                (click)="addToCart()"
-                                [disabled]="stockStatus === 'out-of-stock' || isAddingToCart"
-                                [ngClass]="{
+                <!-- Action Buttons -->
+                <!-- Action Buttons -->
+                <div class="space-y-3 pt-2">
+                    <button type="button" (click)="addToCart()"
+                        [disabled]="stockStatus === 'out-of-stock' || isAddingToCart" [ngClass]="{
                                     'from-brand-500 to-brand-600 shadow-brand-500/30 hover:shadow-brand-500/40': !addedToCartSuccess && !addToCartErrorMessage,
                                     'from-emerald-500 to-emerald-600 shadow-emerald-500/30 hover:shadow-emerald-500/40': addedToCartSuccess,
                                     'from-red-500 to-red-600 shadow-red-500/30': addToCartErrorMessage
                                 }"
-                                class="group w-full rounded-xl bg-gradient-to-r px-6 py-4 text-base font-semibold text-white shadow-lg hover:shadow-xl active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                        >
-                            <span class="flex items-center justify-center gap-2">
-                                <!-- Loading Spinner -->
-                                <svg
-                                        *ngIf="isAddingToCart"
-                                        class="animate-spin h-5 w-5"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
+                        class="group w-full rounded-xl bg-gradient-to-r px-6 py-4 text-base font-semibold text-white shadow-lg hover:shadow-xl active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+                        <span class="flex items-center justify-center gap-2">
+                            <!-- Loading Spinner -->
+                            <svg *ngIf="isAddingToCart" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
 
-                                <!-- Success Checkmark -->
-                                <svg
-                                        *ngIf="addedToCartSuccess"
-                                        class="h-5 w-5"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        stroke-width="3">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                                </svg>
+                            <!-- Success Checkmark -->
+                            <svg *ngIf="addedToCartSuccess" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
 
-                                <!-- Error Icon -->
-                                <svg
-                                        *ngIf="addToCartErrorMessage"
-                                        class="h-5 w-5"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        stroke-width="2.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                </svg>
+                            <!-- Error Icon -->
+                            <svg *ngIf="addToCartErrorMessage" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
 
-                                <!-- Default Cart Icon -->
-                                <svg
-                                        *ngIf="!isAddingToCart && !addedToCartSuccess && !addToCartErrorMessage"
-                                        width="20"
-                                        height="20"
-                                        viewBox="0 0 20 20"
-                                        fill="none"
-                                        class="group-hover:scale-110 transition-transform">
-                                    <path d="M6 16C6.55 16 7 16.45 7 17C7 17.55 6.55 18 6 18C5.45 18 5 17.55 5 17C5 16.45 5.45 16 6 16ZM15 16C15.55 16 16 16.45 16 17C16 17.55 15.55 18 15 18C14.45 18 14 17.55 14 17C14 16.45 14.45 16 15 16ZM6.2 3.5H17.19C17.71 3.5 18.12 3.93 18.09 4.45L17.67 11.45C17.65 11.85 17.32 12.15 16.92 12.15H6.74L6.95 13.5H16.5V15H6C5.45 15 5 14.55 5 14C5 13.85 5.03 13.71 5.08 13.58L5.9 11.58L3.34 4.5H1.5V3H4.27L5.21 5.5H6.2Z" fill="currentColor"/>
-                                </svg>
+                            <!-- Default Cart Icon -->
+                            <svg *ngIf="!isAddingToCart && !addedToCartSuccess && !addToCartErrorMessage" width="20"
+                                height="20" viewBox="0 0 20 20" fill="none"
+                                class="group-hover:scale-110 transition-transform">
+                                <path
+                                    d="M6 16C6.55 16 7 16.45 7 17C7 17.55 6.55 18 6 18C5.45 18 5 17.55 5 17C5 16.45 5.45 16 6 16ZM15 16C15.55 16 16 16.45 16 17C16 17.55 15.55 18 15 18C14.45 18 14 17.55 14 17C14 16.45 14.45 16 15 16ZM6.2 3.5H17.19C17.71 3.5 18.12 3.93 18.09 4.45L17.67 11.45C17.65 11.85 17.32 12.15 16.92 12.15H6.74L6.95 13.5H16.5V15H6C5.45 15 5 14.55 5 14C5 13.85 5.03 13.71 5.08 13.58L5.9 11.58L3.34 4.5H1.5V3H4.27L5.21 5.5H6.2Z"
+                                    fill="currentColor" />
+                            </svg>
 
-                                <!-- Text -->
-                                <span *ngIf="!isAddingToCart && !addedToCartSuccess && !addToCartErrorMessage">Add to Cart</span>
-                                <span *ngIf="isAddingToCart">Adding...</span>
-                                <span *ngIf="addedToCartSuccess">Added to Cart!</span>
-                                <span *ngIf="addToCartErrorMessage">Failed</span>
-                            </span>
-                        </button>
+                            <!-- Text -->
+                            <span *ngIf="!isAddingToCart && !addedToCartSuccess && !addToCartErrorMessage">Add to
+                                Cart</span>
+                            <span *ngIf="isAddingToCart">Adding...</span>
+                            <span *ngIf="addedToCartSuccess">Added to Cart!</span>
+                            <span *ngIf="addToCartErrorMessage">Failed</span>
+                        </span>
+                    </button>
 
-                        <!-- Error Message -->
-                        <div
-                                *ngIf="addToCartErrorMessage"
-                                class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3 animate-slide-down">
-                            <div class="flex items-start gap-2">
-                                <svg class="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                <p class="text-sm text-red-800 dark:text-red-200">
-                                    {{ addToCartErrorMessage }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <button
-                                type="button"
-                                (click)="buyNow()"
-                                [disabled]="stockStatus === 'out-of-stock'"
-                                class="w-full rounded-xl border-2 border-gray-900 dark:border-white bg-transparent px-6 py-4 text-base font-semibold text-gray-900 dark:text-white hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-gray-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
-                        >
-                            Buy Now
-                        </button>
-                    </div>
-
-
-                    <!-- Product Meta Info -->
-                    <div class="rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4">
-                        <div class="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <p class="text-gray-500 dark:text-gray-400 mb-1">Status</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="h-2 w-2 rounded-full" [ngClass]="product.isActive ? 'bg-emerald-500' : 'bg-red-500'"></span>
-                                    <span class="font-medium text-gray-900 dark:text-white">{{ product.isActive ? 'Active' : 'Inactive' }}</span>
-                                </div>
-                            </div>
-                            <div>
-                                <p class="text-gray-500 dark:text-gray-400 mb-1">Added</p>
-                                <p class="font-medium text-gray-900 dark:text-white">{{ formatDate(product.createdAt) }}</p>
-                            </div>
+                    <!-- Error Message -->
+                    <div *ngIf="addToCartErrorMessage"
+                        class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3 animate-slide-down">
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-sm text-red-800 dark:text-red-200">
+                                {{ addToCartErrorMessage }}
+                            </p>
                         </div>
                     </div>
 
+                    <button type="button" (click)="buyNow()" [disabled]="stockStatus === 'out-of-stock'"
+                        class="w-full rounded-xl border-2 border-gray-900 dark:border-white bg-transparent px-6 py-4 text-base font-semibold text-gray-900 dark:text-white hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-gray-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]">
+                        Buy Now
+                    </button>
                 </div>
-            </div>
 
+
+                <!-- Product Meta Info -->
+                <div class="rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4">
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p class="text-gray-500 dark:text-gray-400 mb-1">Status</p>
+                            <div class="flex items-center gap-2">
+                                <span class="h-2 w-2 rounded-full"
+                                    [ngClass]="product.isActive ? 'bg-emerald-500' : 'bg-red-500'"></span>
+                                <span class="font-medium text-gray-900 dark:text-white">{{ product.isActive ? 'Active' :
+                                    'Inactive' }}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 dark:text-gray-400 mb-1">Added</p>
+                            <p class="font-medium text-gray-900 dark:text-white">{{ formatDate(product.createdAt) }}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
+
     </div>
+</div>
 
 } @else {
 
-    <!-- =================== -->
-            <!-- SKELETON LOADING -->
-            <!-- =================== -->
+<!-- =================== -->
+<!-- SKELETON LOADING -->
+<!-- =================== -->
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 animate-pulse">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 animate-pulse">
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
-            <!-- LEFT SKELETON -->
-            <div class="lg:col-span-7 space-y-4">
-                <div class="aspect-square rounded-2xl bg-gray-200 dark:bg-gray-800"></div>
+        <!-- LEFT SKELETON -->
+        <div class="lg:col-span-7 space-y-4">
+            <div class="aspect-square rounded-2xl bg-gray-200 dark:bg-gray-800"></div>
 
-                <div class="flex gap-3">
-                    @for (i of [1,2,3,4]; track i) {
-                        <div class="w-20 h-20 rounded-xl bg-gray-200 dark:bg-gray-800"></div>
-                    }
-                </div>
+            <div class="flex gap-3">
+                @for (i of [1,2,3,4]; track i) {
+                <div class="w-20 h-20 rounded-xl bg-gray-200 dark:bg-gray-800"></div>
+                }
+            </div>
+        </div>
+
+        <!-- RIGHT SKELETON -->
+        <div class="lg:col-span-5 space-y-6">
+
+            <div class="h-8 w-3/4 rounded bg-gray-200 dark:bg-gray-800"></div>
+            <div class="h-4 w-1/3 rounded bg-gray-200 dark:bg-gray-800"></div>
+
+            <div class="h-24 rounded-2xl bg-gray-200 dark:bg-gray-800"></div>
+
+            <div class="space-y-2">
+                <div class="h-4 w-full rounded bg-gray-200 dark:bg-gray-800"></div>
+                <div class="h-4 w-5/6 rounded bg-gray-200 dark:bg-gray-800"></div>
+                <div class="h-4 w-4/6 rounded bg-gray-200 dark:bg-gray-800"></div>
             </div>
 
-            <!-- RIGHT SKELETON -->
-            <div class="lg:col-span-5 space-y-6">
-
-                <div class="h-8 w-3/4 rounded bg-gray-200 dark:bg-gray-800"></div>
-                <div class="h-4 w-1/3 rounded bg-gray-200 dark:bg-gray-800"></div>
-
-                <div class="h-24 rounded-2xl bg-gray-200 dark:bg-gray-800"></div>
-
-                <div class="space-y-2">
-                    <div class="h-4 w-full rounded bg-gray-200 dark:bg-gray-800"></div>
-                    <div class="h-4 w-5/6 rounded bg-gray-200 dark:bg-gray-800"></div>
-                    <div class="h-4 w-4/6 rounded bg-gray-200 dark:bg-gray-800"></div>
-                </div>
-
-                <div class="h-12 rounded-xl bg-gray-300 dark:bg-gray-700"></div>
-                <div class="h-12 rounded-xl bg-gray-200 dark:bg-gray-800"></div>
-
-            </div>
+            <div class="h-12 rounded-xl bg-gray-300 dark:bg-gray-700"></div>
+            <div class="h-12 rounded-xl bg-gray-200 dark:bg-gray-800"></div>
 
         </div>
+
     </div>
+</div>
 
 }

@@ -1,0 +1,144 @@
+<div class="mx-auto max-w-7xl">
+    <app-page-breadcrumb pageTitle="Historique des Ventes"></app-page-breadcrumb>
+
+    <!-- Filters -->
+    <div
+        class="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div>
+                <label
+                    class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Période</label>
+                <div class="flex items-center gap-2">
+                    <input type="date" [(ngModel)]="filters.startDate" (change)="onFilterChange()"
+                        class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white" />
+                    <span class="text-gray-400">à</span>
+                    <input type="date" [(ngModel)]="filters.endDate" (change)="onFilterChange()"
+                        class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white" />
+                </div>
+            </div>
+            <div>
+                <label
+                    class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Statut</label>
+                <select [(ngModel)]="filters.status" (change)="onFilterChange()"
+                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white outline-none">
+                    <option value="">Tous les statuts</option>
+                    <option value="paid">Payé</option>
+                    <option value="draft">Brouillon</option>
+                    <option value="canceled">Annulé</option>
+                </select>
+            </div>
+            <div>
+                <label
+                    class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Méthode</label>
+                <select [(ngModel)]="filters.paymentMethod" (change)="onFilterChange()"
+                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white outline-none">
+                    <option value="">Toutes les méthodes</option>
+                    <option value="cash">Espèces</option>
+                    <option value="mobile_money">Mobile Money</option>
+                    <option value="card">Carte Bancaire</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button (click)="resetFilters()"
+                    class="w-full rounded-lg border border-gray-200 py-2 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-white/[0.1] dark:text-gray-400 dark:hover:bg-white/5 transition-colors">
+                    Réinitialiser
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Table -->
+    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
+        <div class="max-w-full overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-gray-100 dark:border-white/[0.05]">
+                        <th
+                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                            ID Vente</th>
+                        <th
+                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                            Date</th>
+                        <th
+                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                            Client</th>
+                        <th
+                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-center">
+                            Articles</th>
+                        <th
+                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-right">
+                            Montant</th>
+                        <th
+                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-center">
+                            Statut</th>
+                        <th
+                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-right">
+                            Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                    <tr *ngFor="let v of ventes"
+                        class="group hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
+                        <td class="px-6 py-4 font-mono text-xs text-gray-500">#{{ v._id?.slice(-6) }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">{{ v.saleDate |
+                                    date:'longDate' }}</span>
+                                <span class="text-xs text-gray-400">{{ v.saleDate | date:'shortTime' }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ v.client.name
+                                    }}</span>
+                                <span class="text-xs text-gray-400">{{ v.client.phoneNumber || 'N/A' }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span
+                                class="rounded-full bg-gray-100 px-2 py-1 text-xs font-bold text-gray-600 dark:bg-white/[0.05] dark:text-gray-400">
+                                {{ v.items.length }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <span class="text-sm font-extrabold text-gray-900 dark:text-white">{{ v.totalAmount | number
+                                }} Ar</span>
+                        </td>
+                        <td class="px-6 py-4 flex justify-center mt-2">
+                            <app-badge [color]="getStatusColor(v.status)" variant="light">{{ v.status | uppercase
+                                }}</app-badge>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <a [routerLink]="['/store/app/vente-detail', v._id]"
+                                class="text-brand-500 hover:text-brand-600 font-bold text-sm">
+                                Détails
+                            </a>
+                        </td>
+                    </tr>
+                    <tr *ngIf="ventes.length === 0 && !isLoading">
+                        <td colspan="7" class="py-12 text-center text-gray-500 dark:text-gray-400">
+                            Aucune vente trouvée pour ces filtres.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between border-t border-gray-100 p-6 dark:border-white/[0.05]">
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                Page {{ pagination.page }} sur {{ pagination.totalPages }} ({{ pagination.totalDocs }} ventes)
+            </p>
+            <div class="flex gap-2">
+                <button (click)="changePage(pagination.page - 1)" [disabled]="pagination.page === 1"
+                    class="rounded-lg border border-gray-200 px-4 py-2 text-xs font-bold text-gray-600 disabled:opacity-50 dark:border-white/[0.1] dark:text-gray-400">
+                    Précédent
+                </button>
+                <button (click)="changePage(pagination.page + 1)" [disabled]="pagination.page === pagination.totalPages"
+                    class="rounded-lg border border-gray-200 px-4 py-2 text-xs font-bold text-gray-600 disabled:opacity-50 dark:border-white/[0.1] dark:text-gray-400">
+                    Suivant
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
