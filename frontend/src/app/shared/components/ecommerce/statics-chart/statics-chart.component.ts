@@ -18,11 +18,11 @@ import {
   ApexYAxis,
 } from 'ng-apexcharts';
 import { ChartTabComponent } from '../../common/chart-tab/chart-tab.component';
-import {DatePickerComponent} from "../../form/date-picker/date-picker.component";
+import { DatePickerComponent } from "../../form/date-picker/date-picker.component";
 
 @Component({
   selector: 'app-statics-chart',
-  imports: [NgApexchartsModule, ChartTabComponent, DatePickerComponent],
+  imports: [NgApexchartsModule, ChartTabComponent],
   templateUrl: './statics-chart.component.html',
 })
 export class StatisticsChartComponent implements AfterViewInit {

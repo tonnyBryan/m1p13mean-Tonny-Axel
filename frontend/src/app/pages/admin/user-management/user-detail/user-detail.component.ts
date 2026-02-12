@@ -9,7 +9,7 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
 @Component({
     selector: 'app-user-detail',
     standalone: true,
-    imports: [CommonModule, PageBreadcrumbComponent, ButtonComponent],
+    imports: [CommonModule, PageBreadcrumbComponent],
     templateUrl: './user-detail.component.html',
     styleUrls: ['./user-detail.component.css']
 })

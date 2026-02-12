@@ -10,7 +10,7 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
 @Component({
     selector: 'app-users-list',
     standalone: true,
-    imports: [CommonModule, FormsModule, PageBreadcrumbComponent, ButtonComponent],
+    imports: [CommonModule, FormsModule, PageBreadcrumbComponent],
     templateUrl: './users-list.component.html',
     styleUrls: ['./users-list.component.css']
 })

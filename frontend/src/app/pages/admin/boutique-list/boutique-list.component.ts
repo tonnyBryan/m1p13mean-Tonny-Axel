@@ -13,7 +13,6 @@ import { BoutiqueService } from '../../../shared/services/boutique.service';
   imports: [
     CommonModule,
     PageBreadcrumbComponent,
-    ButtonComponent,
     FormsModule
   ],
   templateUrl: './boutique-list.component.html',

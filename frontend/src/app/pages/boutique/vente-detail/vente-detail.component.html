@@ -1,0 +1,119 @@
+<div class="mx-auto max-w-5xl">
+    <app-page-breadcrumb [pageTitle]="'Détails de la Vente #' + (vente?._id?.slice(-6) || '...')"></app-page-breadcrumb>
+
+    <div *ngIf="vente" class="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <!-- Main Info -->
+        <div
+            class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Récapitulatif</h3>
+                <app-badge [color]="getStatusColor(vente.status)" variant="solid">{{ vente.status | uppercase
+                    }}</app-badge>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex justify-between border-b border-gray-100 pb-3 dark:border-white/[0.05]">
+                    <span class="text-sm text-gray-500">Date de vente</span>
+                    <span class="text-sm font-bold text-gray-900 dark:text-white">{{ vente.saleDate | date:'longDate' }}
+                        {{ vente.saleDate | date:'shortTime' }}</span>
+                </div>
+                <div class="flex justify-between border-b border-gray-100 pb-3 dark:border-white/[0.05]">
+                    <span class="text-sm text-gray-500">Vendeur</span>
+                    <span class="text-sm font-bold text-gray-900 dark:text-white">{{ getSeller()?.name || 'N/A'
+                        }}</span>
+                </div>
+                <div class="flex justify-between border-b border-gray-100 pb-3 dark:border-white/[0.05]">
+                    <span class="text-sm text-gray-500">Méthode de paiement</span>
+                    <span class="text-sm font-bold capitalize text-gray-900 dark:text-white">{{ vente.paymentMethod
+                        }}</span>
+                </div>
+                <div class="flex justify-between pt-2">
+                    <span class="text-lg font-bold text-gray-500">Montant Total</span>
+                    <span class="text-2xl font-extrabold text-brand-500">{{ vente.totalAmount | number }} Ar</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client Info -->
+        <div
+            class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Informations Client</h3>
+            <div class="space-y-4">
+                <div class="flex items-center gap-4 py-2">
+                    <div
+                        class="h-10 w-10 flex items-center justify-center rounded-full bg-brand-50 text-brand-500 dark:bg-brand-500/10">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Nom</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ vente.client.name || 'Client de
+                            passage' }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 py-2">
+                    <div
+                        class="h-10 w-10 flex items-center justify-center rounded-full bg-blue-50 text-blue-500 dark:bg-blue-500/10">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Téléphone</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ vente.client.phoneNumber || 'Non
+                            renseigné' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <div
+            class="md:col-span-2 rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
+            <div class="p-6 border-b border-gray-100 dark:border-white/[0.05]">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Articles Commandés</h3>
+            </div>
+            <div class="p-6 overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                            <th class="pb-4">Produit</th>
+                            <th class="pb-4 text-center">Quantité</th>
+                            <th class="pb-4 text-right">Prix Unitaire</th>
+                            <th class="pb-4 text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                        <tr *ngFor="let item of vente.items">
+                            <td class="py-4">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-gray-900 dark:text-white">{{ getProduct(item)?.name ||
+                                        'Produit inconnu' }}</span>
+                                    <span class="text-xs text-gray-400">SKU: {{ getProduct(item)?.sku || 'N/A' }}</span>
+                                </div>
+                            </td>
+                            <td class="py-4 text-center font-bold text-gray-900 dark:text-white">{{ item.quantity }}
+                            </td>
+                            <td class="py-4 text-right text-sm text-gray-500">{{ item.unitPrice | number }} Ar</td>
+                            <td class="py-4 text-right font-extrabold text-gray-900 dark:text-white">{{ item.totalPrice
+                                | number }} Ar</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="md:col-span-2 flex justify-end gap-3">
+            <app-button variant="outline" [routerLink]="['/store/app/vente-liste']">Retour à la liste</app-button>
+            <app-button *ngIf="vente.status === 'paid'" (click)="getInvoice()" variant="primary">Télécharger
+                Facture</app-button>
+        </div>
+    </div>
+</div>
