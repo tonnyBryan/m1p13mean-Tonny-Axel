@@ -7,11 +7,12 @@ import {CommandeService} from "../../../shared/services/commande.service";
 import {CentreService} from '../../../shared/services/centre.service';
 import {PageBreadcrumbComponent} from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
 import {LeafletMapComponent} from '../../../shared/components/common/leaflet-map/leaflet-map.component';
+import {SkeletonCheckoutComponent} from "./skeleton-checkout/skeleton-checkout.component";
 
 @Component({
   selector: 'app-checkout-user',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, PageBreadcrumbComponent, LeafletMapComponent],
+    imports: [CommonModule, FormsModule, RouterModule, PageBreadcrumbComponent, LeafletMapComponent, SkeletonCheckoutComponent],
   templateUrl: './checkout-user.component.html',
   styleUrl: './checkout-user.component.css',
 })

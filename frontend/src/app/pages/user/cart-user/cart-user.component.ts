@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { CommandeService } from '../../../shared/services/commande.service';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
+import {SkeletonCartComponent} from "./skeleton-cart/skeleton-cart.component";
 
 @Component({
   selector: 'app-cart-user',
   standalone: true,
-  imports: [CommonModule, RouterModule, PageBreadcrumbComponent],
+    imports: [CommonModule, RouterModule, PageBreadcrumbComponent, SkeletonCartComponent],
   templateUrl: './cart-user.component.html',
   styleUrl: './cart-user.component.css',
 })

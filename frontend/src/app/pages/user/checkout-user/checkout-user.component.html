@@ -9,18 +9,7 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
     <!-- Loading Skeleton -->
-    <div *ngIf="isLoading" class="animate-pulse">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div class="lg:col-span-8 space-y-6">
-                <div class="h-48 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
-                <div class="h-64 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
-                <div class="h-48 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
-            </div>
-            <div class="lg:col-span-4">
-                <div class="h-96 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
-            </div>
-        </div>
-    </div>
+    <app-skeleton-checkout *ngIf="isLoading"></app-skeleton-checkout>
 
     <!-- Checkout Content -->
     <div *ngIf="!isLoading && cart && profile" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
