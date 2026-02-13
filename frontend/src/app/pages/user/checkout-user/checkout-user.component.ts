@@ -6,11 +6,12 @@ import {UserService} from "../../../shared/services/user.service";
 import {CommandeService} from "../../../shared/services/commande.service";
 import {CentreService} from '../../../shared/services/centre.service';
 import {PageBreadcrumbComponent} from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
+import {LeafletMapComponent} from '../../../shared/components/common/leaflet-map/leaflet-map.component';
 
 @Component({
   selector: 'app-checkout-user',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, PageBreadcrumbComponent],
+  imports: [CommonModule, FormsModule, RouterModule, PageBreadcrumbComponent, LeafletMapComponent],
   templateUrl: './checkout-user.component.html',
   styleUrl: './checkout-user.component.css',
 })
@@ -454,5 +455,50 @@ export class CheckoutUserComponent implements OnInit {
     }
 
     return false;
+  }
+
+  // Provide center for the Leaflet map (prefer centre commercial, otherwise existing newAddress coords or fallback)
+  get mapCenter(): [number, number] {
+    // prefer centre commercial coordinates if present
+    const centreCoords = this.centre?.location?.coordinates || this.centre?.location || null;
+    if (centreCoords) {
+      // support different shapes: [lng, lat] or { latitude, longitude }
+      if (Array.isArray(centreCoords) && centreCoords.length >= 2) {
+        // Many geojson store as [lng, lat]
+        const lng = Number(centreCoords[0]);
+        const lat = Number(centreCoords[1]);
+        if (isFinite(lat) && isFinite(lng)) return [lat, lng];
+      }
+      if (centreCoords.latitude && centreCoords.longitude) {
+        return [Number(centreCoords.latitude), Number(centreCoords.longitude)];
+      }
+    }
+
+    // fallback: if user typed coordinates already
+    if (this.newAddress && this.newAddress.latitude && this.newAddress.longitude) {
+      const lat = Number(this.newAddress.latitude);
+      const lng = Number(this.newAddress.longitude);
+      if (isFinite(lat) && isFinite(lng)) return [lat, lng];
+    }
+
+    // default to Antananarivo (Madagascar) roughly
+    return [-18.8792, 47.5079];
+  }
+
+  // When user clicks on the leaflet map: fill newAddress latitude/longitude (as strings for ngModel)
+  onMapClick(e: { lat: number; lng: number }) {
+    // ensure new address form is visible
+    if (!this.showNewAddressForm) this.showNewAddressForm = true;
+
+    // fill values as strings (template expects strings)
+    this.newAddress.latitude = e.lat.toFixed(6).toString();
+    this.newAddress.longitude = e.lng.toFixed(6).toString();
+
+    // Optionally, you may auto-fill a label or description placeholder
+    if (!this.newAddress.label) this.newAddress.label = 'Selected location';
+    if (!this.newAddress.description) this.newAddress.description = '';
+
+    // trigger change detection if needed (Angular will handle since we're in zone)
+    console.log('Map click captured, coords:', e);
   }
 }
