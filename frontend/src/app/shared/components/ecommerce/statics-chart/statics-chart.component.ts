@@ -22,7 +22,7 @@ import { DatePickerComponent } from "../../form/date-picker/date-picker.componen
 
 @Component({
   selector: 'app-statics-chart',
-  imports: [NgApexchartsModule, ChartTabComponent],
+  imports: [NgApexchartsModule, ChartTabComponent, DatePickerComponent],
   templateUrl: './statics-chart.component.html',
 })
 export class StatisticsChartComponent implements AfterViewInit {
