@@ -1,6 +1,26 @@
-:host { display: block; height: 100%; position: relative; }
+:host {
+    display: block;
+    height: 100%;
+    position: relative;
+}
 
 /* ensure the map container fills the height passed as input or the host */
-:host > div { width: 100%; height: 100%; }
+:host > div {
+    width: 100%;
+    height: 100%;
+}
 
-.leaflet-container { height: 100% !important; width: 100% !important; }
+.leaflet-container {
+    height: 100% !important;
+    width: 100% !important;
+}
+
+/* Fix Tailwind CSS conflicts with Leaflet */
+.leaflet-container img {
+    max-width: none !important;
+    max-height: none !important;
+}
+
+.leaflet-tile {
+    max-width: none !important;
+}

@@ -1,5 +1,14 @@
-import {Component, Input, Output, EventEmitter, OnInit, ViewChild, booleanAttribute} from '@angular/core';
-import { GoogleMap, MapMarker } from '@angular/google-maps';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  ViewChild,
+  booleanAttribute,
+  ChangeDetectorRef
+} from '@angular/core';
+import { LeafletMapComponent } from '../../common/leaflet-map/leaflet-map.component';
 import { ModalService } from '../../../services/modal.service';
 import { InputFieldComponent } from '../../form/input/input-field.component';
 import { ButtonComponent } from '../../ui/button/button.component';
@@ -21,41 +30,36 @@ import { NgForOf, NgIf, CommonModule } from "@angular/common";
     FormsModule,
     NgIf,
     NgForOf,
-    GoogleMap,
-    MapMarker
+    LeafletMapComponent
   ],
   templateUrl: './user-address-card.component.html',
   styles: ``
 })
 export class UserAddressCardComponent implements OnInit {
   @Input() addresses: any[] = [];
-  @Input({transform: booleanAttribute}) userExist: boolean = false;
+  @Input({ transform: booleanAttribute }) userExist: boolean = false;
   @Output() addressAdded = new EventEmitter<any>();
 
-  @ViewChild(GoogleMap) map!: GoogleMap;
+  @ViewChild(LeafletMapComponent) map!: LeafletMapComponent;
 
-  constructor(public modal: ModalService, private userService: UserService) {}
+  constructor(
+      public modal: ModalService,
+      private userService: UserService,
+      private cdr: ChangeDetectorRef
+  ) {}
 
   isAddModalOpen = false;
   isEditModalOpen = false;
   adding = false;
 
-  // Google Maps configuration
-  mapCenter: google.maps.LatLngLiteral = { lat: -18.8792, lng: 47.5079 }; // Antananarivo par défaut
-  mapZoom = 13;
-  mapOptions: google.maps.MapOptions = {
-    mapTypeId: 'roadmap',
-    zoomControl: true,
-    scrollwheel: true,
-    disableDoubleClickZoom: false,
-    maxZoom: 20,
-    minZoom: 8,
-  };
+  // Leaflet configuration - PAS de valeur par défaut fixe
+  mapCenterArr: [number, number] = [0, 0]; // ✅ Sera mis à jour par la géolocalisation
+  mapZoom = 15; // ✅ Zoom plus proche pour une meilleure vue
+  initialPosition?: [number, number] = undefined; // ✅ undefined au départ
+  autoSetMarker = true;
 
-  markerPosition: google.maps.LatLngLiteral = { ...this.mapCenter };
-  markerOptions: google.maps.MarkerOptions = {
-    draggable: true,
-  };
+  // ✅ Suivre si on a obtenu la position
+  private hasUserLocation = false;
 
   // Form for adding address
   addressForm: any = {
@@ -67,20 +71,40 @@ export class UserAddressCardComponent implements OnInit {
   };
 
   ngOnInit() {
-    // Get user's current location
+    // ✅ Obtenir la position de l'utilisateur au chargement du composant
+    this.getUserLocation();
+  }
+
+  // ✅ Nouvelle méthode pour obtenir la géolocalisation
+  private getUserLocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
           (position) => {
-            this.mapCenter = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            };
-            this.markerPosition = { ...this.mapCenter };
+            console.log("Position obtenue:", position.coords);
+            this.mapCenterArr = [position.coords.latitude, position.coords.longitude];
+            this.initialPosition = [...this.mapCenterArr];
+            this.hasUserLocation = true;
+            this.cdr.detectChanges();
           },
           (error) => {
             console.log('Geolocation error:', error);
+            // ✅ Fallback si géolocalisation refusée
+            this.mapCenterArr = [-18.8792, 47.5079]; // Antananarivo en dernier recours
+            this.initialPosition = [...this.mapCenterArr];
+            this.hasUserLocation = true;
+            this.cdr.detectChanges();
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
           }
       );
+    } else {
+      // Géolocalisation non supportée
+      this.mapCenterArr = [-18.8792, 47.5079];
+      this.initialPosition = [...this.mapCenterArr];
+      this.hasUserLocation = true;
     }
   }
 
@@ -89,11 +113,30 @@ export class UserAddressCardComponent implements OnInit {
       alert("Complete personal information first");
       return;
     }
+
     this.isAddModalOpen = true;
     this.resetForm();
-    // Set initial coordinates from marker
-    this.addressForm.latitude = this.markerPosition.lat;
-    this.addressForm.longitude = this.markerPosition.lng;
+
+    // ✅ Attendre que le modal soit affiché, puis invalider la taille de la carte
+    setTimeout(() => {
+      if (this.map?.map) {
+        this.map.map.invalidateSize();
+
+        // ✅ Recentrer sur la position actuelle si disponible
+        if (this.hasUserLocation && this.initialPosition) {
+          this.map.setView(this.initialPosition, this.mapZoom);
+        }
+      }
+    }, 300); // ✅ 300ms pour être sûr que le modal est bien affiché
+
+    // Set initial coordinates from user location
+    if (this.initialPosition && this.initialPosition.length === 2) {
+      this.addressForm.latitude = this.initialPosition[0];
+      this.addressForm.longitude = this.initialPosition[1];
+    } else {
+      this.addressForm.latitude = this.mapCenterArr[0];
+      this.addressForm.longitude = this.mapCenterArr[1];
+    }
   }
 
   closeAddModal() {
@@ -112,33 +155,19 @@ export class UserAddressCardComponent implements OnInit {
   resetForm() {
     this.addressForm = {
       label: '',
-      latitude: this.markerPosition.lat,
-      longitude: this.markerPosition.lng,
+      latitude: this.initialPosition ? this.initialPosition[0] : this.mapCenterArr[0],
+      longitude: this.initialPosition ? this.initialPosition[1] : this.mapCenterArr[1],
       description: '',
       isDefault: false
     };
   }
 
-  onMapClick(event: google.maps.MapMouseEvent) {
-    if (event.latLng) {
-      this.markerPosition = {
-        lat: event.latLng.lat(),
-        lng: event.latLng.lng()
-      };
-      this.addressForm.latitude = this.markerPosition.lat;
-      this.addressForm.longitude = this.markerPosition.lng;
-    }
-  }
-
-  onMarkerDragEnd(event: google.maps.MapMouseEvent) {
-    if (event.latLng) {
-      this.markerPosition = {
-        lat: event.latLng.lat(),
-        lng: event.latLng.lng()
-      };
-      this.addressForm.latitude = this.markerPosition.lat;
-      this.addressForm.longitude = this.markerPosition.lng;
-    }
+  // Handler for Leaflet map clicks (emitted by app-leaflet-map)
+  onMapClickLeaflet(event: { lat: number; lng: number }) {
+    if (!event) return;
+    this.addressForm.latitude = event.lat;
+    this.addressForm.longitude = event.lng;
+    this.initialPosition = [event.lat, event.lng];
   }
 
   addAddress() {
@@ -151,21 +180,28 @@ export class UserAddressCardComponent implements OnInit {
     this.userService.addAddress(this.addressForm).subscribe({
       next: (res) => {
         console.log('Address added', res);
+
+        console.log(res);
         this.adding = false;
-        this.closeAddModal();
-        this.addressAdded.emit(res.data || null);
+        if (res && res.success) {
+          this.addresses = res.data.addresses;
+          this.closeAddModal();
+          // this.addressAdded.emit(newAddr);
+        } else {
+          const msg = res && res.message ? res.message : 'Failed to add address';
+          alert(msg);
+        }
       },
       error: (err) => {
         console.error('Error adding address', err);
         this.adding = false;
+        alert('Failed to add address');
       }
     });
   }
 
   removeAddress(indexOrId: any) {
-
-    console.log("ioid = " + indexOrId)
-    // Accept either index (legacy) or address _id
+    console.log("ioid = " + indexOrId);
     const addr = typeof indexOrId === 'number' ? this.addresses[indexOrId] : this.addresses.find(a => a._id === indexOrId);
     if (!addr) {
       alert('Address not found');
@@ -174,17 +210,13 @@ export class UserAddressCardComponent implements OnInit {
 
     if (!confirm('Are you sure you want to remove this address?')) return;
 
-    // If address has _id, call backend API; otherwise fallback to splice by index
     if (addr._id) {
       this.userService.removeAddress(addr._id).subscribe({
         next: (res) => {
-          console.log(res);
           console.log('Address removed', res);
-          // Update local list from response if provided
           if (res && res.data && res.data.addresses) {
             this.addresses = res.data.addresses;
           } else {
-            // fallback: remove locally
             const idx = this.addresses.findIndex(a => a._id === addr._id);
             if (idx > -1) this.addresses.splice(idx, 1);
           }
@@ -195,7 +227,6 @@ export class UserAddressCardComponent implements OnInit {
         }
       });
     } else {
-      // legacy: remove by index
       const idx = this.addresses.indexOf(addr);
       if (idx > -1) this.addresses.splice(idx, 1);
     }

@@ -25,7 +25,7 @@ export class LeafletMapComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef<HTMLDivElement>;
 
-  private map?: L.Map;
+  map?: L.Map;
   private marker?: L.Marker;
   private defaultIcon?: L.Icon;
 
@@ -62,12 +62,18 @@ export class LeafletMapComponent implements AfterViewInit, OnDestroy {
   private initMap() {
     if (this.map) return;
 
-    // Initially set view to provided center; it may be overridden by initialPosition or geolocation later
     this.map = L.map(this.mapContainer.nativeElement).setView(this.center, this.zoom);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
+
+    // Force invalidation de la taille après un court délai
+    setTimeout(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+      }
+    }, 100);
 
     this.map.on('click', (e: L.LeafletMouseEvent) => {
       const { lat, lng } = e.latlng;
@@ -75,7 +81,6 @@ export class LeafletMapComponent implements AfterViewInit, OnDestroy {
         if (this.marker) {
           this.marker.setLatLng([lat, lng]);
         } else {
-          // Use the explicit default icon so the marker image is loaded correctly
           this.marker = L.marker([lat, lng], { icon: this.defaultIcon }).addTo(this.map!);
         }
       }
@@ -145,3 +150,4 @@ export class LeafletMapComponent implements AfterViewInit, OnDestroy {
     this.map.setView(center, zoom ?? this.zoom);
   }
 }
+
