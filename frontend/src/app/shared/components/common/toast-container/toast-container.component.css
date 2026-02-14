@@ -29,3 +29,25 @@
     transform: translateZ(0);
     backface-visibility: hidden;
 }
+
+.backdrop-blur {
+    position: fixed;
+    inset: 0;
+    z-index: 999998; /* Juste en dessous des toasts (z-[99999]) */
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    pointer-events: none; /* Ne bloque pas les clics */
+}
+
+/* Support pour les navigateurs qui ne supportent pas backdrop-filter */
+@supports not (backdrop-filter: blur(8px)) {
+    .backdrop-blur {
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+}
+
+/* Dark mode - backdrop plus sombre */
+:host-context(.dark) .backdrop-blur {
+    background-color: rgba(0, 0, 0, 0.6);
+}

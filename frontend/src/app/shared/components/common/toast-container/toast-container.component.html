@@ -1,4 +1,10 @@
 <ng-container *ngIf="toasts$ | async as toasts">
+
+    <!-- ✅ Backdrop flou (affiché uniquement si un toast confirm avec backdrop=true existe) -->
+    <div *ngIf="hasBackdrop(toasts)"
+         class="backdrop-blur"
+         [@backdropAnimation]></div>
+
     <ng-container *ngFor="let position of positions">
         <div *ngIf="getToastsByPosition(toasts, position).length > 0"
              [ngClass]="getPositionClasses(position)"
@@ -32,7 +38,7 @@
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/>
                         </svg>
 
-                        <!-- ✅ Confirm Icon -->
+                        <!-- Confirm Icon -->
                         <svg *ngIf="toast.type === 'confirm'" [ngClass]="getIconClasses(toast.type)" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/>
                         </svg>
@@ -47,14 +53,14 @@
                             {{ toast.message }}
                         </p>
 
-                        <!-- ✅ Action Button (pour les toasts normaux) -->
+                        <!-- Action Button (pour les toasts normaux) -->
                         <button *ngIf="toast.action && toast.type !== 'confirm'"
                                 (click)="toast.action.onClick(); removeToast(toast.id)"
                                 class="mt-2 text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline transition-all">
                             {{ toast.action.label }}
                         </button>
 
-                        <!-- ✅ Boutons de confirmation (pour les toasts confirm) -->
+                        <!-- Boutons de confirmation (pour les toasts confirm) -->
                         <div *ngIf="toast.confirmActions && toast.type === 'confirm'" class="flex items-center gap-2 mt-4">
                             <button
                                     (click)="toast.confirmActions.cancel.onClick ? toast.confirmActions.cancel.onClick() : removeToast(toast.id)"

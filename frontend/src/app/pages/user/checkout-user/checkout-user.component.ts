@@ -10,11 +10,12 @@ import {LeafletMapComponent} from '../../../shared/components/common/leaflet-map
 import {SkeletonCheckoutComponent} from "./skeleton-checkout/skeleton-checkout.component";
 import {ToastService} from "../../../shared/services/toast.service";
 import {IncompleteProfileComponent} from "./incomplete-profile/incomplete-profile.component";
+import {DeliveryWarningComponent} from "./delivery-warning/delivery-warning.component";
 
 @Component({
   selector: 'app-checkout-user',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, PageBreadcrumbComponent, LeafletMapComponent, SkeletonCheckoutComponent, IncompleteProfileComponent],
+  imports: [CommonModule, FormsModule, RouterModule, PageBreadcrumbComponent, LeafletMapComponent, SkeletonCheckoutComponent, IncompleteProfileComponent, DeliveryWarningComponent],
   templateUrl: './checkout-user.component.html',
   styleUrl: './checkout-user.component.css',
 })
@@ -301,7 +302,7 @@ export class CheckoutUserComponent implements OnInit {
   //  PAYMENT
   // ════════════════════════════════════════════
 
-  processPayment(): void {
+  async processPayment(): Promise<void>  {
     // Validate
     if (this.deliveryMode === 'delivery' && !this.selectedAddressId && !this.showNewAddressForm) {
       this.toast.warning('Oups', 'Please select a delivery address or add a new one', 5000);
@@ -320,9 +321,57 @@ export class CheckoutUserComponent implements OnInit {
 
     this.isProcessing = true;
 
+    if (this.deliveryMode === 'delivery') {
+      const nextDeliveryDay = this.getNextDeliveryDay();
+
+      // Cas 1: Livraison non disponible aujourd'hui
+      if (this.isDeliveryEnabled() && !this.isDeliveryAvailableToday()) {
+        const confirmed = await this.toast.confirmAsync(
+            'Delivery Not Available Today',
+            `Home delivery is not available today. Your order will be delivered on ${nextDeliveryDay}. Do you want to continue?`,
+            {
+              confirmLabel: 'Yes, Continue',
+              cancelLabel: 'Cancel',
+              variant: 'primary',
+              position: 'top-center',
+              backdrop: true
+            }
+        );
+
+        if (!confirmed) {
+          console.log('Payment cancelled by user');
+          this.isProcessing = false;
+          return;
+        }
+      }
+
+      // Cas 2: Heure limite dépassée (mais jour de livraison actif)
+      else if (this.isDeliveryEnabled() && this.isDeliveryAvailableToday() && !this.isDeliveryAvailableNow()) {
+        const cutoffTime = this.cart?.boutique?.livraisonConfig?.orderCutoffTime || '';
+        const confirmed = await this.toast.confirmAsync(
+            'Order Cutoff Time Passed',
+            `The cutoff time for same-day delivery (${cutoffTime}) has passed. Your order will be delivered on ${nextDeliveryDay}. Do you want to continue?`,
+            {
+              confirmLabel: 'Yes, Continue',
+              cancelLabel: 'Cancel',
+              variant: 'primary',
+              position: 'top-center',
+              backdrop: true
+            }
+        );
+
+        if (!confirmed) {
+          this.isProcessing = false;
+          return;
+        }
+      }
+    }
+
     // Build deliveryAddress payload or set null for pickup
     let deliveryAddressPayload: any = null;
     if (this.deliveryMode === 'delivery') {
+
+
       if (this.showNewAddressForm) {
         const addr = {
           id: null,
@@ -448,6 +497,70 @@ export class CheckoutUserComponent implements OnInit {
     const todayDelivery = this.cart.boutique.livraisonConfig.deliveryDays.find((d: any) => d.day === apiDay);
 
     return todayDelivery?.isActive || false;
+  }
+
+  isDeliveryAvailableNow(): boolean {
+    if (!this.cart?.boutique?.livraisonConfig?.orderCutoffTime) return false;
+
+    const cutoffTime = this.cart.boutique.livraisonConfig.orderCutoffTime; // ex: "18:00"
+    const now = new Date();
+
+    // Parser l'heure limite (format "HH:MM")
+    const [cutoffHour, cutoffMinute] = cutoffTime.split(':').map(Number);
+
+    // Créer une date pour l'heure limite aujourd'hui
+    const cutoffDate = new Date();
+    cutoffDate.setHours(cutoffHour, cutoffMinute, 0, 0);
+
+    // Retourne true si on est avant l'heure limite
+    return now < cutoffDate;
+  }
+
+  getOrderCutoffTime(): string {
+    return this.cart?.boutique?.livraisonConfig?.orderCutoffTime || '';
+  }
+
+  getNextDeliveryDay(): string {
+    if (!this.cart?.boutique?.livraisonConfig?.deliveryDays) return '';
+
+    const deliveryDays = this.cart.boutique.livraisonConfig.deliveryDays;
+    const today = new Date();
+    let currentDay = today.getDay(); // 0 = dimanche, 1 = lundi, etc.
+
+    // Convertir en format API (1 = lundi, 7 = dimanche)
+    let apiDay = currentDay === 0 ? 7 : currentDay;
+
+    // Chercher le prochain jour actif (maximum 7 jours)
+    for (let i = 1; i <= 7; i++) {
+      apiDay = apiDay + 1;
+      if (apiDay > 7) apiDay = 1; // Boucler sur la semaine
+
+      const dayConfig = deliveryDays.find((d: any) => d.day === apiDay);
+      if (dayConfig?.isActive) {
+        // Retourner le nom du jour
+        return this.getDayName(apiDay);
+      }
+    }
+
+    return '';
+  }
+
+  getDayName(apiDay: number): string {
+    const days = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    return days[apiDay] || '';
+  }
+
+  shouldShowDeliveryWarning(): boolean {
+    // Cas 1: Livraison complètement désactivée
+    if (!this.isDeliveryEnabled()) return true;
+
+    // Cas 2: Livraison non disponible aujourd'hui
+    if (!this.isDeliveryAvailableToday()) return true;
+
+    // Cas 3: Heure limite dépassée
+    if (this.isDeliveryAvailableToday() && !this.isDeliveryAvailableNow()) return true;
+
+    return false;
   }
 
   isDeliveryEnabled(): boolean {

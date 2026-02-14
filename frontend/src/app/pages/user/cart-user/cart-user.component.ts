@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { CommandeService } from '../../../shared/services/commande.service';
@@ -13,7 +13,7 @@ import {ToastService} from "../../../shared/services/toast.service";
   templateUrl: './cart-user.component.html',
   styleUrl: './cart-user.component.css',
 })
-export class CartUserComponent implements OnInit {
+export class CartUserComponent implements OnInit, OnDestroy {
 
   tax : number = 0;
   cart: any = null;
@@ -21,6 +21,9 @@ export class CartUserComponent implements OnInit {
 
   // track per-item loading states (by product id)
   itemLoading: Record<string, boolean> = {};
+
+  private timerInterval: any;
+  timeRemaining: string = '';
 
   constructor(
       private commandeService: CommandeService,
@@ -30,6 +33,22 @@ export class CartUserComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadFullDraft();
+  }
+
+  ngOnDestroy(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
+  }
+
+  startTimer(): void {
+    // Calculer immédiatement
+    this.updateTimeRemaining();
+
+    // Puis mettre à jour chaque seconde
+    this.timerInterval = setInterval(() => {
+      this.updateTimeRemaining();
+    }, 1000);
   }
 
   get taxPrice(): number {
@@ -48,6 +67,7 @@ export class CartUserComponent implements OnInit {
         console.log('Draft full response:', res);
         if (res?.success && res?.data) {
           this.cart = res.data;
+          this.startTimer();
           console.log('Commande full data:', res.data);
         } else {
           this.cart = null;
@@ -64,6 +84,65 @@ export class CartUserComponent implements OnInit {
         }
       }
     });
+  }
+
+  updateTimeRemaining(): void {
+    if (!this.cart?.expiredAt) {
+      this.timeRemaining = '';
+      return;
+    }
+
+    const now = new Date().getTime();
+    const expiry = new Date(this.cart.expiredAt).getTime();
+    const diff = expiry - now;
+
+    if (diff <= 0) {
+      this.timeRemaining = 'Expired';
+      if (this.timerInterval) {
+        clearInterval(this.timerInterval);
+      }
+      // Optionnel: Afficher un message ou rediriger
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    parts.push(`${seconds}s`); // ✅ Toujours afficher les secondes
+
+    this.timeRemaining = parts.join(' ');
+  }
+
+  /**
+   * Retourne true si le timer est critique (moins de 5 minutes)
+   */
+  isTimerCritical(): boolean {
+    if (!this.cart?.expiredAt) return false;
+
+    const now = new Date().getTime();
+    const expiry = new Date(this.cart.expiredAt).getTime();
+    const diff = expiry - now;
+
+    // Critique si moins de 5 minutes (300000 ms)
+    return diff > 0 && diff <= 300000;
+  }
+
+  /**
+   * Retourne true si le panier a expiré
+   */
+  isExpired(): boolean {
+    if (!this.cart?.expiredAt) return false;
+
+    const now = new Date().getTime();
+    const expiry = new Date(this.cart.expiredAt).getTime();
+
+    return now >= expiry;
   }
 
   // ════════════════════════════════════════════

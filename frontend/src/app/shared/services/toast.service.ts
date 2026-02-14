@@ -84,6 +84,7 @@ export class ToastService {
             cancelLabel?: string;
             variant?: 'primary' | 'danger' | 'success';
             position?: ToastPosition;
+            backdrop?: boolean;
         }
     ): string {
         const toast: Toast = {
@@ -91,8 +92,9 @@ export class ToastService {
             type: 'confirm',
             title,
             message,
-            duration: 0, // Les confirmations ne disparaissent pas automatiquement
+            duration: 0,
             position: options?.position ?? 'top-center',
+            backdrop: options?.backdrop ?? false,
             confirmActions: {
                 confirm: {
                     label: options?.confirmLabel ?? 'Confirm',
@@ -115,9 +117,30 @@ export class ToastService {
         const currentToasts = this.toastsSubject.value;
         this.toastsSubject.next([...currentToasts, toast]);
 
-        return toast.id; // Retourne l'ID pour pouvoir le supprimer manuellement si besoin
+        return toast.id;
     }
 
+    confirmAsync(
+        title: string,
+        message: string,
+        options?: {
+            confirmLabel?: string;
+            cancelLabel?: string;
+            variant?: 'primary' | 'danger' | 'success';
+            position?: ToastPosition;
+            backdrop?: boolean;
+        }
+    ): Promise<boolean> {
+        return new Promise((resolve) => {
+            this.confirm(
+                title,
+                message,
+                () => resolve(true),
+                () => resolve(false),
+                options
+            );
+        });
+    }
 
     /**
      * Supprime un toast

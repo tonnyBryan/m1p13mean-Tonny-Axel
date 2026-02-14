@@ -75,6 +75,16 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
           ])
         ], { optional: true })
       ])
+    ]),
+
+    trigger('backdropAnimation', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('200ms ease-out', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('200ms ease-in', style({ opacity: 0 }))
+      ])
     ])
   ]
 })
@@ -96,6 +106,10 @@ export class ToastContainerComponent implements OnInit {
 
   ngOnInit() {}
 
+  hasBackdrop(toasts: Toast[]): boolean {
+    return toasts.some(t => t.type === 'confirm' && t.backdrop === true);
+  }
+
   removeToast(id: string) {
     this.toastService.remove(id);
   }
@@ -105,7 +119,7 @@ export class ToastContainerComponent implements OnInit {
   }
 
   getPositionClasses(position: ToastPosition): string {
-    const baseClasses = 'fixed z-[99999] flex flex-col gap-3 pointer-events-none';
+    const baseClasses = 'fixed z-[999999] flex flex-col gap-3 pointer-events-none';
 
     switch (position) {
       case 'top-right':

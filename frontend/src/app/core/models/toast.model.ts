@@ -23,4 +23,5 @@ export interface Toast {
             onClick?: () => void;
         };
     };
+    backdrop?: boolean;
 }
