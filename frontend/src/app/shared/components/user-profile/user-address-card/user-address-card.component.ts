@@ -81,7 +81,6 @@ export class UserAddressCardComponent implements OnInit {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
           (position) => {
-            console.log("Position obtenue:", position.coords);
             this.mapCenterArr = [position.coords.latitude, position.coords.longitude];
             this.initialPosition = [...this.mapCenterArr];
             this.hasUserLocation = true;

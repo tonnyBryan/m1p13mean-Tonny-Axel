@@ -27,7 +27,7 @@
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
             <!-- Email handled in account settings; show placeholder if profile doesn't contain it -->
-            {{ profile?.email || '—' }}
+            {{ authService.user?.email || '—' }}
           </p>
         </div>
         <div>
@@ -96,7 +96,7 @@
               <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div class="col-span-2 lg:col-span-1">
                   <app-label>First Name <span class="text-red-500">*</span></app-label>
-                  <app-input-field type="text" [(ngModel)]="form.firstName" name="firstName" />
+                  <app-input-field type="text" [(ngModel)]="form.firstName" (ngModelChange)="updateFormInvalid()" name="firstName" />
                   <p class="mt-1 text-xs text-red-500" *ngIf="!form.firstName || form.firstName.trim() === ''">
                     First name is required
                   </p>
@@ -109,7 +109,7 @@
                 </div>
                 <div class="col-span-2 lg:col-span-1">
                   <app-label>Last Name <span class="text-red-500">*</span></app-label>
-                  <app-input-field type="text" [(ngModel)]="form.lastName" name="lastName" />
+                  <app-input-field type="text" [(ngModel)]="form.lastName" (ngModelChange)="updateFormInvalid()" name="lastName" />
                   <p class="mt-1 text-xs text-red-500" *ngIf="!form.lastName || form.lastName.trim() === ''">
                     Last name is required
                   </p>
@@ -122,11 +122,11 @@
                 </div>
                 <div class="col-span-2 lg:col-span-1">
                   <app-label>Email Address</app-label>
-                  <p class="text-sm text-gray-500">{{ profile?.email || '—' }}</p>
+                  <p class="text-sm text-gray-500">{{ authService.user?.email || '—' }}</p>
                 </div>
                 <div class="col-span-2 lg:col-span-1">
                   <app-label>Phone</app-label>
-                  <app-input-field type="text" [(ngModel)]="form.phoneNumber" name="phoneNumber" />
+                  <app-input-field type="text" [(ngModel)]="form.phoneNumber" (ngModelChange)="updateFormInvalid()" name="phoneNumber" />
                     <p
                             class="mt-1 text-xs text-red-500"
                             *ngIf="form.phoneNumber && !isInputSafe(form.phoneNumber)"
@@ -143,7 +143,7 @@
                 </div>
                 <div class="col-span-2">
                   <app-label>Bio</app-label>
-                  <app-input-field type="text" [(ngModel)]="form.description" name="description" />
+                  <app-input-field type="text" [(ngModel)]="form.description" (ngModelChange)="updateFormInvalid()" name="description" />
                     <p
                             class="mt-1 text-xs text-red-500"
                             *ngIf="form.description && !isValidBio(form.description)"
@@ -160,7 +160,7 @@
           <app-button
             size="sm"
             [loading]="isLoading"
-            [disabled]="isFormInvalid()"
+            [disabled]="formInvalid"
             (btnClick)="handleSave()">
             Save Changes
           </app-button>

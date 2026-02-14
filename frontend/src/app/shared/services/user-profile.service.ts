@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 
@@ -9,10 +9,22 @@ import { AuthService } from './auth.service';
 })
 export class UserProfileService {
 
+    private hasProfileSubject = new BehaviorSubject<boolean | null>(null);
+    hasProfile$ = this.hasProfileSubject.asObservable();
+
+
     constructor(
         private api: ApiService,
         private auth: AuthService
     ) { }
+
+    setHasProfile(value: boolean) {
+        this.hasProfileSubject.next(value);
+    }
+
+    getHasProfile(): boolean | null {
+        return this.hasProfileSubject.value;
+    }
 
     getUserProfiles(params: any = {}): Observable<any> {
         const token = this.auth.getToken();

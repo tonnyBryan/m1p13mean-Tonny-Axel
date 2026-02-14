@@ -1,3 +1,5 @@
+<div class="mx-auto max-w-7xl">
+
 <app-page-breadcrumb
         [pageTitle]="'Checkout'"
         [breadcrumbs]="[
@@ -6,7 +8,6 @@
     { label: 'Checkout' }
   ]" />
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
     <!-- Loading Skeleton -->
     <app-skeleton-checkout *ngIf="isLoading"></app-skeleton-checkout>
@@ -389,16 +390,13 @@
                         />
                         <label for="saveNewAddress" class="flex-1 cursor-pointer">
                             <div class="flex items-center gap-2 mb-1">
-                <span class="text-sm font-semibold text-gray-900 dark:text-white">
-                    Save this address to my profile
-                </span>
-                                <svg class="w-4 h-4 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
-                                </svg>
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white">
+                                    Save this address to my profile
+                                </span>
                             </div>
                             <span class="text-xs text-gray-600 dark:text-gray-400 block">
-                You can reuse this address for future orders without re-entering the details
-            </span>
+                                You can reuse this address for future orders without re-entering the details
+                            </span>
                         </label>
                     </div>
 

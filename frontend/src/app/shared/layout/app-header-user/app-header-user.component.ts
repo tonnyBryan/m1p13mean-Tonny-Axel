@@ -9,6 +9,7 @@ import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import {UserCartComponent} from "../../components/header/user/user-cart/user-cart.component";
 import {ToastService} from "../../services/toast.service";
+import {UserProfileService} from "../../services/user-profile.service";
 
 @Component({
     selector: 'app-header-user',
@@ -36,13 +37,19 @@ export class AppHeaderUserComponent implements OnInit {
         public sidebarService: SidebarService,
         private userService: UserService,
         private authService: AuthService,
-        private toast : ToastService
+        private toast : ToastService,
+        private profileService : UserProfileService
     ) {
         this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
     }
 
     ngOnInit() {
-        // Only check profile if user is logged in and has role 'user'
+        this.profileService.hasProfile$.subscribe(value => {
+            if (value !== null) {
+                this.hasProfile = value;
+            }
+        });
+
         const user = this.authService.user;
         if (user) {
             this.loadMyProfile();
@@ -56,18 +63,16 @@ export class AppHeaderUserComponent implements OnInit {
         this.userService.getMyProfile().subscribe({
             next: (res) => {
                 this.isProfileLoading = false;
-                if (res && res.success) {
-                    this.hasProfile = !!res.data; // null data => false
-                } else {
-                    // If API returns success:true with message 'Profile not found' and data:null
-                    this.hasProfile = !!res.data;
-                }
+                const hasProfile = !!res?.data;
+                this.hasProfile = hasProfile;
+                this.profileService.setHasProfile(hasProfile);
             },
             error: (err) => {
                 this.isProfileLoading = false;
                 this.hasError = true;
                 console.error('Error fetching profile', err);
                 this.hasProfile = false;
+                this.profileService.setHasProfile(false);
 
                 if (err.error && err.error.message) {
                     this.toast.error('Error',err.error.message,0);

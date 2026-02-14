@@ -1,16 +1,18 @@
-<app-page-breadcrumb
-        [pageTitle]="pageTitle"
-        [breadcrumbs]="[
-        { label: 'Home', link: '/v1/stores' },
-        { label: 'Stores', link: '/v1/stores' },
-        { label: boutiqueName }
-    ]" />
+<div class="mx-auto max-w-7xl">
+    <app-page-breadcrumb
+            [pageTitle]="pageTitle"
+            [breadcrumbs]="[
+            { label: 'Home', link: '/v1/stores' },
+            { label: 'Stores', link: '/v1/stores' },
+            { label: boutiqueName }
+        ]" />
 
-<!-- Loading Skeleton -->
-<app-boutique-skeleton *ngIf="isLoading" />
+    <!-- Loading Skeleton -->
+    <app-boutique-skeleton *ngIf="isLoading" />
 
-<!-- Boutique Details -->
-<app-boutique-details *ngIf="!isLoading && boutique" [boutique]="boutique" />
+    <!-- Boutique Details -->
+    <app-boutique-details *ngIf="!isLoading && boutique" [boutique]="boutique" />
 
-<!-- Products Section -->
-<app-product-list *ngIf="!isLoading && boutique" [boutiqueId]="boutique._id" />
+    <!-- Products Section -->
+    <app-product-list *ngIf="!isLoading && boutique" [boutiqueId]="boutique._id" />
+</div>

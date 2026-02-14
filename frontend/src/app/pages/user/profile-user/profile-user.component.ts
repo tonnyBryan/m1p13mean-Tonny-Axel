@@ -42,7 +42,6 @@ export class ProfileUserComponent implements OnInit {
     constructor(private userService: UserService, private authService: AuthService, private toast : ToastService) {}
 
     ngOnInit(): void {
-        console.log("gegee brooo");
         this.loadProfile();
     }
 
@@ -53,7 +52,6 @@ export class ProfileUserComponent implements OnInit {
                 this.isLoading = false;
                 if (res && res.success && res.data) {
                     this.profile = res.data;
-                    this.profile.email = this.authService.user?.email;
                 } else {
                     // profile not found -> use mocked user object
                     this.profile = null;

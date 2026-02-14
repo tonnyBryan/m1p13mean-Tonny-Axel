@@ -1,8 +1,9 @@
+<div class="mx-auto max-w-7xl">
+
 @if (product) {
 <app-page-breadcrumb [pageTitle]="pageTitle"
     [breadcrumbs]="[{ label: 'Home', link: '/v1/stores' },{ label: 'Stores', link: '/v1/stores' }, { label: 'Store name', link: '/v1/stores/' + idStore }, { label: product.name }]" />
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
 
@@ -362,15 +363,12 @@
         </div>
 
     </div>
-</div>
-
 } @else {
 
 <!-- =================== -->
 <!-- SKELETON LOADING -->
 <!-- =================== -->
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 animate-pulse">
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
@@ -405,6 +403,6 @@
         </div>
 
     </div>
-</div>
 
 }
+</div>

@@ -9,6 +9,8 @@ import { ModalComponent } from '../../ui/modal/modal.component';
 import { UserService } from '../../../services/user.service';
 import {ToastService} from "../../../services/toast.service";
 import {NgIf} from "@angular/common";
+import {AuthService} from "../../../services/auth.service";
+import {UserProfileService} from "../../../services/user-profile.service";
 
 @Component({
   selector: 'app-user-info-card',
@@ -28,7 +30,8 @@ export class UserInfoCardComponent implements OnChanges {
   @Input() profile: any | null = null;
   @Output() profileSaved = new EventEmitter<any>();
 
-  constructor(public modal: ModalService, private userService: UserService, private toast : ToastService) {}
+  constructor(public modal: ModalService, private userService: UserService, private toast : ToastService, protected authService : AuthService, private profileService: UserProfileService) {}
+  formInvalid = true;
 
   isOpen = false;
   isLoading = false;
@@ -47,6 +50,8 @@ export class UserInfoCardComponent implements OnChanges {
       description: this.profile?.description || '',
       photo: this.profile?.photo || ''
     };
+
+    this.updateFormInvalid();
   }
 
   // Regex for validating dangerous characters (SQL injection, XSS, etc.)
@@ -110,6 +115,10 @@ export class UserInfoCardComponent implements OnChanges {
     }
 
     return false;
+  }
+
+  protected updateFormInvalid(): void {
+    this.formInvalid = this.isFormInvalid();
   }
 
 
@@ -181,6 +190,7 @@ export class UserInfoCardComponent implements OnChanges {
       next: (res) => {
         this.isLoading = false;
         if (res && res.success) {
+          this.profileService.setHasProfile(true);
           this.profileSaved.emit(res.data || null);
           this.toast.success('Success','Profile updated successfully');
           this.closeModal();
