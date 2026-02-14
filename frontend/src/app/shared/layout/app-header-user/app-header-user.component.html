@@ -64,7 +64,7 @@
         </div>
         <!-- Warning banner when user has no profile -->
         <!-- Warning badge when user has no profile - Modern minimal style -->
-        <div *ngIf="hasProfile === false"
+        <div *ngIf="hasProfile === false && !hasError"
              class="w-full bg-amber-50 dark:bg-amber-950/30 border-b border-amber-100 dark:border-amber-900/50 rounded-lg overflow-hidden">
             <div class="container mx-auto px-4 sm:px-6">
                 <div class="flex items-center justify-center gap-3 py-2.5">

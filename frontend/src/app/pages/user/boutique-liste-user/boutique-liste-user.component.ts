@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { BoutiqueService } from '../../../shared/services/boutique.service';
 import { Boutique } from '../../../core/models/boutique.model';
 import {PageBreadcrumbComponent} from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
+import {ToastService} from "../../../shared/services/toast.service";
 
 @Component({
   selector: 'app-boutique-liste-user',
@@ -23,7 +24,7 @@ export class BoutiqueListeUserComponent implements OnInit {
       '                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>\n' +
       '                        </svg>';
 
-  constructor(private boutiqueService: BoutiqueService) {}
+  constructor(private boutiqueService: BoutiqueService, private toast : ToastService) {}
 
   ngOnInit(): void {
     this.loadBoutiques();
@@ -51,6 +52,11 @@ export class BoutiqueListeUserComponent implements OnInit {
       error: (err) => {
         this.isLoading = false;
         console.error('Erreur lors du chargement des boutiques :', err);
+        if (err.error && err.error.message) {
+          this.toast.error('Error',err.error.message, 0);
+        } else {
+          this.toast.error('Error','An error occurred while fetching stores',0);
+        }
       }
     });
   }

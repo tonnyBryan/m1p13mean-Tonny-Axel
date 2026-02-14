@@ -141,6 +141,8 @@ export class ToastContainerComponent implements OnInit {
         return `${baseClasses} bg-amber-100 dark:bg-amber-900/30`;
       case 'info':
         return `${baseClasses} bg-blue-100 dark:bg-blue-900/30`;
+      case 'confirm':
+        return `${baseClasses} bg-purple-100 dark:bg-purple-900/30`;
       default:
         return `${baseClasses} bg-gray-100 dark:bg-gray-700`;
     }
@@ -156,6 +158,8 @@ export class ToastContainerComponent implements OnInit {
         return 'w-6 h-6 text-amber-600 dark:text-amber-400';
       case 'info':
         return 'w-6 h-6 text-blue-600 dark:text-blue-400';
+      case 'confirm':
+        return 'w-6 h-6 text-purple-600 dark:text-purple-400';
       default:
         return 'w-6 h-6 text-gray-600 dark:text-gray-400';
     }
@@ -179,12 +183,31 @@ export class ToastContainerComponent implements OnInit {
         return 'bg-amber-500 dark:bg-amber-400';
       case 'info':
         return 'bg-blue-500 dark:bg-blue-400';
+      case 'confirm':
+        return 'bg-purple-500 dark:bg-purple-400';
       default:
         return 'bg-gray-500 dark:bg-gray-400';
     }
   }
 
-  // ✅ Track by pour optimiser le rendering
+  getConfirmButtonClasses(variant?: 'primary' | 'danger' | 'success'): string {
+    const baseClasses = 'flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all hover:scale-105 active:scale-95 shadow-md';
+
+    switch (variant) {
+      case 'danger':
+        return `${baseClasses} bg-red-600 hover:bg-red-700 text-white`;
+      case 'success':
+        return `${baseClasses} bg-green-600 hover:bg-green-700 text-white`;
+      case 'primary':
+      default:
+        return `${baseClasses} bg-brand-600 hover:bg-brand-700 text-white`;
+    }
+  }
+
+  getCancelButtonClasses(): string {
+    return 'flex-1 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all hover:scale-105 active:scale-95 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white';
+  }
+
   trackByToastId(index: number, toast: Toast): string {
     return toast.id;
   }

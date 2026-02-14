@@ -1,4 +1,4 @@
-export type ToastType = 'success' | 'error' | 'warning' | 'info';
+export type ToastType = 'success' | 'error' | 'warning' | 'info' | 'confirm';
 export type ToastPosition = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
 
 export interface Toast {
@@ -11,5 +11,16 @@ export interface Toast {
     action?: {
         label: string;
         onClick: () => void;
+    };
+    confirmActions?: {
+        confirm: {
+            label: string;
+            onClick: () => void;
+            variant?: 'primary' | 'danger' | 'success';
+        };
+        cancel: {
+            label: string;
+            onClick?: () => void;
+        };
     };
 }

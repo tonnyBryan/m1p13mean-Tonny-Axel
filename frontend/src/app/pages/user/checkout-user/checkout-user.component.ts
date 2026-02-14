@@ -8,11 +8,13 @@ import {CentreService} from '../../../shared/services/centre.service';
 import {PageBreadcrumbComponent} from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
 import {LeafletMapComponent} from '../../../shared/components/common/leaflet-map/leaflet-map.component';
 import {SkeletonCheckoutComponent} from "./skeleton-checkout/skeleton-checkout.component";
+import {ToastService} from "../../../shared/services/toast.service";
+import {IncompleteProfileComponent} from "./incomplete-profile/incomplete-profile.component";
 
 @Component({
   selector: 'app-checkout-user',
   standalone: true,
-    imports: [CommonModule, FormsModule, RouterModule, PageBreadcrumbComponent, LeafletMapComponent, SkeletonCheckoutComponent],
+  imports: [CommonModule, FormsModule, RouterModule, PageBreadcrumbComponent, LeafletMapComponent, SkeletonCheckoutComponent, IncompleteProfileComponent],
   templateUrl: './checkout-user.component.html',
   styleUrl: './checkout-user.component.css',
 })
@@ -23,6 +25,9 @@ export class CheckoutUserComponent implements OnInit {
   cart: any = null;
   isLoading = false;
   centre: any = null;
+
+  profileIncomplete = false;
+
 
   // Delivery mode: 'pickup' or 'delivery'
   deliveryMode: 'pickup' | 'delivery' = 'pickup';
@@ -55,14 +60,15 @@ export class CheckoutUserComponent implements OnInit {
       private userService: UserService,
       private commandeService: CommandeService,
       private centreService: CentreService,
-      private router: Router
+      private router: Router,
+      private toast: ToastService
   ) {}
 
   ngOnInit(): void {
     this.isLoading = true;
     this.loadCentre();
-    this.loadFullDraft();
     this.loadProfile();
+    this.loadFullDraft();
   }
 
   loadFullDraft() {
@@ -78,7 +84,13 @@ export class CheckoutUserComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Error fetching draft full:', err);
-        this.router.navigate(['/v1/cart']);
+        if (err.error && err.error.message) {
+          this.toast.error('Error',err.error.message,0);
+        } else {
+          this.toast.error('Error','An error occurred while fetching your cart',0);
+        }
+
+        // this.router.navigate(['/v1/cart']);
       }
     });
   }
@@ -86,7 +98,7 @@ export class CheckoutUserComponent implements OnInit {
   loadProfile(): void {
     this.userService.getMyProfile().subscribe({
       next: (res) => {
-        if (res && res.success && res.data) {
+        if (res.success && res.data) {
           this.profile = res.data;
           console.log(this.profile);
           // Auto-select default address if available
@@ -96,12 +108,20 @@ export class CheckoutUserComponent implements OnInit {
           }
           this.checkLoadingComplete();
         } else {
-          this.router.navigate(['/v1/cart']);
+          this.isLoading = false;
+          this.profileIncomplete = true;
         }
       },
       error: (err) => {
         console.error('Error fetching profile', err);
-        this.router.navigate(['/v1/cart']);
+
+        if (err.error && err.error.message) {
+          this.toast.error('Error',err.error.message,0);
+        } else {
+          this.toast.error('Error','An error occurred while fetching your profile',0);
+        }
+
+        // this.router.navigate(['/v1/cart']);
       }
     });
   }
@@ -118,12 +138,17 @@ export class CheckoutUserComponent implements OnInit {
       error: (err) => {
         console.error('Error loading centre commercial', err);
         this.centre = null;
+        if (err.error && err.error.message) {
+          this.toast.error('Error',err.error.message,0);
+        } else {
+          this.toast.error('Error','An error occurred while fetching application details',0);
+        }
       }
     });
   }
 
   checkLoadingComplete(): void {
-    if (this.cart && this.profile) {
+    if (this.centre && this.cart && this.profile) {
       this.isLoading = false;
     }
   }
@@ -137,8 +162,7 @@ export class CheckoutUserComponent implements OnInit {
     if (mode === 'delivery') {
       const isAllowed = !!(this.cart && this.cart.boutique && this.cart.boutique.livraisonConfig && this.cart.boutique.livraisonConfig.isDeliveryAvailable);
       if (!isAllowed) {
-        // keep pickup and optionally show a message
-        alert('Home delivery is not available for this boutique');
+        this.toast.warning('Oups', 'Home delivery is not available for this store', 5000);
         return;
       }
     }
@@ -280,12 +304,17 @@ export class CheckoutUserComponent implements OnInit {
   processPayment(): void {
     // Validate
     if (this.deliveryMode === 'delivery' && !this.selectedAddressId && !this.showNewAddressForm) {
-      alert('Please select a delivery address');
+      this.toast.warning('Oups', 'Please select a delivery address or add a new one', 5000);
       return;
     }
 
     if (!this.paymentInfo.cardNumber || !this.paymentInfo.cardName || !this.paymentInfo.expiryDate || !this.paymentInfo.cvv) {
-      alert('Please fill in all payment details');
+      this.toast.warning('Oups', 'Please complete your payment card', 5000);
+      return;
+    }
+
+    if (!this.isReadyToPay()) {
+      this.toast.warning('Oups', 'Please complete all information', 5000);
       return;
     }
 
@@ -348,14 +377,14 @@ export class CheckoutUserComponent implements OnInit {
           alert('Payment successful');
         } else {
           console.error('Payment failed:', res);
-          alert(res?.message || 'Payment failed');
+          this.toast.error('Payment failed', res?.message || 'An error occurred during payment');
         }
       },
       error: (err: any) => {
         this.isProcessing = false;
         console.error('Payment API error:', err);
         const message = err?.error?.message || err?.message || 'Payment error';
-        alert(message);
+        this.toast.error('Error',message,5000);
       }
     });
   }

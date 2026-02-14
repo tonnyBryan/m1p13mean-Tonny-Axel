@@ -36,10 +36,12 @@ export class ProductFicheUserComponent implements OnInit {
         const idProduct = this.route.snapshot.paramMap.get('idProduct');
 
         if (idStore === null) {
+            this.toast.warning('Error','Invalid URL: missing store ID');
             this.router.navigate(['/v1/stores']);
             return;
         } else if (idProduct === null) {
             this.router.navigate([`/v1/stores/${idStore}`]);
+            this.toast.warning('Error','Invalid URL: missing product ID');
             return;
         }
 
@@ -67,9 +69,12 @@ export class ProductFicheUserComponent implements OnInit {
                 }, 100);
             },
             error: (err) => {
-                // this.errorMessage =
-                //     err?.error?.message || 'Error fetching product';
                 console.error(err);
+                if (err.error && err.error.message) {
+                    this.toast.error('Error',err.error.message,0);
+                } else {
+                    this.toast.error('Error','An error occurred while fetching product',0);
+                }
             }
         });
     }
@@ -149,7 +154,7 @@ export class ProductFicheUserComponent implements OnInit {
         //     onClick: () => this.router.navigate(['/cart'])
         // });
 
-        
+
         if (this.quantity < this.p.maxOrderQty && this.quantity < this.p.stock) {
             this.quantity++;
         }
@@ -208,10 +213,6 @@ export class ProductFicheUserComponent implements OnInit {
                     this.addedToCartSuccess = true;
                     this.commandeService.refreshDraftCount().subscribe();
 
-                    this.toast.show('info', 'Item added to cart', 'View your cart now', 0, 'bottom-right', {
-                        label: 'View Cart',
-                        onClick: () => this.router.navigate(['/cart'])
-                    });
 
                     // Reset after 3 seconds
                     setTimeout(() => {

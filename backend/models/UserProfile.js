@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const AddressSchema = new mongoose.Schema({
-    label: { type: String },
-    latitude: { type: Number },
-    longitude: { type: Number },
-    description: { type: String },
+    label: { type: String, required: true },
+    latitude: { type: Number, required: true },
+    longitude: { type: Number, required: true },
+    description: { type: String, required: true },
     isDefault: { type: Boolean, default: false }
 });
 

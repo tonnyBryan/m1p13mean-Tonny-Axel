@@ -17,6 +17,7 @@ import { ModalComponent } from '../../ui/modal/modal.component';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
 import { NgForOf, NgIf, CommonModule } from "@angular/common";
+import {ToastService} from "../../../services/toast.service";
 
 @Component({
   selector: 'app-user-address-card',
@@ -42,10 +43,13 @@ export class UserAddressCardComponent implements OnInit {
 
   @ViewChild(LeafletMapComponent) map!: LeafletMapComponent;
 
+  private readonly SAFE_TEXT_REGEX = /^[a-zA-Z0-9\s\-_',.éèêëàâäùûüîïôöœçñ]+$/;
+
   constructor(
       public modal: ModalService,
       private userService: UserService,
-      private cdr: ChangeDetectorRef
+      private cdr: ChangeDetectorRef,
+      private toast : ToastService
   ) {}
 
   isAddModalOpen = false;
@@ -53,12 +57,11 @@ export class UserAddressCardComponent implements OnInit {
   adding = false;
 
   // Leaflet configuration - PAS de valeur par défaut fixe
-  mapCenterArr: [number, number] = [0, 0]; // ✅ Sera mis à jour par la géolocalisation
-  mapZoom = 15; // ✅ Zoom plus proche pour une meilleure vue
-  initialPosition?: [number, number] = undefined; // ✅ undefined au départ
+  mapCenterArr: [number, number] = [0, 0];
+  mapZoom = 15;
+  initialPosition?: [number, number] = undefined;
   autoSetMarker = true;
 
-  // ✅ Suivre si on a obtenu la position
   private hasUserLocation = false;
 
   // Form for adding address
@@ -71,11 +74,9 @@ export class UserAddressCardComponent implements OnInit {
   };
 
   ngOnInit() {
-    // ✅ Obtenir la position de l'utilisateur au chargement du composant
     this.getUserLocation();
   }
 
-  // ✅ Nouvelle méthode pour obtenir la géolocalisation
   private getUserLocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -88,7 +89,6 @@ export class UserAddressCardComponent implements OnInit {
           },
           (error) => {
             console.log('Geolocation error:', error);
-            // ✅ Fallback si géolocalisation refusée
             this.mapCenterArr = [-18.8792, 47.5079]; // Antananarivo en dernier recours
             this.initialPosition = [...this.mapCenterArr];
             this.hasUserLocation = true;
@@ -110,24 +110,22 @@ export class UserAddressCardComponent implements OnInit {
 
   openAddModal() {
     if (!this.userExist) {
-      alert("Complete personal information first");
+      this.toast.warning('Oups', 'Complete personal information first', 5000);
       return;
     }
 
     this.isAddModalOpen = true;
     this.resetForm();
 
-    // ✅ Attendre que le modal soit affiché, puis invalider la taille de la carte
     setTimeout(() => {
       if (this.map?.map) {
         this.map.map.invalidateSize();
 
-        // ✅ Recentrer sur la position actuelle si disponible
         if (this.hasUserLocation && this.initialPosition) {
           this.map.setView(this.initialPosition, this.mapZoom);
         }
       }
-    }, 300); // ✅ 300ms pour être sûr que le modal est bien affiché
+    }, 300);
 
     // Set initial coordinates from user location
     if (this.initialPosition && this.initialPosition.length === 2) {
@@ -172,43 +170,40 @@ export class UserAddressCardComponent implements OnInit {
 
   addAddress() {
     if (!this.addressForm.label || !this.addressForm.latitude || !this.addressForm.longitude) {
-      alert('Please fill in all required fields and select a location on the map');
+      this.toast.error('Oups','Please fill in all required fields and select a location on the map');
       return;
     }
 
     this.adding = true;
     this.userService.addAddress(this.addressForm).subscribe({
       next: (res) => {
-        console.log('Address added', res);
-
-        console.log(res);
         this.adding = false;
         if (res && res.success) {
           this.addresses = res.data.addresses;
           this.closeAddModal();
-          // this.addressAdded.emit(newAddr);
+          this.toast.success('Success','Address added successfully.');
         } else {
+          this.closeAddModal();
           const msg = res && res.message ? res.message : 'Failed to add address';
-          alert(msg);
+          this.toast.error('Error',msg);
         }
       },
       error: (err) => {
         console.error('Error adding address', err);
         this.adding = false;
-        alert('Failed to add address');
+        this.closeAddModal();
+        const msg = err.error && err.error.message ? err.error.message : 'Failed to add address';
+        this.toast.error('Error',msg);
       }
     });
   }
 
   removeAddress(indexOrId: any) {
-    console.log("ioid = " + indexOrId);
     const addr = typeof indexOrId === 'number' ? this.addresses[indexOrId] : this.addresses.find(a => a._id === indexOrId);
     if (!addr) {
-      alert('Address not found');
+      this.toast.error('Error','Address not found');
       return;
     }
-
-    if (!confirm('Are you sure you want to remove this address?')) return;
 
     if (addr._id) {
       this.userService.removeAddress(addr._id).subscribe({
@@ -222,13 +217,57 @@ export class UserAddressCardComponent implements OnInit {
           }
         },
         error: (err) => {
+          this.closeEditModal()
           console.error('Error removing address', err);
-          alert('Failed to remove address');
+          const msg = err.error && err.error.message ? err.error.message : 'Failed to remove address';
+          this.toast.error('Error',msg);
         }
       });
     } else {
       const idx = this.addresses.indexOf(addr);
       if (idx > -1) this.addresses.splice(idx, 1);
     }
+  }
+
+  isValidAddressLabel(label: string): boolean {
+    if (!label) return false;
+    const trimmed = label.trim();
+    return trimmed.length >= 2 && this.SAFE_TEXT_REGEX.test(trimmed);
+  }
+
+// Description: free text but clean
+  isValidAddressDescription(desc: string): boolean {
+    if (!desc) return false;
+    const trimmed = desc.trim();
+    if (trimmed.length < 3) return false;
+    // prevent spam like "aaaaaa"
+    return !/(.)\1{4,}/.test(trimmed);
+  }
+
+  isValidLatitude(lat: number): boolean {
+    return lat !== null && lat !== undefined && lat >= -90 && lat <= 90;
+  }
+
+  isValidLongitude(lng: number): boolean {
+    return lng !== null && lng !== undefined && lng >= -180 && lng <= 180;
+  }
+
+  isMapSelected(): boolean {
+    return this.isValidLatitude(this.addressForm.latitude)
+        && this.isValidLongitude(this.addressForm.longitude);
+  }
+
+
+  isAddressFormInvalid(): boolean {
+    if (!this.addressForm) return true;
+
+    if (!this.isValidAddressLabel(this.addressForm.label)) return true;
+    if (!this.isValidAddressDescription(this.addressForm.description)) return true;
+    if (!this.isValidLatitude(this.addressForm.latitude)) return true;
+    if (!this.isValidLongitude(this.addressForm.longitude)) return true;
+    if (!this.isMapSelected()) return true;
+
+
+    return false;
   }
 }

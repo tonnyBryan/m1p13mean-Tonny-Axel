@@ -11,8 +11,10 @@
     <!-- Loading Skeleton -->
     <app-skeleton-checkout *ngIf="isLoading"></app-skeleton-checkout>
 
+    <app-incomplete-profile *ngIf="!isLoading && profileIncomplete"></app-incomplete-profile>
+
     <!-- Checkout Content -->
-    <div *ngIf="!isLoading && cart && profile" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <div *ngIf="!isLoading && !profileIncomplete && cart && profile" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
         <!-- ══════════════════════════════════════════ -->
         <!--  LEFT: CHECKOUT FORM (8 cols)             -->

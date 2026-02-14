@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../../../shared/services/product.service';
 import { Router } from '@angular/router';
+import {ToastService} from "../../../../shared/services/toast.service";
 
 @Component({
     selector: 'app-product-list',
@@ -36,7 +37,8 @@ export class ProductListComponent implements OnInit {
 
     constructor(
         private productService: ProductService,
-        private router: Router
+        private router: Router,
+        private toast : ToastService
     ) {}
 
     ngOnInit(): void {
@@ -89,6 +91,11 @@ export class ProductListComponent implements OnInit {
             error: (err) => {
                 this.isLoading = false;
                 console.error('Error loading products:', err);
+                if (err.error && err.error.message) {
+                    this.toast.error('Error',err.error.message, 0);
+                } else {
+                    this.toast.error('Error','An error occurred while fetching products', 0);
+                }
             }
         });
     }

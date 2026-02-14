@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { CommandeService } from '../../../shared/services/commande.service';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import {SkeletonCartComponent} from "./skeleton-cart/skeleton-cart.component";
+import {ToastService} from "../../../shared/services/toast.service";
 
 @Component({
   selector: 'app-cart-user',
@@ -23,7 +24,8 @@ export class CartUserComponent implements OnInit {
 
   constructor(
       private commandeService: CommandeService,
-      protected router: Router
+      protected router: Router,
+      private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -54,8 +56,12 @@ export class CartUserComponent implements OnInit {
       },
       error: (err: any) => {
         this.isLoading = false;
-        this.cart = null;
         console.error('Error fetching draft full:', err);
+        if (err.error && err.error.message) {
+          this.toast.error('Error',err.error.message,0);
+        } else {
+          this.toast.error('Error','An error occurred while fetching cart',0);
+        }
       }
     });
   }
@@ -101,7 +107,11 @@ export class CartUserComponent implements OnInit {
           this.cart = snapshot;
           this.commandeService.adjustCartCount(-1);
           console.error('Error incrementing quantity:', err);
-          alert(err?.error?.message || 'Error updating quantity');
+          if (err.error && err.error.message) {
+            this.toast.error('Error',err.error.message,5000);
+          } else {
+            this.toast.error('Error','An error occurred while updating quantity',5000);
+          }
         }
       });
     }
@@ -141,7 +151,11 @@ export class CartUserComponent implements OnInit {
           this.cart = snapshot;
           this.commandeService.adjustCartCount(1);
           console.error('Error decrementing quantity:', err);
-          alert(err?.error?.message || 'Error updating quantity');
+          if (err.error && err.error.message) {
+            this.toast.error('Error',err.error.message,5000);
+          } else {
+            this.toast.error('Error','An error occurred while updating quantity',5000);
+          }
         }
       });
     }
@@ -158,17 +172,34 @@ export class CartUserComponent implements OnInit {
   }
 
   removeItem(item: any, index: number): void {
-    if (!confirm('Are you sure you want to remove this item from your cart?')) return;
+    this.toast.confirm(
+        'Remove item from cart?',
+        'Are you sure you want to remove this item from your cart?',
+        () => {
+          this.performRemoveItem(item);
+        },
+        () => {
+          console.log('Removal cancelled');
+        },
+        {
+          confirmLabel: 'Remove',
+          cancelLabel: 'Keep item',
+          variant: 'danger',
+          position: 'top-center'
+        }
+    );
+  }
 
+  private performRemoveItem(item: any): void {
     const snapshot = JSON.parse(JSON.stringify(this.cart));
 
-    // optimistic update: remove item locally
     const prodId = item.product._id;
     const itemQty = item.quantity || 0;
-    this.cart.products = this.cart.products.filter((p: any) => String(p.product._id || p.product) !== String(prodId));
+    this.cart.products = this.cart.products.filter((p: any) =>
+        String(p.product._id || p.product) !== String(prodId)
+    );
     this.recalculateTotalAmount();
 
-    // optimistic badge update
     this.commandeService.adjustCartCount(-itemQty);
 
     this.setItemLoading(prodId, true);
@@ -176,13 +207,16 @@ export class CartUserComponent implements OnInit {
       next: (res: any) => {
         this.setItemLoading(prodId, false);
         if (res?.success) {
-          console.log('Remove confirmed by server');
-          if (!this.cart.products || this.cart.products.length === 0) this.cart = null;
+          this.toast.success('Item removed', 'The item has been removed from your cart');
+
+          if (!this.cart.products || this.cart.products.length === 0) {
+            this.cart = null;
+          }
         } else {
           // rollback
           this.cart = snapshot;
           this.commandeService.adjustCartCount(itemQty);
-          alert('Unable to remove item');
+          this.toast.error('Unable to remove item', 'Please try again');
         }
       },
       error: (err: any) => {
@@ -191,7 +225,11 @@ export class CartUserComponent implements OnInit {
         this.cart = snapshot;
         this.commandeService.adjustCartCount(itemQty);
         console.error('Error removing item:', err);
-        alert(err?.error?.message || 'Error removing item');
+        this.toast.error(
+            'Error',
+            err?.error?.message || 'An error occurred while removing the item',
+            5000
+        );
       }
     });
   }

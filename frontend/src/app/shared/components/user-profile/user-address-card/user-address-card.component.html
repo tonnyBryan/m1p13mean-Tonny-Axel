@@ -131,25 +131,37 @@
                 <!-- Form Fields -->
                 <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                     <div>
-                        <app-label>Label *</app-label>
+                        <app-label>Label <span class="text-red-500">*</span></app-label>
                         <app-input-field
                                 type="text"
                                 [(ngModel)]="addressForm.label"
                                 name="label"
                                 placeholder="e.g., Home, Office, Work" />
+                        <p
+                                class="mt-1 text-xs text-red-500"
+                                *ngIf="addressForm.label && !isValidAddressLabel(addressForm.label)">
+                            Label must contain at least 2 valid characters
+                        </p>
+
                     </div>
 
                     <div>
-                        <app-label>Description</app-label>
+                        <app-label>Description <span class="text-red-500">*</span></app-label>
                         <app-input-field
                                 type="text"
                                 [(ngModel)]="addressForm.description"
                                 name="description"
                                 placeholder="Additional details" />
+                        <p
+                                class="mt-1 text-xs text-red-500"
+                                *ngIf="addressForm.description && !isValidAddressDescription(addressForm.description)">
+                            Description must be at least 3 characters and not repetitive
+                        </p>
+
                     </div>
 
                     <div>
-                        <app-label>Latitude *</app-label>
+                        <app-label>Latitude <span class="text-red-500">*</span></app-label>
                         <app-input-field
                                 type="number"
                                 [(ngModel)]="addressForm.latitude"
@@ -159,7 +171,7 @@
                     </div>
 
                     <div>
-                        <app-label>Longitude *</app-label>
+                        <app-label>Longitude <span class="text-red-500">*</span></app-label>
                         <app-input-field
                                 type="number"
                                 [(ngModel)]="addressForm.longitude"
@@ -201,6 +213,7 @@
                     <app-button
                             size="sm"
                             (btnClick)="addAddress()"
+                            [disabled]="isAddressFormInvalid()"
                             [loading]="adding"
                             class="flex-1">
                         {{ adding ? 'Adding...' : 'Add Address' }}
@@ -279,17 +292,6 @@
                     </svg>
                     <p class="text-sm text-gray-600 dark:text-gray-400">No addresses to manage</p>
                 </div>
-            </div>
-
-            <!-- Close Button -->
-            <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <app-button
-                        size="sm"
-                        variant="outline"
-                        (btnClick)="closeEditModal()"
-                        class="w-full">
-                    Close
-                </app-button>
             </div>
         </div>
     </app-modal>

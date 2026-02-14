@@ -6,6 +6,7 @@ import { UserAddressCardComponent } from '../../../shared/components/user-profil
 import { UserService } from '../../../shared/services/user.service';
 import {NgIf} from "@angular/common";
 import {AuthService} from "../../../shared/services/auth.service";
+import {ToastService} from "../../../shared/services/toast.service";
 
 @Component({
     selector: 'app-profile-user',
@@ -38,7 +39,7 @@ export class ProfileUserComponent implements OnInit {
         addresses: []
     };
 
-    constructor(private userService: UserService, private authService: AuthService) {}
+    constructor(private userService: UserService, private authService: AuthService, private toast : ToastService) {}
 
     ngOnInit(): void {
         console.log("gegee brooo");
@@ -62,6 +63,11 @@ export class ProfileUserComponent implements OnInit {
                 this.isLoading = false;
                 console.error('Error fetching profile', err);
                 this.profile = null;
+                if (err.error && err.error.message) {
+                    this.toast.error('Error',err.error.message, 0);
+                } else {
+                    this.toast.error('Error','An error occurred while fetching profile', 0);
+                }
             }
         });
     }

@@ -9,7 +9,7 @@ export class ToastService {
     private toastsSubject = new BehaviorSubject<Toast[]>([]);
     public toasts$: Observable<Toast[]> = this.toastsSubject.asObservable();
 
-    private defaultDuration = 50000; // 5 secondes
+    private defaultDuration = 3000; // 5 secondes
     private defaultPosition: ToastPosition = 'top-right';
 
     constructor() {}
@@ -73,6 +73,51 @@ export class ToastService {
             }, toast.duration);
         }
     }
+
+    confirm(
+        title: string,
+        message: string,
+        onConfirm: () => void,
+        onCancel?: () => void,
+        options?: {
+            confirmLabel?: string;
+            cancelLabel?: string;
+            variant?: 'primary' | 'danger' | 'success';
+            position?: ToastPosition;
+        }
+    ): string {
+        const toast: Toast = {
+            id: this.generateId(),
+            type: 'confirm',
+            title,
+            message,
+            duration: 0, // Les confirmations ne disparaissent pas automatiquement
+            position: options?.position ?? 'top-center',
+            confirmActions: {
+                confirm: {
+                    label: options?.confirmLabel ?? 'Confirm',
+                    onClick: () => {
+                        onConfirm();
+                        this.remove(toast.id);
+                    },
+                    variant: options?.variant ?? 'primary'
+                },
+                cancel: {
+                    label: options?.cancelLabel ?? 'Cancel',
+                    onClick: () => {
+                        if (onCancel) onCancel();
+                        this.remove(toast.id);
+                    }
+                }
+            }
+        };
+
+        const currentToasts = this.toastsSubject.value;
+        this.toastsSubject.next([...currentToasts, toast]);
+
+        return toast.id; // Retourne l'ID pour pouvoir le supprimer manuellement si besoin
+    }
+
 
     /**
      * Supprime un toast

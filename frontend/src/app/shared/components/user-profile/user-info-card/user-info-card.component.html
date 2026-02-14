@@ -95,12 +95,30 @@
               </h5>
               <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div class="col-span-2 lg:col-span-1">
-                  <app-label>First Name</app-label>
+                  <app-label>First Name <span class="text-red-500">*</span></app-label>
                   <app-input-field type="text" [(ngModel)]="form.firstName" name="firstName" />
+                  <p class="mt-1 text-xs text-red-500" *ngIf="!form.firstName || form.firstName.trim() === ''">
+                    First name is required
+                  </p>
+                  <p class="mt-1 text-xs text-red-500" *ngIf="form.firstName && form.firstName.trim() !== '' && !isInputSafe(form.firstName)">
+                    First name contains invalid characters (< > " ' ` % ; ( ) \ = -)
+                  </p>
+                  <p class="mt-1 text-xs text-red-500" *ngIf="form.firstName && form.firstName.trim() !== '' && isInputSafe(form.firstName) && !isValidNameFormat(form.firstName)">
+                    First name can only contain letters, spaces, hyphens and apostrophes
+                  </p>
                 </div>
                 <div class="col-span-2 lg:col-span-1">
-                  <app-label>Last Name</app-label>
+                  <app-label>Last Name <span class="text-red-500">*</span></app-label>
                   <app-input-field type="text" [(ngModel)]="form.lastName" name="lastName" />
+                  <p class="mt-1 text-xs text-red-500" *ngIf="!form.lastName || form.lastName.trim() === ''">
+                    Last name is required
+                  </p>
+                  <p class="mt-1 text-xs text-red-500" *ngIf="form.lastName && form.lastName.trim() !== '' && !isInputSafe(form.lastName)">
+                    Last name contains invalid characters (< > " ' ` % ; ( ) \ = -)
+                  </p>
+                  <p class="mt-1 text-xs text-red-500" *ngIf="form.lastName && form.lastName.trim() !== '' && isInputSafe(form.lastName) && !isValidNameFormat(form.lastName)">
+                    Last name can only contain letters, spaces, hyphens and apostrophes
+                  </p>
                 </div>
                 <div class="col-span-2 lg:col-span-1">
                   <app-label>Email Address</app-label>
@@ -109,10 +127,29 @@
                 <div class="col-span-2 lg:col-span-1">
                   <app-label>Phone</app-label>
                   <app-input-field type="text" [(ngModel)]="form.phoneNumber" name="phoneNumber" />
+                    <p
+                            class="mt-1 text-xs text-red-500"
+                            *ngIf="form.phoneNumber && !isInputSafe(form.phoneNumber)"
+                    >
+                        Phone number contains invalid characters
+                    </p>
+
+                    <p
+                            class="mt-1 text-xs text-red-500"
+                            *ngIf="form.phoneNumber && isInputSafe(form.phoneNumber) && !isValidPhoneFormat(form.phoneNumber)"
+                    >
+                        Invalid phone format (example: +261341234567)
+                    </p>
                 </div>
                 <div class="col-span-2">
                   <app-label>Bio</app-label>
                   <app-input-field type="text" [(ngModel)]="form.description" name="description" />
+                    <p
+                            class="mt-1 text-xs text-red-500"
+                            *ngIf="form.description && !isValidBio(form.description)"
+                    >
+                        Bio must be at least 3 characters and not repetitive
+                    </p>
                 </div>
               </div>
             </div>
@@ -120,7 +157,13 @@
         </div>
         <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
           <app-button size="sm" variant="outline" (btnClick)="closeModal()">Close</app-button>
-          <app-button size="sm" [loading]="isLoading" (btnClick)="handleSave()">Save Changes</app-button>
+          <app-button
+            size="sm"
+            [loading]="isLoading"
+            [disabled]="isFormInvalid()"
+            (btnClick)="handleSave()">
+            Save Changes
+          </app-button>
         </div>
       </form>
     </div>

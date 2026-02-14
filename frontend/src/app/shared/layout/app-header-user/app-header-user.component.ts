@@ -8,6 +8,7 @@ import { UserDropdownComponent } from '../../components/header/user/user-dropdow
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import {UserCartComponent} from "../../components/header/user/user-cart/user-cart.component";
+import {ToastService} from "../../services/toast.service";
 
 @Component({
     selector: 'app-header-user',
@@ -27,13 +28,15 @@ export class AppHeaderUserComponent implements OnInit {
 
     hasProfile: boolean | null = null; // null = not loaded, false = no profile, true = has profile
     isProfileLoading = false;
+    hasError = false;
 
     @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
     constructor(
         public sidebarService: SidebarService,
         private userService: UserService,
-        private authService: AuthService
+        private authService: AuthService,
+        private toast : ToastService
     ) {
         this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
     }
@@ -62,9 +65,15 @@ export class AppHeaderUserComponent implements OnInit {
             },
             error: (err) => {
                 this.isProfileLoading = false;
+                this.hasError = true;
                 console.error('Error fetching profile', err);
-                // In case of error assume no profile so user is prompted to fill it
                 this.hasProfile = false;
+
+                if (err.error && err.error.message) {
+                    this.toast.error('Error',err.error.message,0);
+                } else {
+                    this.toast.error('Error','An error occurred while header profile',0);
+                }
             }
         });
     }
