@@ -6,6 +6,7 @@ import {Product} from "../../../core/models/product.model";
 import {PageBreadcrumbComponent} from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
 import { CommandeService } from '../../../shared/services/commande.service';
 import { AuthService } from '../../../shared/services/auth.service';
+import {ToastService} from "../../../shared/services/toast.service";
 
 @Component({
     selector: 'app-product-fiche-user',
@@ -27,7 +28,7 @@ export class ProductFicheUserComponent implements OnInit {
     addedToCartSuccess: boolean = false;
     addToCartErrorMessage: string | null = null;
 
-    constructor(private route : ActivatedRoute, private router : Router, private storeService : StoreService , private commandeService: CommandeService, private authService: AuthService) {
+    constructor(private route : ActivatedRoute, private router : Router, private storeService : StoreService , private commandeService: CommandeService, private toast: ToastService) {
     }
 
     ngOnInit(): void {
@@ -139,6 +140,16 @@ export class ProductFicheUserComponent implements OnInit {
     // ════════════════════════════════════════════
 
     incrementQuantity(): void {
+        // this.toast.warning('Low stock', 'Only 3 items remaining!');
+        // this.toast.success('Order placed!', 'Your order has been successfully placed.');
+        // this.toast.error('Payment failed', 'Please check your card details and try again.');
+        // this.toast.info('New feature', 'Check out our new dark mode!');
+        // this.toast.show('info', 'Item added to cart', 'View your cart now', 0, 'top-right', {
+        //     label: 'View Cart',
+        //     onClick: () => this.router.navigate(['/cart'])
+        // });
+
+        
         if (this.quantity < this.p.maxOrderQty && this.quantity < this.p.stock) {
             this.quantity++;
         }
@@ -196,6 +207,11 @@ export class ProductFicheUserComponent implements OnInit {
                 if (res?.success) {
                     this.addedToCartSuccess = true;
                     this.commandeService.refreshDraftCount().subscribe();
+
+                    this.toast.show('info', 'Item added to cart', 'View your cart now', 0, 'bottom-right', {
+                        label: 'View Cart',
+                        onClick: () => this.router.navigate(['/cart'])
+                    });
 
                     // Reset after 3 seconds
                     setTimeout(() => {
