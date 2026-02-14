@@ -11,11 +11,12 @@ import {SkeletonCheckoutComponent} from "./skeleton-checkout/skeleton-checkout.c
 import {ToastService} from "../../../shared/services/toast.service";
 import {IncompleteProfileComponent} from "./incomplete-profile/incomplete-profile.component";
 import {DeliveryWarningComponent} from "./delivery-warning/delivery-warning.component";
+import {PaymentSuccessComponent} from "./payment-success/payment-success.component";
 
 @Component({
   selector: 'app-checkout-user',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, PageBreadcrumbComponent, LeafletMapComponent, SkeletonCheckoutComponent, IncompleteProfileComponent, DeliveryWarningComponent],
+  imports: [CommonModule, FormsModule, RouterModule, PageBreadcrumbComponent, LeafletMapComponent, SkeletonCheckoutComponent, IncompleteProfileComponent, DeliveryWarningComponent, PaymentSuccessComponent],
   templateUrl: './checkout-user.component.html',
   styleUrl: './checkout-user.component.css',
 })
@@ -56,6 +57,10 @@ export class CheckoutUserComponent implements OnInit {
   };
 
   isProcessing = false;
+  paymentSuccess = false;
+  completedOrder: any = null;
+
+
 
   constructor(
       private userService: UserService,
@@ -101,12 +106,20 @@ export class CheckoutUserComponent implements OnInit {
       next: (res) => {
         if (res.success && res.data) {
           this.profile = res.data;
+          console.log("atoo");
           console.log(this.profile);
-          // Auto-select default address if available
+
           const defaultAddr = this.profile.addresses?.find((a: any) => a.isDefault);
           if (defaultAddr) {
             this.selectedAddressId = defaultAddr._id;
           }
+          
+          if (this.profile.cardInfo) {
+            this.paymentInfo.cardNumber = this.profile.cardInfo.cardNumber || '';
+            this.paymentInfo.cardName = this.profile.cardInfo.cardName || '';
+            this.paymentInfo.expiryDate = this.profile.cardInfo.expiryDate || '';
+          }
+
           this.checkLoadingComplete();
         } else {
           this.isLoading = false;
@@ -226,6 +239,9 @@ export class CheckoutUserComponent implements OnInit {
     return this.tax;
   }
 
+  goToProduct(productId: string, boutiqueId: string): void {
+    this.router.navigate(['/v1/stores', boutiqueId, 'products', productId]);
+  }
 
   get total(): number {
     return this.subtotal + this.deliveryFee + this.taxPrice;
@@ -414,7 +430,6 @@ export class CheckoutUserComponent implements OnInit {
     };
 
     // Print the prepared payload (for debug)
-    console.log('Prepared payment payload:', payload);
 
     // Call backend pay API
     this.commandeService.payCommand(payload).subscribe({
@@ -422,8 +437,15 @@ export class CheckoutUserComponent implements OnInit {
         this.isProcessing = false;
         if (res?.success) {
           console.log('Payment successful:', res.data);
-          // navigate to orders or show success message
-          alert('Payment successful');
+          this.completedOrder = res.data;
+          this.paymentSuccess = true;
+          this.commandeService.adjustCartCount(-this.commandeService.cartCountSubject.value);
+
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+
         } else {
           console.error('Payment failed:', res);
           this.toast.error('Payment failed', res?.message || 'An error occurred during payment');
