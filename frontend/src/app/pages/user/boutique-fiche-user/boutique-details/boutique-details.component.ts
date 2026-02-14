@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {RatingStarComponent} from "../../../../shared/components/common/rating-star/rating-star.component";
 
 @Component({
     selector: 'app-boutique-details',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, RatingStarComponent],
     templateUrl: './boutique-details.component.html',
     styleUrls: ['./boutique-details.component.css']
 })

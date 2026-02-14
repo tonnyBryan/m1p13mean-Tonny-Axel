@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../../../shared/services/product.service';
 import { Router } from '@angular/router';
 import {ToastService} from "../../../../shared/services/toast.service";
+import {RatingStarComponent} from "../../../../shared/components/common/rating-star/rating-star.component";
 
 @Component({
     selector: 'app-product-list',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, RatingStarComponent],
     templateUrl: './product-list.component.html',
     styleUrls: ['./product-list.component.css']
 })

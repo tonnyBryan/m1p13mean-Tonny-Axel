@@ -70,13 +70,23 @@
     <div class="pt-16 px-6 pb-6">
         <!-- Store Name & Description -->
         <div class="mb-6">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                {{ boutique.name }}
+            <h1
+                    class="flex items-center gap-3 text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2"
+            >
+                <span>{{ boutique.name }}</span>
+
+                <app-rating-star
+                        [count]="3"
+                        [max]="5"
+                        class="mt-0.5"
+                ></app-rating-star>
             </h1>
+
             <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base leading-relaxed">
                 {{ boutique.description }}
             </p>
         </div>
+
 
         <!-- Info Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

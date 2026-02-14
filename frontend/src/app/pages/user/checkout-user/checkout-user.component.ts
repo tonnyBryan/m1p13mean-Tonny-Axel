@@ -434,6 +434,12 @@ export class CheckoutUserComponent implements OnInit {
     }
   }
 
+  formatCardName(event: Event) {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.toUpperCase();
+    this.paymentInfo.cardName = input.value;
+  }
+
   isDeliveryAvailableToday(): boolean {
     if (!this.cart.boutique?.livraisonConfig?.deliveryDays) return false;
 
@@ -448,16 +454,57 @@ export class CheckoutUserComponent implements OnInit {
     return !!(this.cart && this.cart.boutique && this.cart.boutique.livraisonConfig && this.cart.boutique.livraisonConfig.isDeliveryAvailable);
   }
 
-  isReadyToPay(): boolean {
-    // 1. Validate payment info
-    const isPaymentValid = !!(
-        this.paymentInfo.cardNumber.replace(/\s/g, '').length >= 15 &&
-        this.paymentInfo.cardName.trim() &&
-        this.paymentInfo.expiryDate.length === 5 &&
-        this.paymentInfo.cvv.length >= 3
-    );
+  isValidCardNumber(cardNumber: string): boolean {
+    const digits = cardNumber.replace(/\s/g, '');
+    if (!/^\d{15,16}$/.test(digits)) return false;
 
-    if (!isPaymentValid) return false;
+    let sum = 0;
+    let shouldDouble = false;
+
+    for (let i = digits.length - 1; i >= 0; i--) {
+      let digit = parseInt(digits[i], 10);
+      if (shouldDouble) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
+      shouldDouble = !shouldDouble;
+    }
+
+    return sum % 10 === 0;
+  }
+
+  isValidCardName(name: string): boolean {
+    return /^[A-Z '-]{3,}$/.test(name.trim());
+  }
+
+
+  isValidExpiryDate(expiry: string): boolean {
+    if (!/^\d{2}\/\d{2}$/.test(expiry)) return false;
+
+    const [month, year] = expiry.split('/').map(Number);
+    if (month < 1 || month > 12) return false;
+
+    const now = new Date();
+    const currentYear = now.getFullYear() % 100;
+    const currentMonth = now.getMonth() + 1;
+
+    return year > currentYear || (year === currentYear && month >= currentMonth);
+  }
+
+  isValidCVV(cvv: string): boolean {
+    return /^\d{3,4}$/.test(cvv);
+  }
+
+
+  isReadyToPay(): boolean {
+    const paymentValid =
+        this.isValidCardNumber(this.paymentInfo.cardNumber) &&
+        this.isValidCardName(this.paymentInfo.cardName) &&
+        this.isValidExpiryDate(this.paymentInfo.expiryDate) &&
+        this.isValidCVV(this.paymentInfo.cvv);
+
+    if (!paymentValid) return false;
 
     // 2. If delivery mode is pickup, payment info is enough
     if (this.deliveryMode === 'pickup') return true;

@@ -5,11 +5,12 @@ import { BoutiqueService } from '../../../shared/services/boutique.service';
 import { Boutique } from '../../../core/models/boutique.model';
 import {PageBreadcrumbComponent} from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
 import {ToastService} from "../../../shared/services/toast.service";
+import {RatingStarComponent} from "../../../shared/components/common/rating-star/rating-star.component";
 
 @Component({
   selector: 'app-boutique-liste-user',
   standalone: true,
-  imports: [CommonModule, RouterModule, PageBreadcrumbComponent],
+  imports: [CommonModule, RouterModule, PageBreadcrumbComponent, RatingStarComponent],
   templateUrl: './boutique-liste-user.component.html',
   styleUrls: ['./boutique-liste-user.component.css']
 })
