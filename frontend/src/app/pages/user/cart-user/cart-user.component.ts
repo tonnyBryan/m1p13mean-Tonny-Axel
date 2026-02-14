@@ -86,6 +86,9 @@ export class CartUserComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Met à jour le temps restant
+   */
   updateTimeRemaining(): void {
     if (!this.cart?.expiredAt) {
       this.timeRemaining = '';
@@ -98,10 +101,24 @@ export class CartUserComponent implements OnInit, OnDestroy {
 
     if (diff <= 0) {
       this.timeRemaining = 'Expired';
+
       if (this.timerInterval) {
         clearInterval(this.timerInterval);
+        this.timerInterval = null;
       }
-      // Optionnel: Afficher un message ou rediriger
+
+      setTimeout(() => {
+        this.cart = null;
+
+        this.toast.warning(
+            'Cart Expired',
+            'Your cart has expired. Please add items again.',
+            5000
+        );
+
+        this.commandeService.adjustCartCount(-this.commandeService.cartCountSubject.value);
+      }, 3000);
+
       return;
     }
 
@@ -114,7 +131,7 @@ export class CartUserComponent implements OnInit, OnDestroy {
     if (days > 0) parts.push(`${days}d`);
     if (hours > 0) parts.push(`${hours}h`);
     if (minutes > 0) parts.push(`${minutes}m`);
-    parts.push(`${seconds}s`); // ✅ Toujours afficher les secondes
+    parts.push(`${seconds}s`);
 
     this.timeRemaining = parts.join(' ');
   }

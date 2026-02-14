@@ -5,7 +5,7 @@ import { tap, catchError } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class CommandeService {
-    private cartCountSubject = new BehaviorSubject<number>(0);
+    cartCountSubject = new BehaviorSubject<number>(0);
     public cartCount$ = this.cartCountSubject.asObservable();
 
     constructor(private api: ApiService) {}

@@ -83,6 +83,9 @@ exports.addToCart = async (req, res) => {
 
         // set expiredAt if not set
         if (!commande.expiredAt) commande.expiredAt = new Date(Date.now() + 60*60*1000);
+        // if (!commande.expiredAt) {
+        //     commande.expiredAt = new Date(Date.now() + 60 * 1000);
+        // }
 
         await commande.save();
 
@@ -242,7 +245,7 @@ exports.payCommand = async (req, res) => {
         const saveNewAddress = deliveryAddress?.saveNewAddress;
 
         // Find open draft
-        const commande = await findOpenDraft(userId);
+        let commande = await findOpenDraft(userId);
         if (!commande) return errorResponse(res, 404, 'No open draft found');
 
         // Update commande details
@@ -277,6 +280,12 @@ exports.payCommand = async (req, res) => {
         }
 
         await commande.save();
+
+        commande = await Commande.findById(commande._id)
+            .populate('boutique')
+            .populate({ path: 'products.product', model: 'Product' })
+            .exec();
+
         return successResponse(res, 200, 'Payment processed successfully', commande);
     } catch (err) {
         console.error('payCommand error:', err);
