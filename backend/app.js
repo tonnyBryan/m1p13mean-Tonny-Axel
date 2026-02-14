@@ -35,6 +35,8 @@ app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/commandes', require('./routes/commande.routes'));
 app.use('/api/centre-commercial', require('./routes/centreCommercial.routes'));
 app.use('/api/ventes', require('./routes/vente.routes'));
+app.use('/api/search', require('./routes/search.routes'));
+
 
 
 module.exports = app;

@@ -113,7 +113,7 @@ export class CheckoutUserComponent implements OnInit {
           if (defaultAddr) {
             this.selectedAddressId = defaultAddr._id;
           }
-          
+
           if (this.profile.cardInfo) {
             this.paymentInfo.cardNumber = this.profile.cardInfo.cardNumber || '';
             this.paymentInfo.cardName = this.profile.cardInfo.cardName || '';
