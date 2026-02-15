@@ -77,6 +77,13 @@ export class VenteDirecteComponent implements OnInit {
             }
         });
 
+        this.route.params.subscribe(params => {
+            const id = params['id'];
+            if (id && id !== this.vente._id) {
+                this.loadSale(id);
+            }
+        });
+
         if (saleId) {
             this.loadSale(saleId);
         }
@@ -149,7 +156,7 @@ export class VenteDirecteComponent implements OnInit {
                 console.log('Loaded sale:', sale);
                 if (sale.status !== 'draft') {
                     // If not draft, redirect to detail page
-                    this.router.navigate(['/store/app/vente-detail', id]);
+                    this.router.navigate(['/store/app/vente-liste', id]);
                     return;
                 }
 
@@ -272,7 +279,7 @@ export class VenteDirecteComponent implements OnInit {
             this.isSaving = false;
             if (res.success) {
                 // Redirect to detail page
-                this.router.navigate(['/store/app/vente-detail', res.data._id]);
+                this.router.navigate(['/store/app/vente-liste', res.data._id]);
             }
         };
 
@@ -321,7 +328,7 @@ export class VenteDirecteComponent implements OnInit {
         }
         this.successMessage = '';
         this.errorMessage = '';
-        this.router.navigate(['/store/app/vente-directe']);
+        this.router.navigate(['/store/app/vente-liste/add']);
     }
 
     // Client modal methods

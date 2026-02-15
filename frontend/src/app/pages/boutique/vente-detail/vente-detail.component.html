@@ -118,8 +118,7 @@
                     Annuler
                 </app-button>
 
-                <app-button variant="outline" [routerLink]="['/store/app/vente-directe']"
-                    [queryParams]="{ id: vente._id }">
+                <app-button variant="outline" [routerLink]="['/store/app/vente-liste/edit', vente._id]">
                     Modifier
                 </app-button>
 

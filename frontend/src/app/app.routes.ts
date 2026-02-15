@@ -24,7 +24,7 @@ import { BoutiqueFicheUserComponent } from "./pages/user/boutique-fiche-user/bou
 import { ProductFicheUserComponent } from "./pages/user/product-fiche-user/product-fiche-user.component";
 import { CartUserComponent } from "./pages/user/cart-user/cart-user.component";
 import { CheckoutUserComponent } from "./pages/user/checkout-user/checkout-user.component";
-import {VerifyEmailComponent} from "./pages/user/verify-email/verify-email.component";
+import { VerifyEmailComponent } from "./pages/user/verify-email/verify-email.component";
 
 
 export const routes: Routes = [
@@ -275,7 +275,7 @@ export const routes: Routes = [
           'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
       },
       {
-        path: 'vente-directe',
+        path: 'vente-liste/add',
         loadComponent: () => import('./pages/boutique/vente-directe/vente-directe.component').then(m => m.VenteDirecteComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
@@ -283,7 +283,7 @@ export const routes: Routes = [
         title: 'Direct Sale | TailAdmin - Angular Admin Dashboard Template'
       },
       {
-        path: 'vente-directe/:id',
+        path: 'vente-liste/edit/:id',
         loadComponent: () => import('./pages/boutique/vente-directe/vente-directe.component').then(m => m.VenteDirecteComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
@@ -299,7 +299,7 @@ export const routes: Routes = [
         title: 'Sales History | TailAdmin - Angular Admin Dashboard Template'
       },
       {
-        path: 'vente-detail/:id',
+        path: 'vente-liste/:id',
         loadComponent: () => import('./pages/boutique/vente-detail/vente-detail.component').then(m => m.VenteDetailComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
