@@ -12,11 +12,13 @@ import {ToastService} from "../../../shared/services/toast.service";
 import {IncompleteProfileComponent} from "./incomplete-profile/incomplete-profile.component";
 import {DeliveryWarningComponent} from "./delivery-warning/delivery-warning.component";
 import {PaymentSuccessComponent} from "./payment-success/payment-success.component";
+import {SessionService} from "../../../shared/services/session.service";
+import {EmailNotVerifiedComponent} from "./email-not-verified/email-not-verified.component";
 
 @Component({
   selector: 'app-checkout-user',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, PageBreadcrumbComponent, LeafletMapComponent, SkeletonCheckoutComponent, IncompleteProfileComponent, DeliveryWarningComponent, PaymentSuccessComponent],
+  imports: [CommonModule, FormsModule, RouterModule, PageBreadcrumbComponent, LeafletMapComponent, SkeletonCheckoutComponent, IncompleteProfileComponent, DeliveryWarningComponent, PaymentSuccessComponent, EmailNotVerifiedComponent],
   templateUrl: './checkout-user.component.html',
   styleUrl: './checkout-user.component.css',
 })
@@ -67,7 +69,8 @@ export class CheckoutUserComponent implements OnInit {
       private commandeService: CommandeService,
       private centreService: CentreService,
       private router: Router,
-      private toast: ToastService
+      private toast: ToastService,
+      private session : SessionService
   ) {}
 
   ngOnInit(): void {
@@ -75,6 +78,10 @@ export class CheckoutUserComponent implements OnInit {
     this.loadCentre();
     this.loadProfile();
     this.loadFullDraft();
+  }
+
+  get isEmailVerified(): boolean {
+    return this.session.currentUser?.isEmailVerified === true;
   }
 
   loadFullDraft() {

@@ -5,8 +5,8 @@ import {StoreService} from "../../../shared/services/store.service";
 import {Product} from "../../../core/models/product.model";
 import {PageBreadcrumbComponent} from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
 import { CommandeService } from '../../../shared/services/commande.service';
-import { AuthService } from '../../../shared/services/auth.service';
 import {ToastService} from "../../../shared/services/toast.service";
+import {SessionService} from "../../../shared/services/session.service";
 
 @Component({
     selector: 'app-product-fiche-user',
@@ -28,7 +28,7 @@ export class ProductFicheUserComponent implements OnInit {
     addedToCartSuccess: boolean = false;
     addToCartErrorMessage: string | null = null;
 
-    constructor(private route : ActivatedRoute, private router : Router, private storeService : StoreService , private commandeService: CommandeService, private toast: ToastService) {
+    constructor(private route : ActivatedRoute, private router : Router, private storeService : StoreService , private commandeService: CommandeService, private toast: ToastService, private session : SessionService) {
     }
 
     ngOnInit(): void {
@@ -86,6 +86,13 @@ export class ProductFicheUserComponent implements OnInit {
         return this.product;
     }
 
+    get isEmailVerified(): boolean {
+        return this.session.currentUser?.isEmailVerified === true;
+    }
+
+    goToVerifyEmail(): void {
+        this.router.navigate(['/v1/verify-email']);
+    }
 
     // ════════════════════════════════════════════
     //  IMAGE GALLERY

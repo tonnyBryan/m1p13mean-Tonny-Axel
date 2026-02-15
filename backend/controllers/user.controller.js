@@ -190,22 +190,29 @@ exports.upsertMyProfile = async (req, res) => {
 exports.addAddress = async (req, res) => {
     try {
         const userId = req.user._id || req.user.id;
-        const address = req.body;
+        const newAddress = req.body;
 
-        if (!address) {
+        if (!newAddress) {
             return errorResponse(res, 400, 'Address data required');
+        }
+
+        if (newAddress.isDefault === true) {
+            await UserProfile.updateOne(
+                { user: userId },
+                { $set: { "addresses.$[].isDefault": false } }
+            );
         }
 
         const profile = await UserProfile.findOneAndUpdate(
             { user: userId },
-            { $push: { addresses: address } },
+            { $push: { addresses: newAddress } },
             { new: true, upsert: true }
         );
 
         return successResponse(res, 200, 'Address added', profile);
     } catch (error) {
-        console.error(error);
-        return errorResponse(res, 400, 'Error adding address');
+        console.error("Error :", error);
+        return errorResponse(res, 500, 'Error adding address');
     }
 };
 
@@ -218,29 +225,31 @@ exports.deleteAddress = async (req, res) => {
         const userId = req.user._id || req.user.id;
         const { addressId } = req.params;
 
-        console.log("id add = " + addressId)
-
         if (!addressId) {
             return errorResponse(res, 400, 'Address id required');
         }
 
-        // Pull the subdocument by its _id
         const profile = await UserProfile.findOneAndUpdate(
             { user: userId },
             { $pull: { addresses: { _id: addressId } } },
             { new: true }
         );
 
-        console.log(profile);
-
         if (!profile) {
             return errorResponse(res, 404, 'Profile not found');
+        }
+
+        const hasDefault = profile.addresses.some(addr => addr.isDefault === true);
+
+        if (profile.addresses.length > 0 && !hasDefault) {
+            profile.addresses[0].isDefault = true;
+            await profile.save();
         }
 
         return successResponse(res, 200, 'Address removed', profile);
     } catch (error) {
         console.error(error);
-        return errorResponse(res, 400, 'Error removing address');
+        return errorResponse(res, 500, 'Error removing address');
     }
 };
 
