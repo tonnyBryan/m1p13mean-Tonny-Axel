@@ -260,3 +260,28 @@ exports.getUserProfileById = async (req, res) => {
         return errorResponse(res, 500, 'Server Error while fetching profile');
     }
 };
+/**
+ * PATCH /api/users/:id/status
+ * Toggle or set user isActive status (Admin)
+ */
+exports.toggleUserStatus = async (req, res) => {
+    try {
+        const { isActive } = req.body;
+
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return errorResponse(res, 404, 'User not found');
+        }
+
+        user.isActive = isActive !== undefined ? isActive : !user.isActive;
+        await user.save();
+
+        return successResponse(res, 200, `User account ${user.isActive ? 'activated' : 'deactivated'} successfully`, {
+            id: user._id,
+            isActive: user.isActive
+        });
+    } catch (error) {
+        console.error('Error toggling user status:', error);
+        return errorResponse(res, 500, 'Server Error while updating user status');
+    }
+};

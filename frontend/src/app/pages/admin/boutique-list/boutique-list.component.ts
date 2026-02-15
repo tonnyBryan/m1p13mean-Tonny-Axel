@@ -6,6 +6,7 @@ import { Boutique } from "../../../core/models/boutique.model";
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BoutiqueService } from '../../../shared/services/boutique.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-boutique-list',
@@ -45,7 +46,8 @@ export class BoutiqueListComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private boutiqueService: BoutiqueService
+    private boutiqueService: BoutiqueService,
+    private toast: ToastService
   ) { }
 
   ngOnInit(): void {
@@ -157,10 +159,17 @@ export class BoutiqueListComponent implements OnInit {
     this.router.navigate(['/admin/app/boutiques', boutique._id]);
   }
 
-  deleteBoutique(boutique: Boutique): void {
-    if (confirm('Are you sure you want to delete this boutique?')) {
+  async deleteBoutique(boutique: Boutique): Promise<void> {
+    const confirmed = await this.toast.confirmAsync(
+      'Delete Shop',
+      `Are you sure you want to delete "${boutique.name}"?`,
+      { variant: 'danger' }
+    );
+
+    if (confirmed) {
       // TODO: Implement delete service
       console.log('Delete boutique:', boutique._id);
+      this.toast.info('Feature Coming Soon', 'Delete functionality is not yet implemented.');
     }
   }
 

@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { UserProfileService } from '../../../../shared/services/user-profile.service';
 import { UserProfile } from '../../../../core/models/user-profile.model';
 import { PageBreadcrumbComponent } from '../../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
-import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
     selector: 'app-user-detail',
@@ -18,6 +18,13 @@ export class UserDetailComponent implements OnInit {
     profile: UserProfile | null = null;
     isLoading = true;
 
+    get isActive(): boolean {
+        if (this.profile && this.profile.user && typeof this.profile.user !== 'string') {
+            return this.profile.user.isActive;
+        }
+        return false;
+    }
+
     getRole(user: any): string {
         if (user && typeof user !== 'string') {
             return user.role;
@@ -28,7 +35,8 @@ export class UserDetailComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private profileService: UserProfileService
+        private profileService: UserProfileService,
+        private toast: ToastService
     ) { }
 
     ngOnInit(): void {
@@ -52,7 +60,7 @@ export class UserDetailComponent implements OnInit {
             error: (err) => {
                 this.isLoading = false;
                 console.error('Error loading profile:', err);
-                alert('Error loading profile');
+                this.toast.error('Load Failed', 'Error loading user profile');
                 this.router.navigate(['/admin/app/users']);
             }
         });
@@ -69,5 +77,39 @@ export class UserDetailComponent implements OnInit {
 
     goBack(): void {
         this.router.navigate(['/admin/app/users']);
+    }
+
+    async toggleStatus(): Promise<void> {
+        if (!this.profile || !this.profile.user) return;
+
+        const userId = typeof this.profile.user === 'string' ? this.profile.user : (this.profile.user._id || this.profile.user.id);
+        const currentStatus = typeof this.profile.user === 'string' ? false : this.profile.user.isActive;
+
+        if (!userId) return;
+
+        const confirmed = await this.toast.confirmAsync(
+            currentStatus ? 'Deactivate Account' : 'Activate Account',
+            `Are you sure you want to ${currentStatus ? 'deactivate' : 'activate'} this account?`,
+            { variant: currentStatus ? 'danger' : 'success' }
+        );
+
+        if (confirmed) {
+            this.profileService.updateUserStatus(userId, !currentStatus).subscribe({
+                next: (res) => {
+                    if (res.success) {
+                        this.toast.success(
+                            'Status Updated',
+                            `Account has been ${!currentStatus ? 'activated' : 'deactivated'} successfully.`
+                        );
+                        // Reload profile to get updated status
+                        this.loadProfile(userId);
+                    }
+                },
+                error: (err) => {
+                    console.error('Error updating status:', err);
+                    this.toast.error('Update Failed', 'Error updating account status');
+                }
+            });
+        }
     }
 }

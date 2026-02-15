@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
-import {BehaviorSubject, Observable} from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 
@@ -66,5 +66,14 @@ export class UserProfileService {
         });
 
         return this.api.get<any>(`users/profile/${id}`, headers);
+    }
+
+    updateUserStatus(id: string, isActive: boolean): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
+        });
+
+        return this.api.patch<any>(`users/${id}/status`, { isActive }, headers);
     }
 }

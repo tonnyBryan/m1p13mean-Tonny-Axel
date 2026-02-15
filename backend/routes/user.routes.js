@@ -256,6 +256,13 @@ router.delete(
     userController.deleteUser
 );
 
+router.patch(
+    '/:id/status',
+    protect,
+    authorize('admin'),
+    userController.toggleUserStatus
+);
+
 // Route to get current user's profile
 router.get(
     '/me/profile',
