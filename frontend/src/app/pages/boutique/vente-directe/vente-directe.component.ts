@@ -66,7 +66,17 @@ export class VenteDirecteComponent implements OnInit {
             this.vente.seller = userHash.id || '';
         }
 
-        const saleId = this.route.snapshot.paramMap.get('id');
+        // Check for ID in path params or query params
+        const saleId = this.route.snapshot.paramMap.get('id') || this.route.snapshot.queryParamMap.get('id');
+
+        // Also subscribe to query params changes in case of navigation within same component
+        this.route.queryParams.subscribe(params => {
+            const id = params['id'];
+            if (id && id !== this.vente._id) {
+                this.loadSale(id);
+            }
+        });
+
         if (saleId) {
             this.loadSale(saleId);
         }
@@ -136,13 +146,34 @@ export class VenteDirecteComponent implements OnInit {
         this.venteService.getVenteById(id).subscribe({
             next: (res) => {
                 const sale = res.data;
+                console.log('Loaded sale:', sale);
                 if (sale.status !== 'draft') {
+                    // If not draft, redirect to detail page
                     this.router.navigate(['/store/app/vente-detail', id]);
                     return;
                 }
+
+                // Map items to ensure productDetails is populated for display
+                // Backend populate('items.product') means item.product is an object
+                if (sale.items) {
+                    sale.items = sale.items.map((item: any) => {
+                        // If product is populated, it's an object. 
+                        // We need to keep product ID in 'product' for logic, and details in 'productDetails' for UI
+                        if (typeof item.product === 'object' && item.product !== null) {
+                            return {
+                                ...item,
+                                productDetails: item.product,
+                                product: item.product._id // Set product to ID string for consistency
+                            };
+                        }
+                        return item;
+                    });
+                }
+
                 this.vente = sale;
                 this.isEditMode = true;
                 this.isLoading = false;
+
                 // Format date for input[type=date]
                 if (this.vente.saleDate) {
                     this.vente.saleDate = new Date(this.vente.saleDate).toISOString().split('T')[0];
@@ -215,99 +246,7 @@ export class VenteDirecteComponent implements OnInit {
         this.vente.totalAmount = this.vente.items?.reduce((sum, item) => sum + item.totalPrice, 0) || 0;
     }
 
-    saveVente(): void {
-        if (!this.vente.client?.name) {
-            this.errorMessage = 'Le nom du client est requis';
-            return;
-        }
-        if (!this.vente.items || this.vente.items.length === 0) {
-            this.errorMessage = 'Ajoutez au moins un produit';
-            return;
-        }
-
-        this.isSaving = true;
-        this.errorMessage = '';
-
-        // Prepare payload (removing helper properties)
-        const payload = { ...this.vente };
-        payload.items = payload.items?.map(item => {
-            const { productDetails, ...rest } = item;
-            return rest;
-        });
-
-        if (this.isEditMode && this.vente._id) {
-            this.venteService.updateVente(this.vente._id, payload).subscribe({
-                next: (res) => {
-                    this.isSaving = false;
-                    this.successMessage = 'Vente mise à jour avec succès';
-                },
-                error: (err) => {
-                    this.isSaving = false;
-                    this.errorMessage = err.error?.message || 'Erreur lors de la mise à jour';
-                }
-            });
-        } else {
-            // Pass boutiqueId and sellerId explicitly as expected by controller
-            const finalPayload = {
-                ...payload,
-                boutiqueId: this.vente.boutique,
-                sellerId: this.vente.seller
-            };
-
-            this.venteService.createVente(finalPayload).subscribe({
-                next: (res) => {
-                    this.isSaving = false;
-                    if (res.success) {
-                        this.successMessage = 'Vente enregistrée en brouillon';
-                        this.vente._id = res.data._id;
-                        this.vente.status = 'draft';
-                        this.isEditMode = true;
-                    }
-                },
-                error: (err) => {
-                    this.isSaving = false;
-                    this.errorMessage = err.error?.message || 'Erreur lors de l’enregistrement';
-                }
-            });
-        }
-    }
-
-    payVente(): void {
-        if (!this.vente._id) {
-            this.saveVente();
-            return;
-        }
-
-        this.venteService.updateStatus(this.vente._id, 'paid').subscribe({
-            next: (res) => {
-                if (res.success) {
-                    this.vente.status = 'paid';
-                    this.successMessage = 'Vente payée avec succès';
-                }
-            },
-            error: (err) => {
-                this.errorMessage = err.error?.message || 'Erreur lors du paiement';
-            }
-        });
-    }
-
-    cancelVente(): void {
-        if (!this.vente._id) return;
-
-        if (confirm('Êtes-vous sûr de vouloir annuler cette vente ?')) {
-            this.venteService.updateStatus(this.vente._id, 'canceled').subscribe({
-                next: (res) => {
-                    if (res.success) {
-                        this.vente.status = 'canceled';
-                        this.successMessage = 'Vente annulée';
-                    }
-                },
-                error: (err) => {
-                    this.errorMessage = err.error?.message || 'Erreur lors de l’annulation';
-                }
-            });
-        }
-    }
+    // Removed dead code: saveVente, payVente, cancelVente
 
     createSale(): void {
         if (!this.vente.client?.name) {

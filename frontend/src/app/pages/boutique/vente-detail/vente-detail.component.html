@@ -111,18 +111,33 @@
 
         <!-- Actions -->
         <div class="md:col-span-2 flex flex-wrap justify-end gap-3 print:hidden">
-            <app-button variant="outline" [routerLink]="['/store/app/vente-liste']">Retour à la liste</app-button>
+            <app-button variant="outline" [routerLink]="['/store/app/vente-directe']">Retour à la vente</app-button>
 
+            <!-- Status: DRAFT -->
             <ng-container *ngIf="vente.status === 'draft'">
+                <!-- Modifier: Redirects to Vente Directe with ID -->
+                <app-button variant="outline" [routerLink]="['/store/app/vente-directe']"
+                    [queryParams]="{ id: vente._id }">
+                    Modifier
+                </app-button>
+
                 <app-button variant="outline" (click)="cancelVente()"
-                    className="text-red-500 ring-red-100">Annuler</app-button>
-                <app-button variant="outline"
-                    [routerLink]="['/store/app/vente-directe', vente._id]">Modifier</app-button>
-                <app-button variant="primary" (click)="payVente()">Payer maintenant</app-button>
+                    className="text-red-600 ring-red-100 hover:bg-red-50">
+                    Annuler
+                </app-button>
+
+                <app-button variant="primary" (click)="payVente()"
+                    className="bg-green-600 hover:bg-green-700 text-white">
+                    Payer
+                </app-button>
             </ng-container>
 
-            <app-button *ngIf="vente.status === 'paid'" (click)="getInvoice()" variant="primary">Imprimer
-                Facture</app-button>
+            <!-- Status: PAID -->
+            <ng-container *ngIf="vente.status === 'paid'">
+                <app-button (click)="getInvoice()" variant="primary">
+                    Imprimer Facture
+                </app-button>
+            </ng-container>
         </div>
     </div>
 
