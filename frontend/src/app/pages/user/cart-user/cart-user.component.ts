@@ -281,7 +281,8 @@ export class CartUserComponent implements OnInit, OnDestroy {
           confirmLabel: 'Remove',
           cancelLabel: 'Keep item',
           variant: 'danger',
-          position: 'top-center'
+          position: 'top-center',
+          backdrop: true,
         }
     );
   }
