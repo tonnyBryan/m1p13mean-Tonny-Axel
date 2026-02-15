@@ -65,25 +65,22 @@
                     <tr
                         class="border-b border-gray-200 dark:divide-gray-800 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01]">
                         <th
-                            class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            ID Vente</th>
-                        <th
-                            class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            class="px-5 py-4 text-center whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Date</th>
                         <th
-                            class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            class="px-5 py-4 text-center whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Client</th>
                         <th
                             class="px-5 py-4 text-center whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Type</th>
                         <th
-                            class="px-5 py-4 text-right whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            class="px-5 py-4 text-center whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Montant</th>
                         <th
                             class="px-5 py-4 text-center whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Statut</th>
                         <th
-                            class="px-5 py-4 text-right whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            class="px-5 py-4 text-center whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Actions</th>
                     </tr>
                 </thead>
@@ -92,45 +89,40 @@
                     <ng-container *ngIf="isSkeletonLoading; else tableContent">
                         <tr *ngFor="let i of [1,2,3,4,5]">
                             <td class="px-5 py-4">
-                                <div class="h-4 w-20 animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                                <div class="h-4 w-32 mx-auto animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
                             </td>
                             <td class="px-5 py-4">
-                                <div class="h-4 w-32 animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
-                            </td>
-                            <td class="px-5 py-4">
-                                <div class="h-4 w-24 animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                                <div class="h-4 w-24 mx-auto animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
                             </td>
                             <td class="px-5 py-4 text-center">
                                 <div class="h-6 w-16 mx-auto animate-pulse bg-gray-200 rounded-full dark:bg-white/10">
                                 </div>
                             </td>
-                            <td class="px-5 py-4 text-right">
-                                <div class="h-4 w-24 ml-auto animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            <td class="px-5 py-4 text-center">
+                                <div class="h-4 w-24 mx-auto animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
                             </td>
                             <td class="px-5 py-4 text-center">
                                 <div class="h-6 w-20 mx-auto animate-pulse bg-gray-200 rounded-full dark:bg-white/10">
                                 </div>
                             </td>
-                            <td class="px-5 py-4 text-right">
-                                <div class="h-8 w-8 ml-auto animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            <td class="px-5 py-4 text-center">
+                                <div class="h-8 w-8 mx-auto animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
                             </td>
                         </tr>
                     </ng-container>
 
                     <ng-template #tableContent>
                         <tr *ngFor="let v of ventes" class="transition hover:bg-gray-50 dark:hover:bg-gray-900">
-                            <td class="px-5 py-4 whitespace-nowrap font-mono text-xs text-gray-500">#{{ v._id?.slice(-6)
-                                }}</td>
-                            <td class="px-5 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
+                            <td class="px-5 py-4 whitespace-nowrap text-center">
+                                <div class="flex flex-col items-center">
                                     <span class="text-sm font-medium text-gray-700 dark:text-gray-400">{{ v.saleDate |
                                         date:'longDate' }}</span>
                                     <span class="text-xs text-gray-500 dark:text-gray-500">{{ v.saleDate |
                                         date:'shortTime' }}</span>
                                 </div>
                             </td>
-                            <td class="px-5 py-4 whitespace-nowrap">
-                                <div class="flex flex-col">
+                            <td class="px-5 py-4 whitespace-nowrap text-center">
+                                <div class="flex flex-col items-center">
                                     <span class="text-sm font-medium text-gray-700 dark:text-gray-400">{{ v.client.name
                                         }}</span>
                                     <span class="text-xs text-gray-500 dark:text-gray-500">{{ v.client.phoneNumber ||
@@ -138,19 +130,25 @@
                                 </div>
                             </td>
                             <td class="px-5 py-4 whitespace-nowrap text-center">
-                                <app-badge [color]="getSaleTypeColor(v.saleType)" variant="light">{{ v.saleType |
-                                    uppercase }}</app-badge>
-                            </td>
-                            <td class="px-5 py-4 whitespace-nowrap text-right">
-                                <span class="text-sm font-bold text-gray-900 dark:text-white">{{ v.totalAmount | number
-                                    }} Ar</span>
+                                <div class="flex items-center justify-center">
+                                    <app-badge [color]="getSaleTypeColor(v.saleType)" variant="light">{{ v.saleType |
+                                        uppercase }}</app-badge>
+                                </div>
                             </td>
                             <td class="px-5 py-4 whitespace-nowrap text-center">
-                                <app-badge [color]="getStatusColor(v.status)" variant="light">{{ v.status | uppercase
-                                    }}</app-badge>
+                                <div class="flex items-center justify-center">
+                                    <span class="text-sm font-bold text-gray-900 dark:text-white">{{ v.totalAmount |
+                                        number }} Ar</span>
+                                </div>
                             </td>
-                            <td class="px-5 py-4 whitespace-nowrap text-right">
-                                <div class="flex items-center justify-end gap-2">
+                            <td class="px-5 py-4 whitespace-nowrap text-center">
+                                <div class="flex items-center justify-center">
+                                    <app-badge [color]="getStatusColor(v.status)" variant="light">{{ v.status |
+                                        uppercase }}</app-badge>
+                                </div>
+                            </td>
+                            <td class="px-5 py-4 whitespace-nowrap text-center">
+                                <div class="flex items-center justify-center gap-2">
                                     <a [routerLink]="['/store/app/vente-liste', v._id]"
                                         class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] transition-colors">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -165,7 +163,7 @@
                             </td>
                         </tr>
                         <tr *ngIf="ventes.length === 0 && !isLoading">
-                            <td colspan="7" class="py-12 text-center text-gray-500 dark:text-gray-400">
+                            <td colspan="6" class="py-12 text-center text-gray-500 dark:text-gray-400">
                                 Aucune vente trouvée pour ces filtres.
                             </td>
                         </tr>

@@ -1,7 +1,15 @@
 <div class="mx-auto max-w-5xl">
-    <app-page-breadcrumb [pageTitle]="'Détails de la Vente #' + (vente?._id?.slice(-6) || '...')"></app-page-breadcrumb>
+    <app-page-breadcrumb [pageTitle]="'Détails de la Vente'"></app-page-breadcrumb>
 
-    <div *ngIf="vente" class="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <!-- Skeleton Loader -->
+    <div *ngIf="isLoading" class="grid grid-cols-1 gap-6 md:grid-cols-2 animate-pulse">
+        <div class="h-64 rounded-2xl bg-gray-200 dark:bg-gray-800"></div>
+        <div class="h-64 rounded-2xl bg-gray-200 dark:bg-gray-800"></div>
+        <div class="md:col-span-2 h-96 rounded-2xl bg-gray-200 dark:bg-gray-800"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!isLoading && vente" class="grid grid-cols-1 gap-6 md:grid-cols-2">
         <!-- Main Info -->
         <div
             class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -12,6 +20,10 @@
             </div>
 
             <div class="space-y-4">
+                <div class="flex justify-between border-b border-gray-100 pb-3 dark:border-white/[0.05]">
+                    <span class="text-sm text-gray-500">ID Vente</span>
+                    <span class="text-sm font-bold text-gray-900 dark:text-white font-mono">#{{ vente._id }}</span>
+                </div>
                 <div class="flex justify-between border-b border-gray-100 pb-3 dark:border-white/[0.05]">
                     <span class="text-sm text-gray-500">Date de vente</span>
                     <span class="text-sm font-bold text-gray-900 dark:text-white">{{ vente.saleDate | date:'longDate' }}
@@ -92,10 +104,20 @@
                     <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
                         <tr *ngFor="let item of vente.items">
                             <td class="py-4">
-                                <div class="flex flex-col">
-                                    <span class="font-bold text-gray-900 dark:text-white">{{ getProduct(item)?.name ||
-                                        'Produit inconnu' }}</span>
-                                    <span class="text-xs text-gray-400">SKU: {{ getProduct(item)?.sku || 'N/A' }}</span>
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-white/[0.03]">
+                                        <img [src]="getProduct(item)?.images?.[0] || '/images/product/placeholder.svg'"
+                                            alt="{{ getProduct(item)?.name }}" class="h-full w-full object-cover" />
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <a [routerLink]="['/store/app/products', getProduct(item)?._id]"
+                                            class="font-bold text-gray-900 hover:text-brand-500 dark:text-white dark:hover:text-brand-500 transition-colors">
+                                            {{ getProduct(item)?.name || 'Produit inconnu' }}
+                                        </a>
+                                        <span class="text-xs text-gray-400">SKU: {{ getProduct(item)?.sku || 'N/A'
+                                            }}</span>
+                                    </div>
                                 </div>
                             </td>
                             <td class="py-4 text-center font-bold text-gray-900 dark:text-white">{{ item.quantity }}
