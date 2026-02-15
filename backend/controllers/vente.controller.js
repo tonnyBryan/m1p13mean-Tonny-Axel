@@ -26,6 +26,74 @@ exports.createVente = async (req, res) => {
     }
 };
 
+// Get stats for sales
+exports.getVenteStats = async (req, res) => {
+    try {
+        let boutiqueId = req.query.boutiqueId;
+
+        // Auto-detect boutique for boutique users
+        if (!boutiqueId && req.user && (req.user.role === 'boutique' || req.user.role === 'admin')) {
+            // If user is admin/boutique and we didn't pass ID, try to find associated boutique
+            // For simplicity, if role is boutique, find their shop.
+            if (req.user.role === 'boutique') {
+                const Boutique = require('../models/Boutique');
+                const boutique = await Boutique.findOne({ owner: req.user.id });
+                if (boutique) boutiqueId = boutique._id;
+            }
+            // If admin, maybe return global stats if no ID? 
+            // Or if admin wants stats for a specific shop, they pass ID.
+            // If admin and no ID, we return global stats (matchStage empty for boutique).
+        }
+
+        const matchStage = {};
+        if (boutiqueId) {
+            // Cast to ObjectId if needed, but mongoose 5+ usually handles string
+            // best to be safe if aggregate doesn't auto-cast
+            const mongoose = require('mongoose');
+            matchStage.boutique = new mongoose.Types.ObjectId(boutiqueId);
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        const stats = await Vente.aggregate([
+            { $match: matchStage },
+            {
+                $facet: {
+                    totalDocs: [{ $count: "count" }],
+                    todayDocs: [
+                        { $match: { saleDate: { $gte: today } } },
+                        { $count: "count" }
+                    ],
+                    monthDocs: [
+                        { $match: { saleDate: { $gte: firstDayOfMonth } } },
+                        { $count: "count" }
+                    ],
+                    pendingDocs: [
+                        { $match: { status: 'draft' } },
+                        { $count: "count" }
+                    ]
+                }
+            }
+        ]);
+
+        const result = {
+            totalDocs: stats[0].totalDocs[0]?.count || 0,
+            todayDocs: stats[0].todayDocs[0]?.count || 0,
+            monthDocs: stats[0].monthDocs[0]?.count || 0,
+            pendingDocs: stats[0].pendingDocs[0]?.count || 0
+        };
+
+        return successResponse(res, 200, null, result);
+
+    } catch (err) {
+        console.error('getVenteStats error:', err);
+        return errorResponse(res, 500, 'Erreur lors de la récupération des statistiques');
+    }
+};
+
 // Get all sales for a boutique
 exports.getVentesByBoutique = async (req, res) => {
     try {

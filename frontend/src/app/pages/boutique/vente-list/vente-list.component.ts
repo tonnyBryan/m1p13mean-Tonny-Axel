@@ -75,6 +75,30 @@ export class VenteListComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadVentes();
+        this.loadStats();
+    }
+
+    stats = {
+        totalDocs: 0,
+        todayDocs: 0,
+        monthDocs: 0,
+        pendingDocs: 0
+    };
+
+    loadStats(): void {
+        // Placeholder for stats loading. 
+        // In a real scenario, this would call a service method like this.venteService.getVenteStats()
+        // For now, I will derive what I can or just calculate from valid API if available, 
+        // but since pagination is server-side, I can't calculate 'Total' from 'items'.
+        // I will use a service call.
+        this.venteService.getVenteStats().subscribe({
+            next: (res: any) => {
+                if (res.success) {
+                    this.stats = res.data;
+                }
+            },
+            error: (err: any) => console.error(err)
+        });
     }
 
     loadVentes(): void {

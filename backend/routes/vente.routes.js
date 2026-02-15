@@ -9,13 +9,14 @@ const injectBoutiqueFilter = require('../middlewares/boutiqueFilter.middleware')
 // All vente routes require authentication
 router.use(protect);
 
-router.post('/add', authorize('boutique'),  venteController.createVente);
+router.post('/add', authorize('boutique'), venteController.createVente);
 router.get('/boutique/all',
     authorize('boutique'),
     injectBoutiqueFilter,
     advancedResults(Vente),
     venteController.getAllVentes
 );
+router.get('/stats', authorize('boutique'), venteController.getVenteStats);
 router.get('/:id', authorize('boutique'), venteController.getVenteById);
 router.put('/:id', authorize('boutique'), venteController.updateVente);
 router.patch('/:id/status', authorize('boutique'), venteController.updateStatus);
