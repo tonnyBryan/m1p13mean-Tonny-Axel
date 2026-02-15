@@ -6,11 +6,23 @@ import { VenteService } from '../../../shared/services/vente.service';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { BadgeComponent } from '../../../shared/components/ui/badge/badge.component';
 import { Vente } from '../../../core/models/vente.model';
+import { InputFieldComponent } from '../../../shared/components/form/input/input-field.component';
+import { SelectComponent } from '../../../shared/components/form/select/select.component';
+import { DatePickerComponent } from '../../../shared/components/form/date-picker/date-picker.component';
 
 @Component({
     selector: 'app-vente-list',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterModule, PageBreadcrumbComponent, BadgeComponent],
+    imports: [
+        CommonModule,
+        FormsModule,
+        RouterModule,
+        PageBreadcrumbComponent,
+        BadgeComponent,
+        InputFieldComponent,
+        SelectComponent,
+        DatePickerComponent
+    ],
     templateUrl: './vente-list.component.html',
 })
 export class VenteListComponent implements OnInit {
@@ -22,14 +34,42 @@ export class VenteListComponent implements OnInit {
         limit: 10
     };
 
+    Math = Math;
+
     filters = {
         status: '',
         paymentMethod: '',
         startDate: '',
-        endDate: ''
+        endDate: '',
+        clientName: '',
+        minAmount: null,
+        maxAmount: null,
+        saleType: '' // New filter
     };
 
+    statusOptions = [
+        { value: '', label: 'Tous les statuts' },
+        { value: 'paid', label: 'Payé' },
+        { value: 'draft', label: 'Brouillon' },
+        { value: 'canceled', label: 'Annulé' }
+    ];
+
+    paymentMethodOptions = [
+        { value: '', label: 'Toutes les méthodes' },
+        { value: 'cash', label: 'Espèces' },
+        { value: 'mobile_money', label: 'Mobile Money' },
+        { value: 'card', label: 'Carte Bancaire' }
+    ];
+
+    saleTypeOptions = [
+        { value: '', label: 'Tous les types' },
+        { value: 'dine-in', label: 'Sur place' },
+        { value: 'takeaway', label: 'A emporter' },
+        { value: 'delivery', label: 'Livraison' }
+    ];
+
     isLoading = false;
+    isSkeletonLoading = true; // For skeleton display
 
     constructor(private venteService: VenteService) { }
 
@@ -40,6 +80,10 @@ export class VenteListComponent implements OnInit {
     loadVentes(): void {
         this.isLoading = true;
 
+        // Show skeleton only on initial load or full reload, not pagination if possible? 
+        // Or usually skeleton replaces table. Let's keep it simple.
+        if (this.ventes.length === 0) this.isSkeletonLoading = true;
+
         const params: any = {
             page: this.pagination.page,
             limit: this.pagination.limit,
@@ -48,8 +92,28 @@ export class VenteListComponent implements OnInit {
 
         if (this.filters.status) params.status = this.filters.status;
         if (this.filters.paymentMethod) params.paymentMethod = this.filters.paymentMethod;
+        if (this.filters.saleType) params.saleType = this.filters.saleType;
 
-        // Date filtering (advancedResults supports $gte, $lte via [gte], [lte])
+        // Backend regex search for client name using 'populate' logic? 
+        // Actually, advancedResults might not support deep regex on populated fields easily out of the box 
+        // unless backend supports it. Providing 'client' string might imply searching by ID. 
+        // If client is stored as Object, searching by name requires specific backend logic. 
+        // For now, let's send what we can. If client name is just a string in 'client.name' (denormalized) it works.
+        // But in Vente model 'client' is Object with name. 
+        // Let's assume user wants us to try passing a param the backend might handle or we add it later.
+        // Wait, earlier 'clientSearch' used 'name[regex]'. That was on UserProfile.
+        // Vente has embedded client object `{ name, ... }`. So we can search `client.name`.
+        // Mongoose advancedResults usually handles dot notation if configured.
+        if (this.filters.clientName) {
+            // Using dot notation for client name search if backend supports it via advancedResults or specific logic
+            params['client.name[regex]'] = this.filters.clientName;
+            params['client.name[options]'] = 'i';
+        }
+
+        if (this.filters.minAmount) params['totalAmount[gte]'] = this.filters.minAmount;
+        if (this.filters.maxAmount) params['totalAmount[lte]'] = this.filters.maxAmount;
+
+        // Date filtering
         if (this.filters.startDate) params['saleDate[gte]'] = this.filters.startDate;
         if (this.filters.endDate) params['saleDate[lte]'] = this.filters.endDate;
 
@@ -58,10 +122,12 @@ export class VenteListComponent implements OnInit {
                 this.ventes = res.data.items;
                 this.pagination = res.data.pagination;
                 this.isLoading = false;
+                this.isSkeletonLoading = false;
             },
             error: (err) => {
                 console.error(err);
                 this.isLoading = false;
+                this.isSkeletonLoading = false;
             }
         });
     }
@@ -71,12 +137,36 @@ export class VenteListComponent implements OnInit {
         this.loadVentes();
     }
 
+    // Handlers for reusable components
+    onSelectChange(key: string, value: string): void {
+        (this.filters as any)[key] = value;
+        this.onFilterChange();
+    }
+
+    onDateChange(key: string, event: any): void {
+        // Flatpickr emits { selectedDates, dateStr, instance }
+        // We use dateStr
+        if (event && event.dateStr) {
+            (this.filters as any)[key] = event.dateStr;
+            this.onFilterChange();
+        }
+    }
+
+    onInputChange(key: string, value: any): void {
+        (this.filters as any)[key] = value;
+        this.onFilterChange();
+    }
+
     resetFilters(): void {
         this.filters = {
             status: '',
             paymentMethod: '',
             startDate: '',
-            endDate: ''
+            endDate: '',
+            clientName: '',
+            minAmount: null,
+            maxAmount: null,
+            saleType: ''
         };
         this.onFilterChange();
     }
@@ -92,6 +182,15 @@ export class VenteListComponent implements OnInit {
             case 'paid': return 'success';
             case 'draft': return 'warning';
             case 'canceled': return 'error';
+            default: return 'light';
+        }
+    }
+
+    getSaleTypeColor(type: string): any {
+        switch (type) {
+            case 'dine-in': return 'info';
+            case 'takeaway': return 'warning';
+            case 'delivery': return 'success';
             default: return 'light';
         }
     }

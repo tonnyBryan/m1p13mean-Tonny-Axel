@@ -1,143 +1,214 @@
 <div class="mx-auto max-w-7xl">
     <app-page-breadcrumb pageTitle="Historique des Ventes"></app-page-breadcrumb>
 
-    <!-- Filters -->
-    <div
-        class="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+        <!-- Header -->
+        <div
+            class="flex flex-col justify-between gap-5 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center dark:border-gray-800">
             <div>
-                <label
-                    class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Période</label>
-                <div class="flex items-center gap-2">
-                    <input type="date" [(ngModel)]="filters.startDate" (change)="onFilterChange()"
-                        class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white" />
-                    <span class="text-gray-400">à</span>
-                    <input type="date" [(ngModel)]="filters.endDate" (change)="onFilterChange()"
-                        class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white" />
-                </div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Liste des Ventes</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Suivez les ventes de votre boutique.</p>
             </div>
-            <div>
-                <label
-                    class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Statut</label>
-                <select [(ngModel)]="filters.status" (change)="onFilterChange()"
-                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white outline-none">
-                    <option value="">Tous les statuts</option>
-                    <option value="paid">Payé</option>
-                    <option value="draft">Brouillon</option>
-                    <option value="canceled">Annulé</option>
-                </select>
-            </div>
-            <div>
-                <label
-                    class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Méthode</label>
-                <select [(ngModel)]="filters.paymentMethod" (change)="onFilterChange()"
-                    class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white outline-none">
-                    <option value="">Toutes les méthodes</option>
-                    <option value="cash">Espèces</option>
-                    <option value="mobile_money">Mobile Money</option>
-                    <option value="card">Carte Bancaire</option>
-                </select>
-            </div>
-            <div class="flex items-end">
-                <button (click)="resetFilters()"
-                    class="w-full rounded-lg border border-gray-200 py-2 text-sm font-bold text-gray-600 hover:bg-gray-50 dark:border-white/[0.1] dark:text-gray-400 dark:hover:bg-white/5 transition-colors">
-                    Réinitialiser
-                </button>
+            <div class="flex gap-3">
+
+                <a routerLink="/store/app/vente-directe"
+                    class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 10.0002H15.0006M10.0002 5V15.0006" stroke="currentColor" strokeWidth="1.5"
+                            strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    Nouvelle Vente
+                </a>
             </div>
         </div>
-    </div>
 
-    <!-- Sales Table -->
-    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
-        <div class="max-w-full overflow-x-auto">
-            <table class="w-full text-left">
+        <!-- Filters (kept as grid for direct access) -->
+        <div class="border-b border-gray-200 px-5 py-4 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01]">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-4 lg:grid-cols-5">
+                <div>
+                    <app-input-field label="Nom du Client" placeholder="Rechercher..." [value]="filters.clientName"
+                        (valueChange)="onInputChange('clientName', $event)" className="bg-white dark:bg-gray-900" />
+                </div>
+                <div>
+                    <app-select [options]="statusOptions" placeholder="Statut" [value]="filters.status"
+                        (valueChange)="onSelectChange('status', $event)" className="bg-white dark:bg-gray-900" />
+                </div>
+                <div>
+                    <app-select [options]="saleTypeOptions" placeholder="Type de vente" [value]="filters.saleType"
+                        (valueChange)="onSelectChange('saleType', $event)" className="bg-white dark:bg-gray-900" />
+                </div>
+                <div class="md:col-span-2 grid grid-cols-2 gap-2">
+                    <app-date-picker placeholder="Du..." (dateChange)="onDateChange('startDate', $event)" />
+                    <app-date-picker placeholder="Au..." (dateChange)="onDateChange('endDate', $event)" />
+                </div>
+            </div>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-4 lg:grid-cols-5 mt-4">
+                <div class="grid grid-cols-2 gap-2 md:col-span-2">
+                    <app-input-field type="number" placeholder="Min Ar"
+                        (valueChange)="onInputChange('minAmount', $event)" className="bg-white dark:bg-gray-900" />
+                    <app-input-field type="number" placeholder="Max Ar"
+                        (valueChange)="onInputChange('maxAmount', $event)" className="bg-white dark:bg-gray-900" />
+                </div>
+                <div class="flex items-end">
+                    <button (click)="resetFilters()"
+                        class="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/5">
+                        Réinitialiser
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full">
                 <thead>
-                    <tr class="border-b border-gray-100 dark:border-white/[0.05]">
+                    <tr
+                        class="border-b border-gray-200 dark:divide-gray-800 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01]">
                         <th
-                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                            class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             ID Vente</th>
                         <th
-                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                            class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Date</th>
                         <th
-                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                            class="px-5 py-4 text-left whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Client</th>
                         <th
-                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-center">
-                            Articles</th>
+                            class="px-5 py-4 text-center whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Type</th>
                         <th
-                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-right">
+                            class="px-5 py-4 text-right whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Montant</th>
                         <th
-                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-center">
+                            class="px-5 py-4 text-center whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Statut</th>
                         <th
-                            class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-right">
+                            class="px-5 py-4 text-right whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                    <tr *ngFor="let v of ventes"
-                        class="group hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
-                        <td class="px-6 py-4 font-mono text-xs text-gray-500">#{{ v._id?.slice(-6) }}</td>
-                        <td class="px-6 py-4">
-                            <div class="flex flex-col">
-                                <span class="text-sm font-bold text-gray-900 dark:text-white">{{ v.saleDate |
-                                    date:'longDate' }}</span>
-                                <span class="text-xs text-gray-400">{{ v.saleDate | date:'shortTime' }}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex flex-col">
-                                <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ v.client.name
-                                    }}</span>
-                                <span class="text-xs text-gray-400">{{ v.client.phoneNumber || 'N/A' }}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span
-                                class="rounded-full bg-gray-100 px-2 py-1 text-xs font-bold text-gray-600 dark:bg-white/[0.05] dark:text-gray-400">
-                                {{ v.items.length }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <span class="text-sm font-extrabold text-gray-900 dark:text-white">{{ v.totalAmount | number
-                                }} Ar</span>
-                        </td>
-                        <td class="px-6 py-4 flex justify-center mt-2">
-                            <app-badge [color]="getStatusColor(v.status)" variant="light">{{ v.status | uppercase
-                                }}</app-badge>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <a [routerLink]="['/store/app/vente-detail', v._id]"
-                                class="text-brand-500 hover:text-brand-600 font-bold text-sm">
-                                Détails
-                            </a>
-                        </td>
-                    </tr>
-                    <tr *ngIf="ventes.length === 0 && !isLoading">
-                        <td colspan="7" class="py-12 text-center text-gray-500 dark:text-gray-400">
-                            Aucune vente trouvée pour ces filtres.
-                        </td>
-                    </tr>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                    <!-- Skeleton Loader -->
+                    <ng-container *ngIf="isSkeletonLoading; else tableContent">
+                        <tr *ngFor="let i of [1,2,3,4,5]">
+                            <td class="px-5 py-4">
+                                <div class="h-4 w-20 animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="h-4 w-32 animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="h-4 w-24 animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            </td>
+                            <td class="px-5 py-4 text-center">
+                                <div class="h-6 w-16 mx-auto animate-pulse bg-gray-200 rounded-full dark:bg-white/10">
+                                </div>
+                            </td>
+                            <td class="px-5 py-4 text-right">
+                                <div class="h-4 w-24 ml-auto animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            </td>
+                            <td class="px-5 py-4 text-center">
+                                <div class="h-6 w-20 mx-auto animate-pulse bg-gray-200 rounded-full dark:bg-white/10">
+                                </div>
+                            </td>
+                            <td class="px-5 py-4 text-right">
+                                <div class="h-8 w-8 ml-auto animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            </td>
+                        </tr>
+                    </ng-container>
+
+                    <ng-template #tableContent>
+                        <tr *ngFor="let v of ventes" class="transition hover:bg-gray-50 dark:hover:bg-gray-900">
+                            <td class="px-5 py-4 whitespace-nowrap font-mono text-xs text-gray-500">#{{ v._id?.slice(-6)
+                                }}</td>
+                            <td class="px-5 py-4 whitespace-nowrap">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-400">{{ v.saleDate |
+                                        date:'longDate' }}</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-500">{{ v.saleDate |
+                                        date:'shortTime' }}</span>
+                                </div>
+                            </td>
+                            <td class="px-5 py-4 whitespace-nowrap">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-400">{{ v.client.name
+                                        }}</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-500">{{ v.client.phoneNumber ||
+                                        'N/A' }}</span>
+                                </div>
+                            </td>
+                            <td class="px-5 py-4 whitespace-nowrap text-center">
+                                <app-badge [color]="getSaleTypeColor(v.saleType)" variant="light">{{ v.saleType |
+                                    uppercase }}</app-badge>
+                            </td>
+                            <td class="px-5 py-4 whitespace-nowrap text-right">
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">{{ v.totalAmount | number
+                                    }} Ar</span>
+                            </td>
+                            <td class="px-5 py-4 whitespace-nowrap text-center">
+                                <app-badge [color]="getStatusColor(v.status)" variant="light">{{ v.status | uppercase
+                                    }}</app-badge>
+                            </td>
+                            <td class="px-5 py-4 whitespace-nowrap text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a [routerLink]="['/store/app/vente-detail', v._id]"
+                                        class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] transition-colors">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z"
+                                                fill="currentColor" />
+                                        </svg>
+                                        Voir
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="ventes.length === 0 && !isLoading">
+                            <td colspan="7" class="py-12 text-center text-gray-500 dark:text-gray-400">
+                                Aucune vente trouvée pour ces filtres.
+                            </td>
+                        </tr>
+                    </ng-template>
                 </tbody>
             </table>
         </div>
 
         <!-- Pagination -->
-        <div class="flex items-center justify-between border-t border-gray-100 p-6 dark:border-white/[0.05]">
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-                Page {{ pagination.page }} sur {{ pagination.totalPages }} ({{ pagination.totalDocs }} ventes)
-            </p>
-            <div class="flex gap-2">
-                <button (click)="changePage(pagination.page - 1)" [disabled]="pagination.page === 1"
-                    class="rounded-lg border border-gray-200 px-4 py-2 text-xs font-bold text-gray-600 disabled:opacity-50 dark:border-white/[0.1] dark:text-gray-400">
-                    Précédent
-                </button>
-                <button (click)="changePage(pagination.page + 1)" [disabled]="pagination.page === pagination.totalPages"
-                    class="rounded-lg border border-gray-200 px-4 py-2 text-xs font-bold text-gray-600 disabled:opacity-50 dark:border-white/[0.1] dark:text-gray-400">
-                    Suivant
-                </button>
+        <div class="border-t border-gray-100 px-4 py-4 sm:px-6 dark:border-white/[0.05]">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <p class="text-theme-sm text-gray-600 dark:text-gray-400">
+                    Showing
+                    <span class="font-medium">{{ (pagination.page - 1) * pagination.limit + 1 }}</span>
+                    to
+                    <span class="font-medium">{{ Math.min(pagination.page * pagination.limit, pagination.totalDocs)
+                        }}</span>
+                    of
+                    <span class="font-medium">{{ pagination.totalDocs }}</span>
+                    results
+                </p>
+
+                <!-- Pagination Controls -->
+                <div class="flex items-center gap-2">
+                    <button (click)="changePage(pagination.page - 1)" [disabled]="pagination.page === 1"
+                        class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 transition-colors">
+                        Previous
+                    </button>
+
+                    <ng-container *ngFor="let i of [].constructor(pagination.totalPages); let idx = index">
+                        <button (click)="changePage(idx + 1)"
+                            [ngClass]="pagination.page === idx + 1 ? 'bg-blue-600 text-white border-blue-600 dark:bg-blue-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400'"
+                            class="inline-flex items-center rounded-lg border px-3 py-2 text-theme-sm font-medium shadow-theme-xs transition-colors">
+                            {{ idx + 1 }}
+                        </button>
+                    </ng-container>
+
+                    <button (click)="changePage(pagination.page + 1)"
+                        [disabled]="pagination.page === pagination.totalPages"
+                        class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 transition-colors">
+                        Next
+                    </button>
+                </div>
             </div>
         </div>
     </div>

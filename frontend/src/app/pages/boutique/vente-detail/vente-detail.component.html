@@ -111,23 +111,20 @@
 
         <!-- Actions -->
         <div class="md:col-span-2 flex flex-wrap justify-end gap-3 print:hidden">
-            <app-button variant="outline" [routerLink]="['/store/app/vente-directe']">Retour à la vente</app-button>
-
             <!-- Status: DRAFT -->
             <ng-container *ngIf="vente.status === 'draft'">
-                <!-- Modifier: Redirects to Vente Directe with ID -->
+                <app-button variant="outline" (click)="cancelVente()"
+                    className="text-red-600 ring-red-100 hover:bg-red-50 hover:ring-red-200">
+                    Annuler
+                </app-button>
+
                 <app-button variant="outline" [routerLink]="['/store/app/vente-directe']"
                     [queryParams]="{ id: vente._id }">
                     Modifier
                 </app-button>
 
-                <app-button variant="outline" (click)="cancelVente()"
-                    className="text-red-600 ring-red-100 hover:bg-red-50">
-                    Annuler
-                </app-button>
-
                 <app-button variant="primary" (click)="payVente()"
-                    className="bg-green-600 hover:bg-green-700 text-white">
+                    className="bg-green-600 hover:bg-green-700 text-white ring-green-600 shadow-green-200">
                     Payer
                 </app-button>
             </ng-container>
