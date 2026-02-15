@@ -1,6 +1,7 @@
 const {errorResponse, successResponse} = require("../utils/apiResponse");
 const User = require('../models/User');
 const EmailVerification = require('../models/EmailVerification');
+const mailService = require("../mail/mail.service");
 const resendDelay = parseInt(process.env.EMAIL_RESEND_DELAY, 10) || 60; // 60s par défaut
 const codeExpiresMinutes = parseInt(process.env.EMAIL_CODE_EXPIRES_MIN, 10) || 15; // 15 min par défaut
 const maxAttemptsBlockMinutes = parseInt(process.env.EMAIL_MAX_ATTEMPTS_BLOCK_MIN, 10) || 15; // 15 min par défaut
@@ -70,6 +71,20 @@ exports.sendVerification = async (req, res) => {
             code,
             expiresAt
         });
+
+        (async () => {
+            try {
+                await mailService.sendVerificationEmail({
+                    to: email,
+                    name: req.user?.name || 'there',
+                    code,
+                    expiresIn: codeExpiresMinutes
+                });
+                console.log(`Verification email sent to ${email}`);
+            } catch (err) {
+                console.error(`Failed to send verification email to ${email}:`, err);
+            }
+        })();
 
         return successResponse(
             res,
