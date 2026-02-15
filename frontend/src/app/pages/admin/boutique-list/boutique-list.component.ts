@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PageBreadcrumbComponent } from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
-import { ButtonComponent } from "../../../shared/components/ui/button/button.component";
 import { Boutique } from "../../../core/models/boutique.model";
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';

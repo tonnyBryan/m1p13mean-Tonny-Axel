@@ -257,14 +257,14 @@
     <!-- Footer with Pagination -->
     <div class="border-t border-gray-100 px-4 py-4 sm:px-6 dark:border-white/[0.05]">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p class="text-theme-sm text-gray-600 dark:text-gray-400">
+        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
           Showing
-          <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span>
+          <span class="text-gray-800 dark:text-white/90">{{ totalDocs === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1
+            }}</span>
           to
-          <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, totalDocs) }}</span>
+          <span class="text-gray-800 dark:text-white/90">{{ Math.min(currentPage * itemsPerPage, totalDocs) }}</span>
           of
-          <span class="font-medium">{{ totalDocs }}</span>
-          results
+          <span class="text-gray-800 dark:text-white/90">{{ totalDocs }}</span>
         </p>
 
         <!-- Pagination Controls -->

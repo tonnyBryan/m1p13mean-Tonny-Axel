@@ -21,11 +21,38 @@
             </div>
 
             <!-- Search and Filters -->
-            <div class="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-col gap-4 mb-6 lg:flex-row lg:items-center">
+                <!-- Search -->
                 <div class="flex-1">
-                    <input type="text" placeholder="Search by first name..." [(ngModel)]="searchTerm"
-                        (input)="onSearch()"
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm text-gray-900 placeholder-gray-500 shadow-theme-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 dark:placeholder-gray-500 dark:focus:border-blue-400" />
+                    <input type="text" placeholder="Search by name..." [(ngModel)]="searchTerm" (input)="onSearch()"
+                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-theme-sm text-gray-900 placeholder-gray-500 shadow-theme-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 dark:placeholder-gray-500 dark:focus:border-blue-400" />
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                    <!-- Status Filter Buttons -->
+                    <div class="flex items-center gap-2">
+                        <button *ngFor="let filter of ['all', 'active', 'inactive']" (click)="onFilterChange(filter)"
+                            [ngClass]="{
+                                'bg-blue-600 text-white dark:bg-blue-600': statusFilter === filter,
+                                'border border-gray-300 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400': statusFilter !== filter
+                            }"
+                            class="inline-flex items-center rounded-lg px-3 py-2 text-theme-sm font-medium shadow-theme-xs hover:shadow-theme-sm transition-all whitespace-nowrap">
+                            {{ filter | titlecase }}
+                        </button>
+                    </div>
+
+                    <!-- Date Range Filter -->
+                    <div class="flex items-center gap-2">
+                        <div class="relative">
+                            <input type="date" [(ngModel)]="startDate" (change)="onSearch()"
+                                class="w-full sm:w-40 rounded-lg border border-gray-300 bg-white px-3 py-2 text-theme-xs text-gray-900 shadow-theme-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 dark:focus:border-blue-400" />
+                        </div>
+                        <span class="text-gray-400">to</span>
+                        <div class="relative">
+                            <input type="date" [(ngModel)]="endDate" (change)="onSearch()"
+                                class="w-full sm:w-40 rounded-lg border border-gray-300 bg-white px-3 py-2 text-theme-xs text-gray-900 shadow-theme-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90 dark:focus:border-blue-400" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -146,14 +173,15 @@
         <!-- Pagination -->
         <div class="border-t border-gray-100 px-4 py-4 sm:px-6 dark:border-white/[0.05]">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <p class="text-theme-sm text-gray-600 dark:text-gray-400">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
                     Showing
-                    <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span>
+                    <span class="text-gray-800 dark:text-white/90">{{ totalDocs === 0 ? 0 : (currentPage - 1) *
+                        itemsPerPage + 1 }}</span>
                     to
-                    <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, totalDocs) }}</span>
+                    <span class="text-gray-800 dark:text-white/90">{{ Math.min(currentPage * itemsPerPage, totalDocs)
+                        }}</span>
                     of
-                    <span class="font-medium">{{ totalDocs }}</span>
-                    results
+                    <span class="text-gray-800 dark:text-white/90">{{ totalDocs }}</span>
                 </p>
 
                 <div class="flex items-center gap-2">

@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserProfileService } from '../../../../shared/services/user-profile.service';
-import { UserProfile } from '../../../../core/models/user-profile.model';
 import { PageBreadcrumbComponent } from '../../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
-import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 
 @Component({
     selector: 'app-users-list',
@@ -28,6 +26,9 @@ export class UsersListComponent implements OnInit {
 
     // Filters
     searchTerm = '';
+    statusFilter = 'all'; // all, active, inactive
+    startDate = '';
+    endDate = '';
 
     constructor(
         private profileService: UserProfileService,
@@ -52,6 +53,18 @@ export class UsersListComponent implements OnInit {
             params['name[options]'] = 'i';
         }
 
+        if (this.statusFilter !== 'all') {
+            params.isActive = this.statusFilter === 'active';
+        }
+
+        if (this.startDate) {
+            params['createdAt[gte]'] = this.startDate;
+        }
+
+        if (this.endDate) {
+            params['createdAt[lte]'] = this.endDate;
+        }
+
         this.profileService.getUserProfiles(params).subscribe({
             next: (res) => {
                 this.isLoading = false;
@@ -70,6 +83,12 @@ export class UsersListComponent implements OnInit {
     }
 
     onSearch(): void {
+        this.currentPage = 1;
+        this.loadProfiles();
+    }
+
+    onFilterChange(filter: string): void {
+        this.statusFilter = filter;
         this.currentPage = 1;
         this.loadProfiles();
     }
