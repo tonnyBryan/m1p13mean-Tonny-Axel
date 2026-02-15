@@ -128,6 +128,8 @@ export class AppHeaderUserComponent implements OnInit {
                             }
                         );
                     }
+
+                    console.log("mail header = " + this.profileService.isEmailVerified)
                 }
             },
             error: (err) => {

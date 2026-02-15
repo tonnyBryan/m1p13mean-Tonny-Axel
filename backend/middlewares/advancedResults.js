@@ -1,8 +1,6 @@
 const advancedResults = (model) => async (req, res, next) => {
     let queryObj = { ...req.query }; // copie des query params
 
-    console.log('Original queryObj:', JSON.stringify(queryObj, null, 2));
-
     // Coerce booleans in query object ("true"/"false" -> true/false), recursively
     const coerceBooleans = (val) => {
         if (Array.isArray(val)) {
@@ -47,8 +45,6 @@ const advancedResults = (model) => async (req, res, next) => {
             }
         }
     });
-
-    console.log('Processed query:', JSON.stringify(query, null, 2));
 
     // Options de pagination
     const page = parseInt(req.query.page, 10) || 1;
