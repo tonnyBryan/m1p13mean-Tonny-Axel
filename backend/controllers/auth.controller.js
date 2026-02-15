@@ -29,7 +29,8 @@ exports.login = async (req, res) => {
 
         const tokenPayload = {
             id: user._id,
-            role: user.role
+            role: user.role,
+            email: user.email,
         };
 
         if (user.role === 'boutique') {
@@ -120,7 +121,8 @@ exports.refreshToken = async (req, res) => {
 
         const tokenPayload = {
             id: user._id,
-            role: user.role
+            role: user.role,
+            email: user.email
         };
 
         if (user.role === 'boutique') {
@@ -136,7 +138,7 @@ exports.refreshToken = async (req, res) => {
         const accessToken = generateAccessToken(tokenPayload);
 
         return successResponse(res, 200, 'Refreshed token', {
-            accessToken: newAccessToken
+            accessToken: accessToken
         });
 
     } catch (error) {

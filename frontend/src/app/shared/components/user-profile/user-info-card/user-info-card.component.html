@@ -27,7 +27,7 @@
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
             <!-- Email handled in account settings; show placeholder if profile doesn't contain it -->
-            {{ authService.user?.email || '—' }}
+            {{ authService.userHash?.email || '—' }}
           </p>
         </div>
         <div>
@@ -122,7 +122,7 @@
                 </div>
                 <div class="col-span-2 lg:col-span-1">
                   <app-label>Email Address</app-label>
-                  <p class="text-sm text-gray-500">{{ authService.user?.email || '—' }}</p>
+                  <p class="text-sm text-gray-500">{{ authService.userHash?.email || '—' }}</p>
                 </div>
                 <div class="col-span-2 lg:col-span-1">
                   <app-label>Phone</app-label>

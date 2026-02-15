@@ -3,4 +3,6 @@ export interface User {
     name: string;
     email: string;
     role: 'admin' | 'user' | 'boutique';
+    isActive: boolean;
+    isEmailVerified: boolean;
 }

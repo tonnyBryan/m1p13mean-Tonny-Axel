@@ -14,6 +14,7 @@ import { SearchService } from "../../services/search.service";
 import { ResultSearch } from "../../../core/models/search.model";
 import { Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import {User} from "../../../core/models/user.model";
 
 @Component({
     selector: 'app-header-user',
@@ -35,6 +36,8 @@ export class AppHeaderUserComponent implements OnInit {
     isProfileLoading = false;
     hasError = false;
 
+    user: User | null = null;
+
     @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
     @ViewChild('searchDropdown') searchDropdown!: ElementRef<HTMLDivElement>;
 
@@ -47,7 +50,6 @@ export class AppHeaderUserComponent implements OnInit {
     constructor(
         public sidebarService: SidebarService,
         private userService: UserService,
-        private authService: AuthService,
         private toast: ToastService,
         private profileService: UserProfileService,
         private searchService: SearchService,
@@ -63,12 +65,8 @@ export class AppHeaderUserComponent implements OnInit {
             }
         });
 
-        const user = this.authService.user;
-        if (user) {
-            this.loadMyProfile();
-        } else {
-            this.hasProfile = true;
-        }
+        this.loadMyProfile();
+        this.loadUser();
 
         this.searchSubject.pipe(
             debounceTime(300),
@@ -86,7 +84,7 @@ export class AppHeaderUserComponent implements OnInit {
                 const hasProfile = !!res?.data;
                 this.hasProfile = hasProfile;
                 this.profileService.setHasProfile(hasProfile);
-            },
+                },
             error: (err) => {
                 this.isProfileLoading = false;
                 this.hasError = true;
@@ -98,6 +96,47 @@ export class AppHeaderUserComponent implements OnInit {
                     this.toast.error('Error', err.error.message, 0);
                 } else {
                     this.toast.error('Error', 'An error occurred while header profile', 0);
+                }
+            }
+        });
+    }
+
+    loadUser() {
+        this.userService.getUser(null).subscribe({
+            next: (res) => {
+                console.log(res);
+                if (res.success) {
+                    this.user = res.data;
+                    if (this.user?.isEmailVerified) {
+                        this.profileService.setIsEmailVerified(this.user?.isEmailVerified)
+                    } else {
+                        this.profileService.setIsEmailVerified(false);
+                    }
+
+                    if (!this.profileService.isEmailVerified) {
+                        this.toast.show(
+                            'warning',
+                            'Email Not Verified',
+                            'Please verify your email to access all features.',
+                            0,
+                            'top-right',
+                            {
+                                label: 'Verify Now',
+                                onClick: () => {
+                                    this.router.navigate(['/v1/verify-email']);
+                                }
+                            }
+                        );
+                    }
+                }
+            },
+            error: (err) => {
+                console.error('Error fetching user', err);
+
+                if (err.error && err.error.message) {
+                    this.toast.error('Error', err.error.message, 0);
+                } else {
+                    this.toast.error('Error', 'An error occurred while header user', 0);
                 }
             }
         });

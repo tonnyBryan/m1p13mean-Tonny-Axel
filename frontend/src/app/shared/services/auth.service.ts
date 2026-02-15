@@ -2,15 +2,9 @@ import { Injectable } from '@angular/core';
 import {ApiService} from "./api.service";
 import {BehaviorSubject, Observable, tap} from "rxjs";
 import {HttpHeaders} from "@angular/common/http";
-import {User} from "../../core/models/user.model";
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
+import {JwtPayload} from "../../core/models/jwtPayload.model";
 
-
-export interface JwtPayload {
-    id: string;
-    role: string;
-    boutiqueId? : string;
-}
 
 @Injectable({
     providedIn: 'root'
@@ -18,16 +12,8 @@ export interface JwtPayload {
 export class AuthService {
 
     constructor(private api: ApiService) {
-        const savedUser = localStorage.getItem('user');
-        if (savedUser) {
-            this.userSubject.next(JSON.parse(savedUser));
-        }
-
         this.loadUserFromToken();
     }
-
-    private userSubject = new BehaviorSubject<User | null>(null);
-    user$ = this.userSubject.asObservable();
 
     private userToken = new BehaviorSubject<JwtPayload | null>(null);
     userToken$ = this.userToken.asObservable();
@@ -47,15 +33,6 @@ export class AuthService {
 
     getRole(): string | null {
         return this.userToken.value?.role ?? null;
-    }
-
-    setUser(user: User) {
-        this.userSubject.next(user);
-        localStorage.setItem('user', JSON.stringify(user));
-    }
-
-    get user(): User | null {
-        return this.userSubject.value;
     }
 
     get userHash(): JwtPayload | null {
@@ -94,7 +71,6 @@ export class AuthService {
             tap(res => {
                 if (res.success && res.data?.accessToken) {
                     localStorage.setItem('token', res.data.accessToken);
-                    this.setUser(res.data.user);
                     this.loadUserFromToken();
                 }
             })

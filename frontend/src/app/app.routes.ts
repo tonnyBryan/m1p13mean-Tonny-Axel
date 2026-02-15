@@ -24,6 +24,7 @@ import { BoutiqueFicheUserComponent } from "./pages/user/boutique-fiche-user/bou
 import { ProductFicheUserComponent } from "./pages/user/product-fiche-user/product-fiche-user.component";
 import { CartUserComponent } from "./pages/user/cart-user/cart-user.component";
 import { CheckoutUserComponent } from "./pages/user/checkout-user/checkout-user.component";
+import {VerifyEmailComponent} from "./pages/user/verify-email/verify-email.component";
 
 
 export const routes: Routes = [
@@ -105,6 +106,13 @@ export const routes: Routes = [
       {
         path: 'cart/checkout',
         component: CheckoutUserComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.userRole] },
+        title: 'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
+        path: 'verify-email',
+        component: VerifyEmailComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         title: 'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'

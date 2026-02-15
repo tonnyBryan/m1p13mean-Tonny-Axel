@@ -182,7 +182,7 @@
                 <app-theme-toggle-button />
                 <app-notification-dropdown />
             </div>
-            <app-user-dropdown />
+            <app-user-dropdown *ngIf="user != null" [userData]="user" />
         </div>
     </div>
 </header>

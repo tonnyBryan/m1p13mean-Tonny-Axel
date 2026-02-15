@@ -18,6 +18,19 @@ export class UserService {
     return this.api.get<any>('users/me/profile', headers);
   }
 
+  getUser(userId: String | null): Observable<any> {
+    const token = this.auth.getToken();
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+    let id;
+    if (userId === null) {
+      id = this.auth.userHash?.id;
+    }
+
+    return this.api.get<any>('users/' + id, headers);
+  }
+
   updateMyProfile(payload: any): Observable<any> {
     const token = this.auth.getToken();
     const headers = new HttpHeaders({

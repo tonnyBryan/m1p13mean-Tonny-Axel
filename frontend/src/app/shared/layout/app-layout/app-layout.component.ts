@@ -6,11 +6,11 @@ import { BackdropComponent } from '../backdrop/backdrop.component';
 import { RouterModule } from '@angular/router';
 import { AppHeaderComponent } from '../app-header/app-header.component';
 import {Observable} from "rxjs";
-import {User} from "../../../core/models/user.model";
 import {AuthService} from "../../services/auth.service";
 import {AppHeaderUserComponent} from "../app-header-user/app-header-user.component";
 import {AppHeaderBoutiqueComponent} from "../app-header-boutique/app-header-boutique.component";
 import {AppHeaderAdminComponent} from "../app-header-admin/app-header-admin.component";
+import {JwtPayload} from "../../../core/models/jwtPayload.model";
 
 @Component({
   selector: 'app-layout',
@@ -31,7 +31,7 @@ export class AppLayoutComponent implements OnInit {
   readonly isExpanded$;
   readonly isHovered$;
   readonly isMobileOpen$;
-  user$!: Observable<User | null>;
+  userToken$!: Observable<JwtPayload | null>;
 
 
   constructor(public sidebarService: SidebarService, private authService : AuthService) {
@@ -41,7 +41,7 @@ export class AppLayoutComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.user$ = this.authService.user$;
+    this.userToken$ = this.authService.userToken$;
   }
 
   get containerClasses() {

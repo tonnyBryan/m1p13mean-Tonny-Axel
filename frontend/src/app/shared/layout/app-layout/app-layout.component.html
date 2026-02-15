@@ -13,7 +13,7 @@
   >
     <!-- app header start -->
       <!-- app header start -->
-      <ng-container *ngIf="user$ | async as user; else noUser">
+      <ng-container *ngIf="userToken$ | async as user; else noUser">
           <ng-container [ngSwitch]="user?.role">
 
               <app-header-user
