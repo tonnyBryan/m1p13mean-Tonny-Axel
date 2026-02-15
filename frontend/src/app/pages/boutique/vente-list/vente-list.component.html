@@ -1,5 +1,8 @@
 <div class="mx-auto max-w-7xl">
-    <app-page-breadcrumb pageTitle="Sales History"></app-page-breadcrumb>
+    <app-page-breadcrumb pageTitle="Sales History" [breadcrumbs]="[
+        { label: 'Store', link: '/store/app' },
+        { label: 'Sales' }
+    ]"></app-page-breadcrumb>
 
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <!-- Header -->

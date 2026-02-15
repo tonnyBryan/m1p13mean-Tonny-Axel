@@ -1,5 +1,9 @@
 <div class="mx-auto max-w-5xl">
-    <app-page-breadcrumb [pageTitle]="'Sale Details'"></app-page-breadcrumb>
+    <app-page-breadcrumb [pageTitle]="'Sale Details'" [breadcrumbs]="[
+        { label: 'Store', link: '/store/app' },
+        { label: 'Sales', link: '/store/app/vente-liste' },
+        { label: 'Details' }
+    ]"></app-page-breadcrumb>
 
     <!-- Skeleton Loader -->
     <div *ngIf="isLoading" class="grid grid-cols-1 gap-6 md:grid-cols-2 animate-pulse">

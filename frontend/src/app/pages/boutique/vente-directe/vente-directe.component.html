@@ -1,5 +1,9 @@
 <div class="mx-auto max-w-7xl">
-    <app-page-breadcrumb pageTitle="Direct Shop Sale"></app-page-breadcrumb>
+    <app-page-breadcrumb pageTitle="Direct Shop Sale" [breadcrumbs]="[
+        { label: 'Store', link: '/store/app' },
+        { label: 'Sales', link: '/store/app/vente-liste' },
+        { label: 'New Sale' }
+    ]"></app-page-breadcrumb>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <!-- Main Column: Product Selection & Cart -->
