@@ -187,7 +187,7 @@ export class VenteDirecteComponent implements OnInit {
                 }
             },
             error: (err) => {
-                this.errorMessage = "Erreur lors du chargement de la vente";
+                this.errorMessage = "Error loading sale";
                 this.isLoading = false;
             }
         });
@@ -257,11 +257,11 @@ export class VenteDirecteComponent implements OnInit {
 
     createSale(): void {
         if (!this.vente.client?.name) {
-            this.errorMessage = 'Le nom du client est requis';
+            this.errorMessage = 'Client name is required';
             return;
         }
         if (!this.vente.items || this.vente.items.length === 0) {
-            this.errorMessage = 'Ajoutez au moins un produit';
+            this.errorMessage = 'Add at least one product';
             return;
         }
 
@@ -285,7 +285,7 @@ export class VenteDirecteComponent implements OnInit {
 
         const errorCallback = (err: any) => {
             this.isSaving = false;
-            this.errorMessage = err.error?.message || 'Erreur lors de l’enregistrement';
+            this.errorMessage = err.error?.message || 'Error saving sale';
         };
 
         if (this.isEditMode && this.vente._id) {

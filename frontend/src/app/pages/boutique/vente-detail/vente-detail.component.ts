@@ -77,7 +77,7 @@ export class VenteDetailComponent implements OnInit {
 
     cancelVente(): void {
         if (!this.vente?._id) return;
-        if (confirm('Êtes-vous sûr de vouloir annuler cette vente ?')) {
+        if (confirm('Are you sure you want to cancel this sale?')) {
             this.venteService.updateStatus(this.vente._id, 'canceled').subscribe({
                 next: (res) => {
                     if (res.success) {
@@ -102,8 +102,8 @@ export class VenteDetailComponent implements OnInit {
                 window.URL.revokeObjectURL(url);
             },
             error: (err) => {
-                console.error('Erreur téléchargement facture', err);
-                alert('Impossible de télécharger la facture');
+                console.error('Error downloading invoice', err);
+                alert('Unable to download invoice');
             }
         });
     }

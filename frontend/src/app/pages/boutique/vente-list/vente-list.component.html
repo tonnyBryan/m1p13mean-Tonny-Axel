@@ -1,13 +1,13 @@
 <div class="mx-auto max-w-7xl">
-    <app-page-breadcrumb pageTitle="Historique des Ventes"></app-page-breadcrumb>
+    <app-page-breadcrumb pageTitle="Sales History"></app-page-breadcrumb>
 
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <!-- Header -->
         <div
             class="flex flex-col justify-between gap-5 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center dark:border-gray-800">
             <div>
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Liste des Ventes</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Suivez les ventes de votre boutique.</p>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Sales List</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Track your shop sales.</p>
             </div>
             <div class="flex gap-3">
 
@@ -17,7 +17,7 @@
                         <path d="M5 10.0002H15.0006M10.0002 5V15.0006" stroke="currentColor" strokeWidth="1.5"
                             strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
-                    Nouvelle Vente
+                    New Sale
                 </a>
             </div>
         </div>
@@ -26,33 +26,33 @@
         <div class="border-b border-gray-200 px-5 py-4 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01]">
             <div class="grid grid-cols-1 gap-4 md:grid-cols-4 lg:grid-cols-5">
                 <div>
-                    <app-input-field label="Nom du Client" placeholder="Rechercher..." [value]="filters.clientName"
+                    <app-input-field label="Client Name" placeholder="Search..." [value]="filters.clientName"
                         (valueChange)="onInputChange('clientName', $event)" className="bg-white dark:bg-gray-900" />
                 </div>
                 <div>
-                    <app-select [options]="statusOptions" placeholder="Statut" [value]="filters.status"
+                    <app-select [options]="statusOptions" placeholder="Status" [value]="filters.status"
                         (valueChange)="onSelectChange('status', $event)" className="bg-white dark:bg-gray-900" />
                 </div>
                 <div>
-                    <app-select [options]="saleTypeOptions" placeholder="Type de vente" [value]="filters.saleType"
+                    <app-select [options]="saleTypeOptions" placeholder="Sale Type" [value]="filters.saleType"
                         (valueChange)="onSelectChange('saleType', $event)" className="bg-white dark:bg-gray-900" />
                 </div>
                 <div class="md:col-span-2 grid grid-cols-2 gap-2">
-                    <app-date-picker placeholder="Du..." (dateChange)="onDateChange('startDate', $event)" />
-                    <app-date-picker placeholder="Au..." (dateChange)="onDateChange('endDate', $event)" />
+                    <app-date-picker placeholder="From..." (dateChange)="onDateChange('startDate', $event)" />
+                    <app-date-picker placeholder="To..." (dateChange)="onDateChange('endDate', $event)" />
                 </div>
             </div>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-4 lg:grid-cols-5 mt-4">
                 <div class="grid grid-cols-2 gap-2 md:col-span-2">
-                    <app-input-field type="number" placeholder="Min Ar"
+                    <app-input-field type="number" placeholder="Min Amt"
                         (valueChange)="onInputChange('minAmount', $event)" className="bg-white dark:bg-gray-900" />
-                    <app-input-field type="number" placeholder="Max Ar"
+                    <app-input-field type="number" placeholder="Max Amt"
                         (valueChange)="onInputChange('maxAmount', $event)" className="bg-white dark:bg-gray-900" />
                 </div>
                 <div class="flex items-end">
                     <button (click)="resetFilters()"
                         class="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/5">
-                        Réinitialiser
+                        Reset
                     </button>
                 </div>
             </div>
@@ -75,10 +75,10 @@
                             Type</th>
                         <th
                             class="px-5 py-4 text-center whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Montant</th>
+                            Amount</th>
                         <th
                             class="px-5 py-4 text-center whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Statut</th>
+                            Status</th>
                         <th
                             class="px-5 py-4 text-center whitespace-nowrap text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Actions</th>
@@ -157,14 +157,14 @@
                                                 d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z"
                                                 fill="currentColor" />
                                         </svg>
-                                        Voir
+                                        View
                                     </a>
                                 </div>
                             </td>
                         </tr>
                         <tr *ngIf="ventes.length === 0 && !isLoading">
                             <td colspan="6" class="py-12 text-center text-gray-500 dark:text-gray-400">
-                                Aucune vente trouvée pour ces filtres.
+                                No sales found for these filters.
                             </td>
                         </tr>
                     </ng-template>

@@ -48,24 +48,24 @@ export class VenteListComponent implements OnInit {
     };
 
     statusOptions = [
-        { value: '', label: 'Tous les statuts' },
-        { value: 'paid', label: 'Payé' },
-        { value: 'draft', label: 'Brouillon' },
-        { value: 'canceled', label: 'Annulé' }
+        { value: '', label: 'All Statuses' },
+        { value: 'paid', label: 'Paid' },
+        { value: 'draft', label: 'Draft' },
+        { value: 'canceled', label: 'Canceled' }
     ];
 
     paymentMethodOptions = [
-        { value: '', label: 'Toutes les méthodes' },
-        { value: 'cash', label: 'Espèces' },
+        { value: '', label: 'All Methods' },
+        { value: 'cash', label: 'Cash' },
         { value: 'mobile_money', label: 'Mobile Money' },
-        { value: 'card', label: 'Carte Bancaire' }
+        { value: 'card', label: 'Card' }
     ];
 
     saleTypeOptions = [
-        { value: '', label: 'Tous les types' },
-        { value: 'dine-in', label: 'Sur place' },
-        { value: 'takeaway', label: 'A emporter' },
-        { value: 'delivery', label: 'Livraison' }
+        { value: '', label: 'All Types' },
+        { value: 'dine-in', label: 'Dine-in' },
+        { value: 'takeaway', label: 'Takeaway' },
+        { value: 'delivery', label: 'Delivery' }
     ];
 
     isLoading = false;
