@@ -1,6 +1,10 @@
 <div class="space-y-6">
     <!-- Breadcrumb -->
-    <app-page-breadcrumb [pageTitle]="pageTitle"></app-page-breadcrumb>
+    <!-- Breadcrumb -->
+    <app-page-breadcrumb [pageTitle]="pageTitle" [breadcrumbs]="[
+        { label: 'Admin', link: '/admin' },
+        { label: 'Users' }
+    ]"></app-page-breadcrumb>
 
     <!-- Table Container -->
     <div

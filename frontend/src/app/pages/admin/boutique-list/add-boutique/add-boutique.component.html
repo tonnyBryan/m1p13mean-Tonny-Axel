@@ -1,6 +1,11 @@
 <div class="space-y-6">
   <!-- Breadcrumb -->
-  <app-page-breadcrumb [pageTitle]="pageTitle"></app-page-breadcrumb>
+  <!-- Breadcrumb -->
+  <app-page-breadcrumb [pageTitle]="pageTitle" [breadcrumbs]="[
+    { label: 'Admin', link: '/admin' },
+    { label: 'Shops', link: '/admin/app/boutiques' },
+    { label: 'Add New' }
+  ]"></app-page-breadcrumb>
 
   <!-- Form vs Summary View -->
   @if (!isCreated) {
