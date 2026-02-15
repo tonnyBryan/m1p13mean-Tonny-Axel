@@ -283,6 +283,14 @@ export const routes: Routes = [
         title: 'Direct Sale | TailAdmin - Angular Admin Dashboard Template'
       },
       {
+        path: 'vente-directe/:id',
+        loadComponent: () => import('./pages/boutique/vente-directe/vente-directe.component').then(m => m.VenteDirecteComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        pathMatch: 'full',
+        title: 'Edit Direct Sale | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
         path: 'vente-liste',
         loadComponent: () => import('./pages/boutique/vente-list/vente-list.component').then(m => m.VenteListComponent),
         canActivate: [AuthGuard, RoleGuard],

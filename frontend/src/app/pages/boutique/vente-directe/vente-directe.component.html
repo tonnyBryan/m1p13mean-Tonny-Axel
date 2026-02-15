@@ -68,7 +68,7 @@
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">Panier de vente</h3>
                     <span
                         class="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-500 dark:bg-brand-500/10">{{
-                        vente.items?.length || 0 }} articles</span>
+                        vente.items.length || 0 }} articles</span>
                 </div>
 
                 <div class="max-w-full overflow-x-auto p-6">
@@ -145,7 +145,7 @@
                                     </button>
                                 </td>
                             </tr>
-                            <tr *ngIf="vente.items?.length === 0">
+                            <tr *ngIf="vente.items.length === 0">
                                 <td colspan="5" class="py-12 text-center">
                                     <div class="flex flex-col items-center gap-3">
                                         <div class="rounded-full bg-gray-50 p-4 dark:bg-white/[0.03]">
@@ -176,20 +176,37 @@
             <!-- Client Info Card -->
             <div
                 class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
-                <h3 class="mb-5 text-lg font-bold text-gray-900 dark:text-white">Informations Client</h3>
+                <div class="mb-5 flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Informations Client</h3>
+                    <button (click)="openClientModal()"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500 hover:bg-brand-500 hover:text-white transition-colors dark:bg-white/[0.05]">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </button>
+                </div>
 
                 <div class="space-y-4">
                     <div>
                         <label
                             class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Nom
                             complet</label>
-                        <input type="text" [(ngModel)]="vente.client!.name" placeholder="Client de passage..."
+                        <input type="text" [(ngModel)]="vente.client.name" placeholder="Client de passage..."
                             class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm font-medium text-gray-900 outline-none transition focus:border-brand-500 dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white" />
                     </div>
                     <div>
                         <label
                             class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Téléphone</label>
-                        <input type="text" [(ngModel)]="vente.client!.phoneNumber" placeholder="034 XX XXX XX"
+                        <input type="text" [(ngModel)]="vente.client.phoneNumber" placeholder="034 XX XXX XX"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm font-medium text-gray-900 outline-none transition focus:border-brand-500 dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white" />
+                    </div>
+                    <div>
+                        <label
+                            class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Date
+                            de la vente</label>
+                        <input type="date" [(ngModel)]="vente.saleDate"
                             class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm font-medium text-gray-900 outline-none transition focus:border-brand-500 dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white" />
                     </div>
                 </div>
@@ -289,7 +306,7 @@
                         Enregistrer Brouillon
                     </app-button>
 
-                    <button (click)="payVente()" [disabled]="(vente.items?.length || 0) === 0"
+                    <button (click)="payVente()" [disabled]="(vente.items.length || 0) === 0"
                         class="w-full flex items-center justify-center gap-2 rounded-xl bg-brand-500 py-4 text-base font-bold text-white shadow-lg shadow-brand-500/30 hover:bg-brand-600 active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2.5">
@@ -330,6 +347,66 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+</div>
+
+<!-- API Client Search Modal -->
+<div *ngIf="showClientModal" class="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-6">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-xl transition-opacity" (click)="closeClientModal()"></div>
+
+    <!-- Modal Content -->
+    <div
+        class="relative w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all dark:bg-gray-900">
+        <!-- Close Button -->
+        <button (click)="closeClientModal()"
+            class="absolute right-4 top-4 rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-white/[0.05]">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+
+        <h3 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Sélectionner un client</h3>
+
+        <!-- Search Input -->
+        <div class="mb-4 relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </span>
+            <input type="text" [(ngModel)]="clientSearchTerm" (input)="onClientSearchForModal($event)"
+                placeholder="Rechercher par nom..."
+                class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-12 pr-4 text-sm font-medium text-gray-900 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white" />
+        </div>
+
+        <!-- Results List -->
+        <div class="max-h-80 overflow-y-auto space-y-2">
+            <!-- Loading State -->
+            <div *ngIf="isSearchingClients" class="flex justify-center py-8">
+                <div class="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-brand-500"></div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!isSearchingClients && clientSearchResults.length === 0" class="py-8 text-center">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Aucun client trouvé.</p>
+            </div>
+
+            <!-- List Items -->
+            <button *ngFor="let client of clientSearchResults" (click)="selectClient(client)"
+                class="flex w-full items-center gap-4 rounded-xl border border-transparent p-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.05] hover:border-gray-200 dark:hover:border-white/[0.1]">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-600 font-bold uppercase dark:bg-brand-500/20 dark:text-brand-400">
+                    {{ client.name?.charAt(0) || 'C' }}
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-900 dark:text-white">{{ client.name }}</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ client.email || 'Pas d\'email' }} • {{
+                        client.profile?.phoneNumber || client.phoneNumber || 'Pas de tél' }}</p>
+                </div>
+            </button>
         </div>
     </div>
 </div>

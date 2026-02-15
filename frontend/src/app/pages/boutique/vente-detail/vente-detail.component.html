@@ -110,10 +110,85 @@
         </div>
 
         <!-- Actions -->
-        <div class="md:col-span-2 flex justify-end gap-3">
+        <div class="md:col-span-2 flex flex-wrap justify-end gap-3 print:hidden">
             <app-button variant="outline" [routerLink]="['/store/app/vente-liste']">Retour à la liste</app-button>
-            <app-button *ngIf="vente.status === 'paid'" (click)="getInvoice()" variant="primary">Télécharger
+
+            <ng-container *ngIf="vente.status === 'draft'">
+                <app-button variant="outline" (click)="cancelVente()"
+                    className="text-red-500 ring-red-100">Annuler</app-button>
+                <app-button variant="outline"
+                    [routerLink]="['/store/app/vente-directe', vente._id]">Modifier</app-button>
+                <app-button variant="primary" (click)="payVente()">Payer maintenant</app-button>
+            </ng-container>
+
+            <app-button *ngIf="vente.status === 'paid'" (click)="getInvoice()" variant="primary">Imprimer
                 Facture</app-button>
         </div>
     </div>
+
+    <!-- Hidden Receipt for Printing -->
+    <div id="receipt"
+        class="hidden print:block bg-white p-8 text-black font-mono text-sm max-w-[80mm] mx-auto border border-gray-100">
+        <div class="text-center mb-6">
+            <h2 class="text-xl font-bold uppercase">{{ getBoutique()?.name || 'MA BOUTIQUE' }}</h2>
+            <p class="text-xs">{{ getBoutique()?.address || 'Andoharanofotsy, Antananarivo' }}</p>
+            <p class="text-xs">Tél: {{ getBoutique()?.phoneNumber || '034 00 000 00' }}</p>
+            <div class="my-4 border-t-2 border-dashed border-black"></div>
+            <h3 class="font-bold">FACTURE #{{ vente?._id?.slice(-6) }}</h3>
+            <p>{{ vente?.saleDate | date:'short' }}</p>
+        </div>
+
+        <div class="mb-4">
+            <p><strong>Client:</strong> {{ vente?.client?.name }}</p>
+            <p><strong>Vendeur:</strong> {{ getSeller()?.name }}</p>
+        </div>
+
+        <table class="w-full mb-4">
+            <thead class="border-b border-black">
+                <tr class="text-left">
+                    <th class="py-1">Art.</th>
+                    <th class="py-1 text-right">Qté</th>
+                    <th class="py-1 text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of vente?.items" class="border-b border-gray-100 last:border-0">
+                    <td class="py-1 line-clamp-1">{{ getProduct(item)?.name }}</td>
+                    <td class="py-1 text-right">x{{ item.quantity }}</td>
+                    <td class="py-1 text-right">{{ item.totalPrice | number }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="border-t-2 border-dashed border-black pt-4">
+            <div class="flex justify-between font-bold text-lg">
+                <span>TOTAL</span>
+                <span>{{ vente?.totalAmount | number }} Ar</span>
+            </div>
+            <p class="text-[10px] mt-4 text-center">Merci de votre visite ! À bientôt.</p>
+        </div>
+    </div>
 </div>
+
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+        #receipt,
+        #receipt * {
+            visibility: visible;
+        }
+
+        #receipt {
+            display: block !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+        }
+    }
+</style>

@@ -60,11 +60,42 @@ export class VenteDetailComponent implements OnInit {
         return this.vente?.seller as any;
     }
 
+    getBoutique(): any {
+        return this.vente?.boutique as any;
+    }
+
+    payVente(): void {
+        if (!this.vente?._id) return;
+        this.venteService.updateStatus(this.vente._id, 'paid').subscribe({
+            next: (res) => {
+                if (res.success) {
+                    this.vente!.status = 'paid';
+                }
+            }
+        });
+    }
+
+    cancelVente(): void {
+        if (!this.vente?._id) return;
+        if (confirm('Êtes-vous sûr de vouloir annuler cette vente ?')) {
+            this.venteService.updateStatus(this.vente._id, 'canceled').subscribe({
+                next: (res) => {
+                    if (res.success) {
+                        this.vente!.status = 'canceled';
+                    }
+                }
+            });
+        }
+    }
+
     getInvoice(): void {
         if (!this.vente?._id) return;
         this.venteService.getInvoice(this.vente._id).subscribe({
             next: (res) => {
-                alert('Facture générée ! (Simulation)');
+                // Wait for data to be sure and then print
+                setTimeout(() => {
+                    window.print();
+                }, 300);
             }
         });
     }
