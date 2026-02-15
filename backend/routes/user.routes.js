@@ -130,6 +130,10 @@ router.get(
     '/',
     protect,
     authorize('admin', 'boutique'),
+    (req, res, next) => {
+        req.query.role = 'user';
+        next();
+    },
     advancedResults(User, 'profile'),
     userController.getAllUsers
 );

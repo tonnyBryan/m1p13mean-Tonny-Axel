@@ -229,14 +229,15 @@ exports.deleteAddress = async (req, res) => {
 
 /**
  * GET /api/users/profile/:id
- * Récupérer le profil d'un utilisateur par ID de profil (Admin)
+ * Récupérer le profil d'un utilisateur par ID de l'utilisateur (Admin)
  */
 exports.getUserProfileById = async (req, res) => {
     try {
-        let profile = await UserProfile.findById(req.params.id).populate('user', 'name email role isActive');
+        // The ID in params is the User ID, not the Profile ID
+        let profile = await UserProfile.findOne({ user: req.params.id }).populate('user', 'name email role isActive');
 
         if (!profile) {
-            // Check if ID is a user ID instead
+            // Check if the user exists at all
             const user = await User.findById(req.params.id).select('name email role isActive');
             if (user) {
                 return successResponse(res, 200, 'User found (no profile skeleton)', {
