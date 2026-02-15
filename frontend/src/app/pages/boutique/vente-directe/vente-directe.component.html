@@ -301,44 +301,22 @@
                 </div>
 
                 <!-- Action Button Groups -->
-                <div class="grid grid-cols-1 gap-3" *ngIf="vente.status === 'draft'">
-                    <app-button [loading]="isSaving" (click)="saveVente()" className="w-full">
-                        Enregistrer Brouillon
-                    </app-button>
-
-                    <button (click)="payVente()" [disabled]="(vente.items.length || 0) === 0"
+                <div class="grid grid-cols-1 gap-3">
+                    <button (click)="createSale()" [disabled]="(vente.items.length || 0) === 0"
                         class="w-full flex items-center justify-center gap-2 rounded-xl bg-brand-500 py-4 text-base font-bold text-white shadow-lg shadow-brand-500/30 hover:bg-brand-600 active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2.5">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
-                        PROCÉDER AU PAIEMENT
+                        CRÉER LA VENTE
                     </button>
 
-                    <div class="grid grid-cols-2 gap-3 mt-2">
+                    <div class="grid grid-cols-2 gap-3 mt-2" *ngIf="vente.status === 'draft' && vente._id">
                         <app-button variant="outline" (click)="resetForm()">Nouveau</app-button>
                         <app-button variant="outline" (click)="cancelVente()"
                             className="text-red-500 ring-red-200 hover:bg-red-50">Annuler</app-button>
                     </div>
-                </div>
-
-                <!-- Post-Payment Actions -->
-                <div class="space-y-3" *ngIf="vente.status === 'paid'">
-                    <button (click)="getInvoice()"
-                        class="w-full flex items-center justify-center gap-2 rounded-xl bg-gray-900 py-4 font-bold text-white dark:bg-white dark:text-gray-900 hover:opacity-90 transition-all">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg>
-                        Imprimer la facture
-                    </button>
-                    <button (click)="resetForm()"
-                        class="w-full rounded-xl border-2 border-brand-500 py-3 font-bold text-brand-500 hover:bg-brand-50 transition-all">
-                        Nouvelle Vente
-                    </button>
                 </div>
 
                 <!-- Canceled state -->

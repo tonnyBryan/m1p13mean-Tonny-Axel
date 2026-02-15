@@ -309,13 +309,57 @@ export class VenteDirecteComponent implements OnInit {
         }
     }
 
-    getInvoice(): void {
-        if (!this.vente._id) return;
-        this.venteService.getInvoice(this.vente._id).subscribe({
-            next: (res) => {
-                alert('Facture générée ! (Simulation)');
-            }
+    createSale(): void {
+        if (!this.vente.client?.name) {
+            this.errorMessage = 'Le nom du client est requis';
+            return;
+        }
+        if (!this.vente.items || this.vente.items.length === 0) {
+            this.errorMessage = 'Ajoutez au moins un produit';
+            return;
+        }
+
+        this.isSaving = true;
+        this.errorMessage = '';
+
+        // Prepare payload (removing helper properties)
+        const payload = { ...this.vente };
+        payload.items = payload.items?.map(item => {
+            const { productDetails, ...rest } = item;
+            return rest;
         });
+
+        const successCallback = (res: any) => {
+            this.isSaving = false;
+            if (res.success) {
+                // Redirect to detail page
+                this.router.navigate(['/store/app/vente-detail', res.data._id]);
+            }
+        };
+
+        const errorCallback = (err: any) => {
+            this.isSaving = false;
+            this.errorMessage = err.error?.message || 'Erreur lors de l’enregistrement';
+        };
+
+        if (this.isEditMode && this.vente._id) {
+            this.venteService.updateVente(this.vente._id, payload).subscribe({
+                next: successCallback,
+                error: errorCallback
+            });
+        } else {
+            // Pass boutiqueId and sellerId explicitly
+            const finalPayload = {
+                ...payload,
+                boutiqueId: this.vente.boutique,
+                sellerId: this.vente.seller
+            };
+
+            this.venteService.createVente(finalPayload).subscribe({
+                next: successCallback,
+                error: errorCallback
+            });
+        }
     }
 
     resetForm(): void {

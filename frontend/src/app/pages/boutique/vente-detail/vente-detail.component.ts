@@ -89,13 +89,21 @@ export class VenteDetailComponent implements OnInit {
     }
 
     getInvoice(): void {
-        if (!this.vente?._id) return;
-        this.venteService.getInvoice(this.vente._id).subscribe({
-            next: (res) => {
-                // Wait for data to be sure and then print
-                setTimeout(() => {
-                    window.print();
-                }, 300);
+        const venteId = this.vente?._id;
+        if (!venteId) return;
+
+        this.venteService.getInvoice(venteId).subscribe({
+            next: (blob: Blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `facture-${venteId}.pdf`;
+                link.click();
+                window.URL.revokeObjectURL(url);
+            },
+            error: (err) => {
+                console.error('Erreur téléchargement facture', err);
+                alert('Impossible de télécharger la facture');
             }
         });
     }
