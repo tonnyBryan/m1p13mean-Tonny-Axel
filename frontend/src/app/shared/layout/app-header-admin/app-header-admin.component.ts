@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import {Component, ElementRef, ViewChild, OnInit, OnDestroy} from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -7,7 +7,8 @@ import { NotificationDropdownComponent } from '../../components/header/notificat
 import {AdminDropdownComponent} from "../../components/header/admin-dropdown/admin-dropdown.component";
 import {User} from "../../../core/models/user.model";
 import {UserService} from "../../services/user.service";
-import {ToastService} from "../../services/toast.service";
+import {distinctUntilChanged, Subject, takeUntil} from "rxjs";
+import {SessionService} from "../../services/session.service";
 
 @Component({
     selector: 'app-header-admin',
@@ -20,42 +21,32 @@ import {ToastService} from "../../services/toast.service";
     ],
     templateUrl: './app-header-admin.component.html',
 })
-export class AppHeaderAdminComponent implements OnInit {
+export class AppHeaderAdminComponent implements OnInit, OnDestroy {
+    private destroy$ = new Subject<void>();
+
     isApplicationMenuOpen = false;
     readonly isMobileOpen$;
 
     user: User | null = null;
 
-
     @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
     constructor(
-        public sidebarService: SidebarService, private userService: UserService, private toast: ToastService
+        public sidebarService: SidebarService, private userService: UserService, private session: SessionService
     ) {
         this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
     }
 
     ngOnInit() {
-        this.loadUser();
-    }
+        console.log("adminn");
+        this.userService.loadUser();
 
-    loadUser() {
-        this.userService.getUser(null).subscribe({
-            next: (res) => {
-                console.log(res);
-                if (res.success) {
-                    this.user = res.data;
-                }
-            },
-            error: (err) => {
-                console.error('Error fetching user', err);
-
-                if (err.error && err.error.message) {
-                    this.toast.error('Error', err.error.message, 0);
-                } else {
-                    this.toast.error('Error', 'An error occurred while header user', 0);
-                }
-            }
+        this.session.user$
+        .pipe(
+            distinctUntilChanged((a, b) => a?._id === b?._id)
+        )
+        .subscribe(user => {
+            this.user = user;
         });
     }
 
@@ -76,7 +67,9 @@ export class AppHeaderAdminComponent implements OnInit {
     }
 
     ngOnDestroy() {
-        document.removeEventListener('keydown', this.handleKeyDown);
+        this.destroy$.next();
+        this.destroy$.complete();
+        // document.removeEventListener('keydown', this.handleKeyDown);
     }
 
     handleKeyDown = (event: KeyboardEvent) => {

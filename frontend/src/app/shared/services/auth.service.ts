@@ -4,6 +4,7 @@ import {BehaviorSubject, Observable, tap} from "rxjs";
 import {HttpHeaders} from "@angular/common/http";
 import {jwtDecode} from 'jwt-decode';
 import {JwtPayload} from "../../core/models/jwtPayload.model";
+import {SessionService} from "./session.service";
 
 
 @Injectable({
@@ -11,7 +12,7 @@ import {JwtPayload} from "../../core/models/jwtPayload.model";
 })
 export class AuthService {
 
-    constructor(private api: ApiService) {
+    constructor(private api: ApiService, private session : SessionService) {
         this.loadUserFromToken();
     }
 
@@ -52,6 +53,7 @@ export class AuthService {
     }
 
     logout(): void {
+        this.session.clear();
         localStorage.removeItem('token');
         localStorage.removeItem('user');
     }

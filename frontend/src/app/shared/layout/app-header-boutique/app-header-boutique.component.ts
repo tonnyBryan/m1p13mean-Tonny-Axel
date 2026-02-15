@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -7,7 +7,8 @@ import { NotificationDropdownComponent } from '../../components/header/notificat
 import {BoutiqueDropdownComponent} from "../../components/header/boutique-dropdown/boutique-dropdown.component";
 import {User} from "../../../core/models/user.model";
 import {UserService} from "../../services/user.service";
-import {ToastService} from "../../services/toast.service";
+import {distinctUntilChanged, Subject, takeUntil} from "rxjs";
+import {SessionService} from "../../services/session.service";
 
 @Component({
   selector: 'app-header-boutique',
@@ -20,7 +21,9 @@ import {ToastService} from "../../services/toast.service";
   ],
   templateUrl: './app-header-boutique.component.html',
 })
-export class AppHeaderBoutiqueComponent implements OnInit{
+export class AppHeaderBoutiqueComponent implements OnInit, OnDestroy{
+  private destroy$ = new Subject<void>();
+
   isApplicationMenuOpen = false;
   readonly isMobileOpen$;
 
@@ -28,12 +31,21 @@ export class AppHeaderBoutiqueComponent implements OnInit{
 
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
-  constructor(public sidebarService: SidebarService, private userService: UserService, private toast: ToastService) {
+  constructor(public sidebarService: SidebarService, private userService: UserService, private session : SessionService) {
     this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
   }
 
   ngOnInit(): void {
-    this.loadUser();
+    console.log("boutiqueee");
+    this.userService.loadUser();
+
+    this.session.user$
+    .pipe(
+        distinctUntilChanged((a, b) => a?._id === b?._id)
+    )
+    .subscribe(user => {
+      this.user = user;
+    });
   }
 
   handleToggle() {
@@ -42,26 +54,6 @@ export class AppHeaderBoutiqueComponent implements OnInit{
     } else {
       this.sidebarService.toggleMobileOpen();
     }
-  }
-
-  loadUser() {
-    this.userService.getUser(null).subscribe({
-      next: (res) => {
-        console.log(res);
-        if (res.success) {
-          this.user = res.data;
-        }
-      },
-      error: (err) => {
-        console.error('Error fetching user', err);
-
-        if (err.error && err.error.message) {
-          this.toast.error('Error', err.error.message, 0);
-        } else {
-          this.toast.error('Error', 'An error occurred while header user', 0);
-        }
-      }
-    });
   }
 
   toggleApplicationMenu() {
@@ -73,7 +65,9 @@ export class AppHeaderBoutiqueComponent implements OnInit{
   }
 
   ngOnDestroy() {
-    document.removeEventListener('keydown', this.handleKeyDown);
+    this.destroy$.next();
+    this.destroy$.complete();
+    // document.removeEventListener('keydown', this.handleKeyDown);
   }
 
   handleKeyDown = (event: KeyboardEvent) => {

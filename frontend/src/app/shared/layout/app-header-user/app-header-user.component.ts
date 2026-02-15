@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, OnInit, HostListener } from '@angular/core';
+import {Component, ElementRef, ViewChild, OnInit, HostListener, OnDestroy} from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -13,8 +13,9 @@ import { UserProfileService } from "../../services/user-profile.service";
 import { SearchService } from "../../services/search.service";
 import { ResultSearch } from "../../../core/models/search.model";
 import { Router } from '@angular/router';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import {debounceTime, distinctUntilChanged, Subject, takeUntil} from 'rxjs';
 import {User} from "../../../core/models/user.model";
+import {SessionService} from "../../services/session.service";
 
 @Component({
     selector: 'app-header-user',
@@ -28,7 +29,9 @@ import {User} from "../../../core/models/user.model";
     ],
     templateUrl: './app-header-user.component.html',
 })
-export class AppHeaderUserComponent implements OnInit {
+export class AppHeaderUserComponent implements OnInit, OnDestroy {
+    private destroy$ = new Subject<void>();
+
     isApplicationMenuOpen = false;
     readonly isMobileOpen$;
 
@@ -53,7 +56,8 @@ export class AppHeaderUserComponent implements OnInit {
         private toast: ToastService,
         private profileService: UserProfileService,
         private searchService: SearchService,
-        private router: Router
+        private router: Router,
+        private session : SessionService
     ) {
         this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
     }
@@ -65,8 +69,33 @@ export class AppHeaderUserComponent implements OnInit {
             }
         });
 
+        this.userService.loadUser();
+
+        this.session.user$
+        .pipe(
+            distinctUntilChanged((a, b) => a?._id === b?._id)
+        )
+        .subscribe(user => {
+            this.user = user;
+
+            if (user && user.role === 'user' && !user.isEmailVerified) {
+                this.toast.show(
+                    'warning',
+                    'Email Not Verified',
+                    'Please verify your email to access all features.',
+                    0,
+                    'top-right',
+                    {
+                        label: 'Verify Now',
+                        onClick: () => this.router.navigate(['/v1/verify-email'])
+                    }
+                );
+            } else {
+                // this.toast.clear();
+            }
+        });
+
         this.loadMyProfile();
-        this.loadUser();
 
         this.searchSubject.pipe(
             debounceTime(300),
@@ -101,49 +130,6 @@ export class AppHeaderUserComponent implements OnInit {
         });
     }
 
-    loadUser() {
-        this.userService.getUser(null).subscribe({
-            next: (res) => {
-                console.log(res);
-                if (res.success) {
-                    this.user = res.data;
-                    if (this.user?.isEmailVerified) {
-                        this.profileService.setIsEmailVerified(this.user?.isEmailVerified)
-                    } else {
-                        this.profileService.setIsEmailVerified(false);
-                    }
-
-                    if (!this.profileService.isEmailVerified) {
-                        this.toast.show(
-                            'warning',
-                            'Email Not Verified',
-                            'Please verify your email to access all features.',
-                            0,
-                            'top-right',
-                            {
-                                label: 'Verify Now',
-                                onClick: () => {
-                                    this.router.navigate(['/v1/verify-email']);
-                                }
-                            }
-                        );
-                    }
-
-                    console.log("mail header = " + this.profileService.isEmailVerified)
-                }
-            },
-            error: (err) => {
-                console.error('Error fetching user', err);
-
-                if (err.error && err.error.message) {
-                    this.toast.error('Error', err.error.message, 0);
-                } else {
-                    this.toast.error('Error', 'An error occurred while header user', 0);
-                }
-            }
-        });
-    }
-
     handleToggle() {
         if (window.innerWidth >= 1280) {
             this.sidebarService.toggleExpanded();
@@ -160,10 +146,16 @@ export class AppHeaderUserComponent implements OnInit {
         document.addEventListener('keydown', this.handleKeyDown);
     }
 
-    ngOnDestroy() {
-        document.removeEventListener('keydown', this.handleKeyDown);
-        this.searchSubject.complete();
+    // ngOnDestroy() {
+    //     document.removeEventListener('keydown', this.handleKeyDown);
+    //     this.searchSubject.complete();
+    // }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
+
 
     handleKeyDown = (event: KeyboardEvent) => {
         if ((event.metaKey || event.ctrlKey) && event.key === 'k') {

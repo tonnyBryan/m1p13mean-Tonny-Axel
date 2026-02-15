@@ -12,10 +12,6 @@ export class UserProfileService {
     private hasProfileSubject = new BehaviorSubject<boolean | null>(null);
     hasProfile$ = this.hasProfileSubject.asObservable();
 
-    private isEmailVerifiedSubject = new BehaviorSubject<boolean | null>(null);
-    isEmailVerified$ = this.isEmailVerifiedSubject.asObservable();
-
-
     constructor(
         private api: ApiService,
         private auth: AuthService
@@ -27,18 +23,6 @@ export class UserProfileService {
 
     getHasProfile(): boolean | null {
         return this.hasProfileSubject.value;
-    }
-
-    get isEmailVerified(): boolean | null {
-        return this.isEmailVerifiedSubject.value;
-    }
-
-    setIsEmailVerified(value: boolean) {
-        this.isEmailVerifiedSubject.next(value);
-    }
-
-    reset() {
-        this.isEmailVerifiedSubject.next(null);
     }
 
     getUserProfiles(params: any = {}): Observable<any> {

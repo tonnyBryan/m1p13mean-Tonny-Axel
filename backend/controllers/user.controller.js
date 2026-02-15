@@ -14,6 +14,23 @@ exports.getAllUsers = async (req, res, next) => {
 };
 
 
+exports.getMyParentProfile = async (req, res) => {
+    try {
+        const userId = req.user._id || req.user.id;
+        const profile = await User.findOne({ _id: userId });
+
+        if (!profile) {
+            return successResponse(res, 200, 'Profile not found', null);
+        }
+
+        return successResponse(res, 200, null, profile);
+    } catch (error) {
+        console.error(error);
+        return errorResponse(res, 400, 'Error fetching profile');
+    }
+};
+
+
 /**
  * GET /api/users/me/profile
  * Récupérer le profil de l'utilisateur connecté

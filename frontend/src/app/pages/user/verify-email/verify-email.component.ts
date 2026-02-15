@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ToastService } from "../../../shared/services/toast.service";
-import { UserProfileService } from "../../../shared/services/user-profile.service";
 import { EmailService } from "../../../shared/services/email.service";
 import {SkeletonVerifyEmailComponent} from "./skeleton-verify-email/skeleton-verify-email.component";
 import {UserService} from "../../../shared/services/user.service";
 import {User} from "../../../core/models/user.model";
+import {SessionService} from "../../../shared/services/session.service";
 
 type VerificationStep = 'email-input' | 'code-input' | 'verified' | 'blocked';
 
@@ -46,11 +46,11 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
   user: User | null = null;
 
   constructor(
-      private profileService: UserProfileService,
       private toast: ToastService,
       private router: Router,
       private emailService: EmailService,
-      private userService: UserService
+      private userService: UserService,
+      private session : SessionService
   ) {}
 
   ngOnInit(): void {
@@ -61,7 +61,6 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
     if (this.resendInterval) clearInterval(this.resendInterval);
     if (this.blockInterval) clearInterval(this.blockInterval);
   }
-
 
   loadUserAndCheckVerification(): void {
     this.isInitialLoading = true;
@@ -75,7 +74,6 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
           if (user.isEmailVerified) {
             this.currentStep = 'verified';
             this.isInitialLoading = false;
-            this.profileService.setIsEmailVerified(true);
           } else {
             this.checkActiveVerification();
           }
@@ -187,8 +185,15 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         this.isVerifying = false;
         if (res?.success) {
+          const updatedUser = {
+            ...this.session.currentUser,
+            email: this.email,
+            isEmailVerified: true
+          };
+
+          this.session.setUser(updatedUser);
+
           this.currentStep = 'verified';
-          this.profileService.setIsEmailVerified(true);
           this.toast.success(
               'Email Verified! 🎉',
               'Your email has been successfully verified',

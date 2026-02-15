@@ -138,6 +138,14 @@ router.get(
     userController.getAllUsers
 );
 
+// Route to get current user's profile
+router.get(
+    '/me',
+    protect,
+    authorize('user', 'admin', 'boutique'),
+    userController.getMyParentProfile
+);
+
 /**
  * @swagger
  * /api/users/profile/{id}:
@@ -262,6 +270,7 @@ router.patch(
     authorize('admin'),
     userController.toggleUserStatus
 );
+
 
 // Route to get current user's profile
 router.get(
