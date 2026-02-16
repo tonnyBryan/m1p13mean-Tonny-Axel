@@ -38,6 +38,12 @@ export class AppSidebarComponent implements OnInit {
       roles: [environment.userRole],
       path: "/v1/stores",
     },
+    {
+      icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H15C15.5523 3 16 3.44772 16 4V5H18C18.5523 5 19 5.44772 19 6V20C19 20.5523 18.5523 21 18 21H6C5.44772 21 5 20.5523 5 20V6C5 5.44772 5.44772 5 6 5H8V4C8 3.44772 8.44772 3 9 3Z" stroke="currentColor" stroke-width="1.8"/><path d="M9 10H15M9 14H15M9 18H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+      name: "Orders",
+      roles: [environment.userRole],
+      path: "/v1/orders",
+    },
     //...
 
     // ADMIN MENU

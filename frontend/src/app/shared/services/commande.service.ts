@@ -2,13 +2,15 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
+import { AuthService } from './auth.service';
+import { HttpHeaders } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class CommandeService {
     cartCountSubject = new BehaviorSubject<number>(0);
     public cartCount$ = this.cartCountSubject.asObservable();
 
-    constructor(private api: ApiService) {}
+    constructor(private api: ApiService, private auth: AuthService) {}
 
     private computeCountFromCommande(cmd: any): number {
         if (!cmd || !cmd.products || !Array.isArray(cmd.products)) return 0;
@@ -98,5 +100,30 @@ export class CommandeService {
                 }
             })
         );
+    }
+
+    /**
+     * List orders (supports pagination and filters via query params)
+     * For user: returns only the user's orders (backend handles it)
+     */
+    getOrders(params: any = {}): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+        const queryString = Object.keys(params)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+            .join('&');
+
+        const url = queryString ? `commandes?${queryString}` : 'commandes';
+        return this.api.get<any>(url, headers);
+    }
+
+    /**
+     * Get a single order by id
+     */
+    getOrderById(orderId: string): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+        return this.api.get<any>(`commandes/${orderId}`, headers);
     }
 }

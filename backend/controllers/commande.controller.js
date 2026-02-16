@@ -419,10 +419,18 @@ exports.getCommandById = async (req, res) => {
 
 
 // GET /api/commandes
-exports.getAllCommands = async (req, res, next) => {
+exports.getAllCommands = async (req, res) => {
     try {
-        // res.advancedResults must have been set by advancedResults middleware
-        return successResponse(res, 200, null, res.advancedResults);
+        const advanced = res.advancedResults || null;
+        if (req.user && req.user.role === 'user' && advanced && Array.isArray(advanced.items) && advanced.items.length) {
+            try {
+                advanced.items = await Commande.populate(advanced.items, { path: 'boutique', select: '_id name logo' });
+            } catch (popErr) {
+                console.error('Failed to populate boutique for commandes list (boutique role):', popErr);
+            }
+        }
+
+        return successResponse(res, 200, null, advanced);
     } catch (err) {
         console.error('getAllCommands error:', err);
         return errorResponse(res, 500, 'Server error');

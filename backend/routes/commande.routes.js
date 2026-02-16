@@ -6,6 +6,18 @@ const advancedResults = require('../middlewares/advancedResults');
 const Commande = require('../models/Commande');
 const injectBoutiqueFilter = require('../middlewares/boutiqueFilter.middleware');
 
+// small middleware to inject user filter for users so they only see their orders
+const injectUserFilter = (req, res, next) => {
+    try {
+        if (req.user && req.user.role === 'user') {
+            req.query.user = req.user._id.toString();
+        }
+    } catch (e) {
+        // ignore
+    }
+    next();
+};
+
 // Add product to cart (draft)
 router.post('/add', protect, authorize('user'), commandeController.addToCart);
 
@@ -18,8 +30,8 @@ router.get('/draft/full', protect, authorize('user', 'boutique'), commandeContro
 // Get a commande by id (boutique OR user)
 router.get('/:id', protect, authorize('user', 'boutique'), commandeController.getCommandById);
 
-// Get all commandes (boutique only) - inject boutique filter then advancedResults
-router.get('/', protect, authorize('boutique'), injectBoutiqueFilter, advancedResults(Commande), commandeController.getAllCommands);
+// Get all commandes (boutique OR user) - inject boutique filter then inject user filter then advancedResults
+router.get('/', protect, authorize('user', 'boutique'), injectBoutiqueFilter, injectUserFilter, advancedResults(Commande), commandeController.getAllCommands);
 
 // Update quantity for a product in draft (increment/decrement/set)
 router.patch('/products/:productId/quantity', protect, authorize('user'), commandeController.updateItemQuantity);
