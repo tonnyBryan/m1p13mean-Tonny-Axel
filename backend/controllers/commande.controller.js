@@ -22,10 +22,11 @@ exports.addToCart = async (req, res) => {
 
         const qty = Number.isFinite(Number(quantity)) && Number(quantity) > 0 ? Number(quantity) : 1;
 
-        const product = await Product.findById(productId).lean();
+        // Find product with virtual stockReal
+        const product = await Product.findById(productId);
         if (!product) return errorResponse(res, 404, 'Product not found');
 
-        // Validate against product min/max order quantities
+        // Validate min/max order quantities
         const minOrder = product.minOrderQty || 1;
         const maxOrder = product.maxOrderQty || Number.MAX_SAFE_INTEGER;
 
@@ -37,16 +38,21 @@ exports.addToCart = async (req, res) => {
             return errorResponse(res, 400, `Maximum order quantity is ${maxOrder}`);
         }
 
-        // find existing draft
+        // Check stockReal
+        if (qty > product.stockReal) {
+            return errorResponse(res, 400, `Stock insufficient. Available: ${product.stockReal}`);
+        }
+
+        // Find existing draft
         let commande = await findOpenDraft(userId);
 
         if (commande) {
-            // verify boutique match
+            // Verify boutique match
             if (String(commande.boutique) !== String(product.boutique)) {
                 return errorResponse(res, 403, 'Product belongs to another boutique');
             }
         } else {
-            // create new draft
+            // Create new draft
             commande = new Commande({ user: userId, boutique: product.boutique, products: [], status: 'draft' });
         }
 
@@ -55,46 +61,53 @@ exports.addToCart = async (req, res) => {
 
         const unitPrice = product.isSale && product.salePrice ? product.salePrice : product.regularPrice;
 
+        let quantityToAdd = qty; // La quantité réellement ajoutée au panier
+
         if (existingIndex >= 0) {
+            const existingProduct = commande.products[existingIndex];
+            const newQty = existingProduct.quantity + qty;
+
             // Ensure total quantity after addition does not exceed maxOrder
-            const newQty = commande.products[existingIndex].quantity + qty;
             if (newQty > maxOrder) {
                 return errorResponse(res, 400, `Adding this quantity would exceed maximum allowed for this product (${maxOrder})`);
             }
 
-            // update quantity
-            commande.products[existingIndex].quantity = newQty;
-            commande.products[existingIndex].unitPrice = unitPrice; // keep latest unitPrice
-            commande.products[existingIndex].totalPrice = commande.products[existingIndex].quantity * unitPrice;
+            // Update quantity in commande
+            existingProduct.quantity = newQty;
+            existingProduct.unitPrice = unitPrice;
+            existingProduct.totalPrice = newQty * unitPrice;
+
         } else {
-            // New product line: qty already validated above against max
-            const prod = {
+            // New product line
+            commande.products.push({
                 product: product._id,
                 quantity: qty,
-                unitPrice: unitPrice,
+                unitPrice,
                 totalPrice: qty * unitPrice,
                 isSale: !!product.isSale
-            };
-            commande.products.push(prod);
+            });
         }
+
+        // Update stockEngaged uniquement de la quantité ajoutée
+        product.stockEngaged += quantityToAdd;
+        await product.save();
 
         // Recompute totalAmount
         commande.totalAmount = commande.products.reduce((s, it) => s + (it.totalPrice || 0), 0);
 
-        // set expiredAt if not set
+        // Set expiredAt if not set
         if (!commande.expiredAt) commande.expiredAt = new Date(Date.now() + 60*60*1000);
-        // if (!commande.expiredAt) {
-        //     commande.expiredAt = new Date(Date.now() + 60 * 1000);
-        // }
 
         await commande.save();
 
         return successResponse(res, 200, null, commande);
 
     } catch (err) {
+        console.error(err);
         return errorResponse(res, 500, 'Server error');
     }
 };
+
 
 // GET /api/commandes/draft
 exports.getDraft = async (req, res) => {
@@ -151,42 +164,79 @@ exports.updateItemQuantity = async (req, res) => {
         if (!userId) return errorResponse(res, 401, 'Unauthorized');
 
         const productId = req.params.productId;
-        const { quantity } = req.body; // expected absolute quantity to set
+        const { quantity } = req.body; // quantité absolue
         if (!productId) return errorResponse(res, 400, 'productId required');
 
-        const qty = Number.isFinite(Number(quantity)) ? Number(quantity) : null;
-        if (qty === null) return errorResponse(res, 400, 'quantity is required and must be a number');
+        const newQty = Number.isFinite(Number(quantity)) ? Number(quantity) : null;
+        if (newQty === null) {
+            return errorResponse(res, 400, 'quantity is required and must be a number');
+        }
 
-        const product = await Product.findById(productId).lean();
+        const product = await Product.findById(productId);
         if (!product) return errorResponse(res, 404, 'Product not found');
 
         const minOrder = product.minOrderQty || 1;
         const maxOrder = product.maxOrderQty || Number.MAX_SAFE_INTEGER;
 
-        if (qty < minOrder) return errorResponse(res, 400, `Minimum order quantity is ${minOrder}`);
-        if (qty > maxOrder) return errorResponse(res, 400, `Maximum order quantity is ${maxOrder}`);
-
-        // find open draft
-        let commande = await findOpenDraft(userId);
-        if (!commande) return errorResponse(res, 404, 'No open draft found');
-
-        const itemIndex = commande.products.findIndex(p => String(p.product) === String(productId));
-        if (itemIndex === -1) return errorResponse(res, 404, 'Product not in cart');
-
-        // update
-        const unitPrice = product.isSale && product.salePrice ? product.salePrice : product.regularPrice;
-        commande.products[itemIndex].quantity = qty;
-        commande.products[itemIndex].unitPrice = unitPrice;
-        commande.products[itemIndex].totalPrice = qty * unitPrice;
-        commande.products[itemIndex].isSale = !!product.isSale;
-
-        // remove item if qty == 0
-        if (qty === 0) {
-            commande.products.splice(itemIndex, 1);
+        if (newQty < 0) {
+            return errorResponse(res, 400, 'Quantity cannot be negative');
+        }
+        if (newQty > 0 && newQty < minOrder) {
+            return errorResponse(res, 400, `Minimum order quantity is ${minOrder}`);
+        }
+        if (newQty > maxOrder) {
+            return errorResponse(res, 400, `Maximum order quantity is ${maxOrder}`);
         }
 
+        // find open draft
+        const commande = await findOpenDraft(userId);
+        if (!commande) return errorResponse(res, 404, 'No open draft found');
+
+        const itemIndex = commande.products.findIndex(
+            p => String(p.product) === String(productId)
+        );
+        if (itemIndex === -1) {
+            return errorResponse(res, 404, 'Product not in cart');
+        }
+
+        const item = commande.products[itemIndex];
+        const oldQty = item.quantity;
+
+        const delta = newQty - oldQty;
+
+        // si on augmente → vérifier le stock réel
+        if (delta > 0 && delta > product.stockReal) {
+            return errorResponse(
+                res,
+                400,
+                `Stock insufficient. Available: ${product.stockReal}`
+            );
+        }
+
+        const unitPrice = product.isSale && product.salePrice
+            ? product.salePrice
+            : product.regularPrice;
+
+        // mise à jour panier
+        if (newQty === 0) {
+            commande.products.splice(itemIndex, 1);
+        } else {
+            item.quantity = newQty;
+            item.unitPrice = unitPrice;
+            item.totalPrice = newQty * unitPrice;
+            item.isSale = !!product.isSale;
+        }
+
+        // mise à jour stockEngaged (delta positif ou négatif)
+        product.stockEngaged += delta;
+        if (product.stockEngaged < 0) product.stockEngaged = 0; // sécurité
+        await product.save();
+
         // recompute total
-        commande.totalAmount = commande.products.reduce((s, it) => s + (it.totalPrice || 0), 0);
+        commande.totalAmount = commande.products.reduce(
+            (s, it) => s + (it.totalPrice || 0),
+            0
+        );
 
         await commande.save();
 
@@ -197,6 +247,7 @@ exports.updateItemQuantity = async (req, res) => {
         return errorResponse(res, 500, 'Server error');
     }
 };
+
 
 // DELETE /api/commandes/products/:productId
 exports.removeItemFromCart = async (req, res) => {
@@ -210,30 +261,50 @@ exports.removeItemFromCart = async (req, res) => {
         let commande = await findOpenDraft(userId);
         if (!commande) return errorResponse(res, 404, 'No open draft found');
 
-        const itemIndex = commande.products.findIndex(p => String(p.product) === String(productId));
-        if (itemIndex === -1) return errorResponse(res, 404, 'Product not in cart');
+        const itemIndex = commande.products.findIndex(
+            p => String(p.product) === String(productId)
+        );
+        if (itemIndex === -1) {
+            return errorResponse(res, 404, 'Product not in cart');
+        }
 
-        // remove the item
+        // 🔹 récupérer la quantité engagée
+        const removedItem = commande.products[itemIndex];
+        const qtyToRelease = removedItem.quantity;
+
+        // 🔹 libérer le stock engagé
+        const product = await Product.findById(productId);
+        if (product) {
+            product.stockEngaged -= qtyToRelease;
+            if (product.stockEngaged < 0) product.stockEngaged = 0;
+            await product.save();
+        }
+
+        // 🔹 supprimer l’item du panier
         commande.products.splice(itemIndex, 1);
 
-        // If no products left, remove the commande document entirely
-        if (!commande.products || commande.products.length === 0) {
-            // remove the commande from DB
+        // 🔹 si plus aucun produit → supprimer la commande
+        if (!commande.products.length) {
             await Commande.deleteOne({ _id: commande._id });
             return successResponse(res, 200, null, null);
         }
 
-        // otherwise recompute total and save
-        commande.totalAmount = commande.products.reduce((s, it) => s + (it.totalPrice || 0), 0);
+        // 🔹 recalcul du total
+        commande.totalAmount = commande.products.reduce(
+            (s, it) => s + (it.totalPrice || 0),
+            0
+        );
 
         await commande.save();
 
         return successResponse(res, 200, null, commande);
+
     } catch (err) {
         console.error('removeItemFromCart error:', err);
         return errorResponse(res, 500, 'Server error');
     }
 };
+
 
 // POST /api/commandes/pay
 exports.payCommand = async (req, res) => {
