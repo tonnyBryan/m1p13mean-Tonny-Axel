@@ -3,6 +3,7 @@ const Product = require('../models/Product');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 const LivraisonConfig = require('../models/LivraisonConfig');
 const UserProfile = require('../models/UserProfile');
+const Boutique = require('../models/Boutique');
 
 async function findOpenDraft(userId) {
     // Find non-expired draft
@@ -363,3 +364,68 @@ exports.payCommand = async (req, res) => {
         return errorResponse(res, 500, 'Server error');
     }
 };
+
+
+// GET /api/commandes/:id
+exports.getCommandById = async (req, res) => {
+    try {
+        const user = req.user;
+        if (!user) return errorResponse(res, 401, 'Unauthorized');
+
+        const id = req.params.id;
+        if (!id) return errorResponse(res, 400, 'id required');
+
+        // If boutique -> ensure boutique owns the commande
+        if (user.role === 'boutique') {
+            const boutique = await Boutique.findOne({ owner: user._id }).select('_id');
+            if (!boutique) return errorResponse(res, 403, 'Store not found for this user');
+
+            const commande = await Commande.findOne({ _id: id, boutique: boutique._id })
+                .populate('boutique')
+                .populate({ path: 'products.product', model: 'Product' })
+                .exec();
+
+            if (!commande) return errorResponse(res, 404, 'Commande not found in your store');
+
+            return successResponse(res, 200, null, commande);
+        }
+
+        // If user -> ensure the commande belongs to the user
+        if (user.role === 'user') {
+            const commande = await Commande.findOne({ _id: id, user: user._id })
+                .populate('boutique')
+                .populate({ path: 'products.product', model: 'Product' })
+                .exec();
+
+            if (!commande) return errorResponse(res, 404, 'Commande not found for this user');
+
+            return successResponse(res, 200, null, commande);
+        }
+
+        // Fallback: try to find by id (for other roles if route allows)
+        const commande = await Commande.findById(id)
+            .populate('boutique')
+            .populate({ path: 'products.product', model: 'Product' })
+            .exec();
+
+        if (!commande) return errorResponse(res, 404, 'Commande not found');
+
+        return successResponse(res, 200, null, commande);
+    } catch (err) {
+        console.error('getCommandById error:', err);
+        return errorResponse(res, 400, 'Invalid ID');
+    }
+};
+
+
+// GET /api/commandes
+exports.getAllCommands = async (req, res, next) => {
+    try {
+        // res.advancedResults must have been set by advancedResults middleware
+        return successResponse(res, 200, null, res.advancedResults);
+    } catch (err) {
+        console.error('getAllCommands error:', err);
+        return errorResponse(res, 500, 'Server error');
+    }
+};
+

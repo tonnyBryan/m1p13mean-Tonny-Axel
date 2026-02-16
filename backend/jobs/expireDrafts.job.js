@@ -16,7 +16,7 @@ async function expireDrafts() {
             return;
         }
 
-        // 2️⃣ pour chaque commande expirée
+        // pour chaque commande expirée
         for (const commande of expiredDrafts) {
 
             // libérer le stock engagé
@@ -32,7 +32,7 @@ async function expireDrafts() {
                 await product.save();
             }
 
-            // 3️⃣ marquer la commande comme expirée
+            // marquer la commande comme expirée
             commande.status = 'expired';
             await commande.save();
         }
