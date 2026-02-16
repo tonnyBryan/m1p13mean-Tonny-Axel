@@ -120,8 +120,8 @@ export class ProductFicheBoutiqueComponent implements OnInit {
     }
 
     get stockStatus(): 'in-stock' | 'low-stock' | 'out-of-stock' {
-        if (this.product.stock === 0) return 'out-of-stock';
-        if (this.product.stock <= 10) return 'low-stock';
+        if (this.product.stockReal === 0) return 'out-of-stock';
+        if (this.product.stockReal <= 10) return 'low-stock';
         return 'in-stock';
     }
 

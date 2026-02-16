@@ -168,7 +168,7 @@ export class CartUserComponent implements OnInit, OnDestroy {
 
   incrementQuantity(item: any): void {
     const product = item.product;
-    if (item.quantity < product.maxOrderQty && item.quantity < product.stock) {
+    if (item.quantity < product.maxOrderQty && item.quantity < product.stockReal) {
       const newQty = item.quantity + 1;
 
       // save snapshot for rollback
@@ -259,7 +259,7 @@ export class CartUserComponent implements OnInit, OnDestroy {
 
   canIncrement(item: any): boolean {
     const product = item.product;
-    return item.quantity < product.maxOrderQty && item.quantity < product.stock && !this.itemLoading[item.product._id];
+    return item.quantity < product.maxOrderQty && item.quantity < product.stockReal && !this.itemLoading[item.product._id];
   }
 
   canDecrement(item: any): boolean {

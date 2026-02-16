@@ -182,8 +182,8 @@ export class ProductListBoutiqueComponent implements OnInit {
     }
 
     getStockStatus(product: any): 'in-stock' | 'low-stock' | 'out-of-stock' {
-        if (product?.stock === 0) return 'out-of-stock';
-        if (product?.stock <= 10) return 'low-stock';
+        if (product?.stockReal === 0) return 'out-of-stock';
+        if (product?.stockReal <= 10) return 'low-stock';
         return 'in-stock';
     }
 

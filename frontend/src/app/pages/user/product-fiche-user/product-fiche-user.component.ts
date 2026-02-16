@@ -162,7 +162,7 @@ export class ProductFicheUserComponent implements OnInit {
         // });
 
 
-        if (this.quantity < this.p.maxOrderQty && this.quantity < this.p.stock) {
+        if (this.quantity < this.p.maxOrderQty && this.quantity < this.p.stockReal) {
             this.quantity++;
         }
     }
@@ -174,7 +174,7 @@ export class ProductFicheUserComponent implements OnInit {
     }
 
     get canIncrement(): boolean {
-        return this.quantity < this.p.maxOrderQty && this.quantity < this.p.stock;
+        return this.quantity < this.p.maxOrderQty && this.quantity < this.p.stockReal;
     }
 
     get canDecrement(): boolean {
@@ -186,16 +186,16 @@ export class ProductFicheUserComponent implements OnInit {
     // ════════════════════════════════════════════
 
     get stockStatus(): 'in-stock' | 'low-stock' | 'out-of-stock' {
-        if (this.p.stock === 0) return 'out-of-stock';
-        if (this.p.stock <= 10) return 'low-stock';
+        if (this.p.stockReal === 0) return 'out-of-stock';
+        if (this.p.stockReal <= 10) return 'low-stock';
         return 'in-stock';
     }
 
     get stockLabel(): string {
         switch (this.stockStatus) {
             case 'out-of-stock': return 'Out of Stock';
-            case 'low-stock': return `Only ${this.p.stock} left!`;
-            case 'in-stock': return `In Stock (${this.p.stock} available)`;
+            case 'low-stock': return `Only ${this.p.stockReal} left!`;
+            case 'in-stock': return `In Stock (${this.p.stockReal} available)`;
         }
     }
 

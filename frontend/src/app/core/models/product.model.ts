@@ -9,6 +9,8 @@ export interface Product {
     salePrice: number;
     sku: string;
     stock: number;
+    stockEngaged : number;
+    stockReal : number;
     minOrderQty: number;
     maxOrderQty: number;
     category: Category;

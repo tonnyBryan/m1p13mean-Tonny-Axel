@@ -174,15 +174,15 @@
                 </div>
 
                 <!-- Stock Badge -->
-                <div *ngIf="product.stock <= 10" class="absolute top-3 right-3 z-10">
-                    <span *ngIf="product.stock === 0"
+                <div *ngIf="product.stockReal <= 10" class="absolute top-3 right-3 z-10">
+                    <span *ngIf="product.stockReal === 0"
                           class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-900/95 text-white text-xs font-bold rounded-full backdrop-blur-sm">
                         <span class="w-2 h-2 bg-red-500 rounded-full"></span>
                         Out of stock
                     </span>
-                    <span *ngIf="product.stock > 0"
+                    <span *ngIf="product.stockReal > 0"
                           class="inline-flex px-2.5 py-1 bg-amber-500/95 text-white text-xs font-bold rounded-full backdrop-blur-sm">
-                        Only {{ product.stock }} left
+                        Only {{ product.stockReal }} left
                     </span>
                 </div>
             </div>
@@ -208,7 +208,7 @@
                 </div>
 
                 <!-- Stock Status -->
-                <p *ngIf="product.stock > 10" class="text-sm text-green-600 dark:text-green-400 font-medium mb-3">In Stock</p>
+                <p *ngIf="product.stockReal > 10" class="text-sm text-green-600 dark:text-green-400 font-medium mb-3">In Stock</p>
 
                 <!-- Price -->
                 <div class="mb-2">

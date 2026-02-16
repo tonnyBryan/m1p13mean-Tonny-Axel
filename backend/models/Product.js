@@ -28,6 +28,11 @@ const ProductSchema = new mongoose.Schema(
             required: true,
             default : 0
         },
+        stockEngaged: {
+            type: Number,
+            required: true,
+            default : 0
+        },
         minOrderQty: {
             type: Number,
             required: true,
@@ -73,6 +78,11 @@ const ProductSchema = new mongoose.Schema(
 ProductSchema.virtual('effectivePrice').get(function() {
     return this.isSale && this.salePrice ? this.salePrice : this.regularPrice;
 });
+
+ProductSchema.virtual('stockReal').get(function() {
+    return Math.max(0, this.stock - this.stockEngaged);
+});
+
 
 // Index pour optimiser les recherches par prix
 ProductSchema.index({ regularPrice: 1 });
