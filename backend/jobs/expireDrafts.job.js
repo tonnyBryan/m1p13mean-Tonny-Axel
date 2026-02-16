@@ -1,20 +1,51 @@
 const cron = require('node-cron');
 const Commande = require('../models/Commande');
+const Product = require('../models/Product');
 
-// expireDrafts: find all commandes with status 'draft' and expiredAt <= now -> set status to 'expired'
 async function expireDrafts() {
     try {
         const now = new Date();
-        const filter = { status: 'draft', expiredAt: { $lte: now } };
-        const update = { $set: { status: 'expired' } };
-        const res = await Commande.updateMany(filter, update);
-        // `res` shape depends on mongoose version: check common fields
-        const count = (res && (res.nModified || res.modifiedCount || res.n)) || 0;
-        console.log(`[expireDrafts] Expired ${count} draft commande(s) at ${now.toISOString()}`);
+
+        // 1️⃣ récupérer les drafts expirés
+        const expiredDrafts = await Commande.find({
+            status: 'draft',
+            expiredAt: { $lte: now }
+        });
+
+        if (!expiredDrafts.length) {
+            return;
+        }
+
+        // 2️⃣ pour chaque commande expirée
+        for (const commande of expiredDrafts) {
+
+            // libérer le stock engagé
+            for (const item of commande.products) {
+                const product = await Product.findById(item.product);
+                if (!product) continue;
+
+                product.stockEngaged -= item.quantity;
+                if (product.stockEngaged < 0) {
+                    product.stockEngaged = 0;
+                }
+
+                await product.save();
+            }
+
+            // 3️⃣ marquer la commande comme expirée
+            commande.status = 'expired';
+            await commande.save();
+        }
+
+        console.log(
+            `[expireDrafts] Expired ${expiredDrafts.length} draft commande(s) at ${now.toISOString()}`
+        );
+
     } catch (err) {
         console.error('[expireDrafts] Error while expiring drafts:', err);
     }
 }
+
 
 // initExpireDraftsJob: call once immediately and then schedule every 10 minutes
 function initExpireDraftsJob() {
@@ -25,7 +56,7 @@ function initExpireDraftsJob() {
 
     // schedule: every 10 minutes
     // cron pattern: '*/10 * * * *' -> every 10 minutes
-    cron.schedule('*/2 * * * *', () => {
+    cron.schedule('*/10 * * * *', () => {
         console.log('[expireDrafts] Cron triggered');
         expireDrafts().catch(err => {
             console.error('[expireDrafts] Cron run failed:', err);

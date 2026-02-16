@@ -268,11 +268,11 @@ exports.removeItemFromCart = async (req, res) => {
             return errorResponse(res, 404, 'Product not in cart');
         }
 
-        // 🔹 récupérer la quantité engagée
+        // récupérer la quantité engagée
         const removedItem = commande.products[itemIndex];
         const qtyToRelease = removedItem.quantity;
 
-        // 🔹 libérer le stock engagé
+        //  libérer le stock engagé
         const product = await Product.findById(productId);
         if (product) {
             product.stockEngaged -= qtyToRelease;
@@ -280,16 +280,16 @@ exports.removeItemFromCart = async (req, res) => {
             await product.save();
         }
 
-        // 🔹 supprimer l’item du panier
+        // supprimer l’item du panier
         commande.products.splice(itemIndex, 1);
 
-        // 🔹 si plus aucun produit → supprimer la commande
+        // si plus aucun produit → supprimer la commande
         if (!commande.products.length) {
             await Commande.deleteOne({ _id: commande._id });
             return successResponse(res, 200, null, null);
         }
 
-        // 🔹 recalcul du total
+        // recalcul du total
         commande.totalAmount = commande.products.reduce(
             (s, it) => s + (it.totalPrice || 0),
             0
