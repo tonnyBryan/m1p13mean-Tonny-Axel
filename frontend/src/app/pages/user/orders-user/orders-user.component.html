@@ -52,6 +52,24 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Date range and Sort -->
+            <div class="mt-4">
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Date range & Sort</label>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <app-date-picker placeholder="From..." (dateChange)="onDateChange('startDate', $event)"></app-date-picker>
+                        <app-date-picker placeholder="To..." (dateChange)="onDateChange('endDate', $event)"></app-date-picker>
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <label class="text-sm text-gray-600 dark:text-gray-400 mr-2">Sort</label>
+                        <app-select [options]="sortOptions" [value]="sortOption" (valueChange)="onSortChange($event)" className="rounded-lg"></app-select>
+
+                        <button (click)="startDate=''; endDate=''; sortOption='-createdAt'; currentPage=1; loadOrders()" class="ml-2 inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">Reset</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Loading State -->

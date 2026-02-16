@@ -5,11 +5,13 @@ import { ButtonComponent } from '../../../shared/components/ui/button/button.com
 import { Router } from '@angular/router';
 import { CommandeService } from '../../../shared/services/commande.service';
 import { FormsModule } from '@angular/forms';
+import { DatePickerComponent } from '../../../shared/components/form/date-picker/date-picker.component';
+import { SelectComponent } from '../../../shared/components/form/select/select.component';
 
 @Component({
   selector: 'app-orders-user',
   standalone: true,
-  imports: [CommonModule, PageBreadcrumbComponent, ButtonComponent, FormsModule],
+  imports: [CommonModule, PageBreadcrumbComponent, ButtonComponent, FormsModule, DatePickerComponent, SelectComponent],
   templateUrl: './orders-user.component.html',
   styleUrls: ['./orders-user.component.css']
 })
@@ -29,6 +31,21 @@ export class OrdersUserComponent implements OnInit {
   searchTerm = '';
   statusFilter = 'all';
 
+  // date filters
+  startDate: string = '';
+  endDate: string = '';
+
+  // sort option
+  sortOption: string = '-createdAt'; // default: date desc
+
+  // options for app-select
+  sortOptions = [
+    { value: '-createdAt', label: 'Date (newest)' },
+    { value: 'createdAt', label: 'Date (oldest)' },
+    { value: '-totalAmount', label: 'Total (high to low)' },
+    { value: 'totalAmount', label: 'Total (low to high)' }
+  ];
+
   constructor(protected router: Router, private commandeService: CommandeService) {}
 
   ngOnInit(): void {
@@ -41,7 +58,9 @@ export class OrdersUserComponent implements OnInit {
 
     params.page = this.currentPage;
     params.limit = this.itemsPerPage;
-    params.sort = '-createdAt';
+
+    // map sortOption to params.sort
+    params.sort = this.sortOption || '-createdAt';
 
     // Request only necessary fields via advancedResults fields param
     params.fields = 'boutique,deliveryMode,deliveryAddress,paymentMethod,status,totalAmount,createdAt';
@@ -58,6 +77,14 @@ export class OrdersUserComponent implements OnInit {
 
     if (this.statusFilter !== 'all') {
       params.status = this.statusFilter;
+    }
+
+    // date filtering using advancedResults operators
+    if (this.startDate) {
+      params['createdAt[gte]'] = this.startDate;
+    }
+    if (this.endDate) {
+      params['createdAt[lte]'] = this.endDate;
     }
 
     this.commandeService.getOrders(params).subscribe({
@@ -94,6 +121,21 @@ export class OrdersUserComponent implements OnInit {
 
   onStatusFilterChange(filter: string): void {
     this.statusFilter = filter;
+    this.currentPage = 1;
+    this.loadOrders();
+  }
+
+  onDateChange(key: string, event: any): void {
+    if (event && event.dateStr !== undefined) {
+      if (key === 'startDate') this.startDate = event.dateStr;
+      if (key === 'endDate') this.endDate = event.dateStr;
+      this.currentPage = 1;
+      this.loadOrders();
+    }
+  }
+
+  onSortChange(value: string): void {
+    this.sortOption = value;
     this.currentPage = 1;
     this.loadOrders();
   }
