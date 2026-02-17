@@ -4,6 +4,8 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
 const LivraisonConfig = require('../models/LivraisonConfig');
 const UserProfile = require('../models/UserProfile');
 const Boutique = require('../models/Boutique');
+const {removeEngagement} = require("../services/commande.service");
+const mongoose = require('mongoose');
 
 async function findOpenDraft(userId) {
     // Find non-expired draft
@@ -452,6 +454,166 @@ exports.getAllCommands = async (req, res) => {
         return successResponse(res, 200, null, advanced);
     } catch (err) {
         console.error('getAllCommands error:', err);
+        return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
+    }
+};
+
+// PATCH /api/commandes/:id/accept
+exports.acceptOrder = async (req, res) => {
+    let session = null;
+    try {
+        const user = req.user;
+        if (!user) return errorResponse(res, 401, 'Authentication is required to perform this action. Please sign in and try again.');
+
+        const boutique = await Boutique.findOne({ owner: user._id }).select('_id');
+        if (!boutique) return errorResponse(res, 403, 'No store was found for the authenticated account. Please verify your account and try again.');
+
+        const id = req.params.id;
+        if (!id) return errorResponse(res, 400, 'The order identifier is required. Please provide a valid order identifier and try again.');
+
+        session = await mongoose.startSession();
+        session.startTransaction();
+
+        const commande = await Commande.findOne({ _id: id, boutique: boutique._id }).session(session);
+        if (!commande) {
+            await session.abortTransaction();
+            return errorResponse(res, 404, 'No order matching the provided identifier was found for your store. Please verify the identifier and try again.');
+        }
+
+        await removeEngagement(commande, session);
+
+        // TODO: creation vente, sortie de stock (business logic to be added later)
+
+        commande.status = 'accepted';
+        await commande.save({ session });
+
+        await session.commitTransaction();
+
+        return successResponse(res, 200, 'The order status has been successfully updated to "accepted".', commande);
+    } catch (err) {
+        console.error('acceptOrder error:', err);
+        if (session) {
+            try { await session.abortTransaction(); } catch (e) { console.error('Failed to abort transaction', e); }
+        }
+        return errorResponse(res, 500, 'An unexpected server error occurred while processing your request. Please try again later.');
+    } finally {
+        if (session) session.endSession();
+    }
+};
+
+// PATCH /api/commandes/:id/cancel
+exports.cancelOrder = async (req, res) => {
+    let session = null;
+    try {
+        const user = req.user;
+        if (!user) return errorResponse(res, 401, 'Authentication is required to perform this action. Please sign in and try again.');
+
+        const boutique = await Boutique.findOne({ owner: user._id }).select('_id');
+        if (!boutique) return errorResponse(res, 403, 'No store was found for the authenticated account. Please verify your account and try again.');
+
+        const id = req.params.id;
+        if (!id) return errorResponse(res, 400, 'The order identifier is required. Please provide a valid order identifier and try again.');
+
+        session = await mongoose.startSession();
+        session.startTransaction();
+
+        const commande = await Commande.findOne({ _id: id, boutique: boutique._id }).session(session);
+        if (!commande) {
+            await session.abortTransaction();
+            return errorResponse(res, 404, 'No order matching the provided identifier was found for your store. Please verify the identifier and try again.');
+        }
+
+        await removeEngagement(commande, session);
+
+        commande.status = 'canceled';
+        await commande.save({ session });
+
+        await session.commitTransaction();
+
+        return successResponse(res, 200, 'The order has been canceled successfully.', commande);
+    } catch (err) {
+        console.error('cancelOrder error:', err);
+        if (session) {
+            try { await session.abortTransaction(); } catch (e) { console.error('Failed to abort transaction', e); }
+        }
+        return errorResponse(res, 500, 'An unexpected server error occurred while processing the cancellation. Please try again later.');
+    } finally {
+        if (session) session.endSession();
+    }
+};
+
+
+// PATCH /api/commandes/:id/start-delivery
+exports.startDelivery = async (req, res) => {
+    try {
+        const user = req.user;
+        if (!user) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
+
+        const boutique = await Boutique.findOne({ owner: user._id }).select('_id');
+        if (!boutique) return errorResponse(res, 403, 'No store associated with the authenticated user was found.');
+
+        const id = req.params.id;
+        if (!id) return errorResponse(res, 400, 'The order id is required. Please provide a valid identifier.');
+
+        const commande = await Commande.findOne({ _id: id, boutique: boutique._id }).populate({ path: 'products.product', model: 'Product' }).exec();
+        if (!commande) return errorResponse(res, 404, 'The requested order was not found in your store.');
+
+        commande.status = 'delivering';
+        await commande.save();
+
+        return successResponse(res, 200, 'Order status updated to delivering', commande);
+    } catch (err) {
+        console.error('startDelivery error:', err);
+        return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
+    }
+};
+
+// PATCH /api/commandes/:id/pickup
+exports.markAsPickedUp = async (req, res) => {
+    try {
+        const user = req.user;
+        if (!user) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
+
+        const boutique = await Boutique.findOne({ owner: user._id }).select('_id');
+        if (!boutique) return errorResponse(res, 403, 'No store associated with the authenticated user was found.');
+
+        const id = req.params.id;
+        if (!id) return errorResponse(res, 400, 'The order id is required. Please provide a valid identifier.');
+
+        const commande = await Commande.findOne({ _id: id, boutique: boutique._id }).populate({ path: 'products.product', model: 'Product' }).exec();
+        if (!commande) return errorResponse(res, 404, 'The requested order was not found in your store.');
+
+        commande.status = 'success';
+        await commande.save();
+
+        return successResponse(res, 200, 'Order status updated to success (picked up)', commande);
+    } catch (err) {
+        console.error('markAsPickedUp error:', err);
+        return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
+    }
+};
+
+// PATCH /api/commandes/:id/deliver
+exports.markAsDelivered = async (req, res) => {
+    try {
+        const user = req.user;
+        if (!user) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
+
+        const boutique = await Boutique.findOne({ owner: user._id }).select('_id');
+        if (!boutique) return errorResponse(res, 403, 'No store associated with the authenticated user was found.');
+
+        const id = req.params.id;
+        if (!id) return errorResponse(res, 400, 'The order id is required. Please provide a valid identifier.');
+
+        const commande = await Commande.findOne({ _id: id, boutique: boutique._id }).populate({ path: 'products.product', model: 'Product' }).exec();
+        if (!commande) return errorResponse(res, 404, 'The requested order was not found in your store.');
+
+        commande.status = 'success';
+        await commande.save();
+
+        return successResponse(res, 200, 'Order status updated to success (delivered)', commande);
+    } catch (err) {
+        console.error('markAsDelivered error:', err);
         return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
     }
 };

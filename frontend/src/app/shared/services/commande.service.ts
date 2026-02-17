@@ -126,4 +126,25 @@ export class CommandeService {
         const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
         return this.api.get<any>(`commandes/${orderId}`, headers);
     }
+
+    // --- status change API calls (boutique only) ---
+    acceptOrder(orderId: string): Observable<any> {
+        return this.api.patch(`commandes/${orderId}/accept`, {});
+    }
+
+    cancelOrder(orderId: string): Observable<any> {
+        return this.api.patch(`commandes/${orderId}/cancel`, {});
+    }
+
+    startDelivery(orderId: string): Observable<any> {
+        return this.api.patch(`commandes/${orderId}/start-delivery`, {});
+    }
+
+    markAsPickedUp(orderId: string): Observable<any> {
+        return this.api.patch(`commandes/${orderId}/pickup`, {});
+    }
+
+    markAsDelivered(orderId: string): Observable<any> {
+        return this.api.patch(`commandes/${orderId}/deliver`, {});
+    }
 }

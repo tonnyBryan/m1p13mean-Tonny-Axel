@@ -30,6 +30,13 @@ router.get('/draft/full', protect, authorize('user', 'boutique'), commandeContro
 // Get a commande by id (boutique OR user)
 router.get('/:id', protect, authorize('user', 'boutique'), commandeController.getCommandById);
 
+// New: status change endpoints (boutique only)
+router.patch('/:id/accept', protect, authorize('boutique'), commandeController.acceptOrder);
+router.patch('/:id/cancel', protect, authorize('boutique'), commandeController.cancelOrder);
+router.patch('/:id/start-delivery', protect, authorize('boutique'), commandeController.startDelivery);
+router.patch('/:id/pickup', protect, authorize('boutique'), commandeController.markAsPickedUp);
+router.patch('/:id/deliver', protect, authorize('boutique'), commandeController.markAsDelivered);
+
 // Get all commandes (boutique OR user) - inject boutique filter then inject user filter then advancedResults
 router.get('/', protect, authorize('user', 'boutique'), injectBoutiqueFilter, injectUserFilter, advancedResults(Commande), commandeController.getAllCommands);
 

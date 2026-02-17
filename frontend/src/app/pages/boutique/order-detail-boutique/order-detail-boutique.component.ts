@@ -61,39 +61,58 @@ export class OrderDetailBoutiqueComponent implements OnInit {
     });
   }
 
-  // --- Simulate 2s API call ---
-  private simulateAction(key: string, newStatus: string, successMsg: string): void {
+  // --- Call API to change status ---
+  private performStatusChange(apiCall: any, key: string, successMsg: string): void {
     this.actionLoading[key] = true;
-    setTimeout(() => {
-      this.actionLoading[key] = false;
-      this.order.status = newStatus;
-      this.toast.success('Success', successMsg);
-    }, 2000);
+    apiCall.subscribe({
+      next: (res: any) => {
+        this.actionLoading[key] = false;
+        if (res?.success) {
+          // backend returns commande in res.data or res
+          this.order = res.data || res;
+          this.toast.success('Success', successMsg);
+        } else {
+          const msg = res?.message || 'Failed to update order status';
+          this.toast.error('Error', msg);
+        }
+      },
+      error: (err: any) => {
+        this.actionLoading[key] = false;
+        const msg = err?.error?.message || err?.message || 'An error occurred while updating order status';
+        this.toast.error('Error', msg);
+        console.error('Status change error:', err);
+      }
+    });
   }
 
   // paid → accepted
   acceptOrder(): void {
-    this.simulateAction('accept', 'accepted', 'Order accepted successfully');
+    if (!this.order || !this.order._id) return;
+    this.performStatusChange(this.commandeService.acceptOrder(this.order._id), 'accept', 'Order accepted successfully');
   }
 
   // paid → canceled (refund)
   cancelOrder(): void {
-    this.simulateAction('cancel', 'canceled', `Order canceled. Customer refunded ${this.order.totalAmount.toLocaleString()} Ar`);
+    if (!this.order || !this.order._id) return;
+    this.performStatusChange(this.commandeService.cancelOrder(this.order._id), 'cancel', `Order canceled. Customer refunded ${this.order.totalAmount?.toLocaleString() || 0} Ar`);
   }
 
   // accepted → delivering
   startDelivery(): void {
-    this.simulateAction('deliver', 'delivering', 'Delivery started');
+    if (!this.order || !this.order._id) return;
+    this.performStatusChange(this.commandeService.startDelivery(this.order._id), 'deliver', 'Delivery started');
   }
 
   // accepted → success (pickup)
   markAsPickedUp(): void {
-    this.simulateAction('pickup', 'success', 'Order marked as picked up');
+    if (!this.order || !this.order._id) return;
+    this.performStatusChange(this.commandeService.markAsPickedUp(this.order._id), 'pickup', 'Order marked as picked up');
   }
 
   // delivering → success
   markAsDelivered(): void {
-    this.simulateAction('delivered', 'success', 'Order marked as delivered');
+    if (!this.order || !this.order._id) return;
+    this.performStatusChange(this.commandeService.markAsDelivered(this.order._id), 'delivered', 'Order marked as delivered');
   }
 
   // Navigate to related sale
