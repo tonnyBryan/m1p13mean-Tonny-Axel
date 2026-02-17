@@ -10,13 +10,13 @@ import { SelectComponent } from '../../../shared/components/form/select/select.c
 import {ToastService} from "../../../shared/services/toast.service";
 
 @Component({
-  selector: 'app-orders-user',
+  selector: 'app-orders-list-boutique',
   standalone: true,
   imports: [CommonModule, PageBreadcrumbComponent, ButtonComponent, FormsModule, DatePickerComponent, SelectComponent],
-  templateUrl: './orders-user.component.html',
-  styleUrls: ['./orders-user.component.css']
+  templateUrl: './orders-list-boutique.component.html',
+  styleUrls: ['./orders-list-boutique.component.css']
 })
-export class OrdersUserComponent implements OnInit {
+export class OrdersListBoutiqueComponent implements OnInit {
   // pagination
   Math = Math;
   itemsPerPage = 10;
@@ -46,7 +46,7 @@ export class OrdersUserComponent implements OnInit {
     { value: 'totalAmount', label: 'Total (low to high)' }
   ];
 
-  constructor(protected router: Router, private commandeService: CommandeService, private toast: ToastService) { }
+  constructor(protected router: Router, private commandeService: CommandeService, private toast : ToastService){}
 
   ngOnInit(): void {
     this.loadOrders();
@@ -76,6 +76,7 @@ export class OrdersUserComponent implements OnInit {
     if (this.statusFilter !== 'all') {
       params.status = this.statusFilter;
     } else {
+      // exclude drafts by default
       params['status[ne]'] = 'draft';
     }
 
@@ -92,7 +93,6 @@ export class OrdersUserComponent implements OnInit {
         this.loading = false;
         if (res?.success) {
           this.orders = res.data.items || [];
-          console.log(this.orders);
           const pagination = res.data.pagination || { page: 1, totalDocs: 0, totalPages: 0 };
           this.currentPage = pagination.page || 1;
           this.totalDocs = pagination.totalDocs || 0;
@@ -105,13 +105,9 @@ export class OrdersUserComponent implements OnInit {
         this.loading = false;
         const msg = err?.error?.message || 'Error loading orders';
         this.toast.error('Error',msg, 0);
-        console.error('Error loading orders:', err);
+        console.error('Error loading boutique orders:', err);
       }
     });
-  }
-
-  getTotalSpent(): number {
-    return this.orders.reduce((total, order) => total + (order.totalAmount || 0), 0);
   }
 
   onSearch(term: string): void {
@@ -149,7 +145,7 @@ export class OrdersUserComponent implements OnInit {
   }
 
   // computed properties for template
-  protected pageTitle: string = 'Orders';
+  protected pageTitle: string = 'Store Orders';
   get startIndex(): number {
     return (this.currentPage - 1) * this.itemsPerPage + 1;
   }
@@ -173,7 +169,7 @@ export class OrdersUserComponent implements OnInit {
   }
 
   viewOrder(orderId: string): void {
-    this.router.navigate(['/v1/orders', orderId]);
+    this.router.navigate(['/store/app/orders', orderId]);
   }
 
   formatDate(date: Date | string): string {

@@ -1,0 +1,274 @@
+<div class="mx-auto max-w-7xl">
+
+    <app-page-breadcrumb [pageTitle]="pageTitle"></app-page-breadcrumb>
+
+    <div class="space-y-6">
+        <!-- Header Card -->
+        <!-- FIX #2: overflow-visible sur le container principal pour que le datepicker puisse sortir -->
+        <div class="rounded-2xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] shadow-lg overflow-visible">
+            <div class="px-4 pt-4 sm:px-6">
+                <div class="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Orders</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Manage and track all your store orders</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <app-button size="sm" variant="primary" (btnClick)="loadOrders()">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            Refresh
+                        </app-button>
+                    </div>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="flex flex-col gap-4 mb-6">
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <input type="text" placeholder="Search orders by ID..." [(ngModel)]="searchTerm" (input)="onSearch(searchTerm)"
+                               class="w-full pl-10 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm text-gray-900 placeholder-gray-500 shadow-theme-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90" />
+                    </div>
+
+                    <!-- Filters Row -->
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <!-- Status Filter -->
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Status</label>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button *ngFor="let filter of ['all','paid','accepted','delivering','success','canceled']"
+                                        (click)="onStatusFilterChange(filter)"
+                                        [ngClass]="statusFilter === filter ? 'bg-brand-600 text-white border-brand-600' : 'border border-gray-300 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/[0.03]'"
+                                        class="inline-flex items-center rounded-lg px-3 py-2 text-theme-sm font-medium transition-all whitespace-nowrap border">
+                                    {{ filter | titlecase }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Date Range & Sort -->
+                        <!-- FIX #2: overflow-visible pour que les datepickers puissent sortir -->
+                        <div class="flex-1 overflow-visible">
+                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Date & Sort</label>
+                            <div class="flex items-center gap-2 overflow-visible">
+                                <app-date-picker placeholder="From..." (dateChange)="onDateChange('startDate', $event)"></app-date-picker>
+                                <app-date-picker placeholder="To..." (dateChange)="onDateChange('endDate', $event)"></app-date-picker>
+                                <app-select [options]="sortOptions" [value]="sortOption" (valueChange)="onSortChange($event)" className="rounded-lg ml-2"></app-select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FIX #2: overflow-x-auto seulement sur le wrapper du tableau, pas overflow hidden global -->
+            <div class="max-w-full overflow-x-auto overflow-y-visible">
+                <table class="w-full">
+                    <thead class="border-gray-100 border-y dark:border-white/[0.05]">
+                    <tr>
+                        <th class="px-4 py-3 font-medium text-gray-500 sm:px-6 text-start text-theme-xs dark:text-gray-400">Order</th>
+                        <th class="px-4 py-3 font-medium text-gray-500 sm:px-6 text-start text-theme-xs dark:text-gray-400">Delivery</th>
+                        <th class="px-4 py-3 font-medium text-gray-500 sm:px-6 text-start text-theme-xs dark:text-gray-400">Payment</th>
+                        <th class="px-4 py-3 font-medium text-gray-500 sm:px-6 text-start text-theme-xs dark:text-gray-400">Status</th>
+                        <th class="px-4 py-3 font-medium text-gray-500 sm:px-6 text-start text-theme-xs dark:text-gray-400">Total</th>
+                        <th class="px-4 py-3 font-medium text-gray-500 sm:px-6 text-start text-theme-xs dark:text-gray-400">Created</th>
+                        <th class="px-4 py-3 font-medium text-gray-500 sm:px-6 text-center text-theme-xs dark:text-gray-400">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
+
+                    <!-- FIX #1: Skeleton amélioré qui remplace les vraies lignes -->
+                    <!-- FIX #3: *ngIf="loading" cache les vraies données pendant le chargement -->
+                    <ng-container *ngIf="loading">
+                        <tr *ngFor="let i of [1,2,3,4,5]" class="animate-pulse">
+                            <!-- Order -->
+                            <td class="px-4 py-4 sm:px-6">
+                                <div class="flex flex-col gap-1.5">
+                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                                    <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-40"></div>
+                                </div>
+                            </td>
+                            <!-- Delivery -->
+                            <td class="px-4 py-4 sm:px-6">
+                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                            </td>
+                            <!-- Payment -->
+                            <td class="px-4 py-4 sm:px-6">
+                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                            </td>
+                            <!-- Status -->
+                            <td class="px-4 py-4 sm:px-6">
+                                <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded-md w-20"></div>
+                            </td>
+                            <!-- Total -->
+                            <td class="px-4 py-4 sm:px-6">
+                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                            </td>
+                            <!-- Date -->
+                            <td class="px-4 py-4 sm:px-6">
+                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-28"></div>
+                            </td>
+                            <!-- Actions -->
+                            <td class="px-4 py-4 sm:px-6">
+                                <div class="flex justify-center">
+                                    <div class="h-7 bg-gray-200 dark:bg-gray-700 rounded-md w-14"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-container>
+
+                    <!-- FIX #3: *ngIf="!loading" pour cacher les anciennes données pendant le chargement -->
+                    <ng-container *ngIf="!loading">
+                        <!-- Orders rows -->
+                        <tr *ngFor="let order of orders" class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                            <!-- Order ID -->
+                            <td class="px-4 py-3 sm:px-6 text-theme-sm text-gray-800 dark:text-white/90">
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-gray-900 dark:text-white">#{{ order._id.slice(-8).toUpperCase() }}</span>
+                                    <span class="text-xs text-gray-400 dark:text-gray-500 font-mono">{{ order._id }}</span>
+                                </div>
+                            </td>
+
+                            <!-- Delivery Mode -->
+                            <td class="px-4 py-3 sm:px-6 text-theme-sm">
+                                <div class="flex items-center gap-1.5">
+                                    <svg *ngIf="order.deliveryMode === 'delivery'" class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                                    </svg>
+                                    <svg *ngIf="order.deliveryMode === 'pickup'" class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                    </svg>
+                                    <span class="text-gray-700 dark:text-gray-300 capitalize">{{ order.deliveryMode }}</span>
+                                </div>
+                            </td>
+
+                            <!-- Payment Method -->
+                            <td class="px-4 py-3 sm:px-6 text-theme-sm">
+                                <div class="flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                    </svg>
+                                    <span class="text-gray-700 dark:text-gray-300 capitalize">{{ order.paymentMethod }}</span>
+                                </div>
+                            </td>
+
+                            <!-- Status Badge amélioré -->
+                            <td class="px-4 py-3 sm:px-6 text-theme-sm">
+                                <div [ngSwitch]="order.status">
+                                    <!-- Paid -->
+                                    <span *ngSwitchCase="'paid'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">
+                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                            </svg>
+                                            Paid
+                                        </span>
+                                    <!-- Accepted -->
+                                    <span *ngSwitchCase="'accepted'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                            </svg>
+                                            Accepted
+                                        </span>
+                                    <!-- Delivering -->
+                                    <span *ngSwitchCase="'delivering'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
+                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                                                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
+                                            </svg>
+                                            Delivering
+                                        </span>
+                                    <!-- Success -->
+                                    <span *ngSwitchCase="'success'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
+                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
+                                            </svg>
+                                            Delivered
+                                        </span>
+                                    <!-- Canceled -->
+                                    <span *ngSwitchCase="'canceled'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">
+                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                            </svg>
+                                            Canceled
+                                        </span>
+                                </div>
+                            </td>
+
+                            <!-- Total -->
+                            <td class="px-4 py-3 sm:px-6 text-theme-sm font-semibold text-gray-900 dark:text-white">
+                                {{ order.totalAmount.toLocaleString() }} Ar
+                            </td>
+
+                            <!-- Date -->
+                            <td class="px-4 py-3 sm:px-6 text-theme-sm text-gray-500 dark:text-gray-400">
+                                {{ formatDate(order.createdAt) }}
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="px-4 py-3 sm:px-6 text-center text-theme-sm">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button (click)="viewOrder(order._id)"
+                                            class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] transition-colors">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="currentColor"/>
+                                        </svg>
+                                        View
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Empty state -->
+                        <tr *ngIf="orders.length === 0">
+                            <td colspan="7" class="px-4 py-12 text-center">
+                                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 mb-3">
+                                    <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                    </svg>
+                                </div>
+                                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">No orders found</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Try adjusting your filters</p>
+                            </td>
+                        </tr>
+                    </ng-container>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer with Pagination -->
+            <div class="border-t border-gray-100 px-4 py-4 sm:px-6 dark:border-white/[0.05]">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <p class="text-theme-sm text-gray-600 dark:text-gray-400">
+                        Showing <span class="font-medium text-gray-900 dark:text-white">{{ startIndex }}</span>
+                        to <span class="font-medium text-gray-900 dark:text-white">{{ endIndex }}</span>
+                        of <span class="font-medium text-gray-900 dark:text-white">{{ totalDocs }}</span> results
+                    </p>
+
+                    <div class="flex items-center gap-2">
+                        <button (click)="previousPage()" [disabled]="currentPage === 1"
+                                class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 transition-colors">
+                            Previous
+                        </button>
+
+                        <ng-container *ngFor="let i of [].constructor(Math.min(totalPages, 5)); let idx = index">
+                            <button (click)="goToPage(idx + 1)"
+                                    [ngClass]="currentPage === idx + 1 ? 'bg-brand-600 text-white border-brand-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400'"
+                                    class="inline-flex items-center justify-center rounded-lg border w-9 h-9 text-theme-sm font-medium shadow-theme-xs transition-colors">
+                                {{ idx + 1 }}
+                            </button>
+                        </ng-container>
+
+                        <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+                                class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 transition-colors">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

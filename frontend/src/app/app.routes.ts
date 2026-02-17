@@ -27,6 +27,8 @@ import { CheckoutUserComponent } from "./pages/user/checkout-user/checkout-user.
 import { VerifyEmailComponent } from "./pages/user/verify-email/verify-email.component";
 import {OrdersUserComponent} from "./pages/user/orders-user/orders-user.component";
 import {OrderDetailComponent} from "./pages/user/order-detail/order-detail.component";
+import {OrdersListBoutiqueComponent} from "./pages/boutique/orders-list-boutique/orders-list-boutique.component";
+import {OrderDetailBoutiqueComponent} from "./pages/boutique/order-detail-boutique/order-detail-boutique.component";
 
 
 export const routes: Routes = [
@@ -256,6 +258,23 @@ export const routes: Routes = [
         pathMatch: 'full',
         title:
           'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+      },
+      {
+        path: 'orders',
+        component: OrdersListBoutiqueComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        pathMatch: 'full',
+        title:
+            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+      },
+      {
+        path: 'orders/:id',
+        component: OrderDetailBoutiqueComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        pathMatch: 'full',
+        title: 'Order Details | TailAdmin'
       },
       {
         path: 'products',

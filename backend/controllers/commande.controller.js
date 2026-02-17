@@ -375,22 +375,42 @@ exports.getCommandById = async (req, res) => {
         const id = req.params.id;
         if (!id) return errorResponse(res, 400, 'The order id is required. Please provide a valid identifier.');
 
-        // If boutique -> ensure boutique owns the commande
+        async function attachUserProfileInfoToCommande(commande) {
+            if (!commande) return;
+            try {
+                const userId = (commande.user && commande.user._id) ? commande.user._id : commande.user;
+                if (!userId) return;
+
+                const profile = await UserProfile.findOne({ user: userId }).select('firstName lastName phoneNumber photo').lean();
+                if (!profile) return;
+
+                commande.infoUser = {
+                    firstName: profile.firstName || null,
+                    lastName: profile.lastName || null,
+                    phoneNumber: profile.phoneNumber || null,
+                    photo: profile.photo || null
+                };
+            } catch (e) {
+                console.error('Failed to attach user profile info for commande:', e);
+            }
+        }
+
         if (user.role === 'boutique') {
             const boutique = await Boutique.findOne({ owner: user._id }).select('_id');
             if (!boutique) return errorResponse(res, 403, 'No store associated with the authenticated user was found.');
 
             const commande = await Commande.findOne({ _id: id, boutique: boutique._id })
-                .populate('boutique')
                 .populate({ path: 'products.product', model: 'Product' })
                 .exec();
 
             if (!commande) return errorResponse(res, 404, 'The requested order was not found in your store.');
 
-            return successResponse(res, 200, null, commande);
+            const commandeObj = commande.toObject();
+            await attachUserProfileInfoToCommande(commandeObj);
+
+            return successResponse(res, 200, null, commandeObj);
         }
 
-        // If user -> ensure the commande belongs to the user
         if (user.role === 'user') {
             const commande = await Commande.findOne({ _id: id, user: user._id })
                 .populate('boutique')
@@ -402,7 +422,6 @@ exports.getCommandById = async (req, res) => {
             return successResponse(res, 200, null, commande);
         }
 
-        // Fallback: try to find by id (for other roles if route allows)
         const commande = await Commande.findById(id)
             .populate('boutique')
             .populate({ path: 'products.product', model: 'Product' })
@@ -436,4 +455,3 @@ exports.getAllCommands = async (req, res) => {
         return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
     }
 };
-
