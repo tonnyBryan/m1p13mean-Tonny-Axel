@@ -413,7 +413,7 @@ exports.getCommandById = async (req, res) => {
         return successResponse(res, 200, null, commande);
     } catch (err) {
         console.error('getCommandById error:', err);
-        return errorResponse(res, 400, 'Invalid ID');
+        return errorResponse(res, 400, 'Invalid Id');
     }
 };
 

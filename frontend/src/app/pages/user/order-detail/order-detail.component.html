@@ -7,31 +7,7 @@
     ]" />
 
     <!-- Loading State -->
-    <div *ngIf="loading" class="flex items-center justify-center min-h-[60vh]">
-        <div class="text-center">
-            <div class="inline-block w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Loading order details...</p>
-        </div>
-    </div>
-
-    <!-- Error State -->
-    <div *ngIf="error && !loading" class="bg-white dark:bg-white/[0.03] border border-red-200 dark:border-red-800 rounded-2xl p-12 text-center">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
-            <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-            </svg>
-        </div>
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ error }}</h3>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">The order you're looking for could not be found</p>
-        <button
-                (click)="goBack()"
-                class="inline-flex items-center gap-2 px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl transition-all">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
-            Back to Orders
-        </button>
-    </div>
+    <app-skeleton-order-detail *ngIf="loading"></app-skeleton-order-detail>
 
     <!-- Order Content -->
     <div *ngIf="order && !loading" class="space-y-6">
@@ -286,34 +262,99 @@
                 </div>
 
                 <!-- Order Summary -->
-                <div class="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-2xl p-6">
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Order Summary</h3>
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-400">Delivery Mode</span>
-                            <span class="font-semibold text-gray-900 dark:text-white capitalize">{{ order.deliveryMode }}</span>
-                        </div>
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-400">Payment Method</span>
-                            <span class="font-semibold text-gray-900 dark:text-white capitalize">{{ order.paymentMethod }}</span>
-                        </div>
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-400">Items ({{ order.products.length }})</span>
-                            <span class="font-semibold text-gray-900 dark:text-white">
-                                {{ (order.totalAmount - (order.deliveryAddress?.price || 0)).toLocaleString() }} Ar
-                            </span>
-                        </div>
-                        <div *ngIf="order.deliveryAddress?.price" class="flex items-center justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-400">Delivery Fee</span>
-                            <span class="font-semibold text-gray-900 dark:text-white">{{ order.deliveryAddress.price.toLocaleString() }} Ar</span>
-                        </div>
-                        <div class="pt-3 border-t border-gray-200 dark:border-white/[0.05]">
-                            <div class="flex items-center justify-between">
-                                <span class="text-base font-bold text-gray-900 dark:text-white">Total</span>
-                                <span class="text-xl font-black text-brand-600 dark:text-brand-400">{{ order.totalAmount.toLocaleString() }} Ar</span>
-                            </div>
+                <!-- Order Summary Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-lg">
+
+                    <!-- Header -->
+                    <div class="relative px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <svg class="w-5 h-5 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Order Summary
+                            </h3>
+                            <span class="text-xs font-semibold px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
+                {{ order.products.length }} {{ order.products.length === 1 ? 'item' : 'items' }}
+            </span>
                         </div>
                     </div>
+
+                    <!-- Price Breakdown -->
+                    <div class="p-6 bg-gray-50 dark:bg-gray-900/50">
+                        <div class="space-y-3">
+
+                            <!-- Delivery Mode -->
+                            <div class="flex items-center justify-between py-2">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Delivery Mode</span>
+                                </div>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white capitalize">{{ order.deliveryMode }}</span>
+                            </div>
+
+                            <!-- Payment Method -->
+                            <div class="flex items-center justify-between py-2">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Payment Method</span>
+                                </div>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white capitalize">{{ order.paymentMethod }}</span>
+                            </div>
+
+                            <!-- Subtotal -->
+                            <div class="flex items-center justify-between py-2">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        Subtotal ({{ order.products.length }} {{ order.products.length === 1 ? 'item' : 'items' }})
+                    </span>
+                                </div>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">
+                    {{ (order.totalAmount - (order.deliveryAddress?.price || 0)).toLocaleString() }} Ar
+                </span>
+                            </div>
+
+                            <!-- Delivery Fee -->
+                            <div *ngIf="order.deliveryAddress?.price" class="flex items-center justify-between py-2">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Delivery Fee</span>
+                                </div>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">
+                    {{ order.deliveryAddress.price.toLocaleString() }} Ar
+                </span>
+                            </div>
+
+                            <!-- Divider -->
+                            <div class="border-t-2 border-gray-200 dark:border-gray-700 my-3"></div>
+
+                            <!-- Total -->
+                            <div class="flex items-center justify-between py-3 px-4 bg-gradient-to-r from-brand-50 to-blue-50 dark:from-brand-900/20 dark:to-blue-900/20 rounded-xl border-2 border-brand-200 dark:border-brand-800">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-brand-600 dark:text-brand-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span class="text-base font-bold text-gray-900 dark:text-white">Total Amount</span>
+                                </div>
+                                <div class="text-2xl font-black text-brand-600 dark:text-brand-400">
+                                    {{ order.totalAmount.toLocaleString() }} Ar
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Order ID -->

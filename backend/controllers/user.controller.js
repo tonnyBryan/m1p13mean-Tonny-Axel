@@ -65,7 +65,7 @@ exports.getUserById = async (req, res) => {
 
         return successResponse(res, 200, null, user);
     } catch (error) {
-        return errorResponse(res, 400, 'Invalid ID');
+        return errorResponse(res, 400, 'failed to fetch user data');
     }
 };
 

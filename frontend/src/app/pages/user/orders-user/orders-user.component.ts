@@ -72,11 +72,12 @@ export class OrdersUserComponent implements OnInit {
         // search by exact id
         params['_id'] = term;
       }
-      // else: no boutique.name filter — search by id only as requested
     }
 
     if (this.statusFilter !== 'all') {
       params.status = this.statusFilter;
+    } else {
+      params['status[ne]'] = 'draft';
     }
 
     // date filtering using advancedResults operators

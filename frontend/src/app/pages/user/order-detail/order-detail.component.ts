@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommandeService } from '../../../shared/services/commande.service';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
+import {SkeletonOrderDetailComponent} from "./skeleton-order-detail/skeleton-order-detail.component";
+import {ToastService} from "../../../shared/services/toast.service";
 
 @Component({
   selector: 'app-order-detail',
   standalone: true,
-  imports: [CommonModule, PageBreadcrumbComponent],
+  imports: [CommonModule, PageBreadcrumbComponent, SkeletonOrderDetailComponent],
   templateUrl: './order-detail.component.html',
   styleUrls: ['./order-detail.component.css']
 })
@@ -15,12 +17,12 @@ export class OrderDetailComponent implements OnInit {
   orderId: string | null = null;
   order: any = null;
   loading = false;
-  error = '';
 
   constructor(
       private route: ActivatedRoute,
       private router: Router,
-      private commandeService: CommandeService
+      private commandeService: CommandeService,
+      private toast : ToastService
   ) {}
 
   ngOnInit(): void {
@@ -28,27 +30,27 @@ export class OrderDetailComponent implements OnInit {
     if (this.orderId) {
       this.loadOrder(this.orderId);
     } else {
-      this.error = 'Order ID missing';
+      const msg = 'Missing id in url';
+      this.toast.error('Error',msg);
+      this.router.navigate(['/v1/orders']);
     }
   }
 
   loadOrder(id: string) {
     this.loading = true;
-    this.error = '';
     this.commandeService.getOrderById(id).subscribe({
       next: (res) => {
         this.loading = false;
         if (res?.success) {
           this.order = res.data || res;
           console.log('Order:', this.order);
-        } else {
-          this.order = res?.data ?? res ?? null;
-          if (!this.order) this.error = 'Order not found';
         }
       },
       error: (err) => {
         this.loading = false;
-        this.error = err?.message || 'Error loading order';
+        const msg = err?.error?.message || 'Error loading order'
+        this.toast.error('Error',msg);
+        this.router.navigate(['/v1/orders']);
         console.error('Error loading order:', err);
       }
     });
