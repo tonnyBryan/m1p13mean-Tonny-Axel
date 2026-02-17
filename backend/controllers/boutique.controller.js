@@ -18,7 +18,7 @@ exports.createBoutiqueFull = async (req, res) => {
             boutiquePayload = JSON.parse(req.body.boutique);
             livraisonPayload = JSON.parse(req.body.livraisonConfig);
         } catch (e) {
-            return errorResponse(res, 400, 'Invalid JSON format in form data');
+            return errorResponse(res, 400, 'The submitted form data contains malformed JSON. Please correct the input and try again.');
         }
 
         // 2. Handle Logo (File or URL)
@@ -30,14 +30,14 @@ exports.createBoutiqueFull = async (req, res) => {
         }
 
         if (!logoUrl) {
-            return errorResponse(res, 400, 'Boutique logo is required (file or URL)');
+            return errorResponse(res, 400, 'A boutique logo is required. Please upload a file or provide a valid URL.');
         }
 
         // 3. Create User (Owner)
         // Check if user exists
         const existingUser = await User.findOne({ email: userPayload.email });
         if (existingUser) {
-            return errorResponse(res, 400, 'User with this email already exists');
+            return errorResponse(res, 400, 'A user with the provided email already exists. Please use a different email or recover access to the existing account.');
         }
 
         // Create new user
@@ -79,7 +79,7 @@ exports.createBoutiqueFull = async (req, res) => {
             isActive: true
         });
 
-        return successResponse(res, 201, 'Boutique created successfully', {
+        return successResponse(res, 201, 'Boutique created successfully.', {
             user: newUser,
             boutique: newBoutique,
             defaultPassword
@@ -87,7 +87,7 @@ exports.createBoutiqueFull = async (req, res) => {
 
     } catch (error) {
         console.error('Error creating boutique:', error);
-        return errorResponse(res, 500, 'Server Error while creating boutique');
+        return errorResponse(res, 500, 'An unexpected server error occurred while creating the boutique. Please try again later.');
     }
 };
 
@@ -99,7 +99,7 @@ exports.createBoutiqueFull = async (req, res) => {
 exports.getBoutiques = async (req, res) => {
     // The middleware places the result in res.advancedResults
     if (!res.advancedResults) {
-        return errorResponse(res, 500, 'Advanced Results Middleware not running');
+        return errorResponse(res, 500, 'Server configuration error: pagination and filter middleware is not active. Please contact support.');
     }
     return successResponse(res, 200, null, res.advancedResults);
 };
@@ -114,7 +114,7 @@ exports.getBoutiqueFull = async (req, res) => {
         const boutiqueDoc = await Boutique.findById(req.params.id).populate('owner', 'name email role');
 
         if (!boutiqueDoc) {
-            return errorResponse(res, 404, 'Boutique not found');
+            return errorResponse(res, 404, 'The requested boutique was not found. Please check the identifier and try again.');
         }
 
         // Try to find an associated LivraisonConfig, may be null
@@ -124,14 +124,14 @@ exports.getBoutiqueFull = async (req, res) => {
         const boutique = boutiqueDoc.toObject ? boutiqueDoc.toObject() : boutiqueDoc;
         boutique.livraisonConfig = livraisonConfig;
 
-        return successResponse(res, 200, 'Boutique with livraisonConfig retrieved', boutique);
+        return successResponse(res, 200, 'Boutique details with delivery configuration retrieved successfully.', boutique);
     } catch (error) {
         console.error('Error fetching boutique full:', error);
         // Handle invalid ObjectId format
         if (error.kind === 'ObjectId') {
-            return errorResponse(res, 400, 'Invalid boutique ID format');
+            return errorResponse(res, 400, 'The provided boutique identifier is invalid. Please check and try again.');
         }
-        return errorResponse(res, 500, 'Server Error while fetching boutique full');
+        return errorResponse(res, 500, 'An unexpected server error occurred while fetching the boutique. Please try again later.');
     }
 };
 
@@ -144,19 +144,19 @@ exports.getBoutiqueById = async (req, res) => {
         const boutique = await Boutique.findById(req.params.id);
 
         if (!boutique) {
-            return errorResponse(res, 404, 'Boutique not found');
+            return errorResponse(res, 404, 'The requested boutique was not found. Please check the identifier and try again.');
         }
 
-        return successResponse(res, 200, 'Boutique retrieved successfully', boutique);
+        return successResponse(res, 200, 'Boutique retrieved successfully.', boutique);
     } catch (error) {
         console.error('Error fetching boutique:', error);
 
         // Handle invalid ObjectId format
         if (error.kind === 'ObjectId') {
-            return errorResponse(res, 400, 'Invalid boutique ID format');
+            return errorResponse(res, 400, 'The provided boutique identifier is invalid. Please check and try again.');
         }
 
-        return errorResponse(res, 500, 'Server Error while fetching boutique');
+        return errorResponse(res, 500, 'An unexpected server error occurred while fetching the boutique. Please try again later.');
     }
 };
 
@@ -170,29 +170,29 @@ exports.updateBoutiqueStatus = async (req, res) => {
 
         // Validate input
         if (typeof isActive !== 'boolean') {
-            return errorResponse(res, 400, 'isActive must be a boolean value');
+            return errorResponse(res, 400, 'The isActive field must be a boolean (true or false).');
         }
 
         const boutique = await Boutique.findById(req.params.id);
 
         if (!boutique) {
-            return errorResponse(res, 404, 'Boutique not found');
+            return errorResponse(res, 404, 'The requested boutique was not found. Please check the identifier and try again.');
         }
 
         // Update the status
         boutique.isActive = isActive;
         await boutique.save();
 
-        return successResponse(res, 200, 'Boutique status updated successfully', boutique);
+        return successResponse(res, 200, 'Boutique status updated successfully.', boutique);
     } catch (error) {
         console.error('Error updating boutique status:', error);
 
         // Handle invalid ObjectId format
         if (error.kind === 'ObjectId') {
-            return errorResponse(res, 400, 'Invalid boutique ID format');
+            return errorResponse(res, 400, 'The provided boutique identifier is invalid. Please check and try again.');
         }
 
-        return errorResponse(res, 500, 'Server Error while updating boutique status');
+        return errorResponse(res, 500, 'An unexpected server error occurred while updating the boutique status. Please try again later.');
     }
 };
 
@@ -207,7 +207,7 @@ exports.getBoutiqueStats = async (req, res) => {
         const inactive = await Boutique.countDocuments({ isActive: false });
         const pending = await Boutique.countDocuments({ isValidated: false });
 
-        return successResponse(res, 200, 'Boutique statistics retrieved', {
+        return successResponse(res, 200, 'Boutique statistics retrieved successfully.', {
             total,
             active,
             inactive,
@@ -215,7 +215,7 @@ exports.getBoutiqueStats = async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching boutique stats:', error);
-        return errorResponse(res, 500, 'Server Error while fetching statistics');
+        return errorResponse(res, 500, 'An unexpected server error occurred while fetching boutique statistics. Please try again later.');
     }
 };
 
@@ -229,12 +229,12 @@ exports.updateBoutique = async (req, res) => {
 
         // Basic validation
         if (!name || typeof name !== 'string' || name.trim().length === 0) {
-            return errorResponse(res, 400, 'Name is required and must be a non-empty string');
+            return errorResponse(res, 400, 'The name field is required and must be a non-empty string.');
         }
 
         const boutique = await Boutique.findById(req.params.id);
         if (!boutique) {
-            return errorResponse(res, 404, 'Boutique not found');
+            return errorResponse(res, 404, 'The requested boutique was not found. Please check the identifier and try again.');
         }
 
         boutique.name = name;
@@ -248,13 +248,13 @@ exports.updateBoutique = async (req, res) => {
         const boutiqueObj = boutique.toObject ? boutique.toObject() : boutique;
         boutiqueObj.livraisonConfig = livraisonConfig;
 
-        return successResponse(res, 200, 'Boutique updated successfully', boutiqueObj);
+        return successResponse(res, 200, 'Boutique information updated successfully.', boutiqueObj);
     } catch (error) {
         console.error('Error updating boutique:', error);
         if (error.kind === 'ObjectId') {
-            return errorResponse(res, 400, 'Invalid boutique ID format');
+            return errorResponse(res, 400, 'The provided boutique identifier is invalid. Please check and try again.');
         }
-        return errorResponse(res, 500, 'Server Error while updating boutique');
+        return errorResponse(res, 500, 'An unexpected server error occurred while updating the boutique. Please try again later.');
     }
 };
 
@@ -270,7 +270,7 @@ exports.updateDeliveryConfig = async (req, res) => {
 
         const boutique = await Boutique.findById(req.params.id);
         if (!boutique) {
-            return errorResponse(res, 404, 'Boutique not found');
+            return errorResponse(res, 404, 'The requested boutique was not found. Please check the identifier and try again.');
         }
 
         // Find existing config
@@ -299,12 +299,12 @@ exports.updateDeliveryConfig = async (req, res) => {
         const boutiqueObj = boutique.toObject ? boutique.toObject() : boutique;
         boutiqueObj.livraisonConfig = livraisonConfig;
 
-        return successResponse(res, 200, 'Boutique updated successfully', boutiqueObj);
+        return successResponse(res, 200, 'Delivery configuration updated successfully.', boutiqueObj);
     } catch (error) {
         console.error('Error updating livraison config:', error);
         if (error.kind === 'ObjectId') {
-            return errorResponse(res, 400, 'Invalid boutique ID format');
+            return errorResponse(res, 400, 'The provided boutique identifier is invalid. Please check and try again.');
         }
-        return errorResponse(res, 500, 'Server Error while updating livraison config');
+        return errorResponse(res, 500, 'An unexpected server error occurred while updating the delivery configuration. Please try again later.');
     }
 };

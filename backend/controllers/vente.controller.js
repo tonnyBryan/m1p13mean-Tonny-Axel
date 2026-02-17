@@ -19,10 +19,10 @@ exports.createVente = async (req, res) => {
         });
 
         await vente.save();
-        return successResponse(res, 201, 'Vente créée avec succès', vente);
+        return successResponse(res, 201, 'Sale created successfully', vente);
     } catch (err) {
         console.error('createVente error:', err);
-        return errorResponse(res, 500, 'Erreur lors de la création de la vente');
+        return errorResponse(res, 500, 'An unexpected server error occurred while creating the sale. Please try again later.');
     }
 };
 
@@ -90,7 +90,7 @@ exports.getVenteStats = async (req, res) => {
 
     } catch (err) {
         console.error('getVenteStats error:', err);
-        return errorResponse(res, 500, 'Erreur lors de la récupération des statistiques');
+        return errorResponse(res, 500, 'An unexpected server error occurred while fetching sales statistics. Please try again later.');
     }
 };
 
@@ -106,7 +106,7 @@ exports.getVentesByBoutique = async (req, res) => {
         return successResponse(res, 200, null, ventes);
     } catch (err) {
         console.error('getVentesByBoutique error:', err);
-        return errorResponse(res, 500, 'Erreur lors de la récupération des ventes');
+        return errorResponse(res, 500, 'An unexpected server error occurred while retrieving sales for the boutique. Please try again later.');
     }
 };
 
@@ -116,7 +116,7 @@ exports.getAllVentes = async (req, res) => {
         // Just return what advancedResults prepared
         return successResponse(res, 200, null, res.advancedResults);
     } catch (err) {
-        return errorResponse(res, 500, 'Erreur serveur');
+        return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
     }
 };
 
@@ -128,11 +128,11 @@ exports.getVenteById = async (req, res) => {
             .populate('seller', 'name email')
             .populate('items.product');
 
-        if (!vente) return errorResponse(res, 404, 'Vente non trouvée');
+        if (!vente) return errorResponse(res, 404, 'The requested sale was not found. Please verify the identifier.');
 
         return successResponse(res, 200, null, vente);
     } catch (err) {
-        return errorResponse(res, 500, 'Erreur serveur');
+        return errorResponse(res, 500, 'An unexpected server error occurred while retrieving the sale. Please try again later.');
     }
 };
 
@@ -140,8 +140,8 @@ exports.getVenteById = async (req, res) => {
 exports.updateVente = async (req, res) => {
     try {
         const vente = await Vente.findById(req.params.id);
-        if (!vente) return errorResponse(res, 404, 'Vente non trouvée');
-        if (vente.status !== 'draft') return errorResponse(res, 400, 'Impossible de modifier une vente qui n\'est plus un brouillon');
+        if (!vente) return errorResponse(res, 404, 'The requested sale was not found. Please verify the identifier.');
+        if (vente.status !== 'draft') return errorResponse(res, 400, 'This sale cannot be modified because it is no longer a draft.');
 
         const { client, items, paymentMethod, totalAmount, saleType, saleDate } = req.body;
 
@@ -153,9 +153,9 @@ exports.updateVente = async (req, res) => {
         vente.saleDate = saleDate || vente.saleDate;
 
         await vente.save();
-        return successResponse(res, 200, 'Vente mise à jour', vente);
+        return successResponse(res, 200, 'Sale updated successfully', vente);
     } catch (err) {
-        return errorResponse(res, 500, 'Erreur lors de la mise à jour');
+        return errorResponse(res, 500, 'An unexpected server error occurred while updating the sale. Please try again later.');
     }
 };
 
@@ -165,20 +165,20 @@ exports.updateStatus = async (req, res) => {
         const { status } = req.body;
         const vente = await Vente.findById(req.params.id);
 
-        if (!vente) return errorResponse(res, 404, 'Vente non trouvée');
+        if (!vente) return errorResponse(res, 404, 'The requested sale was not found. Please verify the identifier.');
 
         // Logical check: cannot go back to draft, cannot change if already paid or canceled?
         // User said: "paid (modification et annulation impossible)"
         if (vente.status !== 'draft') {
-            return errorResponse(res, 400, 'Le statut de cette vente ne peut plus être modifié');
+            return errorResponse(res, 400, 'The status of this sale can no longer be modified.');
         }
 
         vente.status = status;
         await vente.save();
 
-        return successResponse(res, 200, `Statut mis à jour vers ${status}`, vente);
+        return successResponse(res, 200, `Status updated to ${status}`, vente);
     } catch (err) {
-        return errorResponse(res, 500, 'Erreur lors du changement de statut');
+        return errorResponse(res, 500, 'An unexpected server error occurred while changing the sale status. Please try again later.');
     }
 };
 
@@ -193,7 +193,7 @@ exports.getInvoice = async (req, res) => {
             .populate('seller', 'name')
             .populate('boutique', 'name');
 
-        if (!vente) return errorResponse(res, 404, 'Vente non trouvée');
+        if (!vente) return errorResponse(res, 404, 'The requested sale was not found. Please verify the identifier.');
         // Allow printing even if not paid (e.g. quote/proforma)? User said "imprimer", usually implies finalized.
         // But let's stick to paid or allow all if needed. User didn't specify strict restriction.
         // Let's keep the paid check if strict, or remove it. User focused on flow.
@@ -262,7 +262,7 @@ exports.getInvoice = async (req, res) => {
         console.error('Invoice generation error:', err);
         // If headers already sent, we can't send JSON error
         if (!res.headersSent) {
-            return errorResponse(res, 500, 'Erreur lors de la génération de la facture');
+            return errorResponse(res, 500, 'An unexpected server error occurred while generating the invoice. Please try again later.');
         }
     }
 };

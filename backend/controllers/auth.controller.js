@@ -14,17 +14,17 @@ exports.login = async (req, res) => {
         const { email, password, role } = req.body;
 
         if (!email || !password || !role) {
-            return errorResponse(res, 400, 'Email, password are required.');
+            return errorResponse(res, 400, 'Email, password and role are required. Please provide all required fields.');
         }
 
         const user = await User.findOne({ email, role });
         if (!user || !user.isActive) {
-            return errorResponse(res, 401, 'Invalid credentials');
+            return errorResponse(res, 401, 'Authentication failed. Please check your email, password and role and try again.');
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return errorResponse(res, 401, 'Invalid credentials');
+            return errorResponse(res, 401, 'Authentication failed. Please check your email, password and role and try again.');
         }
 
         const tokenPayload = {
@@ -71,7 +71,7 @@ exports.login = async (req, res) => {
             sameSite: 'strict'
         });
 
-        return successResponse(res, 200, 'Connection successful', {
+        return successResponse(res, 200, 'Authentication successful', {
             accessToken,
             user: {
                 id: user._id,
@@ -82,9 +82,10 @@ exports.login = async (req, res) => {
         });
 
     } catch (error) {
-        return errorResponse(res, 500, 'Error during login');
+        return errorResponse(res, 500, 'An unexpected error occurred during login. Please try again later.');
     }
 };
+
 
 
 exports.refreshToken = async (req, res) => {
@@ -92,7 +93,7 @@ exports.refreshToken = async (req, res) => {
         const tokenFromCookie = req.cookies.refreshToken;
 
         if (!tokenFromCookie) {
-            return errorResponse(res, 450, 'Refresh token missing');
+            return errorResponse(res, 450, 'Refresh token is missing from cookies. Please login again to obtain a new token.');
         }
 
 
@@ -109,14 +110,14 @@ exports.refreshToken = async (req, res) => {
         });
 
         if (!storedToken) {
-            return errorResponse(res, 450, 'Invalid refresh token');
+            return errorResponse(res, 450, 'The provided refresh token is invalid. Please login again.');
         }
 
         // 3️⃣ Recharger l’utilisateur
         const user = await User.findById(decoded.id);
 
         if (!user || !user.isActive) {
-            return errorResponse(res, 450, 'Invalid user');
+            return errorResponse(res, 450, 'The user associated with the refresh token is invalid or inactive. Please login again or contact support.');
         }
 
         const tokenPayload = {
@@ -137,12 +138,12 @@ exports.refreshToken = async (req, res) => {
 
         const accessToken = generateAccessToken(tokenPayload);
 
-        return successResponse(res, 200, 'Refreshed token', {
+        return successResponse(res, 200, 'Access token refreshed successfully', {
             accessToken: accessToken
         });
 
     } catch (error) {
-        return errorResponse(res, 450, 'Refresh token expired');
+        return errorResponse(res, 450, 'The refresh token has expired. Please login again to continue.');
     }
 };
 
@@ -157,9 +158,9 @@ exports.logout = async (req, res) => {
 
         res.clearCookie('refreshToken');
 
-        return successResponse(res, 200, 'Logout successful');
+        return successResponse(res, 200, 'You have been logged out successfully');
     } catch (error) {
-        return errorResponse(res, 500, 'Error during disconnection');
+        return errorResponse(res, 500, 'An error occurred during logout. Please try again.');
     }
 };
 
@@ -168,17 +169,16 @@ exports.verifyToken = (req, res) => {
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-        return errorResponse(res, 401, 'Missing token');
+        return errorResponse(res, 401, 'Authorization token is missing from the request. Please provide a valid token.');
     }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        return successResponse(res, 200, 'Valid token', { user: decoded });
+        return successResponse(res, 200, 'The access token is valid', { user: decoded });
     } catch (err) {
         if (err.name === 'TokenExpiredError') {
-            return errorResponse(res, 420, 'ACCESS_TOKEN_EXPIRED');
+            return errorResponse(res, 420, 'The access token has expired. Please refresh your token or login again.');
         }
-        return errorResponse(res, 401, 'Invalid token');
+        return errorResponse(res, 401, 'The provided authorization token is invalid. Please check and try again.');
     }
 };
-

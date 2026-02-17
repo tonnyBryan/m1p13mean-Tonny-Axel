@@ -19,7 +19,7 @@ exports.sendVerification = async (req, res) => {
         let email = req.query.email;
         if (!email) {
             if (!req.user || !req.user.email) {
-                return errorResponse(res, 400, 'Email is required');
+                return errorResponse(res, 400, 'An email address is required. Please provide one or authenticate.');
             }
             email = req.user.email;
         }
@@ -27,7 +27,7 @@ exports.sendVerification = async (req, res) => {
         if (req.user && email !== req.user.email) {
             const emailTaken = await User.findOne({ email });
             if (emailTaken) {
-                return errorResponse(res, 409, 'This email is already used by another account');
+                return errorResponse(res, 409, 'The provided email is already associated with another account. Please use a different email.');
             }
         }
 
@@ -38,6 +38,7 @@ exports.sendVerification = async (req, res) => {
             expiresAt: { $gt: new Date() }
         }).sort({ createdAt: -1 });
 
+        // current timestamp used for timing checks
         const now = new Date();
 
         if (existing) {
@@ -46,12 +47,12 @@ exports.sendVerification = async (req, res) => {
             // Bloqué si la réautorisation est définie
             if (existing.authorizedAt && now < existing.authorizedAt) {
                 const waitSec = Math.ceil((existing.authorizedAt - now) / 1000);
-                return errorResponse(res, 439, `Please wait ${waitSec} seconds before requesting a new code`);
+                return errorResponse(res, 439, `Please wait ${waitSec} seconds before requesting a new verification code.`);
             }
 
             const diff = (now - existing.updatedAt) / 1000;
             if (diff < resendDelay) {
-                return errorResponse(res, 439, `Please wait ${Math.ceil(resendDelay - diff)} seconds before requesting a new code`);
+                return errorResponse(res, 439, `Please wait ${Math.ceil(resendDelay - diff)} seconds before requesting a new verification code.`);
             }
 
             // Marquer l'ancien code comme utilisé
@@ -89,7 +90,7 @@ exports.sendVerification = async (req, res) => {
         return successResponse(
             res,
             201,
-            'New verification code created successfully',
+            'A new verification code has been created and sent if the email is reachable.',
             {
                 id: verificationDoc._id,
                 email: verificationDoc.email,
@@ -100,7 +101,7 @@ exports.sendVerification = async (req, res) => {
 
     } catch (error) {
         console.error('Error creating email verification:', error);
-        return errorResponse(res, 500, 'Internal server error');
+        return errorResponse(res, 500, 'An unexpected server error occurred while creating the verification code. Please try again later.');
     }
 };
 
@@ -113,7 +114,7 @@ exports.verify = async (req, res) => {
         const { email, code } = req.body;
 
         if (!email || !code) {
-            return errorResponse(res, 400, 'Email and code are required');
+            return errorResponse(res, 400, 'Both email and verification code are required. Please provide both fields.');
         }
 
         const verificationDoc = await EmailVerification.findOne({
@@ -123,11 +124,11 @@ exports.verify = async (req, res) => {
         });
 
         if (!verificationDoc) {
-            return errorResponse(res, 404, 'Verification code not found or expired');
+            return errorResponse(res, 404, 'No active verification code was found for the provided email, or the code has expired. Please request a new code.');
         }
 
         if (verificationDoc.attempts >= 5) {
-            return errorResponse(res, 429, 'Maximum attempts reached. Please request a new code.');
+            return errorResponse(res, 429, 'You have reached the maximum number of verification attempts. Please request a new code and try again later.');
         }
 
         if (verificationDoc.code !== code) {
@@ -143,7 +144,7 @@ exports.verify = async (req, res) => {
             return errorResponse(
                 res,
                 400,
-                `Invalid code. You have used ${verificationDoc.attempts} of 5 attempts.`
+                `The provided code is invalid. You have used ${verificationDoc.attempts} of 5 attempts.`
             );
         }
 
@@ -159,10 +160,10 @@ exports.verify = async (req, res) => {
             await User.findByIdAndUpdate(req.user._id, updates, { new: true });
         }
 
-        return successResponse(res, 200, 'Email verified successfully');
+        return successResponse(res, 200, 'Email address verified successfully.');
     } catch (error) {
         console.error('Error verifying email code:', error);
-        return errorResponse(res, 500, 'Internal server error');
+        return errorResponse(res, 500, 'An unexpected server error occurred while verifying the code. Please try again later.');
     }
 };
 
@@ -174,7 +175,7 @@ exports.verify = async (req, res) => {
 exports.getActiveVerification = async (req, res) => {
     try {
         if (!req.user || !req.user._id) {
-            return errorResponse(res, 400, 'User not authenticated');
+            return errorResponse(res, 400, 'User must be authenticated to retrieve active verification code.');
         }
 
         const now = new Date();
@@ -187,11 +188,11 @@ exports.getActiveVerification = async (req, res) => {
         }).sort({ createdAt: -1 });
 
         if (!activeCode) {
-            return successResponse(res, 200, 'No active verification code', null);
+            return successResponse(res, 200, 'No active verification code was found for the authenticated user.', null);
         }
 
         // Retourner uniquement les infos utiles pour le frontend
-        return successResponse(res, 200, 'Active verification code found', {
+        return successResponse(res, 200, 'Active verification code retrieved successfully.', {
             id: activeCode._id,
             email: activeCode.email,
             attempts: activeCode.attempts,
@@ -200,6 +201,6 @@ exports.getActiveVerification = async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching active verification:', error);
-        return errorResponse(res, 500, 'Internal server error');
+        return errorResponse(res, 500, 'An unexpected server error occurred while fetching the active verification code. Please try again later.');
     }
 };

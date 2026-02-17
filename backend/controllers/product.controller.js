@@ -1,6 +1,5 @@
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 const Product = require("../models/Product");
-const { uploadImage } = require('../utils/cloudinary');
 const Boutique = require('../models/Boutique');
 const { generateSku } = require('../utils/product.util');
 
@@ -27,11 +26,11 @@ exports.createProduct = async (req, res) => {
            1️⃣ Contrôles de base
         ========================= */
         if (!name || typeof name !== 'string' || name.trim().length < 3) {
-            return errorResponse(res, 400, 'Invalid product name');
+            return errorResponse(res, 400, 'The product name is invalid. It must be a string with at least 3 characters.');
         }
 
         if (!category || typeof category !== 'string') {
-            return errorResponse(res, 400, 'Invalid category');
+            return errorResponse(res, 400, 'The category is invalid. Please provide a valid category identifier.');
         }
 
         /* =========================
@@ -39,14 +38,14 @@ exports.createProduct = async (req, res) => {
         ========================= */
         const regPrice = Number(regularPrice);
         if (isNaN(regPrice) || regPrice <= 0) {
-            return errorResponse(res, 400, 'Invalid regular price');
+            return errorResponse(res, 400, 'The regular price is invalid. Please provide a positive number.');
         }
 
         let sale = null;
         if (salePrice !== undefined && salePrice !== '') {
             sale = Number(salePrice);
             if (isNaN(sale) || sale < 0 || sale >= regPrice) {
-                return errorResponse(res, 400, 'Invalid sale price');
+                return errorResponse(res, 400, 'The sale price is invalid. It must be a non-negative number strictly less than the regular price.');
             }
         }
 
@@ -54,18 +53,18 @@ exports.createProduct = async (req, res) => {
         const maxQty = maxOrderQty ? Number(maxOrderQty) : null;
 
         if (isNaN(minQty) || minQty <= 0) {
-            return errorResponse(res, 400, 'Invalid minimum order quantity');
+            return errorResponse(res, 400, 'The minimum order quantity is invalid. Please provide a positive integer.');
         }
 
         if (maxQty !== null && (isNaN(maxQty) || maxQty < minQty)) {
-            return errorResponse(res, 400, 'Invalid max order quantity');
+            return errorResponse(res, 400, 'The maximum order quantity is invalid. It must be greater than or equal to the minimum order quantity.');
         }
 
         /* =========================
            3️⃣ Description
         ========================= */
         if (description && typeof description !== 'string') {
-            return errorResponse(res, 400, 'Invalid description');
+            return errorResponse(res, 400, 'The product description is invalid. Please provide a textual description.');
         }
 
         /* =========================
@@ -76,10 +75,10 @@ exports.createProduct = async (req, res) => {
             try {
                 parsedTags = JSON.parse(tags);
                 if (!Array.isArray(parsedTags)) {
-                    return errorResponse(res, 400, 'Tags must be an array');
+                    return errorResponse(res, 400, 'Tags must be an array of strings.');
                 }
             } catch {
-                return errorResponse(res, 400, 'Invalid tags format');
+                return errorResponse(res, 400, 'Tags format is invalid. Please provide a JSON array of strings.');
             }
         }
 
@@ -87,7 +86,7 @@ exports.createProduct = async (req, res) => {
            5️⃣ Images
         ========================= */
         if (!req.files || req.files.length === 0) {
-            return errorResponse(res, 400, 'At least one image is required');
+            return errorResponse(res, 400, 'At least one product image is required. Please upload or provide an image.');
         }
 
         // const uploadedImages = await Promise.all(
@@ -102,7 +101,7 @@ exports.createProduct = async (req, res) => {
             .select('_id');
 
         if (!boutique) {
-            return errorResponse(res, 403, 'Store not found for this user');
+            return errorResponse(res, 403, 'No store was found for the authenticated user. Ensure your account is linked to a boutique.');
         }
 
         /* =========================
@@ -123,13 +122,14 @@ exports.createProduct = async (req, res) => {
             isActive: true
         });
 
-        return successResponse(res, 201, 'Product successfully created', product);
+        return successResponse(res, 201, 'Product created successfully', product);
 
     } catch (error) {
         console.error(error);
-        return errorResponse(res, 500, 'Error while creating product');
+        return errorResponse(res, 500, 'An unexpected server error occurred while creating the product. Please try again later.');
     }
 };
+
 
 
 /**
@@ -142,13 +142,13 @@ exports.getProductById = async (req, res) => {
         if (user.role === 'boutique') {
             const boutique = await Boutique.findOne({ owner: user._id }).select('_id');
             if (!boutique) {
-                return errorResponse(res, 403, 'Store not found for this user');
+                return errorResponse(res, 403, 'No store was found for the authenticated user.');
             }
 
             const product = await Product.findOne({ _id: req.params.id, boutique: boutique._id }).select();
 
             if (!product) {
-                return errorResponse(res, 404, 'Product not found in your store');
+                return errorResponse(res, 404, 'The requested product was not found in your store. Please verify the identifier.');
             }
 
             return successResponse(res, 200, null, product);
@@ -158,14 +158,15 @@ exports.getProductById = async (req, res) => {
         const product = await Product.findById(req.params.id).select();
 
         if (!product) {
-            return errorResponse(res, 404, 'Product not found');
+            return errorResponse(res, 404, 'The requested product was not found. Please verify the identifier.');
         }
 
         return successResponse(res, 200, null, product);
     } catch (error) {
-        return errorResponse(res, 400, 'Invalid ID');
+        return errorResponse(res, 400, 'The provided product identifier is invalid. Please check and try again.');
     }
 };
+
 
 
 
@@ -174,7 +175,7 @@ exports.getProductById = async (req, res) => {
  * GET /api/products
  * Lister tous les produits
  */
-exports.getAllProducts = async (req, res, next) => {
+exports.getAllProducts = async (req, res) => {
     return successResponse(res, 200, null, res.advancedResults);
 };
 /**
@@ -203,7 +204,7 @@ exports.updateProduct = async (req, res) => {
         // Name
         if (name !== undefined) {
             if (!name || typeof name !== 'string' || name.trim().length < 3) {
-                return errorResponse(res, 400, 'Invalid product name');
+                return errorResponse(res, 400, 'The product name is invalid. It must be a string with at least 3 characters.');
             }
             payload.name = name.trim();
         }
@@ -211,7 +212,7 @@ exports.updateProduct = async (req, res) => {
         // Category
         if (category !== undefined) {
             if (!category || typeof category !== 'string') {
-                return errorResponse(res, 400, 'Invalid category');
+                return errorResponse(res, 400, 'The category is invalid. Please provide a valid category identifier.');
             }
             payload.category = category;
         }
@@ -220,7 +221,7 @@ exports.updateProduct = async (req, res) => {
         if (regularPrice !== undefined) {
             const regPrice = Number(regularPrice);
             if (isNaN(regPrice) || regPrice <= 0) {
-                return errorResponse(res, 400, 'Invalid regular price');
+                return errorResponse(res, 400, 'The regular price is invalid. Please provide a positive number.');
             }
             payload.regularPrice = regPrice;
 
@@ -228,18 +229,18 @@ exports.updateProduct = async (req, res) => {
             if (salePrice !== undefined && salePrice !== '') {
                 const sale = Number(salePrice);
                 if (isNaN(sale) || sale < 0 || sale >= regPrice) {
-                    return errorResponse(res, 400, 'Invalid sale price');
+                    return errorResponse(res, 400, 'The sale price is invalid. It must be a non-negative number strictly less than the regular price.');
                 }
                 payload.salePrice = sale;
             }
         } else if (salePrice !== undefined) {
             // regularPrice not provided, need to check against existing product
             const existing = await Product.findById(req.params.id).select('regularPrice');
-            if (!existing) return errorResponse(res, 404, 'Product not found');
+            if (!existing) return errorResponse(res, 404, 'The requested product was not found. Please verify the identifier.');
             const baseReg = existing.regularPrice;
             const sale = Number(salePrice);
             if (isNaN(sale) || sale < 0 || sale >= baseReg) {
-                return errorResponse(res, 400, 'Invalid sale price');
+                return errorResponse(res, 400, 'The sale price is invalid. It must be a non-negative number strictly less than the regular price.');
             }
             payload.salePrice = sale;
         }
@@ -247,19 +248,19 @@ exports.updateProduct = async (req, res) => {
         // min/max qty
         if (minOrderQty !== undefined) {
             const minQty = Number(minOrderQty);
-            if (isNaN(minQty) || minQty <= 0) return errorResponse(res, 400, 'Invalid minimum order quantity');
+            if (isNaN(minQty) || minQty <= 0) return errorResponse(res, 400, 'The minimum order quantity is invalid. Please provide a positive integer.');
             payload.minOrderQty = minQty;
         }
 
         if (maxOrderQty !== undefined) {
             const maxQty = Number(maxOrderQty);
-            if (isNaN(maxQty) || maxQty < (payload.minOrderQty ?? 1)) return errorResponse(res, 400, 'Invalid max order quantity');
+            if (isNaN(maxQty) || maxQty < (payload.minOrderQty ?? 1)) return errorResponse(res, 400, 'The maximum order quantity is invalid. It must be greater than or equal to the minimum order quantity.');
             payload.maxOrderQty = maxQty;
         }
 
         // description
         if (description !== undefined) {
-            if (description && typeof description !== 'string') return errorResponse(res, 400, 'Invalid description');
+            if (description && typeof description !== 'string') return errorResponse(res, 400, 'The product description is invalid. Please provide a textual description.');
             payload.description = description ? description.trim() : '';
         }
 
@@ -269,9 +270,9 @@ exports.updateProduct = async (req, res) => {
             if (tags) {
                 try {
                     parsedTags = typeof tags === 'string' ? JSON.parse(tags) : tags;
-                    if (!Array.isArray(parsedTags)) return errorResponse(res, 400, 'Tags must be an array');
+                    if (!Array.isArray(parsedTags)) return errorResponse(res, 400, 'Tags must be an array of strings.');
                 } catch {
-                    return errorResponse(res, 400, 'Invalid tags format');
+                    return errorResponse(res, 400, 'Tags format is invalid. Please provide a JSON array of strings.');
                 }
             }
             payload.tags = parsedTags;
@@ -279,15 +280,15 @@ exports.updateProduct = async (req, res) => {
 
         // images
         if (images !== undefined) {
-            if (!images || !Array.isArray(images) || images.length === 0) return errorResponse(res, 400, 'At least one image is required');
+            if (!images || !Array.isArray(images) || images.length === 0) return errorResponse(res, 400, 'At least one product image is required. Please upload or provide an image.');
             payload.images = images;
         }
 
-        // sku: if missing/null, generate from name or existing name
-        if (!sku) {
+        // sku: if not provided (undefined or null), generate from name or existing name
+        if (sku === undefined || sku === null) {
             const baseName = payload.name || (await Product.findById(req.params.id).select('name')).name;
             payload.sku = generateSku(baseName);
-        } else if (sku !== undefined) {
+        } else {
             payload.sku = sku;
         }
 
@@ -308,13 +309,13 @@ exports.updateProduct = async (req, res) => {
         ).select();
 
         if (!product) {
-            return errorResponse(res, 404, 'Product not found');
+            return errorResponse(res, 404, 'The requested product was not found. Please verify the identifier.');
         }
 
-        return successResponse(res, 200, 'Product updated', product);
+        return successResponse(res, 200, 'Product updated successfully', product);
 
     } catch (error) {
         console.error(error);
-        return errorResponse(res, 400, 'Error during update');
+        return errorResponse(res, 400, 'An error occurred while updating the product. Please check your input and try again.');
     }
 };

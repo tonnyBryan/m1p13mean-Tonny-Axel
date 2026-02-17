@@ -13,7 +13,7 @@ exports.globalSearch = async (req, res) => {
     try {
         const query = req.query.q;
         if (!query || query.trim() === '') {
-            return errorResponse(res, 400, 'Query is required');
+            return errorResponse(res, 400, 'A search query is required. Please provide a search term.');
         }
 
         const regex = new RegExp(query, 'i');
@@ -67,6 +67,6 @@ exports.globalSearch = async (req, res) => {
 
     } catch (err) {
         console.error('globalSearch error:', err);
-        return errorResponse(res);
+        return errorResponse(res, 500, 'An unexpected server error occurred while performing the search. Please try again later.');
     }
 };

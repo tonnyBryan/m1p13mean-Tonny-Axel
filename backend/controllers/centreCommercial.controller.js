@@ -7,12 +7,12 @@ exports.getCentreCommercial = async (req, res) => {
     const centre = await CentreCommercial.findOne().lean();
     if (!centre) {
       // si aucun document, on renvoie une erreur serveur comme demandé
-      return errorResponse(res, 500, 'Centre commercial introuvable');
+      return errorResponse(res, 500, 'The central commercial configuration was not found. Please contact support.');
     }
 
     return successResponse(res, 200, null, centre);
   } catch (err) {
     console.error('getCentreCommercial error:', err);
-    return errorResponse(res, 500, 'Erreur serveur');
+    return errorResponse(res, 500, 'An unexpected server error occurred while retrieving the commercial center configuration. Please try again later.');
   }
 };

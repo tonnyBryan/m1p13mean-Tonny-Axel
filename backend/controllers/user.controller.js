@@ -26,7 +26,7 @@ exports.getMyParentProfile = async (req, res) => {
         return successResponse(res, 200, null, profile);
     } catch (error) {
         console.error(error);
-        return errorResponse(res, 400, 'Error fetching profile');
+        return errorResponse(res, 400, 'An error occurred while fetching the profile. Please try again.');
     }
 };
 
@@ -47,7 +47,7 @@ exports.getMyProfile = async (req, res) => {
         return successResponse(res, 200, null, profile);
     } catch (error) {
         console.error(error);
-        return errorResponse(res, 400, 'Error fetching profile');
+        return errorResponse(res, 400, 'An error occurred while fetching the profile. Please try again.');
     }
 };
 
@@ -60,12 +60,12 @@ exports.getUserById = async (req, res) => {
         const user = await User.findById(req.params.id).select('-password');
 
         if (!user) {
-            return errorResponse(res, 404, 'User not found');
+            return errorResponse(res, 404, 'The requested user was not found. Please verify the identifier and try again.');
         }
 
         return successResponse(res, 200, null, user);
     } catch (error) {
-        return errorResponse(res, 400, 'failed to fetch user data');
+        return errorResponse(res, 400, 'The provided user identifier is invalid. Please check and try again.');
     }
 };
 
@@ -79,13 +79,13 @@ exports.createUser = async (req, res) => {
 
         // 1️⃣ Vérification basique
         if (!name || !email || !password) {
-            return errorResponse(res, 400, 'Missing required fields');
+            return errorResponse(res, 400, 'Name, email and password are required. Please provide all required fields.');
         }
 
         // 2️⃣ Vérifier si email existe déjà
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return errorResponse(res, 400, 'Email already used');
+            return errorResponse(res, 400, 'The provided email address is already in use. Please use a different email.');
         }
 
         // 3️⃣ Hash du mot de passe
@@ -101,7 +101,7 @@ exports.createUser = async (req, res) => {
         });
 
         // 5️⃣ Réponse uniforme
-        return successResponse(res, 201, 'User successfully created', {
+        return successResponse(res, 201, 'User account created successfully', {
             id: user._id,
             name: user.name,
             email: user.email,
@@ -109,7 +109,7 @@ exports.createUser = async (req, res) => {
         });
 
     } catch (error) {
-        return errorResponse(res, 400, 'Error during creation');
+        return errorResponse(res, 400, 'An error occurred while creating the user. Please check your input and try again.');
     }
 };
 
@@ -127,13 +127,13 @@ exports.updateUser = async (req, res) => {
         ).select('-password');
 
         if (!user) {
-            return errorResponse(res, 404, 'User not found');
+            return errorResponse(res, 404, 'The requested user was not found. Please verify the identifier and try again.');
         }
 
-        return successResponse(res, 200, 'User updated', user);
+        return successResponse(res, 200, 'User updated successfully', user);
 
     } catch (error) {
-        return errorResponse(res, 400, 'Error during update');
+        return errorResponse(res, 400, 'An error occurred while updating the user. Please check your input and try again.');
     }
 };
 
@@ -147,13 +147,13 @@ exports.deleteUser = async (req, res) => {
         const user = await User.findByIdAndDelete(req.params.id);
 
         if (!user) {
-            return errorResponse(res, 404, 'User not found');
+            return errorResponse(res, 404, 'The requested user was not found.');
         }
 
-        return successResponse(res, 200, 'User deleted', null);
+        return successResponse(res, 200, 'User deleted successfully', null);
 
     } catch (error) {
-        return errorResponse(res, 400, 'Error during deletion');
+        return errorResponse(res, 400, 'An error occurred while deleting the user. Please try again.');
     }
 };
 
@@ -176,10 +176,10 @@ exports.upsertMyProfile = async (req, res) => {
             { new: true, upsert: true, runValidators: true }
         );
 
-        return successResponse(res, 200, 'Profile saved', profile);
+        return successResponse(res, 200, 'Profile saved successfully', profile);
     } catch (error) {
         console.error(error);
-        return errorResponse(res, 400, 'Error saving profile');
+        return errorResponse(res, 400, 'An error occurred while saving the profile. Please check your input and try again.');
     }
 };
 
@@ -193,7 +193,7 @@ exports.addAddress = async (req, res) => {
         const newAddress = req.body;
 
         if (!newAddress) {
-            return errorResponse(res, 400, 'Address data required');
+            return errorResponse(res, 400, 'Address data is required. Please provide address details.');
         }
 
         if (newAddress.isDefault === true) {
@@ -209,10 +209,10 @@ exports.addAddress = async (req, res) => {
             { new: true, upsert: true }
         );
 
-        return successResponse(res, 200, 'Address added', profile);
+        return successResponse(res, 200, 'Address added successfully', profile);
     } catch (error) {
         console.error("Error :", error);
-        return errorResponse(res, 500, 'Error adding address');
+        return errorResponse(res, 500, 'An unexpected server error occurred while adding the address. Please try again later.');
     }
 };
 
@@ -226,7 +226,7 @@ exports.deleteAddress = async (req, res) => {
         const { addressId } = req.params;
 
         if (!addressId) {
-            return errorResponse(res, 400, 'Address id required');
+            return errorResponse(res, 400, 'Address id is required.');
         }
 
         const profile = await UserProfile.findOneAndUpdate(
@@ -236,7 +236,7 @@ exports.deleteAddress = async (req, res) => {
         );
 
         if (!profile) {
-            return errorResponse(res, 404, 'Profile not found');
+            return errorResponse(res, 404, 'User profile not found.');
         }
 
         const hasDefault = profile.addresses.some(addr => addr.isDefault === true);
@@ -246,10 +246,10 @@ exports.deleteAddress = async (req, res) => {
             await profile.save();
         }
 
-        return successResponse(res, 200, 'Address removed', profile);
+        return successResponse(res, 200, 'Address removed successfully', profile);
     } catch (error) {
         console.error(error);
-        return errorResponse(res, 500, 'Error removing address');
+        return errorResponse(res, 500, 'An unexpected server error occurred while removing the address. Please try again later.');
     }
 };
 
@@ -281,9 +281,9 @@ exports.getUserProfileById = async (req, res) => {
     } catch (error) {
         console.error('Error fetching profile:', error);
         if (error.kind === 'ObjectId') {
-            return errorResponse(res, 400, 'Invalid ID format');
+            return errorResponse(res, 400, 'The provided identifier is invalid. Please check and try again.');
         }
-        return errorResponse(res, 500, 'Server Error while fetching profile');
+        return errorResponse(res, 500, 'An unexpected server error occurred while fetching the profile. Please try again later.');
     }
 };
 /**
@@ -296,7 +296,7 @@ exports.toggleUserStatus = async (req, res) => {
 
         const user = await User.findById(req.params.id);
         if (!user) {
-            return errorResponse(res, 404, 'User not found');
+            return errorResponse(res, 404, 'The requested user was not found.');
         }
 
         user.isActive = isActive !== undefined ? isActive : !user.isActive;
@@ -308,6 +308,6 @@ exports.toggleUserStatus = async (req, res) => {
         });
     } catch (error) {
         console.error('Error toggling user status:', error);
-        return errorResponse(res, 500, 'Server Error while updating user status');
+        return errorResponse(res, 500, 'An unexpected server error occurred while updating the user status. Please try again later.');
     }
 };

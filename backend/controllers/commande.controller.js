@@ -16,32 +16,32 @@ async function findOpenDraft(userId) {
 exports.addToCart = async (req, res) => {
     try {
         const userId = req.user && req.user._id;
-        if (!userId) return errorResponse(res, 401, 'Unauthorized');
+        if (!userId) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
 
         const { productId, quantity } = req.body;
-        if (!productId) return errorResponse(res, 400, 'productId required');
+        if (!productId) return errorResponse(res, 400, 'The productId is required. Please provide a valid product identifier.');
 
         const qty = Number.isFinite(Number(quantity)) && Number(quantity) > 0 ? Number(quantity) : 1;
 
         // Find product with virtual stockReal
         const product = await Product.findById(productId);
-        if (!product) return errorResponse(res, 404, 'Product not found');
+        if (!product) return errorResponse(res, 404, 'The requested product was not found. It may have been removed.');
 
         // Validate min/max order quantities
         const minOrder = product.minOrderQty || 1;
         const maxOrder = product.maxOrderQty || Number.MAX_SAFE_INTEGER;
 
         if (qty < minOrder) {
-            return errorResponse(res, 400, `Minimum order quantity is ${minOrder}`);
+            return errorResponse(res, 400, `The minimum order quantity for this product is ${minOrder}.`);
         }
 
         if (qty > maxOrder) {
-            return errorResponse(res, 400, `Maximum order quantity is ${maxOrder}`);
+            return errorResponse(res, 400, `The maximum order quantity for this product is ${maxOrder}.`);
         }
 
         // Check stockReal
         if (qty > product.stockReal) {
-            return errorResponse(res, 400, `Stock insufficient. Available: ${product.stockReal}`);
+            return errorResponse(res, 400, `Insufficient stock. Available quantity: ${product.stockReal}.`);
         }
 
         // Find existing draft
@@ -50,7 +50,7 @@ exports.addToCart = async (req, res) => {
         if (commande) {
             // Verify boutique match
             if (String(commande.boutique) !== String(product.boutique)) {
-                return errorResponse(res, 403, 'Product belongs to another boutique');
+                return errorResponse(res, 403, 'This product belongs to a different boutique and cannot be added to the current cart.');
             }
         } else {
             // Create new draft
@@ -70,7 +70,7 @@ exports.addToCart = async (req, res) => {
 
             // Ensure total quantity after addition does not exceed maxOrder
             if (newQty > maxOrder) {
-                return errorResponse(res, 400, `Adding this quantity would exceed maximum allowed for this product (${maxOrder})`);
+                return errorResponse(res, 400, `Adding this quantity would exceed the maximum allowed for this product (${maxOrder}).`);
             }
 
             // Update quantity in commande
@@ -105,7 +105,7 @@ exports.addToCart = async (req, res) => {
 
     } catch (err) {
         console.error(err);
-        return errorResponse(res, 500, 'Server error');
+        return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
     }
 };
 
@@ -114,13 +114,13 @@ exports.addToCart = async (req, res) => {
 exports.getDraft = async (req, res) => {
     try {
         const userId = req.user && req.user._id;
-        if (!userId) return errorResponse(res, 401, 'Unauthorized');
+        if (!userId) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
 
         const commande = await findOpenDraft(userId);
         return successResponse(res, 200, null, commande);
     } catch (err) {
         console.error('getDraft error:', err);
-        return errorResponse(res, 500, 'Server error');
+        return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
     }
 };
 
@@ -129,7 +129,7 @@ exports.getDraft = async (req, res) => {
 exports.getDraftFull = async (req, res) => {
     try {
         const userId = req.user && req.user._id;
-        if (!userId) return errorResponse(res, 401, 'Unauthorized');
+        if (!userId) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
 
         const now = new Date();
         const commande = await Commande.findOne({ user: userId, status: 'draft', $or: [ { expiredAt: { $exists: false } }, { expiredAt: { $gt: now } } ] })
@@ -154,7 +154,7 @@ exports.getDraftFull = async (req, res) => {
         return successResponse(res, 200, null, commande);
     } catch (err) {
         console.error('getDraftFull error:', err);
-        return errorResponse(res, 500, 'Server error');
+        return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
     }
 };
 
@@ -162,42 +162,42 @@ exports.getDraftFull = async (req, res) => {
 exports.updateItemQuantity = async (req, res) => {
     try {
         const userId = req.user && req.user._id;
-        if (!userId) return errorResponse(res, 401, 'Unauthorized');
+        if (!userId) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
 
         const productId = req.params.productId;
         const { quantity } = req.body; // quantité absolue
-        if (!productId) return errorResponse(res, 400, 'productId required');
+        if (!productId) return errorResponse(res, 400, 'The productId is required. Please provide a valid product identifier.');
 
         const newQty = Number.isFinite(Number(quantity)) ? Number(quantity) : null;
         if (newQty === null) {
-            return errorResponse(res, 400, 'quantity is required and must be a number');
+            return errorResponse(res, 400, 'The quantity is required and must be a valid number.');
         }
 
         const product = await Product.findById(productId);
-        if (!product) return errorResponse(res, 404, 'Product not found');
+        if (!product) return errorResponse(res, 404, 'The requested product was not found. It may have been removed.');
 
         const minOrder = product.minOrderQty || 1;
         const maxOrder = product.maxOrderQty || Number.MAX_SAFE_INTEGER;
 
         if (newQty < 0) {
-            return errorResponse(res, 400, 'Quantity cannot be negative');
+            return errorResponse(res, 400, 'Quantity cannot be negative.');
         }
         if (newQty > 0 && newQty < minOrder) {
-            return errorResponse(res, 400, `Minimum order quantity is ${minOrder}`);
+            return errorResponse(res, 400, `The minimum order quantity for this product is ${minOrder}.`);
         }
         if (newQty > maxOrder) {
-            return errorResponse(res, 400, `Maximum order quantity is ${maxOrder}`);
+            return errorResponse(res, 400, `The maximum order quantity for this product is ${maxOrder}.`);
         }
 
         // find open draft
         const commande = await findOpenDraft(userId);
-        if (!commande) return errorResponse(res, 404, 'No open draft found');
+        if (!commande) return errorResponse(res, 404, 'No active draft order was found. Please create a new order.');
 
         const itemIndex = commande.products.findIndex(
             p => String(p.product) === String(productId)
         );
         if (itemIndex === -1) {
-            return errorResponse(res, 404, 'Product not in cart');
+            return errorResponse(res, 404, 'The specified product is not present in the cart.');
         }
 
         const item = commande.products[itemIndex];
@@ -210,7 +210,7 @@ exports.updateItemQuantity = async (req, res) => {
             return errorResponse(
                 res,
                 400,
-                `Stock insufficient. Available: ${product.stockReal}`
+                `Insufficient stock. Available quantity: ${product.stockReal}.`
             );
         }
 
@@ -245,7 +245,7 @@ exports.updateItemQuantity = async (req, res) => {
 
     } catch (err) {
         console.error('updateItemQuantity error:', err);
-        return errorResponse(res, 500, 'Server error');
+        return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
     }
 };
 
@@ -254,19 +254,19 @@ exports.updateItemQuantity = async (req, res) => {
 exports.removeItemFromCart = async (req, res) => {
     try {
         const userId = req.user && req.user._id;
-        if (!userId) return errorResponse(res, 401, 'Unauthorized');
+        if (!userId) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
 
         const productId = req.params.productId;
-        if (!productId) return errorResponse(res, 400, 'productId required');
+        if (!productId) return errorResponse(res, 400, 'The productId is required. Please provide a valid product identifier.');
 
         let commande = await findOpenDraft(userId);
-        if (!commande) return errorResponse(res, 404, 'No open draft found');
+        if (!commande) return errorResponse(res, 404, 'No active draft order was found. Please create a new order.');
 
         const itemIndex = commande.products.findIndex(
             p => String(p.product) === String(productId)
         );
         if (itemIndex === -1) {
-            return errorResponse(res, 404, 'Product not in cart');
+            return errorResponse(res, 404, 'The specified product is not present in the cart.');
         }
 
         // récupérer la quantité engagée
@@ -302,7 +302,7 @@ exports.removeItemFromCart = async (req, res) => {
 
     } catch (err) {
         console.error('removeItemFromCart error:', err);
-        return errorResponse(res, 500, 'Server error');
+        return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
     }
 };
 
@@ -311,14 +311,14 @@ exports.removeItemFromCart = async (req, res) => {
 exports.payCommand = async (req, res) => {
     try {
         const userId = req.user && req.user._id;
-        if (!userId) return errorResponse(res, 401, 'Unauthorized');
+        if (!userId) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
 
         const { deliveryMode, deliveryAddress, paymentInfo, savePaymentInfo, totalAmount } = req.body;
         const saveNewAddress = deliveryAddress?.saveNewAddress;
 
         // Find open draft
         let commande = await findOpenDraft(userId);
-        if (!commande) return errorResponse(res, 404, 'No open draft found');
+        if (!commande) return errorResponse(res, 404, 'No active draft order was found. Please create a new order.');
 
         // Update commande details
         commande.status = 'paid';
@@ -361,7 +361,7 @@ exports.payCommand = async (req, res) => {
         return successResponse(res, 200, 'Payment processed successfully', commande);
     } catch (err) {
         console.error('payCommand error:', err);
-        return errorResponse(res, 500, 'Server error');
+        return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
     }
 };
 
@@ -370,22 +370,22 @@ exports.payCommand = async (req, res) => {
 exports.getCommandById = async (req, res) => {
     try {
         const user = req.user;
-        if (!user) return errorResponse(res, 401, 'Unauthorized');
+        if (!user) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
 
         const id = req.params.id;
-        if (!id) return errorResponse(res, 400, 'id required');
+        if (!id) return errorResponse(res, 400, 'The order id is required. Please provide a valid identifier.');
 
         // If boutique -> ensure boutique owns the commande
         if (user.role === 'boutique') {
             const boutique = await Boutique.findOne({ owner: user._id }).select('_id');
-            if (!boutique) return errorResponse(res, 403, 'Store not found for this user');
+            if (!boutique) return errorResponse(res, 403, 'No store associated with the authenticated user was found.');
 
             const commande = await Commande.findOne({ _id: id, boutique: boutique._id })
                 .populate('boutique')
                 .populate({ path: 'products.product', model: 'Product' })
                 .exec();
 
-            if (!commande) return errorResponse(res, 404, 'Commande not found in your store');
+            if (!commande) return errorResponse(res, 404, 'The requested order was not found in your store.');
 
             return successResponse(res, 200, null, commande);
         }
@@ -397,7 +397,7 @@ exports.getCommandById = async (req, res) => {
                 .populate({ path: 'products.product', model: 'Product' })
                 .exec();
 
-            if (!commande) return errorResponse(res, 404, 'Commande not found for this user');
+            if (!commande) return errorResponse(res, 404, 'The requested order was not found for this user.');
 
             return successResponse(res, 200, null, commande);
         }
@@ -408,12 +408,12 @@ exports.getCommandById = async (req, res) => {
             .populate({ path: 'products.product', model: 'Product' })
             .exec();
 
-        if (!commande) return errorResponse(res, 404, 'Commande not found');
+        if (!commande) return errorResponse(res, 404, 'The requested order was not found.');
 
         return successResponse(res, 200, null, commande);
     } catch (err) {
         console.error('getCommandById error:', err);
-        return errorResponse(res, 400, 'Invalid Id');
+        return errorResponse(res, 400, 'The provided identifier is invalid. Please check and try again.');
     }
 };
 
@@ -433,7 +433,7 @@ exports.getAllCommands = async (req, res) => {
         return successResponse(res, 200, null, advanced);
     } catch (err) {
         console.error('getAllCommands error:', err);
-        return errorResponse(res, 500, 'Server error');
+        return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
     }
 };
 
