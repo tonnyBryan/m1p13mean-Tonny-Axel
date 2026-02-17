@@ -316,37 +316,52 @@
                 <!-- Delivery Address -->
                 <div *ngIf="order.deliveryMode === 'delivery' && order.deliveryAddress"
                      class="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-2xl p-6">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-3">Delivery Address</h3>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white mb-1">{{ order.deliveryAddress.label }}</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">{{ order.deliveryAddress.description }}</p>
-                            <div class="flex flex-wrap gap-3">
-                                <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
-                                        <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
-                                    </svg>
-                                    <span class="text-sm font-bold text-blue-700 dark:text-blue-300">
-                                        Fee: {{ order.deliveryAddress.price.toLocaleString() }} Ar
-                                    </span>
-                                </div>
-                                <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                                    <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    </svg>
-                                    <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        {{ order.deliveryAddress.latitude }}, {{ order.deliveryAddress.longitude }}
-                                    </span>
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex items-start gap-4 flex-1">
+                            <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-3">Delivery Address</h3>
+                                <p class="text-base font-semibold text-gray-900 dark:text-white mb-1">{{ order.deliveryAddress.label }}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">{{ order.deliveryAddress.description }}</p>
+                                <div class="flex flex-wrap gap-3">
+                                    <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                        <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                                            <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
+                                        </svg>
+                                        <span class="text-sm font-bold text-blue-700 dark:text-blue-300">
+                                            Fee: {{ order.deliveryAddress.price.toLocaleString() }} Ar
+                                        </span>
+                                    </div>
+                                    <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                                        <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        </svg>
+                                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                            {{ order.deliveryAddress.latitude }}, {{ order.deliveryAddress.longitude }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Google Maps Badge Button -->
+                        <button
+                                *ngIf="centre?.location?.coordinates"
+                                (click)="openGoogleMapsRoute()"
+                                class="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-750 rounded-xl shadow-sm hover:shadow-md transition-all flex-shrink-0 group">
+                            <img
+                                    src="https://logo-teka.com/wp-content/uploads/2025/07/google-maps-sign-logo.svg"
+                                    alt="Google Maps"
+                                    class="w-5 h-5 group-hover:scale-110 transition-transform"
+                            />
+                            <span class="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Maps</span>
+                        </button>
                     </div>
                 </div>
 

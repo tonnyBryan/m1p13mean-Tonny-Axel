@@ -5,6 +5,7 @@ import { ToastService } from "../../../shared/services/toast.service";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { PageBreadcrumbComponent } from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
+import {CentreService} from "../../../shared/services/centre.service";
 
 @Component({
   selector: 'app-orders-detail-boutique',
@@ -14,6 +15,7 @@ import { PageBreadcrumbComponent } from "../../../shared/components/common/page-
   styleUrl: './order-detail-boutique.component.css',
 })
 export class OrderDetailBoutiqueComponent implements OnInit {
+  centre: any = null;
 
   orderId: string | null = null;
   order: any = null;
@@ -29,6 +31,7 @@ export class OrderDetailBoutiqueComponent implements OnInit {
       private route: ActivatedRoute,
       private router: Router,
       private commandeService: CommandeService,
+      private centreService: CentreService,
       private toast: ToastService
   ) {}
 
@@ -36,11 +39,31 @@ export class OrderDetailBoutiqueComponent implements OnInit {
     this.orderId = this.route.snapshot.paramMap.get('id');
     if (this.orderId) {
       this.loadOrder(this.orderId);
+      this.loadCentre();
     } else {
       this.toast.error('Error', 'Missing id in url');
       this.router.navigate(['/store/app/orders']);
     }
   }
+
+  loadCentre(): void {
+    this.centreService.getCentreCommercial().subscribe({
+      next: (res: any) => {
+        if (res?.success && res?.data) {
+          this.centre = res.data;
+          console.log(this.centre);
+        } else {
+          this.centre = null;
+        }
+      },
+      error: (err) => {
+        console.error('Error loading centre commercial', err);
+        this.centre = null;
+      }
+    });
+  }
+
+
 
   loadOrder(id: string) {
     this.loading = true;
@@ -59,6 +82,20 @@ export class OrderDetailBoutiqueComponent implements OnInit {
         this.router.navigate(['/store/app/orders']);
       }
     });
+  }
+
+  openGoogleMapsRoute(): void {
+    if (!this.centre?.location?.coordinates || !this.order?.deliveryAddress) {
+      this.toast.error('Error', 'Missing coordinates for route calculation');
+      return;
+    }
+
+    const origin = `${this.centre.location.coordinates.latitude},${this.centre.location.coordinates.longitude}`;
+    const destination = `${this.order.deliveryAddress.latitude},${this.order.deliveryAddress.longitude}`;
+
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=driving`;
+
+    window.open(mapsUrl, '_blank');
   }
 
   // --- Call API to change status ---
