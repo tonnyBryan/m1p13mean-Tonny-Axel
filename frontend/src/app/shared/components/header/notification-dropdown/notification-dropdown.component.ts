@@ -169,33 +169,35 @@ export class NotificationDropdownComponent implements OnInit, OnDestroy {
   }
 
   markAllAsRead() {
-    // To be implemented
-    // When implemented, set totalUnread = 0 and update all notifications
-    // this.notifService.markAllAsRead().subscribe({
-    //   next: (res) => {
-    //     if (res?.success) {
-    //       this.notifications = this.notifications.map(n => ({ ...n, isRead: true }));
-    //       this.totalUnread = 0;
-    //       this.notifying = false;
-    //     }
-    //   }
-    // });
+    this.notifService.markAllAsRead().subscribe({
+      next: (res) => {
+        if (res?.success) {
+          this.notifications = this.notifications.map(n => ({ ...n, isRead: true }));
+          this.totalUnread = 0;
+          this.notifying = false;
+        }
+      },
+      error: (err) => {
+        console.error('Error marking all notifications as read:', err);
+      }
+    });
   }
 
   onNotificationClick(notification: any) {
-    // To be implemented
-    // When marking as read, decrement totalUnread
-    // if (!notification.isRead) {
-    //   this.notifService.markAsRead(notification._id).subscribe({
-    //     next: (res) => {
-    //       if (res?.success) {
-    //         notification.isRead = true;
-    //         this.totalUnread = Math.max(0, this.totalUnread - 1);
-    //         this.notifying = this.totalUnread > 0;
-    //       }
-    //     }
-    //   });
-    // }
+    if (!notification.isRead) {
+      this.notifService.markAsRead(notification._id).subscribe({
+        next: (res) => {
+          if (res?.success) {
+            notification.isRead = true;
+            this.totalUnread = Math.max(0, this.totalUnread - 1);
+            this.notifying = this.totalUnread > 0;
+          }
+        },
+        error: (err) => {
+          console.error('Error marking notification as read:', err);
+        }
+      });
+    }
 
     this.closeDropdown();
 

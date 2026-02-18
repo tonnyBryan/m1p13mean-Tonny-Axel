@@ -16,4 +16,10 @@ const injectUserFilter = (req, res, next) => {
 // GET /api/notifications
 router.get('/', protect, authorize('user', 'boutique'), injectUserFilter, advancedResults(Notification), notificationController.getAllNotifications);
 
+// PATCH /api/notifications/:id/read
+router.patch('/:id/read', protect, authorize('user', 'boutique'), notificationController.markAsRead);
+
+// PATCH /api/notifications/read-all
+router.patch('/read-all', protect, authorize('user', 'boutique'), notificationController.markAllAsRead);
+
 module.exports = router;
