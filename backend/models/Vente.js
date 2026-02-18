@@ -35,6 +35,11 @@ const VenteSchema = new Schema({
         enum: ['dine-in', 'delivery'],
         default: 'dine-in'
     },
+    origin: {
+        type: String,
+        enum: ['direct', 'order'],
+        default: 'direct'
+    },
     saleDate: { type: Date, default: Date.now }
 }, { timestamps: true });
 

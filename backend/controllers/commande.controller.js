@@ -4,7 +4,7 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
 const LivraisonConfig = require('../models/LivraisonConfig');
 const UserProfile = require('../models/UserProfile');
 const Boutique = require('../models/Boutique');
-const {removeEngagement} = require("../services/commande.service");
+const {removeEngagement, createVenteFromCommande} = require("../services/commande.service");
 const mongoose = require('mongoose');
 
 async function findOpenDraft(userId) {
@@ -480,6 +480,10 @@ exports.acceptOrder = async (req, res) => {
             return errorResponse(res, 404, 'No order matching the provided identifier was found for your store. Please verify the identifier and try again.');
         }
 
+        const sellerId = req.user._id;
+
+        const vente = await createVenteFromCommande(commande, sellerId, session);
+        console.log(vente);
         await removeEngagement(commande, session);
 
         // TODO: creation vente, sortie de stock (business logic to be added later)
