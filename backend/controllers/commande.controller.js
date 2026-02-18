@@ -18,6 +18,7 @@ async function findOpenDraft(userId) {
 // POST /api/commandes/add
 // body: { productId, quantity }
 exports.addToCart = async (req, res) => {
+    let session = null;
     try {
         const userId = req.user && req.user._id;
         if (!userId) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
@@ -27,63 +28,65 @@ exports.addToCart = async (req, res) => {
 
         const qty = Number.isFinite(Number(quantity)) && Number(quantity) > 0 ? Number(quantity) : 1;
 
+        session = await mongoose.startSession();
+        session.startTransaction();
+
         // Find product with virtual stockReal
-        const product = await Product.findById(productId);
-        if (!product) return errorResponse(res, 404, 'The requested product was not found. It may have been removed.');
+        const product = await Product.findById(productId).session(session);
+        if (!product) {
+            await session.abortTransaction();
+            return errorResponse(res, 404, 'The requested product was not found. It may have been removed.');
+        }
 
         // Validate min/max order quantities
         const minOrder = product.minOrderQty || 1;
         const maxOrder = product.maxOrderQty || Number.MAX_SAFE_INTEGER;
 
         if (qty < minOrder) {
+            await session.abortTransaction();
             return errorResponse(res, 400, `The minimum order quantity for this product is ${minOrder}.`);
         }
 
         if (qty > maxOrder) {
+            await session.abortTransaction();
             return errorResponse(res, 400, `The maximum order quantity for this product is ${maxOrder}.`);
         }
 
         // Check stockReal
         if (qty > product.stockReal) {
+            await session.abortTransaction();
             return errorResponse(res, 400, `Insufficient stock. Available quantity: ${product.stockReal}.`);
         }
 
         // Find existing draft
         let commande = await findOpenDraft(userId);
-
         if (commande) {
-            // Verify boutique match
             if (String(commande.boutique) !== String(product.boutique)) {
+                await session.abortTransaction();
                 return errorResponse(res, 403, 'This product belongs to a different boutique and cannot be added to the current cart.');
             }
         } else {
-            // Create new draft
             commande = new Commande({ user: userId, boutique: product.boutique, products: [], status: 'draft' });
         }
 
         // Check if product already in commande
         const existingIndex = commande.products.findIndex(p => String(p.product) === String(product._id));
-
         const unitPrice = product.isSale && product.salePrice ? product.salePrice : product.regularPrice;
-
-        let quantityToAdd = qty; // La quantité réellement ajoutée au panier
+        let quantityToAdd = qty;
 
         if (existingIndex >= 0) {
             const existingProduct = commande.products[existingIndex];
             const newQty = existingProduct.quantity + qty;
 
-            // Ensure total quantity after addition does not exceed maxOrder
             if (newQty > maxOrder) {
+                await session.abortTransaction();
                 return errorResponse(res, 400, `Adding this quantity would exceed the maximum allowed for this product (${maxOrder}).`);
             }
 
-            // Update quantity in commande
             existingProduct.quantity = newQty;
             existingProduct.unitPrice = unitPrice;
             existingProduct.totalPrice = newQty * unitPrice;
-
         } else {
-            // New product line
             commande.products.push({
                 product: product._id,
                 quantity: qty,
@@ -93,26 +96,32 @@ exports.addToCart = async (req, res) => {
             });
         }
 
-        // Update stockEngaged uniquement de la quantité ajoutée
+        // Update stockEngaged
         product.stockEngaged += quantityToAdd;
-        await product.save();
+        await product.save({ session });
 
         // Recompute totalAmount
         commande.totalAmount = commande.products.reduce((s, it) => s + (it.totalPrice || 0), 0);
 
         // Set expiredAt if not set
-        if (!commande.expiredAt) commande.expiredAt = new Date(Date.now() + 60*60*1000);
+        if (!commande.expiredAt) commande.expiredAt = new Date(Date.now() + 60 * 60 * 1000);
 
-        await commande.save();
+        await commande.save({ session });
+
+        await session.commitTransaction();
 
         return successResponse(res, 200, null, commande);
 
     } catch (err) {
         console.error(err);
+        if (session) {
+            try { await session.abortTransaction(); } catch (e) { console.error('Failed to abort transaction', e); }
+        }
         return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
+    } finally {
+        if (session) session.endSession();
     }
 };
-
 
 // GET /api/commandes/draft
 exports.getDraft = async (req, res) => {
@@ -164,12 +173,13 @@ exports.getDraftFull = async (req, res) => {
 
 // PATCH /api/commandes/products/:productId/quantity
 exports.updateItemQuantity = async (req, res) => {
+    let session = null;
     try {
         const userId = req.user && req.user._id;
         if (!userId) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
 
         const productId = req.params.productId;
-        const { quantity } = req.body; // quantité absolue
+        const { quantity } = req.body;
         if (!productId) return errorResponse(res, 400, 'The productId is required. Please provide a valid product identifier.');
 
         const newQty = Number.isFinite(Number(quantity)) ? Number(quantity) : null;
@@ -177,40 +187,53 @@ exports.updateItemQuantity = async (req, res) => {
             return errorResponse(res, 400, 'The quantity is required and must be a valid number.');
         }
 
-        const product = await Product.findById(productId);
-        if (!product) return errorResponse(res, 404, 'The requested product was not found. It may have been removed.');
+        session = await mongoose.startSession();
+        session.startTransaction();
+
+        const product = await Product.findById(productId).session(session);
+        if (!product) {
+            await session.abortTransaction();
+            return errorResponse(res, 404, 'The requested product was not found. It may have been removed.');
+        }
 
         const minOrder = product.minOrderQty || 1;
         const maxOrder = product.maxOrderQty || Number.MAX_SAFE_INTEGER;
 
         if (newQty < 0) {
+            await session.abortTransaction();
             return errorResponse(res, 400, 'Quantity cannot be negative.');
         }
         if (newQty > 0 && newQty < minOrder) {
+            await session.abortTransaction();
             return errorResponse(res, 400, `The minimum order quantity for this product is ${minOrder}.`);
         }
         if (newQty > maxOrder) {
+            await session.abortTransaction();
             return errorResponse(res, 400, `The maximum order quantity for this product is ${maxOrder}.`);
         }
 
         // find open draft
         const commande = await findOpenDraft(userId);
-        if (!commande) return errorResponse(res, 404, 'No active draft order was found. Please create a new order.');
+        if (!commande) {
+            await session.abortTransaction();
+            return errorResponse(res, 404, 'No active draft order was found. Please create a new order.');
+        }
 
         const itemIndex = commande.products.findIndex(
             p => String(p.product) === String(productId)
         );
         if (itemIndex === -1) {
+            await session.abortTransaction();
             return errorResponse(res, 404, 'The specified product is not present in the cart.');
         }
 
         const item = commande.products[itemIndex];
         const oldQty = item.quantity;
-
         const delta = newQty - oldQty;
 
         // si on augmente → vérifier le stock réel
         if (delta > 0 && delta > product.stockReal) {
+            await session.abortTransaction();
             return errorResponse(
                 res,
                 400,
@@ -234,8 +257,8 @@ exports.updateItemQuantity = async (req, res) => {
 
         // mise à jour stockEngaged (delta positif ou négatif)
         product.stockEngaged += delta;
-        if (product.stockEngaged < 0) product.stockEngaged = 0; // sécurité
-        await product.save();
+        if (product.stockEngaged < 0) product.stockEngaged = 0;
+        await product.save({ session });
 
         // recompute total
         commande.totalAmount = commande.products.reduce(
@@ -243,19 +266,27 @@ exports.updateItemQuantity = async (req, res) => {
             0
         );
 
-        await commande.save();
+        await commande.save({ session });
+
+        await session.commitTransaction();
 
         return successResponse(res, 200, null, commande);
 
     } catch (err) {
         console.error('updateItemQuantity error:', err);
+        if (session) {
+            try { await session.abortTransaction(); } catch (e) { console.error('Failed to abort transaction', e); }
+        }
         return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
+    } finally {
+        if (session) session.endSession();
     }
 };
 
 
 // DELETE /api/commandes/products/:productId
 exports.removeItemFromCart = async (req, res) => {
+    let session = null;
     try {
         const userId = req.user && req.user._id;
         if (!userId) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
@@ -263,13 +294,20 @@ exports.removeItemFromCart = async (req, res) => {
         const productId = req.params.productId;
         if (!productId) return errorResponse(res, 400, 'The productId is required. Please provide a valid product identifier.');
 
+        session = await mongoose.startSession();
+        session.startTransaction();
+
         let commande = await findOpenDraft(userId);
-        if (!commande) return errorResponse(res, 404, 'No active draft order was found. Please create a new order.');
+        if (!commande) {
+            await session.abortTransaction();
+            return errorResponse(res, 404, 'No active draft order was found. Please create a new order.');
+        }
 
         const itemIndex = commande.products.findIndex(
             p => String(p.product) === String(productId)
         );
         if (itemIndex === -1) {
+            await session.abortTransaction();
             return errorResponse(res, 404, 'The specified product is not present in the cart.');
         }
 
@@ -277,12 +315,12 @@ exports.removeItemFromCart = async (req, res) => {
         const removedItem = commande.products[itemIndex];
         const qtyToRelease = removedItem.quantity;
 
-        //  libérer le stock engagé
-        const product = await Product.findById(productId);
+        // libérer le stock engagé
+        const product = await Product.findById(productId).session(session);
         if (product) {
             product.stockEngaged -= qtyToRelease;
             if (product.stockEngaged < 0) product.stockEngaged = 0;
-            await product.save();
+            await product.save({ session });
         }
 
         // supprimer l’item du panier
@@ -290,7 +328,8 @@ exports.removeItemFromCart = async (req, res) => {
 
         // si plus aucun produit → supprimer la commande
         if (!commande.products.length) {
-            await Commande.deleteOne({ _id: commande._id });
+            await Commande.deleteOne({ _id: commande._id }).session(session);
+            await session.commitTransaction();
             return successResponse(res, 200, null, null);
         }
 
@@ -300,19 +339,25 @@ exports.removeItemFromCart = async (req, res) => {
             0
         );
 
-        await commande.save();
+        await commande.save({ session });
+        await session.commitTransaction();
 
         return successResponse(res, 200, null, commande);
 
     } catch (err) {
         console.error('removeItemFromCart error:', err);
+        if (session) {
+            try { await session.abortTransaction(); } catch (e) { console.error('Failed to abort transaction', e); }
+        }
         return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
+    } finally {
+        if (session) session.endSession();
     }
 };
 
-
 // POST /api/commandes/pay
 exports.payCommand = async (req, res) => {
+    let session = null;
     try {
         const userId = req.user && req.user._id;
         if (!userId) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
@@ -320,9 +365,15 @@ exports.payCommand = async (req, res) => {
         const { deliveryMode, deliveryAddress, paymentInfo, savePaymentInfo, totalAmount } = req.body;
         const saveNewAddress = deliveryAddress?.saveNewAddress;
 
+        session = await mongoose.startSession();
+        session.startTransaction();
+
         // Find open draft
         let commande = await findOpenDraft(userId);
-        if (!commande) return errorResponse(res, 404, 'No active draft order was found. Please create a new order.');
+        if (!commande) {
+            await session.abortTransaction();
+            return errorResponse(res, 404, 'No active draft order was found. Please create a new order.');
+        }
 
         // Update commande details
         commande.status = 'paid';
@@ -333,7 +384,7 @@ exports.payCommand = async (req, res) => {
 
         // Save new delivery address if required
         if (deliveryAddress && deliveryAddress.id === null && saveNewAddress) {
-            const userProfile = await UserProfile.findOne({ user: userId });
+            const userProfile = await UserProfile.findOne({ user: userId }).session(session);
             if (userProfile) {
                 userProfile.addresses.push({
                     label: deliveryAddress.label,
@@ -342,33 +393,51 @@ exports.payCommand = async (req, res) => {
                     longitude: deliveryAddress.longitude,
                     price: deliveryAddress.price
                 });
-                await userProfile.save();
+                await userProfile.save({ session });
             }
         }
 
         // Save or update payment info if required
         if (savePaymentInfo) {
-            const userProfile = await UserProfile.findOne({ user: userId });
+            const userProfile = await UserProfile.findOne({ user: userId }).session(session);
             if (userProfile) {
                 userProfile.cardInfo = paymentInfo;
-                await userProfile.save();
+                await userProfile.save({ session });
             }
         }
 
-        await commande.save();
+        // Save commande inside transaction
+        await commande.save({ session });
 
+        await session.commitTransaction();
+
+        // Re-populate commande after commit (outside transaction)
         commande = await Commande.findById(commande._id)
             .populate('boutique')
             .populate({ path: 'products.product', model: 'Product' })
             .exec();
 
+        sendNotification({
+            recipient: commande.boutique.owner,
+            channel: 'order',
+            type: 'order_created',
+            title: 'New Order Received',
+            message: `A new order has been placed in your store. Please review and process it promptly.`,
+            payload: { orderId: commande._id },
+            url: `/store/app/orders/${commande._id}`
+        }).catch(err => console.error('Notification failed', err));
+
         return successResponse(res, 200, 'Payment processed successfully', commande);
     } catch (err) {
         console.error('payCommand error:', err);
+        if (session) {
+            try { await session.abortTransaction(); } catch (e) { console.error('Failed to abort transaction', e); }
+        }
         return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
+    } finally {
+        if (session) session.endSession();
     }
 };
-
 
 // GET /api/commandes/:id
 exports.getCommandById = async (req, res) => {
@@ -494,7 +563,7 @@ exports.acceptOrder = async (req, res) => {
         await commande.save({ session });
 
         await session.commitTransaction();
-        
+
         return successResponse(res, 200, 'The order status has been successfully updated to "accepted".', commande);
     } catch (err) {
         console.error('acceptOrder error:', err);

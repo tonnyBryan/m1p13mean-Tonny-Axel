@@ -9,7 +9,7 @@ export class ToastService {
     private toastsSubject = new BehaviorSubject<Toast[]>([]);
     public toasts$: Observable<Toast[]> = this.toastsSubject.asObservable();
 
-    private defaultDuration = 3000; // 5 secondes
+    private defaultDuration = 5000; // 5 secondes
     private defaultPosition: ToastPosition = 'top-right';
 
     constructor() {}
