@@ -3,15 +3,14 @@ import { SidebarService } from '../../services/sidebar.service';
 import { CommonModule } from '@angular/common';
 import { AppSidebarComponent } from '../app-sidebar/app-sidebar.component';
 import { BackdropComponent } from '../backdrop/backdrop.component';
-import { RouterModule } from '@angular/router';
+import {NavigationEnd, Router, RouterModule} from '@angular/router';
 import { AppHeaderComponent } from '../app-header/app-header.component';
-import {Observable} from "rxjs";
+import {filter, Observable} from "rxjs";
 import {AuthService} from "../../services/auth.service";
 import {AppHeaderUserComponent} from "../app-header-user/app-header-user.component";
 import {AppHeaderBoutiqueComponent} from "../app-header-boutique/app-header-boutique.component";
 import {AppHeaderAdminComponent} from "../app-header-admin/app-header-admin.component";
 import {JwtPayload} from "../../../core/models/jwtPayload.model";
-import {SessionService} from "../../services/session.service";
 import {SocketService} from "../../services/socket.service";
 
 @Component({
@@ -36,7 +35,7 @@ export class AppLayoutComponent implements OnInit {
   userToken$!: Observable<JwtPayload | null>;
 
 
-  constructor(public sidebarService: SidebarService, private authService : AuthService, private session : SessionService, private socketService : SocketService) {
+  constructor(public sidebarService: SidebarService, private authService : AuthService, private router: Router, private socketService : SocketService) {
     this.isExpanded$ = this.sidebarService.isExpanded$;
     this.isHovered$ = this.sidebarService.isHovered$;
     this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
@@ -44,6 +43,12 @@ export class AppLayoutComponent implements OnInit {
 
   ngOnInit() {
     this.userToken$ = this.authService.userToken$;
+
+    this.router.events
+        .pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe(() => {
+          window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+        });
 
     if (this.authService.isLoggedIn()) {
       console.log("id = " + this.authService.userHash?.id)
