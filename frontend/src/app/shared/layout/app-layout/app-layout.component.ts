@@ -11,6 +11,8 @@ import {AppHeaderUserComponent} from "../app-header-user/app-header-user.compone
 import {AppHeaderBoutiqueComponent} from "../app-header-boutique/app-header-boutique.component";
 import {AppHeaderAdminComponent} from "../app-header-admin/app-header-admin.component";
 import {JwtPayload} from "../../../core/models/jwtPayload.model";
+import {SessionService} from "../../services/session.service";
+import {SocketService} from "../../services/socket.service";
 
 @Component({
   selector: 'app-layout',
@@ -34,7 +36,7 @@ export class AppLayoutComponent implements OnInit {
   userToken$!: Observable<JwtPayload | null>;
 
 
-  constructor(public sidebarService: SidebarService, private authService : AuthService) {
+  constructor(public sidebarService: SidebarService, private authService : AuthService, private session : SessionService, private socketService : SocketService) {
     this.isExpanded$ = this.sidebarService.isExpanded$;
     this.isHovered$ = this.sidebarService.isHovered$;
     this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
@@ -42,6 +44,18 @@ export class AppLayoutComponent implements OnInit {
 
   ngOnInit() {
     this.userToken$ = this.authService.userToken$;
+
+    if (this.authService.isLoggedIn()) {
+      console.log("id = " + this.authService.userHash?.id)
+      if (this.authService.userHash?.id) {
+        this.socketService.connect(this.authService.userHash?.id)
+        // this.socketService.onNotification((notif) => {
+        //   console.log('Nouvelle notification reçue:', notif);
+        //   // tu peux mettre à jour un badge, afficher un toast, etc.
+        // });
+      }
+    }
+
   }
 
   get containerClasses() {

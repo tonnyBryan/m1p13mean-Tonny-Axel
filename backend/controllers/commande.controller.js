@@ -6,6 +6,8 @@ const UserProfile = require('../models/UserProfile');
 const Boutique = require('../models/Boutique');
 const {removeEngagement, createVenteFromCommande} = require("../services/commande.service");
 const mongoose = require('mongoose');
+const { sendNotification } = require('../services/notification.service');
+
 
 async function findOpenDraft(userId) {
     // Find non-expired draft
@@ -492,7 +494,7 @@ exports.acceptOrder = async (req, res) => {
         await commande.save({ session });
 
         await session.commitTransaction();
-
+        
         return successResponse(res, 200, 'The order status has been successfully updated to "accepted".', commande);
     } catch (err) {
         console.error('acceptOrder error:', err);

@@ -5,6 +5,7 @@ import {HttpHeaders} from "@angular/common/http";
 import {jwtDecode} from 'jwt-decode';
 import {JwtPayload} from "../../core/models/jwtPayload.model";
 import {SessionService} from "./session.service";
+import {SocketService} from "./socket.service";
 
 
 @Injectable({
@@ -12,7 +13,7 @@ import {SessionService} from "./session.service";
 })
 export class AuthService {
 
-    constructor(private api: ApiService, private session : SessionService) {
+    constructor(private api: ApiService, private session : SessionService, private socketService : SocketService) {
         this.loadUserFromToken();
     }
 
@@ -54,8 +55,8 @@ export class AuthService {
 
     logout(): void {
         this.session.clear();
+        this.socketService.disconnect();
         localStorage.removeItem('token');
-        localStorage.removeItem('user');
     }
 
     refreshToken(): Observable<any> {

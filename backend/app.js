@@ -37,6 +37,7 @@ app.use('/api/centre-commercial', require('./routes/centreCommercial.routes'));
 app.use('/api/ventes', require('./routes/vente.routes'));
 app.use('/api/search', require('./routes/search.routes'));
 app.use('/api/email', require('./routes/email.routes'));
+app.use('/api/notifications', require('./routes/notification.routes'));
 
 
 module.exports = app;
