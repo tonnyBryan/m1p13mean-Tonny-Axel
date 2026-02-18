@@ -29,7 +29,8 @@ export class VenteDirecteComponent implements OnInit {
         totalAmount: 0,
         status: 'draft',
         boutique: '',
-        seller: ''
+        seller: '',
+        origin: 'direct'
     };
 
     // Autocomplete logic
@@ -319,7 +320,8 @@ export class VenteDirecteComponent implements OnInit {
             totalAmount: 0,
             status: 'draft',
             boutique: '',
-            seller: ''
+            seller: '',
+            origin: 'direct'
         };
         const userHash = this.authService.userHash;
         if (userHash) {

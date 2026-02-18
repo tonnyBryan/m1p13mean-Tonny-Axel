@@ -18,7 +18,6 @@ import { DatePickerComponent } from '../../../shared/components/form/date-picker
         FormsModule,
         RouterModule,
         PageBreadcrumbComponent,
-        BadgeComponent,
         InputFieldComponent,
         SelectComponent,
         DatePickerComponent
@@ -44,7 +43,8 @@ export class VenteListComponent implements OnInit {
         clientName: '',
         minAmount: null,
         maxAmount: null,
-        saleType: '' // New filter
+        saleType: '',
+        origin: '' // NEW: Origin filter
     };
 
     statusOptions = [
@@ -64,12 +64,18 @@ export class VenteListComponent implements OnInit {
     saleTypeOptions = [
         { value: '', label: 'All Types' },
         { value: 'dine-in', label: 'Dine-in' },
-        { value: 'takeaway', label: 'Takeaway' },
         { value: 'delivery', label: 'Delivery' }
     ];
 
+    // NEW: Origin options
+    originOptions = [
+        { value: '', label: 'All Origins' },
+        { value: 'direct', label: 'Direct' },
+        { value: 'order', label: 'Order' }
+    ];
+
     isLoading = false;
-    isSkeletonLoading = true; // For skeleton display
+    isSkeletonLoading = true;
 
     constructor(private venteService: VenteService) { }
 
@@ -86,11 +92,6 @@ export class VenteListComponent implements OnInit {
     };
 
     loadStats(): void {
-        // Placeholder for stats loading. 
-        // In a real scenario, this would call a service method like this.venteService.getVenteStats()
-        // For now, I will derive what I can or just calculate from valid API if available, 
-        // but since pagination is server-side, I can't calculate 'Total' from 'items'.
-        // I will use a service call.
         this.venteService.getVenteStats().subscribe({
             next: (res: any) => {
                 if (res.success) {
@@ -102,11 +103,9 @@ export class VenteListComponent implements OnInit {
     }
 
     loadVentes(): void {
+        // FIX #4: Show skeleton on every filter change
         this.isLoading = true;
-
-        // Show skeleton only on initial load or full reload, not pagination if possible? 
-        // Or usually skeleton replaces table. Let's keep it simple.
-        if (this.ventes.length === 0) this.isSkeletonLoading = true;
+        this.isSkeletonLoading = true;
 
         const params: any = {
             page: this.pagination.page,
@@ -117,19 +116,9 @@ export class VenteListComponent implements OnInit {
         if (this.filters.status) params.status = this.filters.status;
         if (this.filters.paymentMethod) params.paymentMethod = this.filters.paymentMethod;
         if (this.filters.saleType) params.saleType = this.filters.saleType;
+        if (this.filters.origin) params.origin = this.filters.origin; // NEW: Origin filter
 
-        // Backend regex search for client name using 'populate' logic? 
-        // Actually, advancedResults might not support deep regex on populated fields easily out of the box 
-        // unless backend supports it. Providing 'client' string might imply searching by ID. 
-        // If client is stored as Object, searching by name requires specific backend logic. 
-        // For now, let's send what we can. If client name is just a string in 'client.name' (denormalized) it works.
-        // But in Vente model 'client' is Object with name. 
-        // Let's assume user wants us to try passing a param the backend might handle or we add it later.
-        // Wait, earlier 'clientSearch' used 'name[regex]'. That was on UserProfile.
-        // Vente has embedded client object `{ name, ... }`. So we can search `client.name`.
-        // Mongoose advancedResults usually handles dot notation if configured.
         if (this.filters.clientName) {
-            // Using dot notation for client name search if backend supports it via advancedResults or specific logic
             params['client.name[regex]'] = this.filters.clientName;
             params['client.name[options]'] = 'i';
         }
@@ -137,7 +126,6 @@ export class VenteListComponent implements OnInit {
         if (this.filters.minAmount) params['totalAmount[gte]'] = this.filters.minAmount;
         if (this.filters.maxAmount) params['totalAmount[lte]'] = this.filters.maxAmount;
 
-        // Date filtering
         if (this.filters.startDate) params['saleDate[gte]'] = this.filters.startDate;
         if (this.filters.endDate) params['saleDate[lte]'] = this.filters.endDate;
 
@@ -161,15 +149,12 @@ export class VenteListComponent implements OnInit {
         this.loadVentes();
     }
 
-    // Handlers for reusable components
     onSelectChange(key: string, value: string): void {
         (this.filters as any)[key] = value;
         this.onFilterChange();
     }
 
     onDateChange(key: string, event: any): void {
-        // Flatpickr emits { selectedDates, dateStr, instance }
-        // We use dateStr
         if (event && event.dateStr) {
             (this.filters as any)[key] = event.dateStr;
             this.onFilterChange();
@@ -190,7 +175,8 @@ export class VenteListComponent implements OnInit {
             clientName: '',
             minAmount: null,
             maxAmount: null,
-            saleType: ''
+            saleType: '',
+            origin: ''
         };
         this.onFilterChange();
     }
@@ -201,6 +187,7 @@ export class VenteListComponent implements OnInit {
         this.loadVentes();
     }
 
+    // Keep legacy methods for badges (not used anymore but kept for compatibility)
     getStatusColor(status: string): any {
         switch (status) {
             case 'paid': return 'success';

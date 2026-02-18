@@ -28,6 +28,7 @@ export interface Vente {
     totalAmount: number;
     status: 'draft' | 'paid' | 'canceled';
     saleType: 'dine-in' | 'delivery';
+    origin: 'order' | 'direct';
     saleDate: Date | string;
     createdAt?: Date | string;
     updatedAt?: Date | string;
