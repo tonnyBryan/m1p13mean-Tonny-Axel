@@ -39,6 +39,7 @@ app.use('/api/search', require('./routes/search.routes'));
 app.use('/api/email', require('./routes/email.routes'));
 app.use('/api/notifications', require('./routes/notification.routes'));
 app.use('/api/wishlist', require('./routes/wishlist.routes'));
+app.use('/api/product-ratings', require('./routes/productRating.routes'));
 
 
 module.exports = app;

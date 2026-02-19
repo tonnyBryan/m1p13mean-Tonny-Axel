@@ -78,11 +78,18 @@ export class ProductListComponent implements OnInit {
             params['maxPrice'] = this.maxPrice;
         }
 
+        // Add rating filter server-side via advancedResults
+        if (this.minRating && this.minRating > 0) {
+            // use gte operator
+            params['avgRating[gte]'] = this.minRating;
+        }
+
         this.productService.getProducts(params).subscribe({
             next: (res) => {
                 this.isLoading = false;
                 if (res?.success && res?.data) {
                     this.products = res.data.items || [];
+                    console.log(this.products);
                     const pagination = res.data.pagination || {};
                     this.currentPage = pagination.page || 1;
                     this.totalDocs = pagination.totalDocs || 0;
@@ -126,8 +133,8 @@ export class ProductListComponent implements OnInit {
     setMinRating(rating: number): void {
         this.minRating = rating;
         this.currentPage = 1;
-        // Note: Rating filter is client-side only for now (static ratings)
-        // In production, you'd send this to the API
+        // now send the filter to the API
+        this.loadProducts();
     }
 
     clearFilters(): void {
@@ -167,25 +174,21 @@ export class ProductListComponent implements OnInit {
         this.router.navigate(['/v1/stores', this.boutiqueId, 'products', productId]);
     }
 
-    // Static rating for demo (3/5, 2 votes)
-    getProductRating(): number {
-        return 3;
+    // Use dynamic avgRating from product
+    getProductRating(product: any): number {
+        return product?.avgRating ? Math.round(product.avgRating) : 0;
     }
 
-    getProductVotes(): string {
-        const nbVote = 2;
-        // @ts-ignore
-        if (nbVote != 0) {
-            return nbVote + ' people rated';
+    getProductVotes(product: any): string {
+        const nbVote = product?.totalRatings || 0;
+
+        if (nbVote > 0) {
+            return nbVote + (nbVote === 1 ? ' person rated' : ' people rated');
         }
-        return '';
-    }
 
-    // Filter products by rating (client-side for static ratings)
-    get filteredProducts(): any[] {
-        if (this.minRating === 0) return this.products;
-        return this.products.filter(() => this.getProductRating() >= this.minRating);
+        return 'No ratings yet';
     }
+    
 
     protected readonly Math = Math;
 }

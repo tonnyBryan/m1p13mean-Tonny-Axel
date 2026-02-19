@@ -15,15 +15,6 @@ export class ProductService {
         private auth: AuthService
     ) {}
 
-    // createProduct(formData: FormData): Observable<any> {
-    //     const token = this.auth.getToken();
-    //     const headers = new HttpHeaders({
-    //         Authorization: `Bearer ${token}`
-    //         // Ne pas définir Content-Type pour FormData
-    //     });
-    //
-    //     return this.api.post<any>('products', formData, headers);
-    // }
 
     getProducts(params: any = {}): Observable<any> {
         const token = this.auth.getToken();
@@ -56,5 +47,39 @@ export class ProductService {
     // Activer / désactiver le sale flag (isSale)
     toggleSalePrice(productId: string, isSale: boolean): Observable<any> {
         return this.updateProduct(productId, { isSale });
+    }
+
+
+    // Add a rating for a product (POST /api/product-ratings/:productId)
+    addProductRating(productId: string, payload: { rating: number; comment: string }): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
+        });
+        return this.api.post<any>(`product-ratings/${productId}`, payload, headers);
+    }
+
+    // Remove current user's rating for a product (DELETE /api/product-ratings/:productId)
+    removeProductRating(productId: string): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
+        });
+        return this.api.delete<any>(`product-ratings/${productId}`, headers);
+    }
+
+    // Get ratings for a product (GET /api/product-ratings/product/:productId) with optional params (page, limit, sort, fields...)
+    getRatingsByProduct(productId: string, params: any = {}): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
+        });
+
+        const queryString = Object.keys(params)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+            .join('&');
+
+        const url = queryString ? `product-ratings/product/${productId}?${queryString}` : `product-ratings/product/${productId}`;
+        return this.api.get<any>(url, headers);
     }
 }

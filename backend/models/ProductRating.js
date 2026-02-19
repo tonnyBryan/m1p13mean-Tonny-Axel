@@ -21,7 +21,9 @@ const ProductRatingSchema = new Schema({
     },
     comment: {
         type: String,
-        default: ''
+        required: true,
+        trim: true,
+        minlength: 3
     }
 }, { timestamps: true });
 
