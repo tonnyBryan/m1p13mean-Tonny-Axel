@@ -16,6 +16,8 @@ import { Router } from '@angular/router';
 import {debounceTime, distinctUntilChanged, Subject, takeUntil} from 'rxjs';
 import {User} from "../../../core/models/user.model";
 import {SessionService} from "../../services/session.service";
+import {WishlistService} from "../../services/wishlist.service";
+import {UserWishlistComponent} from "../../components/header/user/user-wishlist/user-wishlist.component";
 
 @Component({
     selector: 'app-header-user',
@@ -26,6 +28,7 @@ import {SessionService} from "../../services/session.service";
         NotificationDropdownComponent,
         UserDropdownComponent,
         UserCartComponent,
+        UserWishlistComponent,
     ],
     templateUrl: './app-header-user.component.html',
 })
@@ -57,7 +60,8 @@ export class AppHeaderUserComponent implements OnInit, OnDestroy {
         private profileService: UserProfileService,
         private searchService: SearchService,
         private router: Router,
-        private session : SessionService
+        private session : SessionService,
+        private wishlistService : WishlistService
     ) {
         this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
     }
@@ -96,6 +100,7 @@ export class AppHeaderUserComponent implements OnInit, OnDestroy {
         });
 
         this.loadMyProfile();
+        this.wishlistService.loadWishlist().subscribe();
 
         this.searchSubject.pipe(
             debounceTime(300),

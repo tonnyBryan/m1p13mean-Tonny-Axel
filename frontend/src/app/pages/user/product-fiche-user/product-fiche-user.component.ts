@@ -86,7 +86,7 @@ export class ProductFicheUserComponent implements OnInit {
             }, 600);
 
             this.wishlistService.addToWishlist(this.product._id).subscribe({
-                next: () => {
+                next: (res) => {
                     this.isWishlisted = true;
                     this.isTogglingWishlist = false;
                     this.toast.success('Success', 'Added to wishlist');
