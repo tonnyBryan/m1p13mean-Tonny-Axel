@@ -36,15 +36,20 @@ export class OrderDetailBoutiqueComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.orderId = this.route.snapshot.paramMap.get('id');
-    if (this.orderId) {
-      this.loadOrder(this.orderId);
-      this.loadCentre();
-    } else {
-      this.toast.error('Error', 'Missing id in url');
-      this.router.navigate(['/store/app/orders']);
-    }
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+
+      if (id) {
+        this.orderId = id;
+        this.loadOrder(id);
+        this.loadCentre();
+      } else {
+        this.toast.error('Error', 'Missing order identifier in the URL.');
+        this.router.navigate(['/store/app/orders']);
+      }
+    });
   }
+
 
   loadCentre(): void {
     this.centreService.getCentreCommercial().subscribe({
