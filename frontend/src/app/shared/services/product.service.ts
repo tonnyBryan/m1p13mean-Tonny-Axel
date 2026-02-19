@@ -82,4 +82,19 @@ export class ProductService {
         const url = queryString ? `product-ratings/product/${productId}?${queryString}` : `product-ratings/product/${productId}`;
         return this.api.get<any>(url, headers);
     }
+
+    // Share a product to a user (POST /api/products/share)
+    shareProduct(productId: string, userId: string, additionalMessage?: string): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
+        });
+
+        const payload: any = { productId, userId };
+        if (additionalMessage && additionalMessage.trim().length > 0) {
+            payload.additionalMessage = additionalMessage.trim();
+        }
+
+        return this.api.post<any>('products/share', payload, headers);
+    }
 }

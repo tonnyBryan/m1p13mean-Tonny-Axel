@@ -3,7 +3,9 @@ const Product = require("../models/Product");
 const Boutique = require('../models/Boutique');
 const Wishlist = require('../models/Wishlist');
 const { generateSku } = require('../utils/product.util');
-
+const { sendNotification } = require('../services/notification.service');
+const mongoose = require('mongoose');
+const UserProfile = require('../models/UserProfile');
 
 
 /**
@@ -330,5 +332,73 @@ exports.updateProduct = async (req, res) => {
     } catch (error) {
         console.error(error);
         return errorResponse(res, 400, 'An error occurred while updating the product. Please check your input and try again.');
+    }
+};
+
+
+/**
+ * POST /api/products/share
+ * Share a product to another user by creating a notification
+ * Body: { productId, userId, additionalMessage }
+ */
+exports.shareProduct = async (req, res) => {
+    try {
+        const sender = req.user;
+        const { productId, userId, additionalMessage } = req.body;
+
+        // Basic validation
+        if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
+            return errorResponse(res, 400, 'The provided product identifier is invalid. Please check and try again.');
+        }
+        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return errorResponse(res, 400, 'The provided recipient identifier is invalid. Please check and try again.');
+        }
+
+        // Load product and boutique info
+        const product = await Product.findById(productId).select('name boutique');
+        if (!product) {
+            return errorResponse(res, 404, 'The referenced product could not be found. Please verify the product identifier.');
+        }
+
+        const boutique = await Boutique.findById(product.boutique).select('name');
+
+        let senderName = sender?.email || 'A user';
+        try {
+            const profile = await UserProfile.findOne({ user: sender._id }).select('firstName lastName');
+            if (profile && (profile.firstName || profile.lastName)) {
+                senderName = `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
+            }
+        } catch (e) {
+            // ignore and fallback to sender.email
+        }
+
+        // Compose message (HTML allowed)
+        let message = `${senderName} wants you to view this product <strong>${product.name}</strong>`;
+        if (boutique && boutique.name) {
+            message += ` from store <strong>${boutique.name}</strong>.`;
+        } else {
+            message += '.';
+        }
+
+        if (additionalMessage && typeof additionalMessage === 'string' && additionalMessage.trim().length > 0) {
+            message += `<br/><br/>${additionalMessage.trim()}`;
+        }
+
+        // Send notification (fire-and-forget style, service logs errors)
+        sendNotification({
+            recipient: userId,
+            channel: 'message',
+            type: 'product_shared',
+            title: 'A product has been shared with you',
+            message,
+            payload: { productId: product._id, boutiqueId: product.boutique },
+            url: boutique ? `/v1/stores/${boutique._id}/products/${product._id}` : `/v1/products/${product._id}`,
+            severity: 'info'
+        }).catch(err => console.error('Notification failed', err));
+
+        return successResponse(res, 200, 'Product share notification sent successfully.');
+    } catch (error) {
+        console.error('Share product error:', error);
+        return errorResponse(res, 500, 'An unexpected error occurred while sharing the product. Please try again later.');
     }
 };

@@ -210,5 +210,38 @@ router.put(
     productController.updateProduct
 );
 
+/**
+ * @swagger
+ * /api/products/share:
+ *   post:
+ *     summary: Partager un produit
+ *     tags: [Products]
+ *     description: Partager un produit via un lien
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 example: 60d21b4667d0d8992e610c85
+ *     responses:
+ *       200:
+ *         description: Produit partagé avec succès
+ *       400:
+ *         description: Erreur de validation
+ *       404:
+ *         description: Produit non trouvé
+ */
+router.post(
+    '/share',
+    protect,
+    authorize('admin', 'boutique', 'user'),
+    productController.shareProduct
+);
 
 module.exports = router;

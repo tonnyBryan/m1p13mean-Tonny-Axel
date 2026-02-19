@@ -188,7 +188,7 @@ export class ProductListComponent implements OnInit {
 
         return 'No ratings yet';
     }
-    
+
 
     protected readonly Math = Math;
 }
