@@ -248,11 +248,24 @@ export class ProductFicheUserComponent implements OnInit {
     }
 
     buyNow(): void {
-        console.log('Buy now:', {
-            productId: this.p._id,
-            quantity: this.quantity
+        if (!this.product) return;
+        const productId = this.product._id;
+        const qty = this.quantity > 0 ? this.quantity : 1;
+
+        this.commandeService.directBuy(productId, qty).subscribe({
+            next: (res) => {
+                if (res?.success) {
+                    this.commandeService.refreshDraftCount().subscribe();
+                    console.log('direct buy', res.data);
+                    this.router.navigate(['/v1/cart/checkout']);
+                }
+            },
+            error: (err) => {
+                console.error('buy error:', err);
+                const message = err?.error?.message || err?.message || 'Error buying item';
+                this.toast.error("Error", message);
+            }
         });
-        // → Redirection vers checkout
     }
 
     copySku(): void {

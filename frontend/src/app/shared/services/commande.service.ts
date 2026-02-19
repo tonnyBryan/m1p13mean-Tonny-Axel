@@ -57,6 +57,17 @@ export class CommandeService {
         );
     }
 
+    directBuy(productId: string, quantity: number = 1): Observable<any> {
+        return this.api.post('commandes/buy', { productId, quantity }).pipe(
+            tap((res: any) => {
+                if (res?.success && res?.data) {
+                    const count = this.computeCountFromCommande(res.data);
+                    this.cartCountSubject.next(count);
+                }
+            })
+        );
+    }
+
     getDraft(): Observable<any> {
         return this.api.get('commandes/draft');
     }

@@ -123,6 +123,101 @@ exports.addToCart = async (req, res) => {
     }
 };
 
+
+// POST /api/commandes/buy
+// body: { productId, quantity }
+exports.buy = async (req, res) => {
+    let session = null;
+    try {
+        const userId = req.user && req.user._id;
+        if (!userId) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
+
+        const { productId, quantity } = req.body;
+        if (!productId) return errorResponse(res, 400, 'The productId is required. Please provide a valid product identifier.');
+
+        const qty = Number.isFinite(Number(quantity)) && Number(quantity) > 0 ? Number(quantity) : 1;
+
+        session = await mongoose.startSession();
+        session.startTransaction();
+
+        // Find product with virtual stockReal
+        const product = await Product.findById(productId).session(session);
+        if (!product) {
+            await session.abortTransaction();
+            return errorResponse(res, 404, 'The requested product was not found. It may have been removed.');
+        }
+
+        // Validate min/max order quantities
+        const minOrder = product.minOrderQty || 1;
+        const maxOrder = product.maxOrderQty || Number.MAX_SAFE_INTEGER;
+
+        if (qty < minOrder) {
+            await session.abortTransaction();
+            return errorResponse(res, 400, `The minimum order quantity for this product is ${minOrder}.`);
+        }
+
+        if (qty > maxOrder) {
+            await session.abortTransaction();
+            return errorResponse(res, 400, `The maximum order quantity for this product is ${maxOrder}.`);
+        }
+
+        // Check stockReal
+        if (qty > product.stockReal) {
+            await session.abortTransaction();
+            return errorResponse(res, 400, `Insufficient stock. Available quantity: ${product.stockReal}.`);
+        }
+
+        // Find existing draft
+        let commande = await findOpenDraft(userId);
+        if (commande) {
+            await session.abortTransaction();
+            return errorResponse(
+                res,
+                400,
+                'You already have an open cart. Please add items to your current cart or complete the checkout before making a direct purchase.'
+            );
+        } else {
+            commande = new Commande({ user: userId, boutique: product.boutique, products: [], status: 'draft' });
+        }
+
+        const unitPrice = product.isSale && product.salePrice ? product.salePrice : product.regularPrice;
+        let quantityToAdd = qty;
+
+        commande.products.push({
+            product: product._id,
+            quantity: qty,
+            unitPrice,
+            totalPrice: qty * unitPrice,
+            isSale: !!product.isSale
+        });
+
+        // Update stockEngaged
+        product.stockEngaged += quantityToAdd;
+        await product.save({ session });
+
+        // Recompute totalAmount
+        commande.totalAmount = commande.products.reduce((s, it) => s + (it.totalPrice || 0), 0);
+
+        // Set expiredAt if not set
+        if (!commande.expiredAt) commande.expiredAt = new Date(Date.now() + 60 * 60 * 1000);
+
+        await commande.save({ session });
+
+        await session.commitTransaction();
+
+        return successResponse(res, 200, null, commande);
+
+    } catch (err) {
+        console.error(err);
+        if (session) {
+            try { await session.abortTransaction(); } catch (e) { console.error('Failed to abort transaction', e); }
+        }
+        return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
+    } finally {
+        if (session) session.endSession();
+    }
+};
+
 // GET /api/commandes/draft
 exports.getDraft = async (req, res) => {
     try {
@@ -656,11 +751,22 @@ exports.startDelivery = async (req, res) => {
         const id = req.params.id;
         if (!id) return errorResponse(res, 400, 'The order id is required. Please provide a valid identifier.');
 
-        const commande = await Commande.findOne({ _id: id, boutique: boutique._id }).populate({ path: 'products.product', model: 'Product' }).exec();
+        const commande = await Commande.findOne({ _id: id, boutique: boutique._id }).populate({ path: 'boutique', select: 'name owner' }).exec();
         if (!commande) return errorResponse(res, 404, 'The requested order was not found in your store.');
 
         commande.status = 'delivering';
         await commande.save();
+
+        sendNotification({
+            recipient: commande.user,
+            channel: 'order',
+            type: 'order_delivering',
+            title: 'Order Out for Delivery',
+            message: `Good news! Your order from <strong>${commande.boutique.name}</strong> is now out for delivery and will arrive shortly.`,
+            payload: { orderId: commande._id },
+            url: `/v1/orders/${commande._id}`,
+            severity: 'info',
+        }).catch(err => console.error('Notification failed', err));
 
         return successResponse(res, 200, 'Order status updated to delivering', commande);
     } catch (err) {

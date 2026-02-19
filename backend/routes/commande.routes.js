@@ -20,6 +20,8 @@ const injectUserFilter = (req, res, next) => {
 
 // Add product to cart (draft)
 router.post('/add', protect, authorize('user'), commandeController.addToCart);
+router.post('/buy', protect, authorize('user'), commandeController.buy);
+
 
 // Get current draft for user
 router.get('/draft', protect, authorize('user', 'boutique'), commandeController.getDraft);
