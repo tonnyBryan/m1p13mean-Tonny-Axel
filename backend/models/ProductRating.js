@@ -36,8 +36,14 @@ ProductRatingSchema.post('save', async function () {
 
         // Use aggregation to compute total and average safely and efficiently
         const result = await mongoose.model('ProductRating').aggregate([
-            { $match: { product: mongoose.Types.ObjectId(productId) } },
-            { $group: { _id: '$product', total: { $sum: 1 }, avg: { $avg: '$rating' } } }
+            { $match: { product: productId } },
+            {
+                $group: {
+                    _id: '$product',
+                    total: { $sum: 1 },
+                    avg: { $avg: '$rating' }
+                }
+            }
         ]);
 
         const total = result.length ? result[0].total : 0;
@@ -50,63 +56,34 @@ ProductRatingSchema.post('save', async function () {
     }
 });
 
-ProductRatingSchema.post('remove', async function () {
-    try {
-        const productId = this.product;
-        if (!productId) return;
-
-        const result = await mongoose.model('ProductRating').aggregate([
-            { $match: { product: mongoose.Types.ObjectId(productId) } },
-            { $group: { _id: '$product', total: { $sum: 1 }, avg: { $avg: '$rating' } } }
-        ]);
-
-        const total = result.length ? result[0].total : 0;
-        const avg = result.length ? result[0].avg : 0;
-
-        await Product.findByIdAndUpdate(productId, { avgRating: avg, totalRatings: total }, { runValidators: true });
-    } catch (err) {
-        console.error('Error updating product ratings after remove:', err);
-    }
-});
-
-// Cover deletion via query methods (findOneAndDelete / findOneAndRemove)
 ProductRatingSchema.post('findOneAndDelete', async function (doc) {
     try {
         if (!doc) return;
+
         const productId = doc.product;
         if (!productId) return;
 
         const result = await mongoose.model('ProductRating').aggregate([
-            { $match: { product: mongoose.Types.ObjectId(productId) } },
-            { $group: { _id: '$product', total: { $sum: 1 }, avg: { $avg: '$rating' } } }
+            { $match: { product: productId } },
+            {
+                $group: {
+                    _id: '$product',
+                    total: { $sum: 1 },
+                    avg: { $avg: '$rating' }
+                }
+            }
         ]);
 
         const total = result.length ? result[0].total : 0;
         const avg = result.length ? result[0].avg : 0;
 
-        await Product.findByIdAndUpdate(productId, { avgRating: avg, totalRatings: total }, { runValidators: true });
+        await Product.findByIdAndUpdate(productId, {
+            avgRating: avg,
+            totalRatings: total
+        });
+
     } catch (err) {
         console.error('Error updating product ratings after findOneAndDelete:', err);
-    }
-});
-
-ProductRatingSchema.post('findOneAndRemove', async function (doc) {
-    try {
-        if (!doc) return;
-        const productId = doc.product;
-        if (!productId) return;
-
-        const result = await mongoose.model('ProductRating').aggregate([
-            { $match: { product: mongoose.Types.ObjectId(productId) } },
-            { $group: { _id: '$product', total: { $sum: 1 }, avg: { $avg: '$rating' } } }
-        ]);
-
-        const total = result.length ? result[0].total : 0;
-        const avg = result.length ? result[0].avg : 0;
-
-        await Product.findByIdAndUpdate(productId, { avgRating: avg, totalRatings: total }, { runValidators: true });
-    } catch (err) {
-        console.error('Error updating product ratings after findOneAndRemove:', err);
     }
 });
 

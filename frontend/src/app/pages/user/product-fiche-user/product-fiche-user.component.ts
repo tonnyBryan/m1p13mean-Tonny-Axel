@@ -8,10 +8,11 @@ import { CommandeService } from '../../../shared/services/commande.service';
 import {ToastService} from "../../../shared/services/toast.service";
 import {SessionService} from "../../../shared/services/session.service";
 import {WishlistService} from "../../../shared/services/wishlist.service";
+import {ProductNoteUserComponent} from "./product-note-user/product-note-user.component";
 
 @Component({
     selector: 'app-product-fiche-user',
-    imports: [CommonModule, PageBreadcrumbComponent],
+    imports: [CommonModule, PageBreadcrumbComponent, ProductNoteUserComponent],
     templateUrl: './product-fiche-user.component.html',
     styleUrls: ['./product-fiche-user.css']
 })

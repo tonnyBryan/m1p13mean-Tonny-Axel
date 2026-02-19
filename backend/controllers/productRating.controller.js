@@ -2,6 +2,7 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
 const Product = require('../models/Product');
 const ProductRating = require('../models/ProductRating');
 const Vente = require('../models/Vente');
+const UserProfile = require('../models/UserProfile');
 
 /**
  * POST /api/product-ratings/:productId
@@ -50,7 +51,11 @@ exports.addRating = async (req, res) => {
             comment: comment.trim()
         });
 
-        return successResponse(res, 201, 'Rating added successfully.', newRating);
+        const prodStats = await Product.findById(productId).select('avgRating totalRatings').lean();
+        const avg = prodStats && typeof prodStats.avgRating !== 'undefined' ? prodStats.avgRating : 0;
+        const total = prodStats && typeof prodStats.totalRatings !== 'undefined' ? prodStats.totalRatings : 0;
+
+        return successResponse(res, 201, 'Rating added successfully.', { rating: newRating, avgRating: avg, totalRatings: total });
     } catch (error) {
         console.error('Add rating error:', error);
         // Handle unique index violation more gracefully
@@ -76,7 +81,11 @@ exports.removeRating = async (req, res) => {
             return errorResponse(res, 404, 'No rating was found for this product by the current user.');
         }
 
-        return successResponse(res, 200, 'Rating removed successfully.');
+        const prodStats = await Product.findById(productId).select('avgRating totalRatings').lean();
+        const avg = prodStats && typeof prodStats.avgRating !== 'undefined' ? prodStats.avgRating : 0;
+        const total = prodStats && typeof prodStats.totalRatings !== 'undefined' ? prodStats.totalRatings : 0;
+
+        return successResponse(res, 200, 'Rating removed successfully.', { avgRating: avg, totalRatings: total });
     } catch (error) {
         console.error('Remove rating error:', error);
         return errorResponse(res, 500, 'An unexpected server error occurred while removing the rating. Please try again later.');
@@ -89,6 +98,36 @@ exports.removeRating = async (req, res) => {
  */
 exports.getRatingsByProduct = async (req, res) => {
     try {
+        const adv = res.advancedResults || { items: [] };
+
+        if (adv.items && Array.isArray(adv.items) && adv.items.length > 0) {
+            for (let i = 0; i < adv.items.length; i++) {
+                const item = adv.items[i];
+
+                let userId = item.user;
+                if (!userId) {
+                    console.error('Get ratings error: missing user reference on rating item', item);
+                    return errorResponse(res, 500, 'A system error occurred: a rating item is missing its related user. Please contact support.');
+                }
+
+                const profile = await UserProfile.findOne({ user: userId }).select('firstName lastName photo').lean();
+                if (!profile) {
+                    console.error('Get ratings error: missing user profile for user', userId);
+                    return errorResponse(res, 500, 'A system error occurred: a user profile was not found for a related user. Please contact support.');
+                }
+
+                let plain = item.toObject();
+
+                plain.userInfo = {
+                    firstName: profile.firstName || null,
+                    lastName: profile.lastName || null,
+                    photo: profile.photo || null
+                };
+
+                adv.items[i] = plain;
+            }
+        }
+
         return successResponse(res, 200, null, res.advancedResults);
     } catch (error) {
         console.error('Get ratings error:', error);

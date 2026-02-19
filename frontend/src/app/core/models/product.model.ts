@@ -13,6 +13,8 @@ export interface Product {
     stockReal : number;
     minOrderQty: number;
     maxOrderQty: number;
+    avgRating: number;
+    totalRatings: number;
     category: Category;
     tags: string[];
     images: string[];
