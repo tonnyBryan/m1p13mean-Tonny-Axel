@@ -1,0 +1,146 @@
+<div class="mx-auto max-w-7xl">
+    <div>
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                My Wishlist
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400">
+                {{ wishlistItems.length }} {{ wishlistItems.length === 1 ? 'item' : 'items' }} saved
+            </p>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <div *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]" class="animate-pulse">
+                <div class="aspect-square bg-gray-200 dark:bg-gray-700 rounded-2xl mb-3"></div>
+                <div class="space-y-2">
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                    <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!isLoading && wishlistItems.length === 0"
+             class="text-center py-20">
+            <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 mb-6">
+                <svg class="w-12 h-12 text-red-400 dark:text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                Your wishlist is empty
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-sm mx-auto">
+                Explore our products and save your favorites here for easy access later
+            </p>
+            <button
+                    (click)="router.navigate(['/v1/stores'])"
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white font-semibold rounded-xl shadow-lg shadow-brand-500/25 hover:shadow-xl hover:shadow-brand-500/30 transition-all">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                Browse Products
+            </button>
+        </div>
+
+        <!-- Wishlist Grid -->
+        <div *ngIf="!isLoading && wishlistItems.length > 0"
+             class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+
+            <div *ngFor="let item of wishlistItems" class="group">
+
+                <!-- Action Buttons (Above Image) -->
+                <div class="flex items-center justify-between mb-3">
+                      <span class="text-xs text-gray-400 dark:text-gray-600">
+                        {{ formatDate(item.addedAt) }}
+                      </span>
+
+                    <div class="flex items-center gap-2">
+                        <!-- Remove Button -->
+                        <button
+                                (click)="confirmRemove(item)"
+                                [disabled]="isRemoving[item.product._id]"
+                                class="group/btn flex items-center justify-center w-8 h-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-red-200 dark:hover:border-red-800 transition-all disabled:opacity-50"
+                                title="Remove from wishlist">
+                            <svg *ngIf="!isRemoving[item.product._id]"
+                                 class="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover/btn:text-red-500 dark:group-hover/btn:text-red-400 transition-colors"
+                                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            <svg *ngIf="isRemoving[item.product._id]"
+                                 class="animate-spin h-4 w-4 text-red-500"
+                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Share Button -->
+                        <button
+                                (click)="shareProduct(item)"
+                                class="group/btn flex items-center justify-center w-8 h-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-brand-200 dark:hover:border-brand-800 transition-all"
+                                title="Share product">
+                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover/btn:text-brand-600 dark:group-hover/btn:text-brand-400 transition-colors"
+                                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Image Card -->
+                <div class="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-700 rounded-2xl mb-3 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300"
+                     (click)="goToProduct(item)">
+                    <img
+                            [src]="item.product.images?.[0] || '/placeholder.jpg'"
+                            [alt]="item.product.name"
+                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+
+                    <!-- Gradient Overlay on Hover -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </div>
+
+                <!-- Product Info (Outside Card) -->
+                <div class="space-y-2">
+                    <!-- Product Name (Larger) -->
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 cursor-pointer hover:text-brand-600 dark:hover:text-brand-400 transition-colors leading-snug min-h-[10px]"
+                        (click)="goToProduct(item)">
+                        {{ item.product.name }}
+                    </h3>
+
+                    <!-- Description -->
+                    <p class="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                        {{ item.product.description }}
+                    </p>
+
+                    <!-- Store Info -->
+                    <div class="flex items-center justify-between pt-1">
+                        <button
+                                (click)="goToStore(item)"
+                                class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-500 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                            <img
+                                    *ngIf="item.boutique.logo"
+                                    [src]="item.boutique.logo"
+                                    [alt]="item.boutique.name"
+                                    class="w-4 h-4 rounded-full object-cover ring-1 ring-gray-200 dark:ring-gray-700">
+                            <span>{{ item.boutique.name }}</span>
+                        </button>
+
+                        <!-- View Product Arrow -->
+                        <button
+                                (click)="goToProduct(item)"
+                                class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                title="View product">
+                            <svg class="w-3.5 h-3.5 text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

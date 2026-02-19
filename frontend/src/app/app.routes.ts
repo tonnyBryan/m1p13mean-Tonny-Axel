@@ -29,6 +29,7 @@ import {OrdersUserComponent} from "./pages/user/orders-user/orders-user.componen
 import {OrderDetailComponent} from "./pages/user/order-detail/order-detail.component";
 import {OrdersListBoutiqueComponent} from "./pages/boutique/orders-list-boutique/orders-list-boutique.component";
 import {OrderDetailBoutiqueComponent} from "./pages/boutique/order-detail-boutique/order-detail-boutique.component";
+import {WishlistUserComponent} from "./pages/user/wishlist-user/wishlist-user.component";
 
 
 export const routes: Routes = [
@@ -80,6 +81,15 @@ export const routes: Routes = [
       {
         path: 'orders',
         component: OrdersUserComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.userRole] },
+        pathMatch: 'full',
+        title:
+            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+      },
+      {
+        path: 'wishlist',
+        component: WishlistUserComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
