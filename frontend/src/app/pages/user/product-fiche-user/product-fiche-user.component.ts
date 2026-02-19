@@ -7,6 +7,7 @@ import {PageBreadcrumbComponent} from "../../../shared/components/common/page-br
 import { CommandeService } from '../../../shared/services/commande.service';
 import {ToastService} from "../../../shared/services/toast.service";
 import {SessionService} from "../../../shared/services/session.service";
+import {WishlistService} from "../../../shared/services/wishlist.service";
 
 @Component({
     selector: 'app-product-fiche-user',
@@ -28,7 +29,12 @@ export class ProductFicheUserComponent implements OnInit {
     addedToCartSuccess: boolean = false;
     addToCartErrorMessage: string | null = null;
 
-    constructor(private route : ActivatedRoute, private router : Router, private storeService : StoreService , private commandeService: CommandeService, private toast: ToastService, private session : SessionService) {
+    isWishlisted = false;
+    isTogglingWishlist = false;
+    showHeartPulse = false;
+    showHeartParticles = false;
+
+    constructor(private route : ActivatedRoute, private router : Router, private storeService : StoreService , private commandeService: CommandeService, private toast: ToastService, private session : SessionService, private wishlistService: WishlistService ) {
     }
 
     ngOnInit(): void {
@@ -49,6 +55,51 @@ export class ProductFicheUserComponent implements OnInit {
         this.loadProduct(idProduct, idStore);
     }
 
+    toggleFavorite(): void {
+        if (!this.product || this.isTogglingWishlist) return;
+
+        this.isTogglingWishlist = true;
+
+        if (this.isWishlisted) {
+            // Remove animation
+            this.showHeartPulse = true;
+            setTimeout(() => this.showHeartPulse = false, 600);
+
+            this.wishlistService.removeFromWishlist(this.product._id).subscribe({
+                next: () => {
+                    this.isWishlisted = false;
+                    this.isTogglingWishlist = false;
+                },
+                error: () => {
+                    this.isTogglingWishlist = false;
+                    this.toast.error('Error', 'Failed to remove from wishlist');
+                }
+            });
+        } else {
+            // Add animation with particles
+            this.showHeartPulse = true;
+            this.showHeartParticles = true;
+
+            setTimeout(() => {
+                this.showHeartPulse = false;
+                this.showHeartParticles = false;
+            }, 600);
+
+            this.wishlistService.addToWishlist(this.product._id).subscribe({
+                next: () => {
+                    this.isWishlisted = true;
+                    this.isTogglingWishlist = false;
+                    this.toast.success('Success', 'Added to wishlist');
+                },
+                error: (err) => {
+                    this.isTogglingWishlist = false;
+                    this.toast.error('Error', err.error?.message || 'Failed to add to wishlist');
+                }
+            });
+        }
+    }
+
+
     loadProduct(productId : string, storeId : string): void {
         this.storeService.getProductById(productId).subscribe({
             next: (res: any) => {
@@ -63,6 +114,9 @@ export class ProductFicheUserComponent implements OnInit {
                 }
 
                 this.product = res.data;
+                if (this.product) {
+                    this.isWishlisted = this.product.isMyWishlist;
+                }
 
                 setTimeout(() => {
                     this.animateImageEntry();
@@ -152,16 +206,6 @@ export class ProductFicheUserComponent implements OnInit {
     // ════════════════════════════════════════════
 
     incrementQuantity(): void {
-        // this.toast.warning('Low stock', 'Only 3 items remaining!');
-        // this.toast.success('Order placed!', 'Your order has been successfully placed.');
-        // this.toast.error('Payment failed', 'Please check your card details and try again.');
-        // this.toast.info('New feature', 'Check out our new dark mode!');
-        // this.toast.show('info', 'Item added to cart', 'View your cart now', 0, 'top-right', {
-        //     label: 'View Cart',
-        //     onClick: () => this.router.navigate(['/cart'])
-        // });
-
-
         if (this.quantity < this.p.maxOrderQty && this.quantity < this.p.stockReal) {
             this.quantity++;
         }
@@ -288,11 +332,6 @@ export class ProductFicheUserComponent implements OnInit {
             // Fallback: copier le lien
             navigator.clipboard.writeText(window.location.href);
         }
-    }
-
-    toggleFavorite(): void {
-        console.log('Toggle favorite');
-        // → Votre logique de favoris
     }
 
     // ════════════════════════════════════════════

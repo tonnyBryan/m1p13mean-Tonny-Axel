@@ -1,6 +1,7 @@
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 const Product = require("../models/Product");
 const Boutique = require('../models/Boutique');
+const Wishlist = require('../models/Wishlist');
 const { generateSku } = require('../utils/product.util');
 
 
@@ -159,6 +160,18 @@ exports.getProductById = async (req, res) => {
 
         if (!product) {
             return errorResponse(res, 404, 'The requested product was not found. Please verify the identifier.');
+        }
+
+        if (user && user.role === 'user') {
+            try {
+                const wishlistExists = await Wishlist.findOne({ user: user._id, 'products.product': product._id }).select('_id');
+                const productObj = product.toObject();
+                productObj.isMyWishlist = !!wishlistExists;
+                return successResponse(res, 200, null, productObj);
+            } catch (err) {
+                console.error('Wishlist lookup failed:', err);
+                return successResponse(res, 200, null, product);
+            }
         }
 
         return successResponse(res, 200, null, product);

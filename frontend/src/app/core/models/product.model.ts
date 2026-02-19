@@ -20,4 +20,5 @@ export interface Product {
     isSale: boolean;
     createdAt: string;
     updatedAt: string;
+    isMyWishlist: boolean;
 }
