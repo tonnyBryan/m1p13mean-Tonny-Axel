@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, ElementRef, ViewChild } from '@angular/core';
+import {Component, OnDestroy, OnInit, ElementRef, ViewChild, SecurityContext} from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { DropdownComponent } from '../../ui/dropdown/dropdown.component';
 import { NotificationService } from "../../../services/notification.service";
 import { Subscription } from "rxjs";
 import { SocketService } from "../../../services/socket.service";
+import {DomSanitizer, SafeHtml} from "@angular/platform-browser";
 
 @Component({
   selector: 'app-notification-dropdown',
@@ -38,7 +39,8 @@ export class NotificationDropdownComponent implements OnInit, OnDestroy {
   constructor(
       private notifService: NotificationService,
       private socketService: SocketService,
-      private router: Router
+      private router: Router,
+      private sanitizer: DomSanitizer
   ) {}
 
   toggleDropdown() {
@@ -53,6 +55,10 @@ export class NotificationDropdownComponent implements OnInit, OnDestroy {
 
   closeDropdown() {
     this.isOpen = false;
+  }
+
+  sanitizeMessage(message: string): SafeHtml {
+    return this.sanitizer.sanitize(SecurityContext.HTML, message) || message;
   }
 
   ngOnDestroy() {
@@ -87,6 +93,7 @@ export class NotificationDropdownComponent implements OnInit, OnDestroy {
         if (res?.success) {
           if (res.data?.advanced.items) {
             this.notifications = res.data.advanced.items;
+            console.log(this.notifications);
             this.totalDocs = res.data.advanced.pagination?.totalDocs || 0;
 
             // NEW: Use totalUnread from API response
@@ -207,6 +214,20 @@ export class NotificationDropdownComponent implements OnInit, OnDestroy {
   }
 
   getNotificationIcon(notification: any): string {
+    // CHANGED: Use severity for icon selection when appropriate
+
+    // Special icons for severity
+    if (notification.severity === 'error') {
+      return 'error';
+    }
+    if (notification.severity === 'warning') {
+      return 'warning';
+    }
+    if (notification.severity === 'success') {
+      return 'success';
+    }
+
+    // Channel-based icons
     switch (notification.channel) {
       case 'order':
         return 'order';
@@ -223,6 +244,22 @@ export class NotificationDropdownComponent implements OnInit, OnDestroy {
   }
 
   getNotificationColor(notification: any): string {
+    // CHANGED: Priority to severity over channel
+    if (notification.severity) {
+      switch (notification.severity) {
+        case 'success':
+          return 'green';
+        case 'error':
+          return 'red';
+        case 'warning':
+          return 'amber';
+        case 'info':
+        default:
+          return 'blue';
+      }
+    }
+
+    // Fallback to channel-based colors if no severity
     switch (notification.channel) {
       case 'order':
         return 'blue';
@@ -237,6 +274,7 @@ export class NotificationDropdownComponent implements OnInit, OnDestroy {
         return 'gray';
     }
   }
+
 
   formatTimestamp(timestamp: string): string {
     const now = new Date();

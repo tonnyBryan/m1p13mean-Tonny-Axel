@@ -424,7 +424,8 @@ exports.payCommand = async (req, res) => {
             title: 'New Order Received',
             message: `A new order has been placed in your store. Please review and process it promptly.`,
             payload: { orderId: commande._id },
-            url: `/store/app/orders/${commande._id}`
+            url: `/store/app/orders/${commande._id}`,
+            severity: 'info',
         }).catch(err => console.error('Notification failed', err));
 
         return successResponse(res, 200, 'Payment processed successfully', commande);
@@ -545,7 +546,9 @@ exports.acceptOrder = async (req, res) => {
         session = await mongoose.startSession();
         session.startTransaction();
 
-        const commande = await Commande.findOne({ _id: id, boutique: boutique._id }).session(session);
+        const commande = await Commande.findOne({ _id: id, boutique: boutique._id })
+            .populate({ path: 'boutique', select: 'name owner' })
+            .session(session);
         if (!commande) {
             await session.abortTransaction();
             return errorResponse(res, 404, 'No order matching the provided identifier was found for your store. Please verify the identifier and try again.');
@@ -554,15 +557,25 @@ exports.acceptOrder = async (req, res) => {
         const sellerId = req.user._id;
 
         const vente = await createVenteFromCommande(commande, sellerId, session);
-        console.log(vente);
         await removeEngagement(commande, session);
 
-        // TODO: creation vente, sortie de stock (business logic to be added later)
+        // TODO:  sortie de stock (business logic to be added later)
 
         commande.status = 'accepted';
         await commande.save({ session });
 
         await session.commitTransaction();
+
+        sendNotification({
+            recipient: commande.user,
+            channel: 'order',
+            type: 'order_accepted',
+            title: 'Order Accepted',
+            message: `Your order has been accepted by <strong>${commande.boutique.name}</strong> and is now being prepared.`,
+            payload: { orderId: commande._id },
+            url: `/v1/orders/${commande._id}`,
+            severity: 'success',
+        }).catch(err => console.error('Notification failed', err));
 
         return successResponse(res, 200, 'The order status has been successfully updated to "accepted".', commande);
     } catch (err) {
@@ -592,7 +605,9 @@ exports.cancelOrder = async (req, res) => {
         session = await mongoose.startSession();
         session.startTransaction();
 
-        const commande = await Commande.findOne({ _id: id, boutique: boutique._id }).session(session);
+        const commande = await Commande.findOne({ _id: id, boutique: boutique._id })
+            .populate({ path: 'boutique', select: 'name owner' })
+            .session(session);
         if (!commande) {
             await session.abortTransaction();
             return errorResponse(res, 404, 'No order matching the provided identifier was found for your store. Please verify the identifier and try again.');
@@ -604,6 +619,17 @@ exports.cancelOrder = async (req, res) => {
         await commande.save({ session });
 
         await session.commitTransaction();
+
+        sendNotification({
+            recipient: commande.user,
+            channel: 'order',
+            type: 'order_canceled',
+            title: 'Order Canceled',
+            message: `Your order has been canceled by <strong>${commande.boutique.name}</strong>. Any applicable refund will be processed according to our policy.`,
+            payload: { orderId: commande._id },
+            url: `/v1/orders/${commande._id}`,
+            severity: 'error',
+        }).catch(err => console.error('Notification failed', err));
 
         return successResponse(res, 200, 'The order has been canceled successfully.', commande);
     } catch (err) {

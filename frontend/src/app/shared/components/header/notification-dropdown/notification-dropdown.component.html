@@ -77,16 +77,33 @@
                     >
                         <!-- Icon based on channel -->
                         <div class="relative flex-shrink-0">
+                            <!-- Dans la section des icons -->
                             <div
                                     class="w-10 h-10 rounded-full flex items-center justify-center"
                                     [ngClass]="{
-                                    'bg-blue-100 dark:bg-blue-900/30': getNotificationColor(notif) === 'blue',
-                                    'bg-green-100 dark:bg-green-900/30': getNotificationColor(notif) === 'green',
-                                    'bg-amber-100 dark:bg-amber-900/30': getNotificationColor(notif) === 'amber',
-                                    'bg-purple-100 dark:bg-purple-900/30': getNotificationColor(notif) === 'purple',
-                                    'bg-gray-100 dark:bg-gray-800': getNotificationColor(notif) === 'gray'
-                                }"
+        'bg-blue-100 dark:bg-blue-900/30': getNotificationColor(notif) === 'blue',
+        'bg-green-100 dark:bg-green-900/30': getNotificationColor(notif) === 'green',
+        'bg-amber-100 dark:bg-amber-900/30': getNotificationColor(notif) === 'amber',
+        'bg-purple-100 dark:bg-purple-900/30': getNotificationColor(notif) === 'purple',
+        'bg-red-100 dark:bg-red-900/30': getNotificationColor(notif) === 'red',
+        'bg-gray-100 dark:bg-gray-800': getNotificationColor(notif) === 'gray'
+    }"
                             >
+                                <!-- Error Icon (X in circle) -->
+                                <svg *ngIf="getNotificationIcon(notif) === 'error'" class="w-5 h-5 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+
+                                <!-- Warning Icon (! in triangle) -->
+                                <svg *ngIf="getNotificationIcon(notif) === 'warning'" class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+
+                                <!-- Success Icon (checkmark in circle) -->
+                                <svg *ngIf="getNotificationIcon(notif) === 'success'" class="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+
                                 <!-- Order Icon -->
                                 <svg *ngIf="getNotificationIcon(notif) === 'order'" class="w-5 h-5"
                                      [ngClass]="{'text-blue-600 dark:text-blue-400': getNotificationColor(notif) === 'blue'}"
@@ -94,6 +111,7 @@
                                     <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
                                     <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
                                 </svg>
+
                                 <!-- Sale Icon -->
                                 <svg *ngIf="getNotificationIcon(notif) === 'sale'" class="w-5 h-5"
                                      [ngClass]="{'text-green-600 dark:text-green-400': getNotificationColor(notif) === 'green'}"
@@ -101,12 +119,14 @@
                                     <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
                                 </svg>
+
                                 <!-- Stock Icon -->
                                 <svg *ngIf="getNotificationIcon(notif) === 'stock'" class="w-5 h-5"
                                      [ngClass]="{'text-amber-600 dark:text-amber-400': getNotificationColor(notif) === 'amber'}"
                                      fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
                                 </svg>
+
                                 <!-- Message Icon -->
                                 <svg *ngIf="getNotificationIcon(notif) === 'message'" class="w-5 h-5"
                                      [ngClass]="{'text-purple-600 dark:text-purple-400': getNotificationColor(notif) === 'purple'}"
@@ -114,6 +134,7 @@
                                     <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/>
                                     <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/>
                                 </svg>
+
                                 <!-- System Icon (default) -->
                                 <svg *ngIf="getNotificationIcon(notif) === 'system'" class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
@@ -128,9 +149,8 @@
                             <p class="text-sm font-semibold text-gray-900 dark:text-white mb-1 line-clamp-1">
                                 {{ notif.title }}
                             </p>
-                            <p class="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
-                                {{ notif.message }}
-                            </p>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2"
+                               [innerHTML]="sanitizeMessage(notif.message)"></p>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs text-gray-500 dark:text-gray-500 capitalize">{{ notif.channel }}</span>
                                 <span class="w-1 h-1 bg-gray-400 rounded-full"></span>

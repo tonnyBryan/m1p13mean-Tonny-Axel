@@ -8,7 +8,8 @@ exports.sendNotification = async ({
                                       title,
                                       message,
                                       payload = {},
-                                      url
+                                      url,
+                                      severity = 'info'
                                   }) => {
     try {
         const notification = await Notification.create({
@@ -18,7 +19,8 @@ exports.sendNotification = async ({
             title,
             message,
             payload,
-            url
+            url,
+            severity
         });
 
         // 2️⃣ Envoi temps réel (Socket)

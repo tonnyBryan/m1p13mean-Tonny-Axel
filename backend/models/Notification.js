@@ -19,6 +19,12 @@ const NotificationSchema = new Schema({
         required: true // ex: order_created, stock_low, sale_completed
     },
 
+    severity: {
+        type: String,
+        enum: ['info', 'success', 'warning', 'error'],
+        default: 'info'
+    },
+
     title: {
         type: String,
         required: true
