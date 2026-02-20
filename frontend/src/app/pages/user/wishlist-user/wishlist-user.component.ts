@@ -4,11 +4,12 @@ import { Router, RouterModule } from '@angular/router';
 import { WishlistService } from "../../../shared/services/wishlist.service";
 import { ToastService } from "../../../shared/services/toast.service";
 import { WishlistItem } from "../../../core/models/WishlistItem.model";
+import { ShareProductUserComponent } from "../share-product-user/share-product-user.component";
 
 @Component({
   selector: 'app-wishlist-user',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ShareProductUserComponent],
   templateUrl: './wishlist-user.component.html',
   styleUrl: './wishlist-user.component.css',
 })
@@ -16,6 +17,10 @@ export class WishlistUserComponent implements OnInit {
   wishlistItems: WishlistItem[] = [];
   isLoading = false;
   isRemoving: { [key: string]: boolean } = {};
+
+  // Share modal state
+  showShareModal = false;
+  selectedProductId: string | null = null;
 
   constructor(
       private wishlistService: WishlistService,
@@ -85,7 +90,13 @@ export class WishlistUserComponent implements OnInit {
   }
 
   shareProduct(item: WishlistItem) {
-    this.toast.info('Coming Soon', 'Share feature will be available soon!', 3000);
+    this.selectedProductId = item.product._id;
+    this.showShareModal = true;
+  }
+
+  closeShareModal() {
+    this.showShareModal = false;
+    this.selectedProductId = null;
   }
 
   goToProduct(item: WishlistItem) {

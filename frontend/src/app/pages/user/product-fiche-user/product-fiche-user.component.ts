@@ -9,14 +9,17 @@ import {ToastService} from "../../../shared/services/toast.service";
 import {SessionService} from "../../../shared/services/session.service";
 import {WishlistService} from "../../../shared/services/wishlist.service";
 import {ProductNoteUserComponent} from "./product-note-user/product-note-user.component";
+import {ShareProductUserComponent} from "../share-product-user/share-product-user.component";
 
 @Component({
     selector: 'app-product-fiche-user',
-    imports: [CommonModule, PageBreadcrumbComponent, ProductNoteUserComponent],
+    imports: [CommonModule, PageBreadcrumbComponent, ProductNoteUserComponent, ShareProductUserComponent],
     templateUrl: './product-fiche-user.component.html',
     styleUrls: ['./product-fiche-user.css']
 })
 export class ProductFicheUserComponent implements OnInit {
+    showShareModal = false;
+
     pageTitle: string = 'Product details';
     product: Product | null = null;
     idStore: string = '';
@@ -98,6 +101,14 @@ export class ProductFicheUserComponent implements OnInit {
                 }
             });
         }
+    }
+
+    shareProduct(): void {
+        this.showShareModal = true;
+    }
+
+    closeShareModal(): void {
+        this.showShareModal = false;
     }
 
 
@@ -320,19 +331,6 @@ export class ProductFicheUserComponent implements OnInit {
                 this.showCopiedSku = false;
             }, 2000);
         });
-    }
-
-    shareProduct(): void {
-        if (navigator.share) {
-            navigator.share({
-                title: this.p.name,
-                text: this.p.description,
-                url: window.location.href
-            });
-        } else {
-            // Fallback: copier le lien
-            navigator.clipboard.writeText(window.location.href);
-        }
     }
 
     // ════════════════════════════════════════════

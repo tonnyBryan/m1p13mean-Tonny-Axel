@@ -2,7 +2,7 @@ const User = require('../models/User');
 const UserProfile = require('../models/UserProfile');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 const bcrypt = require('bcryptjs');
-
+const mongoose = require('mongoose');
 
 
 /**
@@ -309,5 +309,96 @@ exports.toggleUserStatus = async (req, res) => {
     } catch (error) {
         console.error('Error toggling user status:', error);
         return errorResponse(res, 500, 'An unexpected server error occurred while updating the user status. Please try again later.');
+    }
+};
+
+/**
+ * GET /api/users/search
+ * Search users by name, email, firstName or lastName (limit 10)
+ */
+exports.searchUsers = async (req, res) => {
+    try {
+        const q = (req.query.q || '').trim();
+        if (!q) {
+            return errorResponse(
+                res,
+                400,
+                'Search query is required. Please provide a name, email or other keyword to search.'
+            );
+        }
+
+        const currentUserId = new mongoose.Types.ObjectId(req.user._id);
+        const regex = { $regex: q, $options: 'i' };
+
+        const pipeline = [
+            // Exclure l'utilisateur connecté + filtrer role=user
+            {
+                $match: {
+                    _id: { $ne: currentUserId },
+                    role: 'user',
+                    isActive: true
+                }
+            },
+            {
+                $lookup: {
+                    from: 'userprofiles',
+                    localField: '_id',
+                    foreignField: 'user',
+                    as: 'profile'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$profile',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $match: {
+                    $or: [
+                        { name: regex },
+                        { email: regex },
+                        { 'profile.firstName': regex },
+                        { 'profile.lastName': regex }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    password: 0
+                }
+            },
+            { $limit: 11 } // on récupère 11 pour savoir s'il y a plus que 10
+        ];
+
+        const results = await User.aggregate(pipeline);
+
+        const tooMany = results.length > 10;
+        const items = results.slice(0, 10).map(u => ({
+            _id: u._id,
+            name: u.name,
+            email: u.email,
+            profile: u.profile
+                ? {
+                    firstName: u.profile.firstName,
+                    lastName: u.profile.lastName,
+                    photo: u.profile.photo || null
+                }
+                : null
+        }));
+
+        const message =
+            items.length === 0
+                ? 'No users were found matching your search. Please refine your query and try again.'
+                : null;
+
+        return successResponse(res, 200, message, { items, tooMany });
+    } catch (error) {
+        console.error('User search error:', error);
+        return errorResponse(
+            res,
+            500,
+            'An unexpected server error occurred while searching users. Please try again later.'
+        );
     }
 };

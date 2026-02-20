@@ -38,6 +38,13 @@ const { protect, authorize } = require('../middlewares/auth.middleware');
  *         - role
  */
 
+// Search users by query (name, email, profile names)
+router.get(
+    '/search',
+    protect,
+    authorize('user', 'admin', 'boutique'),
+    userController.searchUsers
+);
 
 /**
  * @swagger
@@ -303,5 +310,6 @@ router.delete(
     authorize('user', 'admin'),
     userController.deleteAddress
 );
+
 
 module.exports = router;

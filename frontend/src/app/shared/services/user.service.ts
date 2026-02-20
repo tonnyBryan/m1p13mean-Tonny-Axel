@@ -90,4 +90,14 @@ export class UserService {
     });
     return this.api.delete<any>(`users/me/profile/addresses/${addressId}`, headers);
   }
+
+  searchUsers(q: string): Observable<any> {
+    const token = this.auth.getToken();
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+
+    const query = encodeURIComponent(q || '');
+    return this.api.get<any>(`users/search?q=${query}`, headers);
+  }
 }

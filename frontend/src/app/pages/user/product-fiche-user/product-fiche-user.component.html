@@ -496,4 +496,11 @@
     </div>
 
 }
+    <!-- Share Modal -->
+    <app-share-product-user
+            *ngIf="showShareModal && product"
+            [productId]="product._id"
+            (closeModal)="closeShareModal()">
+    </app-share-product-user>
+
 </div>

@@ -54,9 +54,9 @@
 
                 <!-- Action Buttons (Above Image) -->
                 <div class="flex items-center justify-between mb-3">
-                      <span class="text-xs text-gray-400 dark:text-gray-600">
+                    <span class="text-xs text-gray-400 dark:text-gray-600">
                         {{ formatDate(item.addedAt) }}
-                      </span>
+                    </span>
 
                     <div class="flex items-center gap-2">
                         <!-- Remove Button -->
@@ -144,3 +144,10 @@
         </div>
     </div>
 </div>
+
+<!-- Share Modal (Outside main content) -->
+<app-share-product-user
+        *ngIf="showShareModal && selectedProductId"
+        [productId]="selectedProductId"
+        (closeModal)="closeShareModal()">
+</app-share-product-user>
