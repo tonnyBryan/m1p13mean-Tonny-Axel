@@ -10,10 +10,13 @@ import {SessionService} from "../../../shared/services/session.service";
 import {WishlistService} from "../../../shared/services/wishlist.service";
 import {ProductNoteUserComponent} from "./product-note-user/product-note-user.component";
 import {ShareProductUserComponent} from "../share-product-user/share-product-user.component";
+import {ProductUnavailableComponent} from "./product-unavailable/product-unavailable.component";
+import {ProductUnfoundComponent} from "./product-unfound/product-unfound.component";
+import {SkeletonProductFicheComponent} from "./skeleton-product-fiche/skeleton-product-fiche.component";
 
 @Component({
     selector: 'app-product-fiche-user',
-    imports: [CommonModule, PageBreadcrumbComponent, ProductNoteUserComponent, ShareProductUserComponent],
+    imports: [CommonModule, PageBreadcrumbComponent, ProductNoteUserComponent, ShareProductUserComponent, ProductUnavailableComponent, ProductUnfoundComponent, SkeletonProductFicheComponent],
     templateUrl: './product-fiche-user.component.html',
     styleUrls: ['./product-fiche-user.css']
 })
@@ -33,30 +36,58 @@ export class ProductFicheUserComponent implements OnInit {
     addedToCartSuccess: boolean = false;
     addToCartErrorMessage: string | null = null;
 
+    isBuyingNow: boolean = false;
+
     isWishlisted = false;
     isTogglingWishlist = false;
     showHeartPulse = false;
     showHeartParticles = false;
 
-    constructor(private route : ActivatedRoute, private router : Router, private storeService : StoreService , private commandeService: CommandeService, private toast: ToastService, private session : SessionService, private wishlistService: WishlistService ) {
+    isProductInactive = false;
+    isProductUnfound = false;
+
+    constructor(private route : ActivatedRoute, protected router : Router, private storeService : StoreService , private commandeService: CommandeService, private toast: ToastService, private session : SessionService, private wishlistService: WishlistService ) {
     }
 
     ngOnInit(): void {
-        const idStore = this.route.snapshot.paramMap.get('idStore');
-        const idProduct = this.route.snapshot.paramMap.get('idProduct');
+        this.route.paramMap.subscribe(params => {
+            const idStore = params.get('idStore');
+            const idProduct = params.get('idProduct');
 
-        if (idStore === null) {
-            this.toast.warning('Error','Invalid URL: missing store ID');
-            this.router.navigate(['/v1/stores']);
-            return;
-        } else if (idProduct === null) {
-            this.router.navigate([`/v1/stores/${idStore}`]);
-            this.toast.warning('Error','Invalid URL: missing product ID');
-            return;
-        }
+            if (!idStore) {
+                this.toast.warning('Error', 'Invalid URL: missing store ID');
+                this.router.navigate(['/v1/stores']);
+                return;
+            }
 
-        this.idStore = idStore;
-        this.loadProduct(idProduct, idStore);
+            if (!idProduct) {
+                this.toast.warning('Error', 'Invalid URL: missing product ID');
+                this.router.navigate([`/v1/stores/${idStore}`]);
+                return;
+            }
+
+            this.idStore = idStore;
+            this.resetState();
+            this.loadProduct(idProduct, idStore);
+        });
+    }
+
+    private resetState(): void {
+        this.product = null;
+        this.isProductInactive = false;
+        this.isProductUnfound = false;
+        this.selectedImageIndex = 0;
+        this.quantity = 1;
+        this.showCopiedSku = false;
+        this.showShareModal = false;
+        this.isAddingToCart = false;
+        this.addedToCartSuccess = false;
+        this.addToCartErrorMessage = null;
+        this.isBuyingNow = false;
+        this.isWishlisted = false;
+        this.isTogglingWishlist = false;
+        this.showHeartPulse = false;
+        this.showHeartParticles = false;
     }
 
     toggleFavorite(): void {
@@ -126,6 +157,10 @@ export class ProductFicheUserComponent implements OnInit {
                 }
 
                 this.product = res.data;
+                if (!this.product?.isActive) {
+                    this.isProductInactive = true;
+                }
+
                 if (this.product) {
                     this.isWishlisted = this.product.isMyWishlist;
                 }
@@ -136,10 +171,12 @@ export class ProductFicheUserComponent implements OnInit {
             },
             error: (err) => {
                 console.error(err);
-                if (err.error && err.error.message) {
-                    this.toast.error('Error',err.error.message,0);
+                if (err.status === 449) {
+                    this.isProductUnfound = true;
+                } else if (err.error && err.error.message) {
+                    this.toast.error('Error', err.error.message, 0);
                 } else {
-                    this.toast.error('Error','An error occurred while fetching product',0);
+                    this.toast.error('Error', 'An error occurred while fetching product', 0);
                 }
             }
         });
@@ -308,16 +345,19 @@ export class ProductFicheUserComponent implements OnInit {
         const productId = this.product._id;
         const qty = this.quantity > 0 ? this.quantity : 1;
 
+        this.isBuyingNow = true;
+
         this.commandeService.directBuy(productId, qty).subscribe({
             next: (res) => {
                 if (res?.success) {
                     this.commandeService.refreshDraftCount().subscribe();
-                    console.log('direct buy', res.data);
                     this.router.navigate(['/v1/cart/checkout']);
+                } else {
+                    this.isBuyingNow = false;
                 }
             },
             error: (err) => {
-                console.error('buy error:', err);
+                this.isBuyingNow = false;
                 const message = err?.error?.message || err?.message || 'Error buying item';
                 this.toast.error("Error", message);
             }

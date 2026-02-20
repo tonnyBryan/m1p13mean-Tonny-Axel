@@ -47,19 +47,6 @@
     <div class="flex items-center gap-2">
         <button
                 type="button"
-                (click)="duplicateProduct()"
-                class="flex items-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
-                title="Duplicate"
-        >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M11 2H3C2.4 2 2 2.4 2 3V11" stroke="currentColor" stroke-width="1.5"/>
-            </svg>
-            Duplicate
-        </button>
-
-        <button
-                type="button"
                 (click)="editProduct()"
                 class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 transition-colors shadow-sm"
         >
@@ -68,17 +55,6 @@
                 <path d="M10 3.5L12.5 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
             Edit
-        </button>
-
-        <button
-                type="button"
-                (click)="deleteProduct()"
-                class="flex h-10 w-10 items-center justify-center rounded-lg border border-red-300 dark:border-red-800 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors shadow-sm"
-                title="Delete"
-        >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M3.75 5.25H14.25M7.5 8.25V12.75M10.5 8.25V12.75M13.5 5.25V14.25C13.5 14.6478 13.342 15.0294 13.0607 15.3107C12.7794 15.592 12.3978 15.75 12 15.75H6C5.60218 15.75 5.22064 15.592 4.93934 15.3107C4.65804 15.0294 4.5 14.6478 4.5 14.25V5.25M6 5.25V3.75C6 3.35218 6.15804 2.97064 6.43934 2.68934C6.72064 2.40804 7.10218 2.25 7.5 2.25H10.5C10.8978 2.25 11.2794 2.40804 11.5607 2.68934C11.842 2.97064 12 3.35218 12 3.75V5.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
         </button>
     </div>
 </div>
@@ -162,6 +138,9 @@
                 </div>
             }
 
+            <div [class]="product.images.length > 1 ? 'mt-6' : 'mt-5'">
+                <app-product-note-boutique [product]="product"></app-product-note-boutique>
+            </div>
         </div>
     </div>
 
@@ -356,22 +335,22 @@
                     (click)="toggleActiveStatus()"
                     class="w-full rounded-xl border-2 px-6 py-3.5 text-sm font-semibold transition-all"
                     [ngClass]="product.isActive
-        ? 'border-red-300 dark:border-red-800 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
-        : 'border-emerald-300 dark:border-emerald-800 bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'"
+                        ? 'border-red-300 dark:border-red-800 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                        : 'border-emerald-300 dark:border-emerald-800 bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'"
             >
-      <span class="flex items-center justify-center gap-2">
-        @if (product.isActive) {
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <path d="M14 7L9 2L4 7M9 2V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-            Desactivate product
-        } @else {
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <path d="M9 2V15M14 10L9 15L4 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-            Activate product
-        }
-      </span>
+              <span class="flex items-center justify-center gap-2">
+                @if (product.isActive) {
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M14 7L9 2L4 7M9 2V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                    Desactivate product
+                } @else {
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M9 2V15M14 10L9 15L4 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                    Activate product
+                }
+              </span>
             </button>
 
         </div>

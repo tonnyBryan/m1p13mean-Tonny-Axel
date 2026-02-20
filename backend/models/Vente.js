@@ -40,6 +40,8 @@ const VenteSchema = new Schema({
         enum: ['direct', 'order'],
         default: 'direct'
     },
+    order: { type: Schema.Types.ObjectId, ref: 'Commande', default: null }, // linked order if origin is 'order'
+    deliveryPrice: { type: Number, default: 0 },
     saleDate: { type: Date, default: Date.now }
 }, { timestamps: true });
 

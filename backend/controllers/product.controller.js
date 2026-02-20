@@ -161,7 +161,7 @@ exports.getProductById = async (req, res) => {
         const product = await Product.findById(req.params.id).select();
 
         if (!product) {
-            return errorResponse(res, 404, 'The requested product was not found. Please verify the identifier.');
+            return errorResponse(res, 449, 'The requested product was not found. Please verify the identifier.');
         }
 
         if (user && user.role === 'user') {
@@ -178,6 +178,9 @@ exports.getProductById = async (req, res) => {
 
         return successResponse(res, 200, null, product);
     } catch (error) {
+        if (error.name === 'CastError' && error.kind === 'ObjectId') {
+            return errorResponse(res, 449, 'The requested product was not found. Please verify the identifier.');
+        }
         return errorResponse(res, 400, 'The provided product identifier is invalid. Please check and try again.');
     }
 };

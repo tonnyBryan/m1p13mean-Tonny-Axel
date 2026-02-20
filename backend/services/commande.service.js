@@ -53,6 +53,8 @@ async function createVenteFromCommande(commande, sellerId, session) {
         isSale: p.isSale || false
     }));
 
+    const deliveryPrice = commande.deliveryAddress?.price || 0;
+
     const venteData = {
         boutique: commande.boutique,
         seller: sellerId,
@@ -68,6 +70,8 @@ async function createVenteFromCommande(commande, sellerId, session) {
         status: 'paid',
         saleType: commande.deliveryMode === 'delivery' ? 'delivery' : 'dine-in',
         origin: 'order',
+        order: commande._id,
+        deliveryPrice: deliveryPrice,
         saleDate: new Date()
     };
 

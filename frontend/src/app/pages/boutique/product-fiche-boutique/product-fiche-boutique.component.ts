@@ -12,11 +12,13 @@ import { ButtonComponent } from '../../../shared/components/ui/button/button.com
 import { LabelComponent } from '../../../shared/components/form/label/label.component';
 import { InputFieldComponent } from '../../../shared/components/form/input/input-field.component';
 import { FormsModule } from '@angular/forms';
+import {ToastService} from "../../../shared/services/toast.service";
+import {ProductNoteBoutiqueComponent} from "./product-note-boutique/product-note-boutique.component";
 
 
 @Component({
     selector: 'app-product-fiche-boutique',
-    imports: [CommonModule, ProductSkeletonComponent, ProductErrorComponent, PageBreadcrumbComponent, ModalComponent, ButtonComponent, LabelComponent, InputFieldComponent, FormsModule],
+    imports: [CommonModule, ProductSkeletonComponent, ProductErrorComponent, PageBreadcrumbComponent, ModalComponent, ButtonComponent, LabelComponent, InputFieldComponent, FormsModule, ProductNoteBoutiqueComponent],
     templateUrl: './product-fiche-boutique.component.html',
     styleUrls: ['./product-fiche.css']
 })
@@ -56,7 +58,8 @@ export class ProductFicheBoutiqueComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private storeService: StoreService,
-        private productService: ProductService
+        private productService: ProductService,
+        private toast : ToastService
     ) {}
 
     ngOnInit(): void {
@@ -252,16 +255,41 @@ export class ProductFicheBoutiqueComponent implements OnInit {
         });
     }
 
-    deleteProduct(): void {
-        if (confirm(`Êtes-vous sûr de vouloir supprimer "${this.product.name}" ?`)) {
-            console.log('Delete product:', this.product._id);
-            // → Appel API de suppression
-        }
+    toggleActiveStatus(): void {
+
+        const activating = !this.product.isActive;
+
+        const title = activating
+            ? 'Activate product?'
+            : 'Deactivate product?';
+
+        const message = activating
+            ? 'Are you sure you want to activate this product? It will become visible to customers.'
+            : 'Are you sure you want to deactivate this product? It will no longer be visible to customers.';
+
+        this.toast.confirm(
+            title,
+            message,
+            () => {
+                this.executeToggle();
+            },
+            () => {
+                console.log('Toggle cancelled');
+            },
+            {
+                confirmLabel: activating ? 'Activate' : 'Deactivate',
+                cancelLabel: 'Cancel',
+                variant: activating ? 'success' : 'danger',
+                position: 'top-center',
+                backdrop: true,
+            }
+        );
     }
 
-    toggleActiveStatus(): void {
+    private executeToggle(): void {
         const newStatus = !this.product.isActive;
         const previous = this.product.isActive;
+
         this.product.isActive = newStatus;
 
         this.productService.toggleActive(this.product._id, newStatus).subscribe({
@@ -273,6 +301,8 @@ export class ProductFicheBoutiqueComponent implements OnInit {
             },
             error: (err) => {
                 this.product.isActive = previous;
+                const msg = err?.error?.message || 'Error updating product';
+                this.toast.error("Error", msg);
                 console.error('Error toggling product status', err);
             }
         });
@@ -285,11 +315,6 @@ export class ProductFicheBoutiqueComponent implements OnInit {
                 this.showCopiedSku = false;
             }, 2000);
         });
-    }
-
-    duplicateProduct(): void {
-        console.log('Duplicate product:', this.product._id);
-        // → Créer une copie du produit
     }
 
     formatDate(dateString: string): string {

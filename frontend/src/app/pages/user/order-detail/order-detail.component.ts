@@ -20,7 +20,7 @@ export class OrderDetailComponent implements OnInit {
 
   constructor(
       private route: ActivatedRoute,
-      private router: Router,
+      protected router: Router,
       private commandeService: CommandeService,
       private toast : ToastService
   ) {}

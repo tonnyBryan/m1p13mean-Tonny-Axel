@@ -4,6 +4,7 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
 const LivraisonConfig = require('../models/LivraisonConfig');
 const UserProfile = require('../models/UserProfile');
 const Boutique = require('../models/Boutique');
+const Vente = require('../models/Vente');
 const {removeEngagement, createVenteFromCommande} = require("../services/commande.service");
 const mongoose = require('mongoose');
 const { sendNotification } = require('../services/notification.service');
@@ -575,6 +576,14 @@ exports.getCommandById = async (req, res) => {
             if (!commande) return errorResponse(res, 404, 'The requested order was not found in your store.');
 
             const commandeObj = commande.toObject();
+
+            const sale = await Vente.findOne(
+                { order: commande._id },
+                { _id: 1 }
+            ).lean();
+
+            commandeObj.saleId = sale?._id || null;
+
             await attachUserProfileInfoToCommande(commandeObj);
 
             return successResponse(res, 200, null, commandeObj);
@@ -672,7 +681,12 @@ exports.acceptOrder = async (req, res) => {
             severity: 'success',
         }).catch(err => console.error('Notification failed', err));
 
-        return successResponse(res, 200, 'The order status has been successfully updated to "accepted".', commande);
+        const payload = {
+            order: commande,
+            saleId: vente._id
+        };
+
+        return successResponse(res, 200, 'The order status has been successfully updated to "accepted".', payload);
     } catch (err) {
         console.error('acceptOrder error:', err);
         if (session) {

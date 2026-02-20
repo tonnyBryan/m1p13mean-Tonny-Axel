@@ -27,6 +27,8 @@ export class OrderDetailBoutiqueComponent implements OnInit {
   // Canceled reason
   cancelReason: string = '';
 
+  saleId: string | null = null;
+
   constructor(
       private route: ActivatedRoute,
       private router: Router,
@@ -77,6 +79,7 @@ export class OrderDetailBoutiqueComponent implements OnInit {
         this.loading = false;
         if (res?.success) {
           this.order = res.data || res;
+          this.saleId = this.order.saleId;
           console.log('Order:', this.order);
         }
       },
@@ -110,8 +113,12 @@ export class OrderDetailBoutiqueComponent implements OnInit {
       next: (res: any) => {
         this.actionLoading[key] = false;
         if (res?.success) {
-          // backend returns commande in res.data or res
-          this.order = res.data || res;
+          if (key === 'accept') {
+            this.order = res.data.order;
+            this.saleId = res.data.saleId;
+          } else {
+            this.order = res.data || res;
+          }
           this.toast.success('Success', successMsg);
         } else {
           const msg = res?.message || 'Failed to update order status';
@@ -159,9 +166,7 @@ export class OrderDetailBoutiqueComponent implements OnInit {
 
   // Navigate to related sale
   viewRelatedSale(): void {
-    this.router.navigate(['/store/app/vente-liste'], {
-      queryParams: { orderId: this.order._id }
-    });
+    this.router.navigate(['/store/app/vente-liste', this.saleId]);
   }
 
   goBack(): void {

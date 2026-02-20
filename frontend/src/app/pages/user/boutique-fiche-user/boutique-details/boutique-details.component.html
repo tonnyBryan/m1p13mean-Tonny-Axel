@@ -1,17 +1,18 @@
 <!-- No Delivery Today Alert -->
 <div *ngIf="boutique && boutique.livraisonConfig?.isDeliveryAvailable && !isDeliveryAvailableToday()"
-     class="mb-6 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-xl p-4">
-    <div class="flex items-start gap-3">
-        <div class="flex-shrink-0">
-            <svg class="w-5 h-5 text-amber-600 dark:text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+     class="mb-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+    <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+            <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
             </svg>
         </div>
-        <div class="flex-1">
-            <p class="text-sm font-medium text-amber-900 dark:text-amber-200">
+
+        <div class="flex-1 min-w-0">
+            <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">
                 No delivery available today
-            </p>
-            <p class="text-xs text-amber-700 dark:text-amber-300 mt-1">
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                 This shop doesn't offer delivery service on {{ getCurrentDayName() }}. Please check available delivery days below.
             </p>
         </div>
@@ -155,8 +156,6 @@
             </div>
         </div>
 
-        <!-- Delivery Info (Collapsible) -->
-        <!-- Delivery Info (Collapsible) -->
         <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
             <details class="group" #deliveryDetails>
                 <summary class="flex items-center justify-between cursor-pointer list-none hover:bg-gray-50 dark:hover:bg-gray-900/50 -mx-2 px-2 py-2 rounded-lg transition-colors">
@@ -172,37 +171,56 @@
                 </summary>
 
                 <div class="delivery-content overflow-hidden">
-                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 pl-7 pb-2">
-                        <!-- Delivery Days -->
-                        <div class="animate-fade-in-up" style="animation-delay: 0.1s">
-                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Delivery days</p>
-                            <div class="flex flex-wrap gap-1.5">
-                        <span *ngFor="let day of boutique.livraisonConfig?.deliveryDays; let i = index"
-                              class="inline-flex items-center justify-center w-10 h-10 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105"
-                              [style.animation-delay]="(0.15 + i * 0.05) + 's'"
-                              [ngClass]="day.isActive
-                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 shadow-sm'
-                                : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600'">
-                            {{ getDayName(day.day - 1) }}
-                        </span>
-                            </div>
-                        </div>
+                    <div class="mt-3 pb-2">
 
-                        <!-- Delivery Pricing -->
-                        <div class="space-y-2 animate-fade-in-up" style="animation-delay: 0.2s">
-                            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Delivery pricing</p>
-                            <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                                <p class="transform transition-all duration-200 hover:translate-x-1">
-                                    • Base distance: <span class="font-medium text-gray-900 dark:text-white">{{ boutique.livraisonConfig?.deliveryRules?.baseDistanceKm || 0 }} km</span>
-                                </p>
-                                <p class="transform transition-all duration-200 hover:translate-x-1">
-                                    • Extra fee per km: <span class="font-medium text-gray-900 dark:text-white">{{ boutique.livraisonConfig?.deliveryRules?.extraPricePerKm || 0 }} Ar/km</span>
-                                </p>
-                            </div>
-                            <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/50 transform transition-all duration-300 hover:shadow-md">
-                                <p class="text-xs text-blue-700 dark:text-blue-300">
-                                    <span class="font-semibold">Example:</span> For distances up to {{ boutique.livraisonConfig?.deliveryRules?.baseDistanceKm || 0 }}km, delivery costs {{ boutique.livraisonConfig?.deliveryRules?.minPrice || 0 }} Ar. Beyond that, add {{ boutique.livraisonConfig?.deliveryRules?.extraPricePerKm || 0 }} Ar per extra kilometer.
-                                </p>
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4">
+                            <div class="flex gap-6">
+
+                                <div class="w-1/2">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="w-7 h-7 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                                            <svg class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-sm font-bold text-gray-900 dark:text-white">Days</h3>
+                                    </div>
+                                    <div class="flex flex-wrap gap-1.5">
+                                        <span
+                                                *ngFor="let day of boutique.livraisonConfig?.deliveryDays"
+                                                class="inline-flex items-center justify-center w-10 h-10 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105"
+                                                [ngClass]="day.isActive
+                                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 shadow-sm'
+                                                : 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600'">
+                                            {{ getDayName(day.day - 1) }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="w-px bg-gray-200 dark:bg-gray-700 self-stretch"></div>
+
+                                <div class="w-1/2 min-w-0">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="w-7 h-7 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                                            <svg class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-sm font-bold text-gray-900 dark:text-white">Pricing</h3>
+                                    </div>
+                                    <div class="space-y-1.5 text-sm text-gray-600 dark:text-gray-400">
+                                        <p>
+                                            Within <span class="font-semibold text-gray-900 dark:text-white">{{ boutique.livraisonConfig?.deliveryRules?.baseDistanceKm || 0 }} km</span>
+                                            — fixed fee of
+                                            <span class="font-semibold text-gray-900 dark:text-white">{{ boutique.livraisonConfig?.deliveryRules?.minPrice || 0 }} Ar</span>
+                                        </p>
+                                        <p>
+                                            Beyond that — add
+                                            <span class="font-semibold text-gray-900 dark:text-white">{{ boutique.livraisonConfig?.deliveryRules?.extraPricePerKm || 0 }} Ar</span>
+                                            per extra km
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

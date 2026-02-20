@@ -173,7 +173,9 @@
                                 </div>
                                 <!-- Product Info -->
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1">
+                                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1 cursor-pointer hover:text-brand-600 dark:hover:text-brand-400 transition-colors line-clamp-2"
+                                        (click)="router.navigate(['/v1/stores', order.boutique._id, 'products', item.product._id])"
+                                    >
                                         {{ item.product?.name || 'Product' }}
                                     </h3>
                                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
@@ -255,7 +257,11 @@
                             </div>
                         </div>
                         <div>
-                            <p class="font-semibold text-gray-900 dark:text-white">{{ order.boutique?.name || 'Store' }}</p>
+                            <p class="font-semibold text-gray-900 dark:text-white cursor-pointer hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                               (click)="router.navigate(['/v1/stores', order.boutique._id])"
+                            >
+                                {{ order.boutique?.name || 'Store' }}
+                            </p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">{{ order.boutique?.description || 'No description' }}</p>
                         </div>
                     </div>
