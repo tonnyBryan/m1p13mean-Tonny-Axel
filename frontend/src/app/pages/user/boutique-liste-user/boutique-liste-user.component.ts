@@ -36,7 +36,8 @@ export class BoutiqueListeUserComponent implements OnInit {
     const params: any = {
       limit: 999,
       sort: '-createdAt',
-      isActive: true
+      isActive: true,
+      isValidated: true
     };
 
     this.boutiqueService.getBoutiques(params).subscribe({
