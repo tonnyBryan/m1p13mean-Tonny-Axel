@@ -80,6 +80,19 @@ export class AuthService {
         );
     }
 
+    signup(username: string, email: string, password: string, role: string = 'user'): Observable<any> {
+        const body = { name: username, email, password, role };
+        console.log("body = " + body);
+        return this.api.post<any>('auth/signup', body).pipe(
+            tap(res => {
+                if (res.success && res.data?.accessToken) {
+                    localStorage.setItem('token', res.data.accessToken);
+                    this.loadUserFromToken();
+                }
+            })
+        );
+    }
+
     verifyToken(): Observable<any> {
         const token = this.getToken();
 

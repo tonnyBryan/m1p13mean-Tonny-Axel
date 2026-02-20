@@ -18,8 +18,12 @@ exports.login = async (req, res) => {
         }
 
         const user = await User.findOne({ email, role });
-        if (!user || !user.isActive) {
+        if (!user) {
             return errorResponse(res, 401, 'Authentication failed. Please check your email, password and role and try again.');
+        }
+
+        if (!user.isActive) {
+            return errorResponse(res, 401, 'Your account has been deactivated. Please contact support for assistance.');
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -45,7 +49,6 @@ exports.login = async (req, res) => {
 
         const accessToken = generateAccessToken(tokenPayload);
 
-        // 🔄 Refresh token
         const refreshToken = jwt.sign(
             { id: user._id },
             process.env.JWT_REFRESH_SECRET,
@@ -67,7 +70,7 @@ exports.login = async (req, res) => {
         // Cookie HTTPOnly
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: false, // true en prod (https)
+            secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict'
         });
 
@@ -83,6 +86,128 @@ exports.login = async (req, res) => {
 
     } catch (error) {
         return errorResponse(res, 500, 'An unexpected error occurred during login. Please try again later.');
+    }
+};
+
+exports.signupUser = async (req, res) => {
+    try {
+        const { name, email, password, role } = req.body;
+
+        if (!name || !email || !password || !role) {
+            return errorResponse(res, 400, 'Username, email, password are required. Please provide all required fields.');
+        }
+
+        if (!name || typeof name !== 'string' || name.trim().length < 2) {
+            return errorResponse(
+                res,
+                400,
+                'Name is required and must contain at least 2 characters.'
+            );
+        }
+
+        if (!email || typeof email !== 'string') {
+            return errorResponse(
+                res,
+                400,
+                'A valid email address is required.'
+            );
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email.trim().toLowerCase())) {
+            return errorResponse(
+                res,
+                400,
+                'Please provide a valid email address.'
+            );
+        }
+
+        if (!password || typeof password !== 'string') {
+            return errorResponse(
+                res,
+                400,
+                'Password is required.'
+            );
+        }
+
+        if (password.length < 8) {
+            return errorResponse(
+                res,
+                400,
+                'Password must be at least 8 characters long.'
+            );
+        }
+
+        const strongPasswordRegex =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/;
+
+        if (!strongPasswordRegex.test(password)) {
+            return errorResponse(
+                res,
+                400,
+                'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.'
+            );
+        }
+
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return errorResponse(res, 409, 'An account with this email address already exists.');
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const user = await User.create({
+            name,
+            email,
+            password: hashedPassword,
+            role
+        });
+
+        const tokenPayload = {
+            id: user._id,
+            role: user.role,
+            email: user.email,
+        };
+
+        const accessToken = generateAccessToken(tokenPayload);
+
+        const refreshToken = jwt.sign(
+            { id: user._id },
+            process.env.JWT_REFRESH_SECRET,
+            { expiresIn: process.env.JWT_REFRESH_EXPIRE }
+        );
+
+        const refreshTokenHash = crypto
+            .createHash('sha256')
+            .update(refreshToken)
+            .digest('hex');
+
+        await RefreshToken.create({
+            user: user._id,
+            token: refreshTokenHash,
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        });
+
+        // Cookie HTTPOnly
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        });
+
+        return successResponse(res, 201, 'Authentication successful', {
+            accessToken,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        });
+
+    } catch (error) {
+        return errorResponse(res, 500, 'An unexpected error occurred during registration. Please try again later.');
     }
 };
 
