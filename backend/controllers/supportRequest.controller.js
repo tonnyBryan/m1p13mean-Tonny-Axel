@@ -29,3 +29,21 @@ exports.submit = async (req, res) => {
 exports.getAllSupportRequests = async (req, res) => {
     return successResponse(res, 200, 'Support requests retrieved successfully.', res.advancedResults);
 };
+
+/**
+ * GET /api/support-requests/:id
+ * Protected, admin only
+ */
+exports.getSupportRequestById = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const request = await SupportRequest.findById(id).lean();
+        if (!request) {
+            return errorResponse(res, 404, 'Support request not found.');
+        }
+        return successResponse(res, 200, 'Support request retrieved successfully.', request);
+    } catch (error) {
+        console.error('getSupportRequestById error:', error);
+        return errorResponse(res, 500, 'Unable to fetch the support request at this time. Please try again later.');
+    }
+};

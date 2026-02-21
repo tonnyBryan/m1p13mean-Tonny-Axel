@@ -1,0 +1,167 @@
+<div class="mx-auto max-w-7xl space-y-5">
+
+    <!-- Header -->
+    <div class="flex items-center gap-4">
+        <button (click)="onDiscard()"
+                class="inline-flex items-center justify-center w-9 h-9 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+            </svg>
+        </button>
+        <div>
+            <h1 class="text-xl font-bold text-gray-800 dark:text-white/90">Reply to Support Request</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Compose and send your reply</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+
+        <!-- Original Request -->
+        <div class="xl:col-span-1">
+            <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+                    <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300">Original Request</h3>
+                </div>
+
+                <!-- Skeleton -->
+                <div *ngIf="isLoadingRequest" class="p-5 space-y-3">
+                    <div class="h-4 w-3/4 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                    <div class="h-3 w-1/2 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                    <div class="h-3 w-full rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                    <div class="h-3 w-full rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                    <div class="h-3 w-2/3 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                </div>
+
+                <!-- Content -->
+                <div *ngIf="!isLoadingRequest && request" class="p-5 space-y-4">
+
+                    <!-- Sender info -->
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center flex-shrink-0">
+                            <span class="text-sm font-bold text-white">
+                                {{ request.fullName?.charAt(0)?.toUpperCase() }}
+                            </span>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-bold text-gray-800 dark:text-white/90 truncate">{{ request.fullName }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ request.email }}</p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-50 dark:border-gray-800 pt-4 space-y-3">
+                        <!-- Subject -->
+                        <div>
+                            <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase mb-1">Subject</p>
+                            <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ request.subject }}</p>
+                        </div>
+
+                        <!-- Date -->
+                        <div>
+                            <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase mb-1">Received</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ formatDate(request.createdAt) }}</p>
+                        </div>
+
+                        <!-- Status -->
+                        <div>
+                            <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase mb-1">Status</p>
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
+                                  [ngClass]="request.isAnswered
+                                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300'
+                                      : 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300'">
+                                <span class="w-1.5 h-1.5 rounded-full mr-1.5"
+                                      [ngClass]="request.isAnswered ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'"></span>
+                                {{ request.isAnswered ? 'Answered' : 'Pending' }}
+                            </span>
+                        </div>
+
+                        <!-- Message -->
+                        <div>
+                            <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase mb-2">Message</p>
+                            <div class="bg-gray-50 dark:bg-white/[0.02] rounded-xl p-3 border border-gray-100 dark:border-gray-800">
+                                <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">{{ request.message }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compose -->
+        <div class="xl:col-span-2">
+            <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
+
+                <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+                    <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300">Compose Reply</h3>
+                </div>
+
+                <div class="p-5 space-y-4">
+
+                    <!-- To -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">To</label>
+                        <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/[0.02]">
+                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ to }}</span>
+                            <span class="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400">
+                                Auto-filled
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Subject -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Subject</label>
+                        <input type="text"
+                               [(ngModel)]="subject"
+                               class="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition-all"/>
+                    </div>
+
+                    <!-- Body -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400">Message</label>
+                            <button (click)="onClearEditor()"
+                                    class="text-xs text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+                                Clear
+                            </button>
+                        </div>
+                        <div class="quill-wrapper rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden focus-within:ring-2 focus-within:ring-brand-500/30 focus-within:border-brand-500 transition-all"
+                             [ngClass]="{ 'dark-editor': isDark }">
+                            <div #editorContainer></div>
+                        </div>
+                        <div class="flex items-center justify-between mt-1.5">
+                            <span class="text-xs text-gray-400 dark:text-gray-500">{{ wordCount }} word{{ wordCount !== 1 ? 's' : '' }}</span>
+                            <span class="text-xs text-gray-400 dark:text-gray-500">{{ charCount }} characters</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center justify-between pt-2">
+                        <button (click)="onDiscard()"
+                                class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            Discard
+                        </button>
+
+                        <button (click)="onSend()"
+                                [disabled]="isSending || !body.trim()"
+                                class="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all shadow-sm hover:shadow-md">
+                            <svg *ngIf="!isSending" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                            </svg>
+                            <svg *ngIf="isSending" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                            </svg>
+                            {{ isSending ? 'Sending...' : 'Send Reply' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

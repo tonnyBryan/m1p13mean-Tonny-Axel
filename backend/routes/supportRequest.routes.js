@@ -11,4 +11,7 @@ router.post('/submit', supportRequestController.submit);
 // Admin route to list support requests
 router.get('/', protect, authorize('admin'), advancedResults(SupportRequest), supportRequestController.getAllSupportRequests);
 
+// Admin route to get a single support request by id
+router.get('/:id', protect, authorize('admin'), supportRequestController.getSupportRequestById);
+
 module.exports = router;

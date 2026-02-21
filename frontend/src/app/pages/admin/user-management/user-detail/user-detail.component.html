@@ -1,218 +1,219 @@
-<div class="space-y-6">
-    <!-- Breadcrumb -->
-    <app-page-breadcrumb [pageTitle]="pageTitle" [breadcrumbs]="[
-        { label: 'Admin', link: '/admin' },
-        { label: 'Users', link: '/admin/app/users' },
-        { label: 'Details' }
-    ]"></app-page-breadcrumb>
+<div class="mx-auto max-w-7xl">
+    <div class="space-y-6">
+        <!-- Breadcrumb -->
+        <app-page-breadcrumb [pageTitle]="pageTitle" [breadcrumbs]="[
+            { label: 'Admin', link: '/admin' },
+            { label: 'Users', link: '/admin/app/users' },
+            { label: 'Details' }
+        ]"></app-page-breadcrumb>
 
-    @if (isLoading) {
-    <!-- Skeleton Loader -->
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 animate-pulse">
-        <!-- Left Column Skeleton -->
-        <div class="lg:col-span-1 space-y-6">
-            <div
-                class="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-white/[0.05] dark:bg-white/[0.03]">
-                <div class="flex flex-col items-center text-center">
-                    <div class="h-32 w-32 mb-4 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-                    <div class="h-6 w-48 mb-2 rounded bg-gray-200 dark:bg-gray-700"></div>
-                    <div class="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700"></div>
-                    <div class="mt-6 w-full space-y-3 pt-6 border-t border-gray-100 dark:border-white/[0.05]">
-                        <div class="flex justify-between">
-                            <div class="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700"></div>
-                            <div class="h-4 w-16 rounded bg-gray-200 dark:bg-gray-700"></div>
+        @if (isLoading) {
+        <!-- Skeleton Loader -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 animate-pulse">
+            <!-- Left Column Skeleton -->
+            <div class="lg:col-span-1 space-y-6">
+                <div
+                    class="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-white/[0.05] dark:bg-white/[0.03]">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="h-32 w-32 mb-4 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                        <div class="h-6 w-48 mb-2 rounded bg-gray-200 dark:bg-gray-700"></div>
+                        <div class="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700"></div>
+                        <div class="mt-6 w-full space-y-3 pt-6 border-t border-gray-100 dark:border-white/[0.05]">
+                            <div class="flex justify-between">
+                                <div class="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700"></div>
+                                <div class="h-4 w-16 rounded bg-gray-200 dark:bg-gray-700"></div>
+                            </div>
+                            <div class="flex justify-between">
+                                <div class="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700"></div>
+                                <div class="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700"></div>
+                            </div>
                         </div>
-                        <div class="flex justify-between">
-                            <div class="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700"></div>
-                            <div class="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column Skeleton -->
+            <div class="lg:col-span-2 space-y-6">
+                <div
+                    class="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-white/[0.05] dark:bg-white/[0.03]">
+                    <div class="h-6 w-40 mb-6 rounded bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <div class="h-3 w-24 rounded bg-gray-200 dark:bg-gray-700"></div>
+                            <div class="h-4 w-full rounded bg-gray-200 dark:bg-gray-700"></div>
                         </div>
+                        <div class="space-y-2">
+                            <div class="h-3 w-24 rounded bg-gray-200 dark:bg-gray-700"></div>
+                            <div class="h-4 w-full rounded bg-gray-200 dark:bg-gray-700"></div>
+                        </div>
+                        <div class="sm:col-span-2 space-y-2">
+                            <div class="h-3 w-32 rounded bg-gray-200 dark:bg-gray-700"></div>
+                            <div class="h-16 w-full rounded bg-gray-200 dark:bg-gray-700"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-white/[0.05] dark:bg-white/[0.03]">
+                    <div class="flex justify-between mb-4">
+                        <div class="h-6 w-48 rounded bg-gray-200 dark:bg-gray-700"></div>
+                        <div class="h-6 w-20 rounded bg-gray-200 dark:bg-gray-700"></div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="h-24 w-full rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+                        <div class="h-24 w-full rounded-xl bg-gray-200 dark:bg-gray-700"></div>
                     </div>
                 </div>
             </div>
         </div>
+        } @else if (profile) {
+        <!-- Profile Container -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
-        <!-- Right Column Skeleton -->
-        <div class="lg:col-span-2 space-y-6">
-            <div
-                class="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-white/[0.05] dark:bg-white/[0.03]">
-                <div class="h-6 w-40 mb-6 rounded bg-gray-200 dark:bg-gray-700"></div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <div class="h-3 w-24 rounded bg-gray-200 dark:bg-gray-700"></div>
-                        <div class="h-4 w-full rounded bg-gray-200 dark:bg-gray-700"></div>
-                    </div>
-                    <div class="space-y-2">
-                        <div class="h-3 w-24 rounded bg-gray-200 dark:bg-gray-700"></div>
-                        <div class="h-4 w-full rounded bg-gray-200 dark:bg-gray-700"></div>
-                    </div>
-                    <div class="sm:col-span-2 space-y-2">
-                        <div class="h-3 w-32 rounded bg-gray-200 dark:bg-gray-700"></div>
-                        <div class="h-16 w-full rounded bg-gray-200 dark:bg-gray-700"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div
-                class="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-white/[0.05] dark:bg-white/[0.03]">
-                <div class="flex justify-between mb-4">
-                    <div class="h-6 w-48 rounded bg-gray-200 dark:bg-gray-700"></div>
-                    <div class="h-6 w-20 rounded bg-gray-200 dark:bg-gray-700"></div>
-                </div>
-                <div class="space-y-4">
-                    <div class="h-24 w-full rounded-xl bg-gray-200 dark:bg-gray-700"></div>
-                    <div class="h-24 w-full rounded-xl bg-gray-200 dark:bg-gray-700"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    } @else if (profile) {
-    <!-- Profile Container -->
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-
-        <!-- Left Column: User Card -->
-        <div class="lg:col-span-1 space-y-6">
-            <div
-                class="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-white/[0.05] dark:bg-white/[0.03]">
-                <div class="flex flex-col items-center text-center">
-                    <div class="relative h-32 w-32 mb-4">
-                        <img [src]="profile.photo || 'assets/images/user/user-01.png'"
-                            class="h-full w-full rounded-full border-4 border-blue-50 object-cover shadow-md dark:border-blue-900/30" />
-                    </div>
-                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ (profile.firstName ||
-                        profile.lastName) ? (profile.firstName + ' ' + profile.lastName) : 'name' }}</h2>
-                    <p class="text-sm font-medium text-blue-600 dark:text-blue-400 capitalize">{{ getRole(profile.user)
-                        }}</p>
-
-                    <div class="mt-6 w-full space-y-3 pt-6 border-t border-gray-100 dark:border-white/[0.05]">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-500 dark:text-gray-400">Status</span>
-                            <span
-                                [ngClass]="isActive ? 'bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-500/10 dark:text-red-400'"
-                                class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset">
-                                {{ isActive ? 'Active' : 'Inactive' }}
-                            </span>
+            <!-- Left Column: User Card -->
+            <div class="lg:col-span-1 space-y-6">
+                <div
+                    class="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-white/[0.05] dark:bg-white/[0.03]">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="relative h-32 w-32 mb-4">
+                            <img [src]="profile.photo || 'assets/images/user/user-01.png'"
+                                class="h-full w-full rounded-full border-4 border-blue-50 object-cover shadow-md dark:border-blue-900/30" />
                         </div>
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-500 dark:text-gray-400">Join Date</span>
-                            <span class="font-medium text-gray-900 dark:text-white">{{ formatDate(profile.createdAt)
-                                }}</span>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ (profile.firstName ||
+                            profile.lastName) ? (profile.firstName + ' ' + profile.lastName) : 'name' }}</h2>
+                        <p class="text-sm font-medium text-blue-600 dark:text-blue-400 capitalize">{{ getRole(profile.user)
+                            }}</p>
+
+                        <div class="mt-6 w-full space-y-3 pt-6 border-t border-gray-100 dark:border-white/[0.05]">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-500 dark:text-gray-400">Status</span>
+                                <span
+                                    [ngClass]="isActive ? 'bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-500/10 dark:text-red-400'"
+                                    class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset">
+                                    {{ isActive ? 'Active' : 'Inactive' }}
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-500 dark:text-gray-400">Join Date</span>
+                                <span class="font-medium text-gray-900 dark:text-white">{{ formatDate(profile.createdAt)
+                                    }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-8 w-full flex flex-col gap-3">
+                            <button (click)="toggleStatus()"
+                                [ngClass]="isActive ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'"
+                                class="w-full inline-flex justify-center items-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-white shadow-lg transition-all active:scale-[0.98]">
+                                @if (isActive) {
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                                    <line x1="12" y1="2" x2="12" y2="12"></line>
+                                </svg>
+                                Deactivate Account
+                                } @else {
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                Reactivate Account
+                                }
+                            </button>
                         </div>
                     </div>
-
-                    <!-- Action Buttons -->
-                    <div class="mt-8 w-full flex flex-col gap-3">
-                        <button (click)="toggleStatus()"
-                            [ngClass]="isActive ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'"
-                            class="w-full inline-flex justify-center items-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-white shadow-lg transition-all active:scale-[0.98]">
-                            @if (isActive) {
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-                                <line x1="12" y1="2" x2="12" y2="12"></line>
-                            </svg>
-                            Deactivate Account
-                            } @else {
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
-                            Reactivate Account
-                            }
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Column: Details & Addresses -->
-        <div class="lg:col-span-2 space-y-6">
-
-            <!-- About Section -->
-            <div
-                class="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-white/[0.05] dark:bg-white/[0.03]">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">User Information</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">
-                            Full Name</p>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ (profile.firstName ||
-                            profile.lastName) ? (profile.firstName + ' ' + (profile.lastName || '')) :
-                            ('N/A') }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">
-                            Phone Number</p>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ profile.phoneNumber || 'Not
-                            provided' }}</p>
-                    </div>
-                    <div class="sm:col-span-2">
-                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">
-                            Description</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                            {{ profile.description || 'No description available for this user profile.' }}
-                        </p>
-                    </div>
                 </div>
             </div>
 
-            <!-- Addresses Section -->
-            <div
-                class="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-white/[0.05] dark:bg-white/[0.03]">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Delivery Addresses</h3>
-                    <span
-                        class="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                        {{ profile.addresses.length }} Total
-                    </span>
+            <!-- Right Column: Details & Addresses -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- About Section -->
+                <div
+                    class="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-white/[0.05] dark:bg-white/[0.03]">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">User Information</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">
+                                Full Name</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ (profile.firstName ||
+                                profile.lastName) ? (profile.firstName + ' ' + (profile.lastName || '')) :
+                                ('N/A') }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">
+                                Phone Number</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ profile.phoneNumber || 'Not provided' }}</p>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">
+                                Description</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                                {{ profile.description || 'No description available for this user profile.' }}
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="space-y-4">
-                    @for (address of profile.addresses; track address._id) {
-                    <div
-                        class="group relative rounded-xl border border-gray-100 p-4 hover:bg-gray-50 dark:border-white/[0.05] dark:hover:bg-white/[0.01] transition-colors">
-                        <div class="flex items-start justify-between">
-                            <div class="flex items-start gap-3">
-                                <div
-                                    class="mt-1 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-white/[0.05]">
-                                    <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <h4 class="text-sm font-bold text-gray-900 dark:text-white">{{ address.label }}
-                                        </h4>
-                                        @if (address.isDefault) {
-                                        <span
-                                            class="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 uppercase tracking-tighter">Default</span>
-                                        }
+                <!-- Addresses Section -->
+                <div
+                    class="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-white/[0.05] dark:bg-white/[0.03]">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Delivery Addresses</h3>
+                        <span
+                            class="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                            {{ profile.addresses.length }} Total
+                        </span>
+                    </div>
+
+                    <div class="space-y-4">
+                        @for (address of profile.addresses; track address._id) {
+                        <div
+                            class="group relative rounded-xl border border-gray-100 p-4 hover:bg-gray-50 dark:border-white/[0.05] dark:hover:bg-white/[0.01] transition-colors">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-start gap-3">
+                                    <div
+                                        class="mt-1 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-white/[0.05]">
+                                        <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
                                     </div>
-                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ address.description }}
-                                    </p>
-                                    <div class="mt-2 flex items-center gap-3 text-[11px] font-medium text-gray-400">
-                                        <span>LAT: {{ address.latitude }}</span>
-                                        <span class="h-1 w-1 rounded-full bg-gray-300"></span>
-                                        <span>LONG: {{ address.longitude }}</span>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="text-sm font-bold text-gray-900 dark:text-white">{{ address.label }}
+                                            </h4>
+                                            @if (address.isDefault) {
+                                            <span
+                                                class="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 uppercase tracking-tighter">Default</span>
+                                            }
+                                        </div>
+                                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ address.description }}
+                                        </p>
+                                        <div class="mt-2 flex items-center gap-3 text-[11px] font-medium text-gray-400">
+                                            <span>LAT: {{ address.latitude }}</span>
+                                            <span class="h-1 w-1 rounded-full bg-gray-300"></span>
+                                            <span>LONG: {{ address.longitude }}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        } @empty {
+                        <div
+                            class="flex flex-col items-center justify-center py-8 text-center border-2 border-dashed border-gray-100 rounded-xl dark:border-white/[0.05]">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">No addresses registered for this user.</p>
+                        </div>
+                        }
                     </div>
-                    } @empty {
-                    <div
-                        class="flex flex-col items-center justify-center py-8 text-center border-2 border-dashed border-gray-100 rounded-xl dark:border-white/[0.05]">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">No addresses registered for this user.</p>
-                    </div>
-                    }
                 </div>
-            </div>
 
+            </div>
         </div>
+        }
     </div>
-    }
 </div>

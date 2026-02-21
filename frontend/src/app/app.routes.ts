@@ -36,6 +36,9 @@ import {PrivacyPageComponent} from "./pages/public/privacy-page/privacy-page.com
 import {TermsPageComponent} from "./pages/public/terms-page/terms-page.component";
 import {LandingLayoutComponent} from "./shared/layout/landing-layout/landing-layout.component";
 import {DashboardUserComponent} from "./pages/user/dashboard-user/dashboard-user.component";
+import {SubscriptionListComponent} from "./pages/admin/subscription-list/subscription-list.component";
+import {SupportRequestComponent} from "./pages/admin/support-request/support-request.component";
+import {MailComposeComponent} from "./pages/admin/mail-compose/mail-compose.component";
 
 const appName = environment.plateformeName || 'Shopticus';
 
@@ -219,6 +222,30 @@ export const routes: Routes = [
         pathMatch: 'full',
         title:
           'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+      },
+      {
+        path: 'subscriptions',
+        component: SubscriptionListComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole] },
+        pathMatch: 'full',
+        title:
+            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+      },
+      {
+        path: 'support-requests',
+        component: SupportRequestComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole] },
+        pathMatch: 'full',
+        title:
+            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+      },
+      {
+        path: 'support-requests/:id/reply',
+        component: MailComposeComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole] },
       },
       {
         path: 'boutiques',

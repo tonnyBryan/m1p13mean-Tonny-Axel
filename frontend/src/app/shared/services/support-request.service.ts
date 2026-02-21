@@ -40,4 +40,16 @@ export class SupportRequestService {
         return this.api.get<any>(`support-requests${queryString}`, headers);
     }
 
+    /**
+     * Admin endpoint to get a single support request by id
+     * GET /api/support-requests/:id
+     */
+    getSupportRequestById(id: string): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
+        });
+        return this.api.get<any>(`support-requests/${encodeURIComponent(id)}`, headers);
+    }
+
 }

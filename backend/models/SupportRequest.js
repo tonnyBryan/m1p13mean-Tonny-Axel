@@ -21,6 +21,10 @@ const SupportRequestSchema = new mongoose.Schema(
             type: String,
             required: true,
             trim: true
+        },
+        isAnswered: {
+            type: Boolean,
+            default: false
         }
     },
     { timestamps: true }
