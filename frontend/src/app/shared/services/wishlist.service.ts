@@ -20,7 +20,6 @@ export class WishlistService {
     constructor(
         private api: ApiService,
         private auth: AuthService,
-        private toast : ToastService
     ) {}
 
     private getHeaders(): HttpHeaders {
@@ -94,6 +93,23 @@ export class WishlistService {
         });
 
         return this.api.get<any>('wishlist/me', headers);
+    }
+
+    /**
+     * Get paginated wishlists for current user (uses advancedResults on backend)
+     * GET /api/wishlist
+     */
+    getAllWishList(params: any = {}): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+        const keys = Object.keys(params || {});
+        const queryString = keys.length
+            ? '?' + keys.map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`).join('&')
+            : '';
+
+        const url = queryString ? `wishlist${queryString}` : 'wishlist';
+        return this.api.get<any>(url, headers);
     }
 
     getWishlistCount(): Observable<number> {

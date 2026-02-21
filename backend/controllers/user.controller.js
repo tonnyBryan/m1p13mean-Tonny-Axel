@@ -42,7 +42,7 @@ exports.getMe = async (req, res) => {
         const userId = req.user._id || req.user.id;
         const role = req.user.role;
 
-        const user = await User.findById(userId).select('name email role');
+        const user = await User.findById(userId).select('name email role createdAt');
         if (!user) return errorResponse(res, 404, 'User not found');
 
         let avatar = null;
@@ -64,6 +64,7 @@ exports.getMe = async (req, res) => {
             email: user.email,
             role: user.role,
             avatar,
+            createdAt: user.createdAt
         });
 
     } catch (error) {

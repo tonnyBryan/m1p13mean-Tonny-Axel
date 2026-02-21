@@ -1,0 +1,26 @@
+<div class="mx-auto max-w-7xl space-y-6">
+
+    <!-- Page title -->
+    <div>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white/90">My Dashboard</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Welcome back — here's your activity overview.</p>
+    </div>
+
+    <!-- Account Summary -->
+    <div>
+        <app-user-summary />
+    </div>
+
+    <!-- KPI Cards -->
+    <div>
+        <app-user-kpi />
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
+        <div><app-user-orders /></div>
+        <div><app-user-wishlist /></div>
+    </div>
+
+    <!-- Wishlist Preview — à venir -->
+
+</div>

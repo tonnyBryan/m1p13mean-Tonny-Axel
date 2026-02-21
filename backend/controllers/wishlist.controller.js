@@ -1,6 +1,5 @@
 const Wishlist = require('../models/Wishlist');
 const Product = require('../models/Product');
-const Boutique = require('../models/Boutique');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 
 // Create or get wishlist for a user
@@ -85,5 +84,43 @@ exports.getMyWishlist = async (req, res) => {
     } catch (err) {
         console.error(err);
         return errorResponse(res, 500, 'An error occurred while retrieving your wishlist. Please try again later.');
+    }
+};
+
+// Get paginated wishlists for current user using the user's single wishlist document
+exports.getAllWishList = async (req, res) => {
+    try {
+        const userId = req.user && req.user._id;
+        if (!userId) return errorResponse(res, 401, 'You must be authenticated to perform this action.');
+
+        // Read pagination params
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 10;
+        const skip = (page - 1) * limit;
+
+        // Find the single wishlist document for this user
+        const wishlist = await Wishlist.findOne({ user: userId }).lean();
+
+        if (!wishlist || !Array.isArray(wishlist.products) || wishlist.products.length === 0) {
+            return successResponse(res, 200, null, { items: [], total: 0, page, limit });
+        }
+
+        // Sort products by addedAt desc and slice according to pagination
+        const products = wishlist.products.slice().sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
+        const paged = products.slice(skip, skip + limit);
+
+        // Populate product and boutique for each entry in paged
+        let populated = paged;
+        if (paged.length > 0) {
+            populated = await Wishlist.populate(paged, [
+                { path: 'product', model: 'Product' },
+                { path: 'boutique', model: 'Boutique' }
+            ]);
+        }
+
+        return successResponse(res, 200, null, { items: populated, total: products.length, page, limit });
+    } catch (err) {
+        console.error('getAllWishList error:', err);
+        return errorResponse(res, 500, 'An error occurred while retrieving wishlists. Please try again later.');
     }
 };

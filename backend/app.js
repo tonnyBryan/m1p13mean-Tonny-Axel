@@ -42,7 +42,7 @@ app.use('/api/wishlist', require('./routes/wishlist.routes'));
 app.use('/api/product-ratings', require('./routes/productRating.routes'));
 app.use('/api/subscriptions', require('./routes/subscription.routes'));
 app.use('/api/support-requests', require('./routes/supportRequest.routes'));
-
+app.use('/api/user-dashboard', require('./routes/user-dashboard.routes'));
 
 
 module.exports = app;

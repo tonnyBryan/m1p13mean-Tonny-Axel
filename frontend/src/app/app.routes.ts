@@ -35,6 +35,7 @@ import {SupportPageComponent} from "./pages/public/support-page/support-page.com
 import {PrivacyPageComponent} from "./pages/public/privacy-page/privacy-page.component";
 import {TermsPageComponent} from "./pages/public/terms-page/terms-page.component";
 import {LandingLayoutComponent} from "./shared/layout/landing-layout/landing-layout.component";
+import {DashboardUserComponent} from "./pages/user/dashboard-user/dashboard-user.component";
 
 const appName = environment.plateformeName || 'Shopticus';
 
@@ -88,6 +89,15 @@ export const routes: Routes = [
         path: '',
         redirectTo: 'stores',
         pathMatch: 'full'
+      },
+      {
+        path: 'dashboard',
+        component: DashboardUserComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.userRole] },
+        pathMatch: 'full',
+        title:
+            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
       },
       {
         path: 'stores',

@@ -65,6 +65,7 @@ const advancedResults = (model) => async (req, res, next) => {
             .limit(limit)
             .select(fields);
 
+        console.log("q = " +JSON.stringify(query));
         const totalDocs = await model.countDocuments(query);
         const totalPages = Math.ceil(totalDocs / limit);
 
