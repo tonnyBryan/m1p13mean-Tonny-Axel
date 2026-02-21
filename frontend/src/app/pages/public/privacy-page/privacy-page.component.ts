@@ -1,5 +1,7 @@
 import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../../environments/environment';
+
 
 @Component({
   selector: 'app-privacy-page',
@@ -8,9 +10,33 @@ import { CommonModule } from '@angular/common';
   templateUrl: './privacy-page.component.html',
 })
 export class PrivacyPageComponent {
+  appName: string = environment.plateformeName;
+  appMail: string = environment.plateformeEmail;
 
   lastUpdated = 'February 20, 2026';
   activeSection = 'collect';
+
+
+  scrollTo(event: Event, sectionId: string): void {
+    event.preventDefault();
+    const el = document.getElementById(sectionId);
+    if (!el) return;
+    const offset = 90; // hauteur header (64px) + marge confortable
+    const top = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+    this.activeSection = sectionId;
+  }
+
+  @HostListener('window:scroll')
+  onScroll(): void {
+    for (const section of [...this.sections].reverse()) {
+      const el = document.getElementById(section.id);
+      if (el && el.getBoundingClientRect().top <= 120) {
+        this.activeSection = section.id;
+        break;
+      }
+    }
+  }
 
   sections = [
     { id: 'collect',  label: 'Information We Collect' },
@@ -56,15 +82,4 @@ export class PrivacyPageComponent {
     'Export your data (portability)',
     'Withdraw consent at any time',
   ];
-
-  @HostListener('window:scroll')
-  onScroll(): void {
-    for (const section of [...this.sections].reverse()) {
-      const el = document.getElementById(section.id);
-      if (el && el.getBoundingClientRect().top <= 120) {
-        this.activeSection = section.id;
-        break;
-      }
-    }
-  }
 }

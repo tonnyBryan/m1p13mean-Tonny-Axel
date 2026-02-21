@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AnimationObserverService } from '../../../../shared/services/animation-observer.service';
 import { UserStateService, CurrentUser } from '../../../../shared/services/user-state.service';
+import {environment} from "../../../../../environments/environment";
 
 @Component({
   selector: 'app-cta-landing',
@@ -11,6 +12,7 @@ import { UserStateService, CurrentUser } from '../../../../shared/services/user-
   templateUrl: './cta-landing.component.html',
 })
 export class CtaLandingComponent implements OnInit, AfterViewInit {
+  appName: string = environment.plateformeName;
 
   currentUser: CurrentUser | null = null;
   isLoading = true;

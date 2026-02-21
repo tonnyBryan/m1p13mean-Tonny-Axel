@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../../environments/environment';
+
 
 interface Faq {
   question: string;
@@ -17,6 +19,8 @@ interface Faq {
 })
 export class HelpPageComponent {
 
+  appName = environment.plateformeName;
+
   searchQuery = '';
   activeCategory = 'general';
   filteredFaqs: Faq[] = [];
@@ -32,10 +36,10 @@ export class HelpPageComponent {
   faqs: Faq[] = [
     // General
     { category: 'general', open: false,
-      question: 'What is MallHub?',
-      answer: 'MallHub is an all-in-one platform that connects customers with local stores. You can browse products, place orders, and track deliveries — all in one place.' },
+      question: 'What is ' + this.appName + '?',
+      answer: this.appName + ' is an all-in-one platform that connects customers with local stores. You can browse products, place orders, and track deliveries — all in one place.' },
     { category: 'general', open: false,
-      question: 'Is MallHub free to use?',
+      question: 'Is ' + this.appName + ' free to use?',
       answer: 'Yes! Creating a customer account is completely free. Store owners may have access to different plans depending on their needs.' },
     { category: 'general', open: false,
       question: 'How do I create an account?',
@@ -75,7 +79,7 @@ export class HelpPageComponent {
     // Account
     { category: 'account', open: false,
       question: 'How do I verify my email?',
-      answer: 'After signing up, check your inbox for a verification email from MallHub. Click the link inside to verify. If you didn\'t receive it, check your spam folder or request a new one from your profile settings.' },
+      answer: 'After signing up, check your inbox for a verification email from ' + this.appName + '. Click the link inside to verify. If you didn\'t receive it, check your spam folder or request a new one from your profile settings.' },
     { category: 'account', open: false,
       question: 'How do I update my profile or address?',
       answer: 'Go to your Profile page from the account menu. You can update your personal information, delivery address, and contact details at any time.' },
@@ -88,7 +92,7 @@ export class HelpPageComponent {
 
     // Stores
     { category: 'stores', open: false,
-      question: 'How do I open a store on MallHub?',
+      question: 'How do I open a store on ' + this.appName + '?',
       answer: 'Create an account and apply for a store role from your dashboard. Once approved, you can set up your store profile, add products, and configure delivery options.' },
     { category: 'stores', open: false,
       question: 'How do I manage my product catalog?',

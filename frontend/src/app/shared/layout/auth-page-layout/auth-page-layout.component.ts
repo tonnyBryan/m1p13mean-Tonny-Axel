@@ -1,10 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import { GridShapeComponent } from '../../components/common/grid-shape/grid-shape.component';
 import {Router, RouterModule} from '@angular/router';
 import { ThemeToggleTwoComponent } from '../../components/common/theme-toggle-two/theme-toggle-two.component';
-import {Observable} from "rxjs";
-import {User} from "../../../core/models/user.model";
-import {AuthService} from "../../services/auth.service";
+import { environment } from '../../../../environments/environment';
+
 
 @Component({
   selector: 'app-auth-page-layout',
@@ -17,5 +16,6 @@ import {AuthService} from "../../services/auth.service";
   styles: ``
 })
 export class AuthPageLayoutComponent {
+  appName = environment.plateformeName;
 
 }

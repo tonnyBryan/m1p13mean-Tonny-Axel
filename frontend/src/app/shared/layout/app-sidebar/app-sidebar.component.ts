@@ -29,6 +29,8 @@ type NavItem = {
   templateUrl: './app-sidebar.component.html',
 })
 export class AppSidebarComponent implements OnInit {
+  appName = environment.plateformeName;
+
 
   private ALL_NAV_ITEMS: NavItem[] = [
     // USER MENU

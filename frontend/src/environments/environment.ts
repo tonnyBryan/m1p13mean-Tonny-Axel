@@ -4,5 +4,7 @@ export const environment = {
     baseUrl: 'http://localhost:3000',
     adminRole: 'admin',
     userRole: 'user',
-    boutiqueRole: 'boutique'
+    boutiqueRole: 'boutique',
+    plateformeName: 'Shopticus',
+    plateformeEmail: 'shopticus.mall@gmail.com'
 };

@@ -1,5 +1,6 @@
 import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {environment} from "../../../../environments/environment";
 
 @Component({
   selector: 'app-terms-page',
@@ -8,9 +9,32 @@ import { CommonModule } from '@angular/common';
   templateUrl: './terms-page.component.html',
 })
 export class TermsPageComponent {
+  appName: string = environment.plateformeName;
+  appMail: string = environment.plateformeEmail;
 
   lastUpdated = 'February 20, 2026';
   activeSection = 'acceptance';
+
+  scrollTo(event: Event, sectionId: string): void {
+    event.preventDefault();
+    const el = document.getElementById(sectionId);
+    if (!el) return;
+    const offset = 90;
+    const top = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+    this.activeSection = sectionId;
+  }
+
+  @HostListener('window:scroll')
+  onScroll(): void {
+    for (const section of [...this.sections].reverse()) {
+      const el = document.getElementById(section.id);
+      if (el && el.getBoundingClientRect().top <= 120) {
+        this.activeSection = section.id;
+        break;
+      }
+    }
+  }
 
   sections = [
     { id: 'acceptance',   label: 'Acceptance of Terms' },
@@ -62,15 +86,4 @@ export class TermsPageComponent {
     'Selling counterfeit or illegal products',
     'Manipulating ratings or reviews',
   ];
-
-  @HostListener('window:scroll')
-  onScroll(): void {
-    for (const section of [...this.sections].reverse()) {
-      const el = document.getElementById(section.id);
-      if (el && el.getBoundingClientRect().top <= 120) {
-        this.activeSection = section.id;
-        break;
-      }
-    }
-  }
 }

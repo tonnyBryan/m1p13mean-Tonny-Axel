@@ -1,6 +1,8 @@
 import {AfterViewInit, Component} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {AnimationObserverService} from "../../../../shared/services/animation-observer.service";
+import { environment } from '../../../../../environments/environment';
+
 
 @Component({
   selector: 'app-features-landing',
@@ -9,7 +11,7 @@ import {AnimationObserverService} from "../../../../shared/services/animation-ob
   templateUrl: './features-landing.component.html',
 })
 export class FeaturesLandingComponent implements AfterViewInit {
-
+  appName = environment.plateformeName;
   activeTab: 'client' | 'store' = 'client';
 
   constructor(private animObs: AnimationObserverService) {}

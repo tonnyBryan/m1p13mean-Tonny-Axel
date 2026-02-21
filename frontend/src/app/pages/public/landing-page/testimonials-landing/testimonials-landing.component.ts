@@ -2,6 +2,8 @@ import {AfterViewInit, Component} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import {AnimationObserverService} from "../../../../shared/services/animation-observer.service";
+import { environment } from '../../../../../environments/environment';
+
 
 @Component({
   selector: 'app-testimonials-landing',
@@ -10,6 +12,7 @@ import {AnimationObserverService} from "../../../../shared/services/animation-ob
   templateUrl: './testimonials-landing.component.html',
 })
 export class TestimonialsLandingComponent implements AfterViewInit{
+  appName = environment.plateformeName;
 
   constructor(private animObs: AnimationObserverService) {}
 
@@ -33,7 +36,7 @@ export class TestimonialsLandingComponent implements AfterViewInit{
       avatarColor: 'bg-gradient-to-br from-brand-400 to-brand-600',
       role: 'Store Owner',
       rating: 5,
-      text: 'Setting up my store took less than 30 minutes. Since joining MallHub, my orders have doubled. The dashboard is clean and easy to manage even for non-tech people.',
+      text: 'Setting up my store took less than 30 minutes. Since joining ' + this.appName + ', my orders have doubled. The dashboard is clean and easy to manage even for non-tech people.',
       store: null,
     },
     {
@@ -42,7 +45,7 @@ export class TestimonialsLandingComponent implements AfterViewInit{
       avatarColor: 'bg-gradient-to-br from-purple-400 to-purple-600',
       role: 'Customer',
       rating: 5,
-      text: 'Having all my favorite local stores in one app is a game changer. I use MallHub every week and the wishlist feature is perfect for keeping track of things I want to buy.',
+      text: 'Having all my favorite local stores in one app is a game changer. I use ' + this.appName + ' every week and the wishlist feature is perfect for keeping track of things I want to buy.',
       store: 'Ordered from BioNature & Co.',
     },
     {
@@ -69,7 +72,7 @@ export class TestimonialsLandingComponent implements AfterViewInit{
       avatarColor: 'bg-gradient-to-br from-cyan-400 to-blue-500',
       role: 'Store Owner',
       rating: 5,
-      text: 'Customer reviews on MallHub have helped me improve my products and build trust. My store rating went from 3.8 to 4.9 in just two months.',
+      text: 'Customer reviews on ' + this.appName + ' have helped me improve my products and build trust. My store rating went from 3.8 to 4.9 in just two months.',
       store: null,
     },
   ];

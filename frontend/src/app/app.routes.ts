@@ -36,6 +36,7 @@ import {PrivacyPageComponent} from "./pages/public/privacy-page/privacy-page.com
 import {TermsPageComponent} from "./pages/public/terms-page/terms-page.component";
 import {LandingLayoutComponent} from "./shared/layout/landing-layout/landing-layout.component";
 
+const appName = environment.plateformeName || 'Shopticus';
 
 export const routes: Routes = [
   {
@@ -50,31 +51,31 @@ export const routes: Routes = [
       {
         path: 'home',
         component: LandingPageComponent,
-        title: 'MallHub — The all-in-one shopping platform',
+        title: appName + ' | The all-in-one shopping platform',
         data: { animation: 'home' }
       },
       {
         path: 'help',
         component: HelpPageComponent,
-        title: 'Help Center — MallHub',
+        title: 'Help Center | ' + appName,
         data: { animation: 'help' }
       },
       {
         path: 'support',
         component: SupportPageComponent,
-        title: 'Support — MallHub',
+        title: 'Support | ' + appName,
         data: { animation: 'support' }
       },
       {
         path: 'privacy',
         component: PrivacyPageComponent,
-        title: 'Privacy Policy — MallHub',
+        title: 'Privacy Policy | ' + appName,
         data: { animation: 'privacy' }
       },
       {
         path: 'terms',
         component: TermsPageComponent,
-        title: 'Terms of Service — MallHub',
+        title: 'Terms of Service | ' + appName,
         data: { animation: 'terms' }
       },
     ]
