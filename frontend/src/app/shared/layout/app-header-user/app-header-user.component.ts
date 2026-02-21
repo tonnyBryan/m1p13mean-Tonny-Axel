@@ -6,7 +6,6 @@ import { ThemeToggleButtonComponent } from '../../components/common/theme-toggle
 import { NotificationDropdownComponent } from '../../components/header/notification-dropdown/notification-dropdown.component';
 import { UserDropdownComponent } from '../../components/header/user/user-dropdown/user-dropdown.component';
 import { UserService } from '../../services/user.service';
-import { AuthService } from '../../services/auth.service';
 import { UserCartComponent } from "../../components/header/user/user-cart/user-cart.component";
 import { ToastService } from "../../services/toast.service";
 import { UserProfileService } from "../../services/user-profile.service";

@@ -6,6 +6,7 @@ import {jwtDecode} from 'jwt-decode';
 import {JwtPayload} from "../../core/models/jwtPayload.model";
 import {SessionService} from "./session.service";
 import {SocketService} from "./socket.service";
+import {UserStateService} from "./user-state.service";
 
 
 @Injectable({
@@ -13,7 +14,7 @@ import {SocketService} from "./socket.service";
 })
 export class AuthService {
 
-    constructor(private api: ApiService, private session : SessionService, private socketService : SocketService) {
+    constructor(private api: ApiService, private session : SessionService, private userState: UserStateService, private socketService : SocketService) {
         this.loadUserFromToken();
     }
 
@@ -55,6 +56,7 @@ export class AuthService {
 
     logout(): void {
         this.session.clear();
+        this.userState.clear();
         this.socketService.disconnect();
         localStorage.removeItem('token');
     }

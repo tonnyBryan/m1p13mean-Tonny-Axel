@@ -37,6 +37,6 @@ export class BoutiqueDropdownComponent implements OnInit {
 
   onSignOut() {
     this.authService.logout();
-    this.router.navigate(['/signin']);
+    this.router.navigate(['/']);
   }
 }

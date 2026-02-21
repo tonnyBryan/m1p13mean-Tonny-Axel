@@ -24,6 +24,14 @@ export class UserService {
     return this.api.get<any>('users/me/profile', headers);
   }
 
+  getMyInfo(): Observable<any> {
+    const token = this.auth.getToken();
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+    return this.api.get<any>('users/me/info', headers);
+  }
+
   loadUser(): void {
     const token = this.auth.getToken();
     const headers = new HttpHeaders({

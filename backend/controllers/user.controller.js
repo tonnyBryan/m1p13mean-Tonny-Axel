@@ -3,6 +3,8 @@ const UserProfile = require('../models/UserProfile');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
+const Boutique = require('../models/Boutique');
+
 
 
 /**
@@ -27,6 +29,45 @@ exports.getMyParentProfile = async (req, res) => {
     } catch (error) {
         console.error(error);
         return errorResponse(res, 400, 'An error occurred while fetching the profile. Please try again.');
+    }
+};
+
+
+/**
+ * GET /api/users/me/info
+ * Récupérer les infos de base de l'utilisateur connecté (name, email, role, avatar)
+ */
+exports.getMe = async (req, res) => {
+    try {
+        const userId = req.user._id || req.user.id;
+        const role = req.user.role;
+
+        const user = await User.findById(userId).select('name email role');
+        if (!user) return errorResponse(res, 404, 'User not found');
+
+        let avatar = null;
+        let displayName = user.name;
+
+        if (role === 'user') {
+            const profile = await UserProfile.findOne({ user: userId }).select('photo firstName lastName');
+            avatar = profile?.photo ?? null;
+            displayName = profile ? `${profile.firstName} ${profile.lastName}` : user.name;
+        }
+
+        if (role === 'boutique') {
+            const boutique = await Boutique.findOne({ owner: userId }).select('logo');
+            avatar = boutique?.logo ?? null;
+        }
+
+        return successResponse(res, 200, null, {
+            name: displayName,
+            email: user.email,
+            role: user.role,
+            avatar,
+        });
+
+    } catch (error) {
+        return errorResponse(res, 400, 'Failed to fetch user info');
     }
 };
 

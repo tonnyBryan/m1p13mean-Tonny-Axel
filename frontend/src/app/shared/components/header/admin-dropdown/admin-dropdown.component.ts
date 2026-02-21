@@ -36,6 +36,6 @@ export class AdminDropdownComponent implements OnInit{
 
   onSignOut() {
     this.authService.logout();
-    this.router.navigate(['/signin']);
+    this.router.navigate(['/admin']);
   }
 }

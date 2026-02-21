@@ -1,0 +1,72 @@
+<section id="features" class="py-24 bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Section Header -->
+        <div class="reveal features-reveal text-center mb-16">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 rounded-full mb-4">
+                <span class="text-xs font-semibold text-brand-700 dark:text-brand-300">Why MallHub?</span>
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                Everything you need,<br class="hidden sm:block"> in one place
+            </h2>
+            <p class="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+                Whether you're a customer looking for great products or a store owner managing your business — MallHub has you covered.
+            </p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="reveal features-reveal reveal-delay-1 flex items-center justify-center mb-12">
+            <div class="inline-flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-1.5 gap-1">
+                <button
+                        (click)="onTabChange('client')"
+                        [ngClass]="activeTab === 'client'
+                        ? 'bg-brand-500 text-white shadow-sm'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
+                        class="px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200">
+                    For Customers
+                </button>
+                <button
+                        (click)="onTabChange('store')"
+                        [ngClass]="activeTab === 'store'
+                        ? 'bg-brand-500 text-white shadow-sm'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
+                        class="px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200">
+                    For Stores
+                </button>
+            </div>
+        </div>
+
+        <!-- Features Grid: Client -->
+        <div *ngIf="activeTab === 'client'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div *ngFor="let feature of clientFeatures; let i = index"
+                 class="reveal-scale features-reveal features-card-reveal bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50 hover:-translate-y-1 transition-all duration-300"
+                 [style.transition-delay]="(i * 0.08) + 's'">
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
+                     [ngClass]="feature.bg">
+                    <svg class="w-6 h-6" [ngClass]="feature.icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="feature.path"/>
+                    </svg>
+                </div>
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-2">{{ feature.title }}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{{ feature.description }}</p>
+            </div>
+        </div>
+
+        <!-- Features Grid: Store -->
+        <div *ngIf="activeTab === 'store'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div *ngFor="let feature of storeFeatures; let i = index"
+                 class="reveal-scale features-reveal features-card-reveal bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50 hover:-translate-y-1 transition-all duration-300"
+                 [style.transition-delay]="(i * 0.08) + 's'">
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
+                     [ngClass]="feature.bg">
+                    <svg class="w-6 h-6" [ngClass]="feature.icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="feature.path"/>
+                    </svg>
+                </div>
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-2">{{ feature.title }}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{{ feature.description }}</p>
+            </div>
+        </div>
+
+    </div>
+</section>
