@@ -8,11 +8,12 @@ import {ButtonComponent} from "../../../shared/components/ui/button/button.compo
 import {AuthService} from "../../../shared/services/auth.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {FicheBoutiqueSkeletonComponent} from "./fiche-boutique-skeleton/fiche-boutique-skeleton.component";
+import {BoutiqueCategoriesComponent} from "./boutique-categories/boutique-categories.component";
 
 @Component({
     selector: 'app-fiche-boutique',
     standalone: true,
-    imports: [CommonModule, FormsModule, LabelComponent, InputFieldComponent, ButtonComponent, FicheBoutiqueSkeletonComponent],
+    imports: [CommonModule, FormsModule, LabelComponent, InputFieldComponent, ButtonComponent, FicheBoutiqueSkeletonComponent, BoutiqueCategoriesComponent],
     templateUrl: './fiche-boutique.component.html',
     styleUrls: ['./fiche-boutique.component.css']
 })
@@ -20,7 +21,7 @@ export class FicheBoutiqueComponent implements OnInit {
     boutique: any = null;
 
     // Active tab
-    activeTab: 'general' | 'delivery' = 'general';
+    activeTab: 'general' | 'delivery' | 'categories' = 'general';
 
     isLoading: boolean = true;
 

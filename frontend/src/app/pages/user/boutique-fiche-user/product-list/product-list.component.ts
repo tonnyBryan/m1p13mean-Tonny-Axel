@@ -5,6 +5,7 @@ import { ProductService } from '../../../../shared/services/product.service';
 import { Router } from '@angular/router';
 import {ToastService} from "../../../../shared/services/toast.service";
 import {RatingStarComponent} from "../../../../shared/components/common/rating-star/rating-star.component";
+import {CategoryService} from "../../../../shared/services/category.service";
 
 @Component({
     selector: 'app-product-list',
@@ -33,6 +34,9 @@ export class ProductListComponent implements OnInit {
     maxPrice: number | null = null;
     minRating: number = 0;
 
+    categories: any[] = [];
+    selectedCategories: string[] = [];
+
     // Filter panel state
     showFilters = false;
 
@@ -40,12 +44,21 @@ export class ProductListComponent implements OnInit {
         private productService: ProductService,
         private router: Router,
         private toast : ToastService,
+        private categoryService: CategoryService,
     ) {}
 
     ngOnInit(): void {
         if (this.boutiqueId) {
+            this.loadCategories();
             this.loadProducts();
         }
+    }
+
+    loadCategories(): void {
+        this.categoryService.getCategories({ boutique: this.boutiqueId, limit: 100, sort: 'name' }).subscribe({
+            next: (res) => { if (res.success) this.categories = res.data.items || []; },
+            error: () => {}
+        });
     }
 
     loadProducts(): void {
@@ -68,19 +81,19 @@ export class ProductListComponent implements OnInit {
             params.isSale = true;
         }
 
+        if (this.selectedCategories.length > 0) {
+            params['category[in]'] = this.selectedCategories.join(',');
+        }
+
         if (this.minPrice !== null && this.minPrice > 0) {
-            // Send generic minPrice param. Backend middleware will map it to salePrice or regularPrice
             params['minPrice'] = this.minPrice;
         }
 
         if (this.maxPrice !== null && this.maxPrice > 0) {
-            // Send generic maxPrice param. Backend middleware will map it to salePrice or regularPrice
             params['maxPrice'] = this.maxPrice;
         }
 
-        // Add rating filter server-side via advancedResults
         if (this.minRating && this.minRating > 0) {
-            // use gte operator
             params['avgRating[gte]'] = this.minRating;
         }
 
@@ -106,6 +119,25 @@ export class ProductListComponent implements OnInit {
                 }
             }
         });
+    }
+
+    onCategoryChange(catId: string): void {
+        if (catId === 'all') {
+            this.selectedCategories = [];
+        } else {
+            const idx = this.selectedCategories.indexOf(catId);
+            if (idx === -1) {
+                this.selectedCategories.push(catId);
+            } else {
+                this.selectedCategories.splice(idx, 1);
+            }
+        }
+        this.currentPage = 1;
+        this.loadProducts();
+    }
+
+    isCategorySelected(catId: string): boolean {
+        return this.selectedCategories.includes(catId);
     }
 
     onSearch(): void {
@@ -145,6 +177,7 @@ export class ProductListComponent implements OnInit {
         this.minRating = 0;
         this.sortBy = '-createdAt';
         this.currentPage = 1;
+        this.selectedCategories = [];
         this.loadProducts();
     }
 

@@ -179,7 +179,7 @@ router.get(
     injectBoutiqueFilter,
     priceFilter,
     stockFilter,
-    advancedResults(Product),
+    advancedResults(Product, { path: 'category', select: 'name' }),
     productController.getAllProducts
 );
 

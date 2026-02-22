@@ -1,12 +1,13 @@
 import {Component, OnInit} from '@angular/core';
-import {NgClass} from "@angular/common";
+import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {LabelComponent} from "../../../shared/components/form/label/label.component";
 import {InputFieldComponent} from "../../../shared/components/form/input/input-field.component";
 import {StoreService} from "../../../shared/services/store.service";
-import {Router} from "@angular/router";
+import {Router, RouterLink} from "@angular/router";
 import {ButtonComponent} from "../../../shared/components/ui/button/button.component";
 import {ERROR_MESSAGES} from "../../../core/constants/error-messages";
+import {CategoryService} from "../../../shared/services/category.service";
 
 
 @Component({
@@ -17,6 +18,9 @@ import {ERROR_MESSAGES} from "../../../core/constants/error-messages";
         LabelComponent,
         InputFieldComponent,
         ButtonComponent,
+        RouterLink,
+        NgForOf,
+        NgIf,
     ],
     templateUrl: './add-product-boutique.component.html',
     styles: ``
@@ -25,7 +29,8 @@ export class AddProductBoutiqueComponent implements OnInit  {
 
     constructor(
         private storeService: StoreService,
-        private router: Router
+        private router: Router,
+        private categoryService: CategoryService,
     ) {}
 
     // ── Form Fields ───────────────────────────
@@ -35,14 +40,8 @@ export class AddProductBoutiqueComponent implements OnInit  {
     salePrice: number | null = null;
 
     categoryId: string = '';
-    categories = [
-        { _id: '65e9b8d21a4c7f0019cc1122', name: 'Chaussures' },
-        { _id: '65e9b8d21a4c7f0019cc1123', name: 'Vêtements' },
-        { _id: '65e9b8d21a4c7f0019cc1124', name: 'Électronique' },
-        { _id: '65e9b8d21a4c7f0019cc1125', name: 'Accessoires' },
-        { _id: '65e9b8d21a4c7f0019cc1126', name: 'Sport' },
-        { _id: '65e9b8d21a4c7f0019cc1127', name: 'Maison' }
-    ];
+    categories: any[] = [];
+    categoriesLoading = false;
 
     getCategoryName(): string {
         const category = this.categories.find(cat => cat._id === this.categoryId);
@@ -71,7 +70,22 @@ export class AddProductBoutiqueComponent implements OnInit  {
         "            </svg>"
 
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        this.loadCategories();
+    }
+
+    loadCategories(): void {
+        this.categoriesLoading = true;
+        this.categoryService.getCategories({ limit: 100, sort: 'name' }).subscribe({
+            next: (res) => {
+                if (res.success) this.categories = res.data.items || [];
+                this.categoriesLoading = false;
+            },
+            error: () => {
+                this.categoriesLoading = false;
+            }
+        });
+    }
 
     // ════════════════════════════════════════════
     //  TAGS

@@ -1,4 +1,4 @@
-const advancedResults = (model) => async (req, res, next) => {
+const advancedResults = (model, populate) => async (req, res, next) => {
     let queryObj = { ...req.query }; // copie des query params
 
     // Coerce booleans in query object ("true"/"false" -> true/false), recursively
@@ -38,6 +38,22 @@ const advancedResults = (model) => async (req, res, next) => {
 
     let query = JSON.parse(queryStr);
 
+
+    // nampidirikoo //
+    const splitInOperators = (obj) => {
+        Object.keys(obj).forEach(key => {
+            if (obj[key] && typeof obj[key] === 'object') {
+                if (obj[key].$in && typeof obj[key].$in === 'string') {
+                    obj[key].$in = obj[key].$in.split(',').map(v => v.trim());
+                } else {
+                    splitInOperators(obj[key]);
+                }
+            }
+        });
+    };
+    splitInOperators(query);
+    // ****** //
+
     // nampikooo ////
     if (exprCondition) {
         query.$expr = exprCondition;
@@ -69,12 +85,18 @@ const advancedResults = (model) => async (req, res, next) => {
     const fields = req.query.fields ? req.query.fields.split(',').join(' ') : '-password';
 
     try {
-        const results = await model
+        let queryBuilder = model
             .find(query)
             .sort(sort)
             .skip(skip)
             .limit(limit)
             .select(fields);
+
+        if (populate) {
+            queryBuilder = queryBuilder.populate(populate);
+        }
+
+        const results = await queryBuilder;
 
         const totalDocs = await model.countDocuments(query);
         const totalPages = Math.ceil(totalDocs / limit);

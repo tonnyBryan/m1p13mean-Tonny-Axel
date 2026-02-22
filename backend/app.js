@@ -44,6 +44,7 @@ app.use('/api/subscriptions', require('./routes/subscription.routes'));
 app.use('/api/support-requests', require('./routes/supportRequest.routes'));
 app.use('/api/user-dashboard', require('./routes/user-dashboard.routes'));
 app.use('/api/boutique-dashboard', require('./routes/boutique-dashboard.routes'));
+app.use('/api/categories', require('./routes/category.routes'));
 
 
 module.exports = app;

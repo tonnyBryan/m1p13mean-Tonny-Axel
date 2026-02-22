@@ -6,6 +6,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {ProductService} from '../../../shared/services/product.service';
 import {FormsModule} from '@angular/forms';
 import {Product} from "../../../core/models/product.model";
+import {CategoryService} from "../../../shared/services/category.service";
 
 @Component({
     selector: 'product-list-boutique',
@@ -39,19 +40,33 @@ export class ProductListBoutiqueComponent implements OnInit {
     saleFilter = 'all'; // all, true, false
     stockFilter = 'all'; // all, in-stock, low-stock, out-of-stock
 
+    categories: any[] = [];
+    categoryFilter = 'all';
+
 
     constructor(
         private router: Router,
         private productService: ProductService,
-        private route : ActivatedRoute
+        private route : ActivatedRoute,
+        private categoryService: CategoryService,
     ) {}
 
     ngOnInit(): void {
+        this.loadCategories();
         this.route.queryParams.subscribe(params => {
             if (params['stockFilter']) {
                 this.stockFilter = params['stockFilter'];
             }
             this.loadProducts();
+        });
+    }
+
+    loadCategories(): void {
+        this.categoryService.getCategories({ limit: 100, sort: 'name' }).subscribe({
+            next: (res) => {
+                if (res.success) this.categories = res.data.items || [];
+            },
+            error: () => {}
         });
     }
 
@@ -67,6 +82,10 @@ export class ProductListBoutiqueComponent implements OnInit {
         if (this.searchTerm) {
             params['name[regex]'] = this.searchTerm;
             params['name[options]'] = 'i';
+        }
+
+        if (this.categoryFilter !== 'all') {
+            params['category'] = this.categoryFilter;
         }
 
         if (this.stockFilter !== 'all') {
@@ -107,6 +126,12 @@ export class ProductListBoutiqueComponent implements OnInit {
                 this.error = err?.message || 'Error loading products';
             }
         });
+    }
+
+    onCategoryFilterChange(value: string): void {
+        this.categoryFilter = value;
+        this.currentPage = 1;
+        this.loadProducts();
     }
 
     onStockFilterChange(filter: string): void {

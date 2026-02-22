@@ -32,7 +32,8 @@ exports.createProduct = async (req, res) => {
             return errorResponse(res, 400, 'The product name is invalid. It must be a string with at least 3 characters.');
         }
 
-        if (!category || typeof category !== 'string') {
+        // Par celle-ci
+        if (!category || !mongoose.Types.ObjectId.isValid(category)) {
             return errorResponse(res, 400, 'The category is invalid. Please provide a valid category identifier.');
         }
 
@@ -125,7 +126,8 @@ exports.createProduct = async (req, res) => {
             isActive: true
         });
 
-        return successResponse(res, 201, 'Product created successfully', product);
+        const populated = await Product.findById(product._id).populate('category', 'name');
+        return successResponse(res, 201, 'Product created successfully', populated);
 
     } catch (error) {
         console.error(error);
@@ -148,7 +150,8 @@ exports.getProductById = async (req, res) => {
                 return errorResponse(res, 403, 'No store was found for the authenticated user.');
             }
 
-            const product = await Product.findOne({ _id: req.params.id, boutique: boutique._id }).select();
+            const product = await Product.findOne({ _id: req.params.id, boutique: boutique._id })
+                .populate('category', 'name');
 
             if (!product) {
                 return errorResponse(res, 404, 'The requested product was not found in your store. Please verify the identifier.');
@@ -157,8 +160,8 @@ exports.getProductById = async (req, res) => {
             return successResponse(res, 200, null, product);
         }
 
-
-        const product = await Product.findById(req.params.id).select();
+        const product = await Product.findById(req.params.id)
+            .populate('category', 'name');
 
         if (!product) {
             return errorResponse(res, 449, 'The requested product was not found. Please verify the identifier.');
@@ -229,7 +232,7 @@ exports.updateProduct = async (req, res) => {
 
         // Category
         if (category !== undefined) {
-            if (!category || typeof category !== 'string') {
+            if (!category || !mongoose.Types.ObjectId.isValid(category)) {
                 return errorResponse(res, 400, 'The category is invalid. Please provide a valid category identifier.');
             }
             payload.category = category;
@@ -324,7 +327,7 @@ exports.updateProduct = async (req, res) => {
             req.params.id,
             payload,
             { new: true, runValidators: true }
-        ).select();
+        ).populate('category', 'name');
 
         if (!product) {
             return errorResponse(res, 404, 'The requested product was not found. Please verify the identifier.');

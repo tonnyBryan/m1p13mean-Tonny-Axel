@@ -29,7 +29,7 @@
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M7 1L8.5 5L13 5.5L9.5 8.5L10.5 13L7 10.5L3.5 13L4.5 8.5L1 5.5L5.5 5L7 1Z" fill="currentColor"/>
       </svg>
-        {{ product.category.name }}
+        {{ product.category?.name || 'Uncategorized' }}
     </span>
             <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold"
                   [ngClass]="{
@@ -399,6 +399,27 @@
                                         name="editSku"
                                         placeholder="Stock Keeping Unit"
                                 />
+                            </div>
+                            <!-- Category -->
+                            <div class="lg:col-span-2">
+                                <app-label for="edit-category">Category <span class="text-red-500">*</span></app-label>
+                                <select
+                                        id="edit-category"
+                                        [(ngModel)]="editCategoryId"
+                                        name="editCategoryId"
+                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-800 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                                        [ngClass]="editSubmitted && !editCategoryId ? 'border-red-500' : ''">
+                                    <option value="" disabled>Select a category</option>
+                                    <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+                                </select>
+                                <p *ngIf="editSubmitted && !editCategoryId" class="mt-1.5 text-xs text-red-500">
+                                    Category is required.
+                                </p>
+                                <!-- Lien rapide si aucune catégorie -->
+                                <p *ngIf="categories.length === 0" class="mt-1.5 text-xs text-amber-500">
+                                    No categories found.
+                                    <a routerLink="/store/app/settings" class="underline font-semibold">Create one first</a>
+                                </p>
                             </div>
                             <div class="lg:col-span-2">
                                 <app-label for="edit-description">Description <span class="text-red-500">*</span></app-label>

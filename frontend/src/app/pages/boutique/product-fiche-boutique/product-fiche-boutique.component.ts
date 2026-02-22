@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, RouterLink} from "@angular/router";
 import {StoreService} from "../../../shared/services/store.service";
 import {ProductSkeletonComponent} from "../../../shared/components/product/product-skeleton/product-skeleton.component";
 import {ProductErrorComponent} from "../../../shared/components/product/product-error/product-error.component";
@@ -14,11 +14,12 @@ import { InputFieldComponent } from '../../../shared/components/form/input/input
 import { FormsModule } from '@angular/forms';
 import {ToastService} from "../../../shared/services/toast.service";
 import {ProductNoteBoutiqueComponent} from "./product-note-boutique/product-note-boutique.component";
+import {CategoryService} from "../../../shared/services/category.service";
 
 
 @Component({
     selector: 'app-product-fiche-boutique',
-    imports: [CommonModule, ProductSkeletonComponent, ProductErrorComponent, PageBreadcrumbComponent, ModalComponent, ButtonComponent, LabelComponent, InputFieldComponent, FormsModule, ProductNoteBoutiqueComponent],
+    imports: [CommonModule, ProductSkeletonComponent, ProductErrorComponent, PageBreadcrumbComponent, ModalComponent, ButtonComponent, LabelComponent, InputFieldComponent, FormsModule, ProductNoteBoutiqueComponent, RouterLink],
     templateUrl: './product-fiche-boutique.component.html',
     styleUrls: ['./product-fiche.css']
 })
@@ -47,6 +48,9 @@ export class ProductFicheBoutiqueComponent implements OnInit {
     editTags: string[] = [];
     editCurrentTag: string = '';
 
+    categories: any[] = [];
+    editCategoryId: string = '';
+
     // images for edit (only URLs supported here)
     editPreviewImages: { url: string; source: 'url' }[] = [];
     editImageUrls: string[] = [];
@@ -59,7 +63,8 @@ export class ProductFicheBoutiqueComponent implements OnInit {
         private route: ActivatedRoute,
         private storeService: StoreService,
         private productService: ProductService,
-        private toast : ToastService
+        private toast : ToastService,
+        private categoryService: CategoryService,
     ) {}
 
     ngOnInit(): void {
@@ -68,7 +73,19 @@ export class ProductFicheBoutiqueComponent implements OnInit {
         if (productId) {
             this.loadProduct(productId);
         }
+
+        this.loadCategories();
     }
+
+    loadCategories(): void {
+        this.categoryService.getCategories({ limit: 100, sort: 'name' }).subscribe({
+            next: (res) => {
+                if (res.success) this.categories = res.data.items || [];
+            },
+            error: () => {}
+        });
+    }
+
 
     loadProduct(productId: string): void {
         this.isLoading = true;
@@ -154,6 +171,8 @@ export class ProductFicheBoutiqueComponent implements OnInit {
         this.editPreviewImages = (Array.isArray(this.product.images) ? this.product.images.map(url => ({ url, source: 'url' as const })) : []);
         this.editImageUrls = this.editPreviewImages.map(i => i.url);
         this.editCurrentImageUrl = '';
+        this.editCategoryId = this.product.category?._id ?? this.product.category ?? '';
+
 
         this.editSubmitted = false;
         this.isEditModalOpen = true;
@@ -216,7 +235,8 @@ export class ProductFicheBoutiqueComponent implements OnInit {
             this.editRegularPrice > 0 &&
             this.editMinOrderQty >= 1 &&
             this.editMaxOrderQty >= this.editMinOrderQty &&
-            this.editPreviewImages.length > 0
+            this.editPreviewImages.length > 0,
+            this.editCategoryId !== ''
         );
     }
 
@@ -235,6 +255,7 @@ export class ProductFicheBoutiqueComponent implements OnInit {
             maxOrderQty: this.editMaxOrderQty,
             sku: this.editSku,
             tags: this.editTags,
+            category: this.editCategoryId,
             images: this.editPreviewImages.map(i => i.url)
         };
 

@@ -1,0 +1,118 @@
+<div class="space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h3 class="text-base font-bold text-gray-800 dark:text-white/90">Categories</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                {{ categories.length }} {{ categories.length === 1 ? 'category' : 'categories' }}
+            </p>
+        </div>
+        <button (click)="toggleForm()"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
+                [ngClass]="showForm
+                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                    : 'bg-brand-600 hover:bg-brand-700 text-white'">
+            <svg *ngIf="!showForm" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
+            <svg *ngIf="showForm" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            {{ showForm ? 'Cancel' : 'Add Category' }}
+        </button>
+    </div>
+
+    <!-- Formulaire ajout -->
+    <div *ngIf="showForm"
+         class="rounded-2xl border border-brand-200 dark:border-brand-800/50 bg-brand-50/50 dark:bg-brand-900/10 p-5 space-y-4">
+        <h4 class="text-sm font-bold text-gray-800 dark:text-white/90">New Category</h4>
+
+        <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Name <span class="text-rose-500">*</span></label>
+            <input [(ngModel)]="newName"
+                   type="text"
+                   placeholder="e.g. Smartphones"
+                   class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-800 dark:text-white/90 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 transition"/>
+            <p *ngIf="newName.length > 0 && newName.trim().length < 2"
+               class="text-xs text-rose-500">Minimum 2 characters required.</p>
+        </div>
+
+        <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-gray-600 dark:text-gray-400">Description <span class="text-gray-400">(optional)</span></label>
+            <textarea [(ngModel)]="newDescription"
+                      rows="2"
+                      placeholder="Brief description of this category..."
+                      class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-800 dark:text-white/90 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 transition resize-none"></textarea>
+        </div>
+
+        <div class="flex justify-end">
+            <button (click)="addCategory()"
+                    [disabled]="!isFormValid() || isSaving"
+                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg *ngIf="isSaving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                {{ isSaving ? 'Saving...' : 'Save Category' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Skeleton -->
+    <div *ngIf="isLoading" class="space-y-3">
+        <div *ngFor="let i of [1,2,3,4]"
+             class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-4 flex items-center gap-4 animate-pulse">
+            <div class="w-10 h-10 rounded-xl bg-gray-200 dark:bg-gray-700 flex-shrink-0"></div>
+            <div class="flex-1 space-y-2">
+                <div class="h-4 w-32 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+                <div class="h-3 w-48 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+            </div>
+            <div class="h-3 w-20 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+        </div>
+    </div>
+
+    <!-- Liste -->
+    <div *ngIf="!isLoading && categories.length > 0" class="space-y-3">
+        <div *ngFor="let cat of categories"
+             class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-4 flex items-center gap-4 hover:border-gray-300 dark:hover:border-gray-700 transition-colors">
+
+            <!-- Icone initiale -->
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center flex-shrink-0">
+                <span class="text-sm font-bold text-white">{{ cat.name.charAt(0).toUpperCase() }}</span>
+            </div>
+
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold text-gray-800 dark:text-white/90">{{ cat.name }}</p>
+                <p *ngIf="cat.description" class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">{{ cat.description }}</p>
+                <p *ngIf="!cat.description" class="text-xs text-gray-300 dark:text-gray-600 mt-0.5 italic">No description</p>
+            </div>
+
+            <!-- Date -->
+            <span class="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap flex-shrink-0">
+                {{ formatDate(cat.createdAt) }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Empty -->
+    <div *ngIf="!isLoading && categories.length === 0"
+         class="flex flex-col items-center justify-center py-16 text-center">
+        <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+            </svg>
+        </div>
+        <p class="text-sm font-bold text-gray-600 dark:text-gray-300">No categories yet</p>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1 mb-4">Create your first category to organize your products</p>
+        <button (click)="toggleForm()"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
+            Add First Category
+        </button>
+    </div>
+
+</div>
