@@ -5,6 +5,7 @@ import { AuthService } from "../../../../shared/services/auth.service";
 import { UserService } from "../../../../shared/services/user.service";
 import { UserStateService } from "../../../../shared/services/user-state.service";
 import {environment} from "../../../../../environments/environment";
+import {LogoutService} from "../../../../shared/services/logout.service";
 
 interface HeaderUser {
   name: string;
@@ -33,6 +34,7 @@ export class HeaderLandingComponent implements OnInit {
       private authService: AuthService,
       private userService: UserService,
       private userState: UserStateService,
+      private logoutService: LogoutService
   ) {
     this.router.events.subscribe(() => {
       this.isOnLandingPage = this.router.url === '/' || this.router.url === '/home';
@@ -127,10 +129,14 @@ export class HeaderLandingComponent implements OnInit {
   }
 
   onLogout(): void {
-    this.authService.logout();
-    this.currentUser = null;
     this.userMenuOpen = false;
-    this.router.navigate(['/']);
+    this.logoutService.show();
+    setTimeout(() => {
+      this.authService.logout();
+      this.currentUser = null;
+      this.logoutService.hide();
+      this.router.navigate(['/']);
+    }, 3000);
   }
 
   scrollToFeatures(event: Event): void {

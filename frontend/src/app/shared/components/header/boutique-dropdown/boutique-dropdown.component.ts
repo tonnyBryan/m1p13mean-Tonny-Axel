@@ -7,6 +7,7 @@ import {AuthService} from "../../../services/auth.service";
 import {Observable} from "rxjs";
 import {JwtPayload} from "../../../../core/models/jwtPayload.model";
 import {User} from "../../../../core/models/user.model";
+import {LogoutService} from "../../../services/logout.service";
 
 @Component({
   selector: 'app-boutique-dropdown',
@@ -18,7 +19,7 @@ export class BoutiqueDropdownComponent implements OnInit {
   @Input() userData : User | null | undefined;
 
 
-  constructor(private authService : AuthService, private router: Router) {
+  constructor(private authService : AuthService, private router: Router, private logoutService: LogoutService) {
   }
 
   ngOnInit() {
@@ -35,8 +36,14 @@ export class BoutiqueDropdownComponent implements OnInit {
     this.isOpen = false;
   }
 
+
   onSignOut() {
-    this.authService.logout();
-    this.router.navigate(['/']);
+    this.closeDropdown();
+    this.logoutService.show();
+    setTimeout(() => {
+      this.authService.logout();
+      this.logoutService.hide();
+      this.router.navigate(['/']);
+    }, 3000);
   }
 }

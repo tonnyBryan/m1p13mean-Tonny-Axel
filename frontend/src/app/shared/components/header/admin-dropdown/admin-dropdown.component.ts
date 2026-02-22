@@ -6,6 +6,7 @@ import {AuthService} from "../../../services/auth.service";
 import {User} from "../../../../core/models/user.model";
 import {Observable} from "rxjs";
 import {JwtPayload} from "../../../../core/models/jwtPayload.model";
+import {LogoutService} from "../../../services/logout.service";
 
 @Component({
   selector: 'app-admin-dropdown',
@@ -17,7 +18,7 @@ export class AdminDropdownComponent implements OnInit{
   @Input() userData : User | null | undefined;
 
 
-  constructor(private authService : AuthService, private router: Router) {
+  constructor(private authService : AuthService, private router: Router, private logoutService: LogoutService) {
   }
 
   ngOnInit() {
@@ -35,7 +36,12 @@ export class AdminDropdownComponent implements OnInit{
   }
 
   onSignOut() {
-    this.authService.logout();
-    this.router.navigate(['/admin']);
+    this.closeDropdown();
+    this.logoutService.show();
+    setTimeout(() => {
+      this.authService.logout();
+      this.logoutService.hide();
+      this.router.navigate(['/admin']);
+    }, 3000);
   }
 }

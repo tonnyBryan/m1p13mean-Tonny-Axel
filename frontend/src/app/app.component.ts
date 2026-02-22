@@ -3,6 +3,7 @@ import {NavigationEnd, Router, RouterModule, RouterOutlet} from '@angular/router
 import { ToastContainerComponent } from "./shared/components/common/toast-container/toast-container.component";
 import { trigger, transition, style, animate, query } from '@angular/animations';
 import {filter} from "rxjs";
+import {LogoutOverlayComponent} from "./shared/components/logout-overlay/logout-overlay.component";
 
 export const routeFadeAnimation = trigger('routeAnimation', [
     transition('* <=> *', [
@@ -19,7 +20,7 @@ export const routeFadeAnimation = trigger('routeAnimation', [
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterModule, RouterOutlet, ToastContainerComponent],
+    imports: [RouterModule, RouterOutlet, ToastContainerComponent, LogoutOverlayComponent],
     templateUrl: './app.component.html',
     styleUrl: './app.component.css',
     animations: [routeFadeAnimation],
