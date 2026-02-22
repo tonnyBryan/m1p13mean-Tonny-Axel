@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { sendVerification, verify, getActiveVerification } = require('../controllers/email.controller');
+const { sendVerification, verify, getActiveVerification, replySupportRequest } = require('../controllers/email.controller');
 const { protect, authorize} = require('../middlewares/auth.middleware');
 
 
@@ -24,5 +24,15 @@ router.post('/verify',protect, authorize('user', 'admin'), verify);
 
 router.get('/active-verification', protect, authorize('user', 'admin'), getActiveVerification);
 
+/**
+ * @route   POST /api/email/reply-support
+ * @desc    Répondre à une demande de support
+ * @access  Admin
+ * @body    idSupportRequest : ID de la demande de support
+ * @body    to : destinataire
+ * @body    subject : sujet
+ * @body    text : message
+ */
+router.post('/reply-support', protect, authorize('admin'), replySupportRequest);
 
 module.exports = router;

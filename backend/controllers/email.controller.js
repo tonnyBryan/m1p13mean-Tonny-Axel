@@ -2,6 +2,8 @@ const {errorResponse, successResponse} = require("../utils/apiResponse");
 const User = require('../models/User');
 const EmailVerification = require('../models/EmailVerification');
 const mailService = require("../mail/mail.service");
+const SupportRequest = require('../models/SupportRequest');
+const sanitizeHtml = require('sanitize-html');
 const resendDelay = parseInt(process.env.EMAIL_RESEND_DELAY, 10) || 60; // 60s par défaut
 const codeExpiresMinutes = parseInt(process.env.EMAIL_CODE_EXPIRES_MIN, 10) || 15; // 15 min par défaut
 const maxAttemptsBlockMinutes = parseInt(process.env.EMAIL_MAX_ATTEMPTS_BLOCK_MIN, 10) || 15; // 15 min par défaut
@@ -39,7 +41,6 @@ exports.sendVerification = async (req, res) => {
         }).sort({ createdAt: -1 });
 
         // current timestamp used for timing checks
-        const now = new Date();
 
         if (existing) {
             const now = new Date();
@@ -202,5 +203,70 @@ exports.getActiveVerification = async (req, res) => {
     } catch (error) {
         console.error('Error fetching active verification:', error);
         return errorResponse(res, 500, 'An unexpected server error occurred while fetching the active verification code. Please try again later.');
+    }
+};
+
+
+// ----------------- New function: replySupportRequest -----------------
+exports.replySupportRequest = async (req, res) => {
+    try {
+        const { idSupportRequest, to, subject, text } = req.body;
+
+        if (!idSupportRequest || !to || !subject || !text) {
+            return errorResponse(res, 400, 'idSupportRequest, to, subject and text are required in the request body.');
+        }
+
+        // Récupérer la demande de support
+        const support = await SupportRequest.findById(idSupportRequest);
+        if (!support) {
+            return errorResponse(res, 404, 'Support request not found.');
+        }
+
+        // Vérifier que le destinataire correspond à l'email du ticket
+        if (support.email !== to) {
+            return errorResponse(res, 400, 'The provided recipient email does not match the support request email.');
+        }
+
+        // Détecter si `text` contient déjà du HTML
+        const isHtml = /<[^>]+>/.test(text);
+
+        let contentHtml;
+        let plainText;
+
+        if (isHtml) {
+            // Sanitiser le HTML en autorisant certains tags simples (p, br, strong, em, a, ul, ol, li, img)
+            contentHtml = sanitizeHtml(text, {
+                allowedTags: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'a', 'ul', 'ol', 'li', 'img', 'blockquote'],
+                allowedAttributes: {
+                    'a': ['href', 'name', 'target', 'rel'],
+                    'img': ['src', 'alt', 'title', 'width', 'height']
+                },
+                allowedSchemes: ['http', 'https', 'mailto', 'data']
+            });
+
+            // Générer plain text depuis le HTML (simple strip)
+            plainText = contentHtml.replace(/<[^>]*>/g, '');
+        } else {
+            // Échapper et convertir les sauts de ligne
+            contentHtml = `<p>${escapeHtml(text).replace(/\n/g, '<br/>')}</p>`;
+            plainText = text;
+        }
+
+        // Envoyer l'email via le service mail (on envoie html et text)
+        await mailService.sendSupportEmail({ to, subject, contentHtml, text: plainText });
+
+        support.isAnswered = true;
+        support.replies.push({
+            subject,
+            text: contentHtml,
+            sentAt: new Date(),
+            sentBy: req.user._id
+        });
+        await support.save();
+
+        return successResponse(res, 200, 'Support reply sent and support request marked as answered.');
+    } catch (error) {
+        console.error('Error replying to support request:', error);
+        return errorResponse(res, 500, 'An unexpected server error occurred while replying to the support request.');
     }
 };

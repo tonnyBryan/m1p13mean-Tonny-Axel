@@ -51,4 +51,35 @@ async function sendVerificationEmail({ to, name, code, expiresIn }) {
     }
 }
 
-module.exports = { sendVerificationEmail };
+/**
+ * Send a support reply email using the base template.
+ * contentHtml is injected into the base template as the main content.
+ */
+async function sendSupportEmail({ to, subject, contentHtml, text }) {
+    try {
+        const html = renderTemplate("base", {
+            title: subject || "Message from support",
+            content: contentHtml || text || "",
+            year: new Date().getFullYear(),
+            appName: APP_CONFIG.name,
+            supportUrl: APP_CONFIG.supportUrl,
+            privacyUrl: APP_CONFIG.privacyUrl
+        });
+
+        const info = await transporter.sendMail({
+            from: `"${APP_CONFIG.name}" <${APP_CONFIG.email}>`,
+            to,
+            subject: subject || `${APP_CONFIG.name} support reply`,
+            html,
+            text: text || (typeof contentHtml === 'string' ? contentHtml.replace(/<[^>]*>/g, '') : '')
+        });
+
+        console.log("Support email sent:", info.messageId);
+        return { success: true, messageId: info.messageId };
+    } catch (error) {
+        console.error("Support email error:", error);
+        throw error;
+    }
+}
+
+module.exports = { sendVerificationEmail, sendSupportEmail };

@@ -25,7 +25,15 @@ const SupportRequestSchema = new mongoose.Schema(
         isAnswered: {
             type: Boolean,
             default: false
-        }
+        },
+        replies: [
+            {
+                subject: { type: String, required: true },
+                text: { type: String, required: true },      // HTML sanitisé
+                sentAt: { type: Date, default: Date.now },
+                sentBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+            }
+        ]
     },
     { timestamps: true }
 );

@@ -53,4 +53,17 @@ export class EmailService {
 
         return this.api.get<any>(`${this.endpoint}/active-verification`, headers);
     }
+
+    /**
+     * Répondre à une demande de support (admin)
+     * body: { idSupportRequest, to, subject, text }
+     */
+    replySupportRequest(body: { idSupportRequest: string; to: string; subject: string; text: string; }): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
+        });
+
+        return this.api.post<any>(`${this.endpoint}/reply-support`, body, headers);
+    }
 }

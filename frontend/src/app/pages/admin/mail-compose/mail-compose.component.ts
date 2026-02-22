@@ -7,6 +7,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { ThemeService } from '../../../shared/services/theme.service';
 import { Subscription } from 'rxjs';
 import Quill from 'quill';
+import {EmailService} from "../../../shared/services/email.service";
 
 @Component({
   selector: 'app-mail-compose',
@@ -32,12 +33,17 @@ export class MailComposeComponent implements OnInit, AfterViewInit, OnDestroy {
   private quill!: Quill;
   private themeSub!: Subscription;
 
+  isSent = false;
+  expandedReplyIndex: number | null = null;
+
+
   constructor(
       private route: ActivatedRoute,
       private router: Router,
       private supportService: SupportRequestService,
       private toast: ToastService,
       private themeService: ThemeService,
+      private emailService: EmailService,
   ) {}
 
   ngOnInit(): void {
@@ -48,6 +54,10 @@ export class MailComposeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.isDark = theme === 'dark';
       this.applyEditorTheme(this.isDark);
     });
+  }
+
+  toggleReply(index: number): void {
+    this.expandedReplyIndex = this.expandedReplyIndex === index ? null : index;
   }
 
   ngAfterViewInit(): void {
@@ -138,8 +148,41 @@ export class MailComposeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.toast.error('Error', 'Message body cannot be empty.', 0);
       return;
     }
-    // TODO: implement send API
-    this.toast.error('Info', 'Send not implemented yet.', 0);
+    if (!this.subject.trim()) {
+      this.toast.error('Error', 'Subject cannot be empty.', 0);
+      return;
+    }
+
+    this.isSending = true;
+
+    this.emailService.replySupportRequest({
+      idSupportRequest: this.request._id,
+      to: this.to,
+      subject: this.subject,
+      text: this.body, // HTML depuis Quill
+    }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          if (!this.request.replies) this.request.replies = [];
+          this.request.replies.push({
+            subject: this.subject,
+            text: this.body,
+            sentAt: new Date().toISOString(),
+          });
+          this.request.isAnswered = true;
+
+          this.isSending = false;
+          this.isSent = true;
+          setTimeout(() => {
+            this.router.navigate(['/admin/app/support-requests']);
+          }, 3000);
+        }
+      },
+      error: (err) => {
+        this.toast.error('Error', err?.error?.message ?? 'Failed to send reply.', 0);
+        this.isSending = false;
+      }
+    });
   }
 
   onDiscard(): void {
