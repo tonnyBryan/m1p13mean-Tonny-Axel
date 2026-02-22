@@ -99,8 +99,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
-        title:
-            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Dashboard | ' + appName,
       },
       {
         path: 'stores',
@@ -108,8 +107,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
-        title:
-          'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Stores | ' + appName,
       },
       {
         path: 'orders',
@@ -117,8 +115,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
-        title:
-            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'My Orders | ' + appName,
       },
       {
         path: 'wishlist',
@@ -126,8 +123,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
-        title:
-            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'My Wishlist | ' + appName,
       },
       {
         path: 'orders/:id',
@@ -135,7 +131,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
-        title: 'Order Details | TailAdmin'
+        title: 'Order Details | ' + appName
       },
       {
         path: 'stores/:id',
@@ -143,43 +139,42 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
-        title:
-          'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Store | ' + appName,
       },
       {
         path: 'profile',
         component: ProfileUserComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
-        title: 'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title: 'Profile | ' + appName
       },
       {
         path: 'stores/:idStore/products/:idProduct',
         component: ProductFicheUserComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
-        title: 'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title: 'Product | ' + appName
       },
       {
         path: 'cart',
         component: CartUserComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
-        title: 'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title: 'Cart | ' + appName
       },
       {
         path: 'cart/checkout',
         component: CheckoutUserComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
-        title: 'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title: 'Checkout | ' + appName
       },
       {
         path: 'verify-email',
         component: VerifyEmailComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
-        title: 'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        title: 'Verify Email | ' + appName
       },
     ]
   },
@@ -187,12 +182,12 @@ export const routes: Routes = [
   {
     path: 'signin',
     component: SignInComponent,
-    title: 'Angular Sign In Dashboard | TailAdmin - Angular Admin Dashboard Template'
+    title: 'Sign In | ' + appName
   },
   {
     path: 'signup',
     component: SignUpComponent,
-    title: 'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template'
+    title: 'Sign Up | ' + appName
   },
   // ADMIN
   {
@@ -203,7 +198,7 @@ export const routes: Routes = [
   {
     path: 'admin/signin',
     component: SignInAdminComponent,
-    title: 'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template'
+    title: 'Admin Sign In | ' + appName
   },
   {
     path: 'admin/app',
@@ -220,8 +215,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.adminRole] },
         pathMatch: 'full',
-        title:
-            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Subscriptions | ' + appName,
       },
       {
         path: 'support-requests',
@@ -229,8 +223,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.adminRole] },
         pathMatch: 'full',
-        title:
-            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Support Requests | ' + appName,
       },
       {
         path: 'support-requests/:id/reply',
@@ -244,8 +237,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.adminRole] },
         pathMatch: 'full',
-        title:
-          'Shop Management | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Boutiques | ' + appName,
       },
       {
         path: 'boutiques/add',
@@ -253,8 +245,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.adminRole] },
         pathMatch: 'full',
-        title:
-          'Add New Boutique | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Add Boutique | ' + appName,
       },
       {
         path: 'boutiques/:id',
@@ -262,8 +253,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.adminRole] },
         pathMatch: 'full',
-        title:
-          'Boutique Details | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Boutique Details | ' + appName,
       },
       {
         path: 'users',
@@ -271,8 +261,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.adminRole] },
         pathMatch: 'full',
-        title:
-          'User Management | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Users | ' + appName,
       },
       {
         path: 'users/:id',
@@ -280,8 +269,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.adminRole] },
         pathMatch: 'full',
-        title:
-          'User Details | TailAdmin - Angular Admin Dashboard Template',
+        title: 'User Details | ' + appName,
       },
     ]
   },
@@ -297,7 +285,7 @@ export const routes: Routes = [
   {
     path: 'store/signin',
     component: SignInBoutiqueComponent,
-    title: 'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template'
+    title: 'Boutique Sign In | ' + appName
   },
   {
     path: 'store/app',
@@ -314,8 +302,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
-        title:
-          'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Boutique Dashboard | ' + appName,
       },
 
       {
@@ -324,8 +311,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
-        title:
-            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Orders | ' + appName,
       },
       {
         path: 'orders/:id',
@@ -333,7 +319,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
-        title: 'Order Details | TailAdmin'
+        title: 'Order Details | ' + appName
       },
       {
         path: 'products',
@@ -341,8 +327,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
-        title:
-          'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Products | ' + appName,
       },
       {
         path: 'products/add',
@@ -350,8 +335,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
-        title:
-          'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Add Product | ' + appName,
       },
       {
         path: 'products/:id',
@@ -359,8 +343,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
-        title:
-          'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Product Details | ' + appName,
       },
       {
         path: 'profile',
@@ -368,8 +351,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
-        title:
-          'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'Boutique Profile | ' + appName,
       },
       {
         path: 'vente-liste/add',
@@ -377,7 +359,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
-        title: 'Direct Sale | TailAdmin - Angular Admin Dashboard Template'
+        title: 'Direct Sale | ' + appName
       },
       {
         path: 'vente-liste/edit/:id',
@@ -385,7 +367,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
-        title: 'Edit Direct Sale | TailAdmin - Angular Admin Dashboard Template'
+        title: 'Edit Direct Sale | ' + appName
       },
       {
         path: 'vente-liste',
@@ -393,7 +375,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
-        title: 'Sales History | TailAdmin - Angular Admin Dashboard Template'
+        title: 'Sales History | ' + appName
       },
       {
         path: 'vente-liste/:id',
@@ -401,7 +383,7 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
-        title: 'Sale Details | TailAdmin - Angular Admin Dashboard Template'
+        title: 'Sale Details | ' + appName
       },
     ]
   },
@@ -412,6 +394,6 @@ export const routes: Routes = [
   {
     path: '**',
     component: NotFoundComponent,
-    title: 'Angular NotFound Dashboard | TailAdmin - Angular Admin Dashboard Template'
+    title: 'Page Not Found | ' + appName
   },
 ];
