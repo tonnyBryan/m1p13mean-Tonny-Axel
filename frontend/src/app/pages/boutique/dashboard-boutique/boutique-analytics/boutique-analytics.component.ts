@@ -83,10 +83,11 @@ export class BoutiqueAnalyticsComponent implements OnInit, AfterViewInit {
     height: 200,
     type: 'bar',
     toolbar: { show: false },
+    stacked: false,
   };
   public cmdColors = ['#10B981', '#F43F5E'];
   public cmdPlotOptions: ApexPlotOptions = {
-    bar: { horizontal: false, columnWidth: '40%', borderRadius: 4 }
+    bar: { horizontal: false, columnWidth: '30%', borderRadius: 4 }
   };
   public cmdDataLabels: ApexDataLabels = { enabled: false };
   public cmdXaxis: ApexXAxis = {
@@ -183,7 +184,8 @@ export class BoutiqueAnalyticsComponent implements OnInit, AfterViewInit {
     this.caXaxis = { ...this.caXaxis, categories: labels };
 
     this.cmdSeries = [
-      { name: 'Orders', data: [this.commandes.success, this.commandes.canceled] }
+      { name: 'Success', data: [this.commandes.success, 0] },
+      { name: 'Canceled', data: [0, this.commandes.canceled] }
     ];
   }
 

@@ -27,4 +27,10 @@ export class SearchService {
 
         return this.api.get<any>(`${this.endpoint}?q=${queryParam}`, headers);
     }
+
+    searchForBoutique(q: string): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+        return this.api.get<any>(`${this.endpoint}/boutique?q=${encodeURIComponent(q)}`, headers);
+    }
 }
