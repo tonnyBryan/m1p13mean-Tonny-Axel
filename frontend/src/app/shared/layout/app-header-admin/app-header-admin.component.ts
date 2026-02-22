@@ -9,6 +9,7 @@ import {User} from "../../../core/models/user.model";
 import {UserService} from "../../services/user.service";
 import {distinctUntilChanged, Subject, takeUntil} from "rxjs";
 import {SessionService} from "../../services/session.service";
+import {UserDropdownComponent} from "../../components/header/user/user-dropdown/user-dropdown.component";
 
 @Component({
     selector: 'app-header-admin',
@@ -18,6 +19,7 @@ import {SessionService} from "../../services/session.service";
         ThemeToggleButtonComponent,
         NotificationDropdownComponent,
         AdminDropdownComponent,
+        UserDropdownComponent,
     ],
     templateUrl: './app-header-admin.component.html',
 })

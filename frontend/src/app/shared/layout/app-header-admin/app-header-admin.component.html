@@ -71,8 +71,17 @@
                 <!-- NotificationDropdown placeholder -->
                 <app-notification-dropdown />
             </div>
-            <!-- UserDropdown placeholder -->
-            <app-admin-dropdown />
+
+            <ng-container *ngIf="user; else userSkeleton">
+                <app-admin-dropdown [userData]="user"></app-admin-dropdown>
+            </ng-container>
+
+            <ng-template #userSkeleton>
+                <div class="flex items-center gap-3 px-2">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                    <div class="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                </div>
+            </ng-template>
         </div>
     </div>
 </header>

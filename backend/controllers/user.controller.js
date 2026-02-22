@@ -19,13 +19,21 @@ exports.getAllUsers = async (req, res, next) => {
 exports.getMyParentProfile = async (req, res) => {
     try {
         const userId = req.user._id || req.user.id;
-        const profile = await User.findOne({ _id: userId });
+        // Start from the already authenticated user injected by auth middleware
+        const currentUser = req.user || {};
 
-        if (!profile) {
-            return successResponse(res, 200, 'Profile not found', null);
+        let avatar = null;
+        if (currentUser.role === 'boutique') {
+            const boutique = await Boutique.findOne({ owner: userId }).select('logo');
+            avatar = boutique?.logo ?? null;
+        } else if (currentUser.role === 'user') {
+            const profile = await UserProfile.findOne({ user: userId }).select('photo');
+            avatar = profile?.photo ?? null;
         }
 
-        return successResponse(res, 200, null, profile);
+        // Return the user object enriched with avatar (keeps existing user fields)
+        const payload = { ...currentUser, avatar };
+        return successResponse(res, 200, null, payload);
     } catch (error) {
         console.error(error);
         return errorResponse(res, 400, 'An error occurred while fetching the profile. Please try again.');

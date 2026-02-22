@@ -41,7 +41,6 @@
                 </svg>
             </button>
 
-            <!-- ✅ Search Box with Dropdown -->
             <div class="hidden xl:block">
                 <div class="relative">
                     <span class="absolute -translate-y-1/2 pointer-events-none left-4 top-1/2">
@@ -68,7 +67,6 @@
                         <span>K</span>
                     </button>
 
-                    <!-- ✅ Search Dropdown -->
                     <div
                         #searchDropdown
                         *ngIf="showSearchDropdown"
@@ -183,7 +181,17 @@
                 <app-theme-toggle-button />
                 <app-notification-dropdown />
             </div>
-            <app-user-dropdown *ngIf="user != null" [userData]="user" />
+
+            <ng-container *ngIf="user; else userSkeleton">
+                <app-user-dropdown [userData]="user"></app-user-dropdown>
+            </ng-container>
+
+            <ng-template #userSkeleton>
+                <div class="flex items-center gap-3 px-2">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                    <div class="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                </div>
+            </ng-template>
         </div>
     </div>
 </header>

@@ -9,16 +9,18 @@ import {User} from "../../../core/models/user.model";
 import {UserService} from "../../services/user.service";
 import {distinctUntilChanged, Subject, takeUntil} from "rxjs";
 import {SessionService} from "../../services/session.service";
+import {UserDropdownComponent} from "../../components/header/user/user-dropdown/user-dropdown.component";
 
 @Component({
   selector: 'app-header-boutique',
-  imports: [
-    CommonModule,
-    RouterModule,
-    ThemeToggleButtonComponent,
-    NotificationDropdownComponent,
-    BoutiqueDropdownComponent,
-  ],
+    imports: [
+        CommonModule,
+        RouterModule,
+        ThemeToggleButtonComponent,
+        NotificationDropdownComponent,
+        BoutiqueDropdownComponent,
+        UserDropdownComponent,
+    ],
   templateUrl: './app-header-boutique.component.html',
 })
 export class AppHeaderBoutiqueComponent implements OnInit, OnDestroy{

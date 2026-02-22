@@ -80,6 +80,7 @@ export class AppHeaderUserComponent implements OnInit, OnDestroy {
         )
         .subscribe(user => {
             this.user = user;
+            console.log(this.user);
 
             if (user && user.role === 'user' && !user.isEmailVerified) {
                 this.toast.show(

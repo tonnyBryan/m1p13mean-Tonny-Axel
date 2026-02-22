@@ -6,4 +6,5 @@ export interface User {
     role: 'admin' | 'user' | 'boutique';
     isActive: boolean;
     isEmailVerified: boolean;
+    avatar: string | null;
 }
