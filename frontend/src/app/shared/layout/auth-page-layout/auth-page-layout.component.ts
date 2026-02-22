@@ -3,6 +3,7 @@ import { GridShapeComponent } from '../../components/common/grid-shape/grid-shap
 import {Router, RouterModule} from '@angular/router';
 import { ThemeToggleTwoComponent } from '../../components/common/theme-toggle-two/theme-toggle-two.component';
 import { environment } from '../../../../environments/environment';
+import {NgForOf} from "@angular/common";
 
 
 @Component({
@@ -11,6 +12,7 @@ import { environment } from '../../../../environments/environment';
     GridShapeComponent,
     RouterModule,
     ThemeToggleTwoComponent,
+    NgForOf,
   ],
   templateUrl: './auth-page-layout.component.html',
   styles: ``

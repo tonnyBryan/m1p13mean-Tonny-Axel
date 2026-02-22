@@ -1,29 +1,19 @@
 
 import { Component } from '@angular/core';
-import { LabelComponent } from '../../form/label/label.component';
-import { CheckboxComponent } from '../../form/input/checkbox.component';
-import { InputFieldComponent } from '../../form/input/input-field.component';
 import {Router, RouterModule} from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {environment} from "../../../../../environments/environment";
 import {ERROR_MESSAGES} from "../../../../core/constants/error-messages";
 import {AuthService} from "../../../services/auth.service";
-import {AlertComponent} from "../../ui/alert/alert.component";
 import {NgIf} from "@angular/common";
-import {ButtonComponent} from "../../ui/button/button.component";
 
 
 @Component({
   selector: 'app-signup-form',
   imports: [
-    LabelComponent,
-    CheckboxComponent,
-    InputFieldComponent,
     RouterModule,
     FormsModule,
-    AlertComponent,
     NgIf,
-    ButtonComponent
   ],
   templateUrl: './signup-form.component.html',
   styles: ``
