@@ -422,7 +422,7 @@ export class CartUserComponent implements OnInit, OnDestroy {
   // ════════════════════════════════════════════
 
   getProductImage(item: any): string {
-    return item.product?.images?.[0] || '/assets/images/product-placeholder.png';
+    return item.product?.images?.[0] || '/product-placeholder.png';
   }
 
   formatPrice(price: number): string {

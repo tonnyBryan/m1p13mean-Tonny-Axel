@@ -23,6 +23,11 @@ const advancedResults = (model) => async (req, res, next) => {
     const excludeFields = ['page', 'limit', 'sort', 'fields'];
     excludeFields.forEach(f => delete queryObj[f]);
 
+    // nampikooo ////
+    const exprCondition = queryObj.$expr;
+    delete queryObj.$expr;
+    // ***** //////
+
     // Transforme les opérateurs pour MongoDB ($gte, $lte, $regex...)
     // Ex: ?age[gte]=18&age[lte]=30 => { age: { $gte: 18, $lte: 30 } }
     let queryStr = JSON.stringify(queryObj);
@@ -32,6 +37,12 @@ const advancedResults = (model) => async (req, res, next) => {
     );
 
     let query = JSON.parse(queryStr);
+
+    // nampikooo ////
+    if (exprCondition) {
+        query.$expr = exprCondition;
+    }
+    // ***** //////
 
     // CORRECTION: Gérer les regex avec options
     // MongoDB attend $regex et $options au même niveau

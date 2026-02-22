@@ -7,6 +7,8 @@ const advancedResults = require("../middlewares/advancedResults");
 const Product = require("../models/Product");
 const injectBoutiqueFilter = require('../middlewares/boutiqueFilter.middleware');
 const priceFilter = require('../middlewares/priceFilter.middleware');
+const stockFilter = require('../middlewares/stockFilter.middleware');
+
 
 
 /**
@@ -176,6 +178,7 @@ router.get(
     authorize('user', 'boutique'),
     injectBoutiqueFilter,
     priceFilter,
+    stockFilter,
     advancedResults(Product),
     productController.getAllProducts
 );

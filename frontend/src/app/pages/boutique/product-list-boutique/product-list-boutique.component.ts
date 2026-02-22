@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
-import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
-import { Router } from '@angular/router';
-import { ProductService } from '../../../shared/services/product.service';
-import { FormsModule } from '@angular/forms';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {PageBreadcrumbComponent} from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
+import {ButtonComponent} from '../../../shared/components/ui/button/button.component';
+import {ActivatedRoute, Router} from '@angular/router';
+import {ProductService} from '../../../shared/services/product.service';
+import {FormsModule} from '@angular/forms';
 import {Product} from "../../../core/models/product.model";
 
 @Component({
@@ -37,14 +37,22 @@ export class ProductListBoutiqueComponent implements OnInit {
     searchTerm = '';
     statusFilter = 'all'; // all, active, inactive
     saleFilter = 'all'; // all, true, false
+    stockFilter = 'all'; // all, in-stock, low-stock, out-of-stock
+
 
     constructor(
         private router: Router,
-        private productService: ProductService
+        private productService: ProductService,
+        private route : ActivatedRoute
     ) {}
 
     ngOnInit(): void {
-        this.loadProducts();
+        this.route.queryParams.subscribe(params => {
+            if (params['stockFilter']) {
+                this.stockFilter = params['stockFilter'];
+            }
+            this.loadProducts();
+        });
     }
 
     loadProducts(params: any = {}): void {
@@ -59,6 +67,10 @@ export class ProductListBoutiqueComponent implements OnInit {
         if (this.searchTerm) {
             params['name[regex]'] = this.searchTerm;
             params['name[options]'] = 'i';
+        }
+
+        if (this.stockFilter !== 'all') {
+            params['stockFilter'] = this.stockFilter;
         }
 
         if (this.statusFilter !== 'all') {
@@ -87,16 +99,20 @@ export class ProductListBoutiqueComponent implements OnInit {
                     this.totalDocs = pagination.totalDocs || 0;
                     this.totalPages = pagination.totalPages || 0;
                 } else {
-                    // if API returns array directly
                     this.products = res?.data ?? res ?? [];
                 }
             },
             error: (err) => {
                 this.loading = false;
                 this.error = err?.message || 'Error loading products';
-                console.error('Error loading products:', err);
             }
         });
+    }
+
+    onStockFilterChange(filter: string): void {
+        this.stockFilter = filter;
+        this.currentPage = 1;
+        this.loadProducts();
     }
 
     onSearch(term: string): void {
@@ -183,7 +199,7 @@ export class ProductListBoutiqueComponent implements OnInit {
 
     getStockStatus(product: any): 'in-stock' | 'low-stock' | 'out-of-stock' {
         if (product?.stockReal === 0) return 'out-of-stock';
-        if (product?.stockReal <= 10) return 'low-stock';
+        if (product?.stockReal <= 5) return 'low-stock';
         return 'in-stock';
     }
 

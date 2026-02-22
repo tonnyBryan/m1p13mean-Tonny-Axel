@@ -65,6 +65,26 @@
                             </button>
                         </div>
                     </div>
+
+                    <!-- Stock Filter -->
+                    <div class="flex-1">
+                        <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Stock</label>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button *ngFor="let f of [
+                                        { value: 'all', label: 'All' },
+                                        { value: 'in-stock', label: 'In Stock' },
+                                        { value: 'low-stock', label: 'Low Stock' },
+                                        { value: 'out-of-stock', label: 'Out of Stock' }
+                                    ]"
+                                    (click)="onStockFilterChange(f.value)"
+                                    [ngClass]="stockFilter === f.value
+                    ? 'bg-brand-600 text-white border-brand-600'
+                    : 'border border-gray-300 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/[0.03]'"
+                                    class="inline-flex items-center rounded-lg px-3 py-2 text-theme-sm font-medium transition-all whitespace-nowrap border">
+                                {{ f.label }}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -141,7 +161,7 @@
                         <!-- Loop products -->
                         <tr *ngFor="let product of products" class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
                             <td class="px-4 py-3 sm:px-6 text-theme-sm text-gray-800 dark:text-white/90">
-                                <img [src]="product.images[0] || '/assets/images/product-placeholder.png'" [alt]="product.name"
+                                <img [src]="product.images[0] || '/product-placeholder.svg'" [alt]="product.name"
                                      class="h-12 w-12 rounded-md object-cover border border-gray-200 dark:border-gray-700" />
                             </td>
 

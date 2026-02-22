@@ -26,7 +26,7 @@ const UserProfileSchema = new mongoose.Schema(
         firstName: { type: String, required: true },
         lastName: { type: String, required: true },
         phoneNumber: { type: String },
-        photo: { type: String },
+        photo: { type: String, default: '/user.svg' },
         addresses: { type: [AddressSchema], default: [] },
         description: { type: String },
         cardInfo: { type: CardInfoSchema, default: null }

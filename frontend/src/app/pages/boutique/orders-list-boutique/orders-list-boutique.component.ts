@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
-import { Router } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import { CommandeService } from '../../../shared/services/commande.service';
 import { FormsModule } from '@angular/forms';
 import { DatePickerComponent } from '../../../shared/components/form/date-picker/date-picker.component';
@@ -46,10 +46,15 @@ export class OrdersListBoutiqueComponent implements OnInit {
     { value: 'totalAmount', label: 'Total (low to high)' }
   ];
 
-  constructor(protected router: Router, private commandeService: CommandeService, private toast : ToastService){}
+  constructor(protected router: Router, private commandeService: CommandeService, private route : ActivatedRoute,  private toast : ToastService){}
 
   ngOnInit(): void {
-    this.loadOrders();
+    this.route.queryParams.subscribe(params => {
+      if (params['status']) {
+        this.statusFilter = params['status'];
+      }
+      this.loadOrders();
+    });
   }
 
   loadOrders(params: any = {}): void {

@@ -66,8 +66,7 @@
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Name</p>
-                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ vente.client.name || 'Walk-in
-                            Client' }}</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ vente.client.name || 'Walk-in Client' }}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-4 py-2">
@@ -82,8 +81,7 @@
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Phone</p>
-                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ vente.client.phoneNumber || 'Not
-                            specified' }}</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ vente.client.phoneNumber || 'Not specified' }}</p>
                     </div>
                 </div>
             </div>
@@ -111,7 +109,7 @@
                                 <div class="flex items-center gap-3">
                                     <div
                                         class="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-white/[0.03]">
-                                        <img [src]="getProduct(item)?.images?.[0] || '/images/product/placeholder.svg'"
+                                        <img [src]="getProduct(item)?.images?.[0] || '/product-placeholder.svg'"
                                             alt="{{ getProduct(item)?.name }}" class="h-full w-full object-cover" />
                                     </div>
                                     <div class="flex flex-col">

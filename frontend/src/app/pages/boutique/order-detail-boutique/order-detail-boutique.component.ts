@@ -31,7 +31,7 @@ export class OrderDetailBoutiqueComponent implements OnInit {
 
   constructor(
       private route: ActivatedRoute,
-      private router: Router,
+      protected router: Router,
       private commandeService: CommandeService,
       private centreService: CentreService,
       private toast: ToastService

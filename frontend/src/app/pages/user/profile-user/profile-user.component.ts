@@ -34,7 +34,7 @@ export class ProfileUserComponent implements OnInit {
         firstName: '--',
         lastName: '--',
         phoneNumber: '--',
-        photo: '/images/user/owner.jpg',
+        photo: '/user.svg',
         description: '--',
         addresses: []
     };

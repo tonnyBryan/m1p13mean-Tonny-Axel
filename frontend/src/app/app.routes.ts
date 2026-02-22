@@ -39,6 +39,7 @@ import {DashboardUserComponent} from "./pages/user/dashboard-user/dashboard-user
 import {SubscriptionListComponent} from "./pages/admin/subscription-list/subscription-list.component";
 import {SupportRequestComponent} from "./pages/admin/support-request/support-request.component";
 import {MailComposeComponent} from "./pages/admin/mail-compose/mail-compose.component";
+import {DashboardBoutiqueComponent} from "./pages/boutique/dashboard-boutique/dashboard-boutique.component";
 
 const appName = environment.plateformeName || 'Shopticus';
 
@@ -319,12 +320,21 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        component: EcommerceComponent,
+        component: DashboardBoutiqueComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
         title:
           'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+      },
+      {
+        path: 'fako',
+        component: EcommerceComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        pathMatch: 'full',
+        title:
+            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
       },
       {
         path: 'orders',
