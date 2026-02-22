@@ -62,7 +62,7 @@ export class ProductListBoutiqueComponent implements OnInit {
     }
 
     loadCategories(): void {
-        this.categoryService.getCategories({ limit: 100, sort: 'name' }).subscribe({
+        this.categoryService.getCategories({ limit: 100, sort: 'name' , isActive: true  }).subscribe({
             next: (res) => {
                 if (res.success) this.categories = res.data.items || [];
             },

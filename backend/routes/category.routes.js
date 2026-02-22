@@ -12,4 +12,7 @@ router.get('/', protect, authorize('user', 'boutique', 'admin'), injectBoutiqueF
 // POST /api/categories - create category for the current user's boutique
 router.post('/', protect, authorize('boutique'), categoryController.addCategory);
 
+router.delete('/:id', protect, authorize('boutique'), categoryController.deactivateCategory);
+router.patch('/:id/activate', protect, authorize('boutique'), categoryController.activateCategory);
+
 module.exports = router;

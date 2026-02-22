@@ -27,4 +27,16 @@ export class CategoryService {
         const headers = new HttpHeaders({ Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' });
         return this.api.post<any>('categories', payload, headers);
     }
+
+    deactivateCategory(id: string): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+        return this.api.delete<any>(`categories/${id}`, headers);
+    }
+
+    activateCategory(id: string): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({ Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' });
+        return this.api.patch<any>(`categories/${id}/activate`, {}, headers);
+    }
 }

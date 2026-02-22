@@ -21,6 +21,9 @@ export class BoutiqueCategoriesComponent implements OnInit {
   newDescription = '';
   showForm = false;
 
+  isToggling: { [id: string]: boolean } = {};
+
+
   constructor(
       private categoryService: CategoryService,
       private toast: ToastService,
@@ -28,6 +31,52 @@ export class BoutiqueCategoriesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
+  }
+
+  toggleCategory(cat: any): void {
+    if (this.isToggling[cat._id]) return;
+
+    const action = cat.isActive ? 'deactivate' : 'activate';
+    const title = cat.isActive ? 'Deactivate category?' : 'Activate category?';
+    const message = cat.isActive
+        ? `"${cat.name}" will be hidden. Active products using it must be reassigned first.`
+        : `"${cat.name}" will be available again for products.`;
+
+    this.toast.confirm(title, message,
+        () => this.executeToggle(cat),
+        () => {},
+        {
+          confirmLabel: cat.isActive ? 'Deactivate' : 'Activate',
+          cancelLabel: 'Cancel',
+          variant: cat.isActive ? 'danger' : 'success',
+          position: 'top-center',
+          backdrop: true,
+        }
+    );
+  }
+
+  private executeToggle(cat: any): void {
+    this.isToggling[cat._id] = true;
+    const call = cat.isActive
+        ? this.categoryService.deactivateCategory(cat._id)
+        : this.categoryService.activateCategory(cat._id);
+
+    call.subscribe({
+      next: (res) => {
+        if (res.success) {
+          cat.isActive = !cat.isActive;
+          const msg = cat.isActive ? 'Category activated.' : 'Category deactivated.';
+          this.toast.success('Done', msg, 3000);
+        } else {
+          this.toast.error('Error', res.message ?? 'Operation failed.');
+        }
+        this.isToggling[cat._id] = false;
+      },
+      error: (err) => {
+        this.toast.error('Error', err?.error?.message ?? 'Operation failed.');
+        this.isToggling[cat._id] = false;
+      }
+    });
   }
 
   loadCategories(): void {

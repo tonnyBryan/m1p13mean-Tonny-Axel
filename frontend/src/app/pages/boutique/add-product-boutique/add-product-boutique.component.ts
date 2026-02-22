@@ -76,7 +76,7 @@ export class AddProductBoutiqueComponent implements OnInit  {
 
     loadCategories(): void {
         this.categoriesLoading = true;
-        this.categoryService.getCategories({ limit: 100, sort: 'name' }).subscribe({
+        this.categoryService.getCategories({ limit: 100, sort: 'name' , isActive: true  }).subscribe({
             next: (res) => {
                 if (res.success) this.categories = res.data.items || [];
                 this.categoriesLoading = false;

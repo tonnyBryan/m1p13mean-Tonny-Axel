@@ -221,11 +221,11 @@
                                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Price</p>
                                 <div class="flex items-baseline gap-3">
                                 <span class="text-4xl font-bold text-gray-900 dark:text-white">
-                                    ${{ product.isSale? product.salePrice : product.regularPrice }}
+                                    {{ product.isSale? product.salePrice : product.regularPrice }} Ar
                                 </span>
                                     @if (product.isSale && discountPercent > 0) {
                                         <span class="text-xl text-gray-400 dark:text-gray-500 line-through">
-                                    ${{ product.regularPrice }}
+                                    {{ product.regularPrice }} Ar
                                 </span>
                                     }
                                 </div>
@@ -234,7 +234,7 @@
                                 <div class="text-right">
                                     <p class="text-xs text-gray-500 dark:text-gray-400">you save</p>
                                     <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                                        ${{ savings }}
+                                        {{ savings }} Ar
                                     </p>
                                 </div>
                             }
@@ -257,7 +257,7 @@
                                         'text-gray-900 dark:text-white': quantity > 1,
                                         'text-gray-300 dark:text-gray-600': quantity <= 1
                                       }">
-                                ${{ quantity > 1 ? totalPrice : '0.00' }}
+                                {{ quantity > 1 ? totalPrice : '0.00' }} Ar
                             </span>
 
                             </div>

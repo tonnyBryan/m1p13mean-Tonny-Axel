@@ -211,16 +211,25 @@
             </div>
 
             <!-- Loading Skeleton -->
-            <div *ngIf="isLoading" class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <div *ngIf="isLoading" class="grid grid-cols-2 lg:grid-cols-3 gap-6">
                 <div *ngFor="let i of [1,2,3,4,5,6]" class="animate-pulse">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                        <div class="aspect-square bg-gray-200 dark:bg-gray-700"></div>
-                        <div class="p-4 space-y-3">
-                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                            <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                            <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
-                        </div>
+
+                    <!-- Image -->
+                    <div class="aspect-square bg-gray-200 dark:bg-gray-700 rounded-2xl mb-3"></div>
+
+                    <!-- Infos -->
+                    <div class="space-y-1.5 px-1">
+                        <!-- Name -->
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                        <!-- Category -->
+                        <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                        <!-- Rating -->
+                        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-28"></div>
+                        <!-- Price -->
+                        <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
                     </div>
+
                 </div>
             </div>
 
