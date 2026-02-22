@@ -39,7 +39,7 @@ export class HeroLandingComponent implements OnInit, AfterViewInit {
     const role = this.currentUser?.role;
     if (role === 'user') return '/v1/stores';
     if (role === 'boutique') return '/store/app/dashboard';
-    if (role === 'admin') return '/admin/app/dashboard';
+    if (role === 'admin') return '/admin/app/boutiques';
     return '/signup';
   }
 

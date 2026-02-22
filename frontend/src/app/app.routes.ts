@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { EcommerceComponent } from './pages/dashboard/ecommerce/ecommerce.component';
 import { NotFoundComponent } from './pages/other-page/not-found/not-found.component';
 import { AppLayoutComponent } from './shared/layout/app-layout/app-layout.component';
 import { SignInComponent } from './pages/auth-pages/sign-in/sign-in.component';
@@ -212,17 +211,8 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'dashboard',
+        redirectTo: 'boutiques',
         pathMatch: 'full'
-      },
-      {
-        path: 'dashboard',
-        component: EcommerceComponent,
-        canActivate: [AuthGuard, RoleGuard],
-        data: { roles: [environment.adminRole] },
-        pathMatch: 'full',
-        title:
-          'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
       },
       {
         path: 'subscriptions',
@@ -327,15 +317,7 @@ export const routes: Routes = [
         title:
           'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
       },
-      {
-        path: 'fako',
-        component: EcommerceComponent,
-        canActivate: [AuthGuard, RoleGuard],
-        data: { roles: [environment.boutiqueRole] },
-        pathMatch: 'full',
-        title:
-            'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
-      },
+
       {
         path: 'orders',
         component: OrdersListBoutiqueComponent,

@@ -53,7 +53,7 @@ export class SigninFormAdminComponent {
             next: res => {
                 this.isLoading = false;
                 if (res.success) {
-                    this.router.navigate(['/admin/app']);
+                    this.router.navigate(['/admin/app/boutiques']);
                 } else {
                     this.errorMessage = res.message || ERROR_MESSAGES.UNKNOWN;
                 }
