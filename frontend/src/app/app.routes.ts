@@ -42,6 +42,7 @@ import {DashboardBoutiqueComponent} from "./pages/boutique/dashboard-boutique/da
 import {ForgotPasswordComponent} from "./pages/auth-pages/forgot-password/forgot-password.component";
 import {ResetPasswordComponent} from "./pages/auth-pages/reset-password/reset-password.component";
 import {SecurityComponent} from "./pages/user/security/security.component";
+import {StoreRegisterComponent} from "./pages/boutique/store-register/store-register.component";
 
 const appName = environment.plateformeName || 'Shopticus';
 
@@ -95,6 +96,12 @@ export const routes: Routes = [
         path: 'reset-password',
         component: ResetPasswordComponent,
         title: 'Reset Password | ' + appName,
+        data: { animation: 'reset-password' }
+      },
+      {
+        path: 'store/register',
+        component: StoreRegisterComponent,
+        title: 'Register | ' + appName,
         data: { animation: 'reset-password' }
       },
     ]

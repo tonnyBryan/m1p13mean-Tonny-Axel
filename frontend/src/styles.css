@@ -290,6 +290,24 @@ layer(base);
   }
 }
 
+@keyframes slideOutLeft {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(-24px); }
+}
+
+@keyframes slideOutRight {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(24px); }
+}
+
+.animate-slide-out-left {
+  animation: slideOutLeft 0.2s ease forwards;
+}
+
+.animate-slide-out-right {
+  animation: slideOutRight 0.2s ease forwards;
+}
+
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #344054;
 }

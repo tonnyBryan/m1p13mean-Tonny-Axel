@@ -26,6 +26,14 @@ const BoutiqueSchema = new mongoose.Schema(
         isValidated: {
             type: Boolean,
             default: false
+        },
+        isLocal: {
+            type: Boolean,
+            default: true  // true = boutique locale du centre, false = boutique externe
+        },
+        address: {
+            latitude: { type: Number, default: null },
+            longitude: { type: Number, default: null }
         }
     },
     {
