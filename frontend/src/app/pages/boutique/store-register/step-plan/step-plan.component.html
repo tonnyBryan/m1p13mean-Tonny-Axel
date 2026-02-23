@@ -1,146 +1,141 @@
-<div class="p-8">
-
-    <!-- Header -->
-    <div class="mb-8">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 flex items-center justify-center mb-5 shadow-lg">
-            <svg class="w-7 h-7 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+<div>
+    <!-- Step header -->
+    <div class="mb-10">
+        <span class="inline-flex items-center gap-2 text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider mb-3">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
             </svg>
-        </div>
-        <h2 class="text-2xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">
+            Step 3 — Plan
+        </span>
+        <h2 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-3">
             Choose your plan
         </h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-            Select the option that best fits your business model.
+        <p class="text-base text-gray-500 dark:text-gray-400 max-w-md">
+            Select the option that best fits your business model. You can always upgrade later.
         </p>
     </div>
 
     <!-- Plan cards -->
-    <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="flex flex-col sm:grid sm:grid-cols-2 gap-5 mb-8 max-w-2xl">
 
         <!-- Plan A -->
         <button (click)="selectPlan('A')"
-                class="relative text-left p-5 rounded-2xl border-2 transition-all duration-200"
+                class="relative text-left p-6 rounded-2xl border-2 transition-all duration-300 group self-stretch"
                 [ngClass]="data.type === 'A'
-                    ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-lg shadow-brand-500/10'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-white/[0.02]'">
+                ? 'border-brand-500 bg-gradient-to-b from-brand-50 to-white dark:from-brand-900/30 dark:to-brand-900/10 shadow-xl shadow-brand-500/15'
+                : 'border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-700 bg-white dark:bg-white/[0.02] hover:shadow-lg'">
 
-            <!-- Selected indicator -->
             <div *ngIf="data.type === 'A'"
-                 class="absolute top-3 right-3 w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center">
-                <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                 class="absolute top-4 right-4 w-6 h-6 rounded-full bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/40">
+                <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                 </svg>
             </div>
 
-            <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4">
-                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 transition-all duration-300"
+                 [ngClass]="data.type === 'A' ? 'bg-amber-500 shadow-lg shadow-amber-500/30' : 'bg-amber-100 dark:bg-amber-900/30 group-hover:bg-amber-200 dark:group-hover:bg-amber-900/50'">
+                <svg class="w-6 h-6 transition-colors"
+                     [ngClass]="data.type === 'A' ? 'text-white' : 'text-amber-600 dark:text-amber-400'"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
             </div>
 
-            <p class="text-sm font-black text-gray-900 dark:text-white mb-1">External Store</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">You have your own location outside the center</p>
+            <p class="text-base font-black text-gray-900 dark:text-white mb-1">External Store</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-5 leading-relaxed">Your own location outside the center</p>
 
-            <div class="pt-3 border-t border-gray-100 dark:border-gray-700">
-                <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">Hosting only</p>
-                <p class="text-lg font-black text-gray-900 dark:text-white">{{ formatPrice(planAPrice) }}<span class="text-xs font-semibold text-gray-400">/mo</span></p>
+            <div class="p-3 rounded-xl mb-5 transition-colors"
+                 [ngClass]="data.type === 'A' ? 'bg-brand-100/60 dark:bg-brand-900/30' : 'bg-gray-50 dark:bg-gray-800/50'">
+                <p class="text-xs text-gray-400 dark:text-gray-500 mb-0.5">Hosting only</p>
+                <p class="text-xl font-black text-gray-900 dark:text-white">
+                    {{ formatPrice(planAPrice) }}
+                    <span class="text-xs font-semibold text-gray-400">/mo</span>
+                </p>
             </div>
 
-            <ul class="mt-4 space-y-1.5">
-                <li class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                    <svg class="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                    Full autonomy
-                </li>
-                <li class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                    <svg class="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                    Your own space
-                </li>
-                <li class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                    <svg class="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                    Online visibility
+            <ul class="space-y-2">
+                <li *ngFor="let f of ['Full autonomy', 'Your own space', 'Online visibility']"
+                    class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                    <div class="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
+                         [ngClass]="data.type === 'A' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-gray-100 dark:bg-gray-800'">
+                        <svg class="w-2.5 h-2.5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    {{ f }}
                 </li>
             </ul>
         </button>
 
         <!-- Plan B -->
         <button (click)="selectPlan('B')"
-                class="relative text-left p-5 rounded-2xl border-2 transition-all duration-200"
+                class="relative text-left p-6 rounded-2xl border-2 transition-all duration-300 group"
                 [ngClass]="data.type === 'B'
-                    ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-lg shadow-brand-500/10'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-white/[0.02]'">
+                ? 'border-brand-500 bg-gradient-to-b from-brand-50 to-white dark:from-brand-900/30 dark:to-brand-900/10 shadow-xl shadow-brand-500/15'
+                : 'border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-700 bg-white dark:bg-white/[0.02] hover:shadow-lg'">
 
-            <!-- Selected indicator -->
+            <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
+            <span class="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-brand-500 to-brand-600 text-white text-xs font-black rounded-full shadow-lg shadow-brand-500/30">
+                ⭐ Popular
+            </span>
+            </div>
+
             <div *ngIf="data.type === 'B'"
-                 class="absolute top-3 right-3 w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center">
-                <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                 class="absolute top-4 right-4 w-6 h-6 rounded-full bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/40">
+                <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                 </svg>
             </div>
 
-            <!-- Popular badge -->
-            <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span class="inline-flex items-center px-3 py-1 bg-gradient-to-r from-brand-500 to-brand-600 text-white text-xs font-bold rounded-full shadow-lg">
-                    ⭐ Popular
-                </span>
-            </div>
-
-            <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
-                <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 transition-all duration-300"
+                 [ngClass]="data.type === 'B' ? 'bg-purple-500 shadow-lg shadow-purple-500/30' : 'bg-purple-100 dark:bg-purple-900/30 group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50'">
+                <svg class="w-6 h-6 transition-colors"
+                     [ngClass]="data.type === 'B' ? 'text-white' : 'text-purple-600 dark:text-purple-400'"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                 </svg>
             </div>
 
-            <p class="text-sm font-black text-gray-900 dark:text-white mb-1">Rent a Box</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">Rent a box inside our center — ready to use</p>
+            <p class="text-base font-black text-gray-900 dark:text-white mb-1">Rent a Box</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-5 leading-relaxed">Ready-to-use box inside our center</p>
 
-            <div class="pt-3 border-t border-gray-100 dark:border-gray-700">
-                <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">Hosting + box from</p>
-                <p class="text-lg font-black text-gray-900 dark:text-white">{{ formatPrice(planBHostingPrice) }}<span class="text-xs font-semibold text-gray-400">/mo</span></p>
+            <div class="p-3 rounded-xl mb-5 transition-colors"
+                 [ngClass]="data.type === 'B' ? 'bg-brand-100/60 dark:bg-brand-900/30' : 'bg-gray-50 dark:bg-gray-800/50'">
+                <p class="text-xs text-gray-400 dark:text-gray-500 mb-0.5">Hosting + box from</p>
+                <p class="text-xl font-black text-gray-900 dark:text-white">
+                    {{ formatPrice(planBHostingPrice) }}
+                    <span class="text-xs font-semibold text-gray-400">/mo</span>
+                </p>
             </div>
 
-            <ul class="mt-4 space-y-1.5">
-                <li class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                    <svg class="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                    Ready-to-use space
-                </li>
-                <li class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                    <svg class="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                    Reduced hosting fee
-                </li>
-                <li class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                    <svg class="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                    Prime location
+            <ul class="space-y-2">
+                <li *ngFor="let f of ['Ready-to-use space', 'Reduced hosting fee', 'Prime location']"
+                    class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                    <div class="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
+                         [ngClass]="data.type === 'B' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-gray-100 dark:bg-gray-800'">
+                        <svg class="w-2.5 h-2.5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    {{ f }}
                 </li>
             </ul>
         </button>
     </div>
-
     <!-- Plan A — Map -->
-    <div *ngIf="data.type === 'A'" class="mb-6 animate-fade-in">
+    <div *ngIf="data.type === 'A'" class="mb-8 max-w-2xl">
         <div class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-2xl mb-4">
             <p class="text-sm font-bold text-amber-900 dark:text-amber-100 mb-1">📍 Pin your store location</p>
             <p class="text-xs text-amber-700 dark:text-amber-300">Click on the map to place your store's exact location. Customers will use this to estimate delivery distance.</p>
         </div>
-        <div class="rounded-2xl overflow-hidden border-2 transition-all" style="height: 280px;"
+        <div class="rounded-2xl overflow-hidden border-2 transition-all"
+             style="height: 320px;"
              [ngClass]="data.lat ? 'border-green-400 dark:border-green-600' : 'border-gray-200 dark:border-gray-700'">
             <app-leaflet-map
                     [center]="[-18.9137, 47.5361]"
                     [zoom]="13"
-                    height="280px"
+                    height="320px"
                     [markerOnClick]="true"
                     (mapClick)="onMapClick($event)"/>
         </div>
@@ -154,7 +149,7 @@
     </div>
 
     <!-- Plan B — Box selection -->
-    <div *ngIf="data.type === 'B'" class="mb-6 animate-fade-in">
+    <div *ngIf="data.type === 'B'" class="mb-8 max-w-2xl">
         <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Select a Box</p>
         <div class="grid grid-cols-5 gap-2">
             <button *ngFor="let box of boxes"
@@ -167,7 +162,6 @@
                             ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-md shadow-brand-500/10'
                             : 'border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-600 bg-white dark:bg-white/[0.02] cursor-pointer'">
 
-                <!-- Taken overlay -->
                 <div *ngIf="box.taken" class="absolute inset-0 flex items-center justify-center rounded-xl">
                     <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
@@ -187,7 +181,6 @@
             </button>
         </div>
 
-        <!-- Selected box summary -->
         <div *ngIf="selectedBox" class="mt-4 p-4 bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-800/50 rounded-2xl">
             <div class="flex items-center justify-between">
                 <div>
@@ -213,9 +206,9 @@
         </button>
         <button (click)="submit()"
                 [disabled]="!isValid"
-                class="flex-1 group relative bg-gradient-to-r from-brand-500 to-brand-600 text-white font-bold py-4 px-8 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-brand-500/30 hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none">
+                class="group relative bg-gradient-to-r from-brand-500 to-brand-600 text-white font-bold py-4 px-10 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-brand-500/30 hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none">
             <div class="absolute inset-0 bg-gradient-to-r from-brand-600 to-brand-700 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <span class="relative flex items-center justify-center gap-2 text-base">
+            <span class="relative flex items-center gap-2 text-base">
                 Continue
                 <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>

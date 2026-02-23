@@ -78,15 +78,24 @@ export class StoreRegisterComponent {
   };
 
   steps = [
-    { number: 1, label: 'Manager' },
-    { number: 2, label: 'Boutique' },
-    { number: 3, label: 'Plan' },
-    { number: 4, label: 'Delivery' },
-    { number: 5, label: 'Review' },
+    { number: 1, label: 'Manager',  sublabel: 'Responsible info' },
+    { number: 2, label: 'Boutique', sublabel: 'Store identity' },
+    { number: 3, label: 'Plan',     sublabel: 'Choose your plan' },
+    { number: 4, label: 'Delivery', sublabel: 'Delivery config' },
+    { number: 5, label: 'Review',   sublabel: 'Submit & verify' },
   ];
 
   animating = false;
   animDirection: 'next' | 'prev' = 'next';
+
+  get progressPercent(): number {
+    return Math.round(((this.currentStep - 1) / (this.totalSteps - 1)) * 100);
+  }
+
+  get progressLineHeight(): string {
+    const percent = (this.currentStep - 1) / (this.totalSteps - 1);
+    return `calc(${percent * 100}% )`;
+  }
 
   goNext(): void {
     if (this.currentStep < this.totalSteps) {
@@ -115,10 +124,6 @@ export class StoreRegisterComponent {
       this.scrollToTop();
       this.animating = false;
     }, 200);
-  }
-
-  get progressPercent(): number {
-    return Math.round(((this.currentStep - 1) / (this.totalSteps - 1)) * 100);
   }
 
   private scrollToTop(): void {

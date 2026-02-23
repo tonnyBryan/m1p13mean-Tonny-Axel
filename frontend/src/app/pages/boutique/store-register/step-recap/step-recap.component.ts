@@ -31,6 +31,22 @@ export class StepRecapComponent implements OnInit {
   readonly PLAN_A_PRICE = 15000;
   readonly PLAN_B_HOSTING = 8000;
 
+  isEditingEmail = false;
+  toggleEmailEdit(): void {
+    this.isEditingEmail = !this.isEditingEmail;
+
+    if (this.isEditingEmail) {
+      // On attend un cycle de rendu pour que l'input existe dans le DOM
+      setTimeout(() => {
+        const emailInput = document.getElementById('manager-email-input') as HTMLInputElement;
+        emailInput?.focus();
+        emailInput?.select(); // Optionnel : sélectionne le texte pour effacer plus vite
+      }, 0);
+    } else {
+      console.log('Nouvel email enregistré :', this.formData.manager.email);
+    }
+  }
+
   ngOnInit(): void {
     this.generatedPassword = this.generatePassword();
   }
@@ -89,28 +105,77 @@ export class StepRecapComponent implements OnInit {
     }, 1000);
   }
 
-  onDigitInput(event: Event, index: number): void {
+  onDigitInput(event: any, index: number): void {
     const input = event.target as HTMLInputElement;
-    const value = input.value.replace(/\D/g, '').slice(-1);
+    let value = input.value;
+
+    // 1. Sécurité : Si ce n'est pas un chiffre, on remet la valeur précédente et on arrête
+    if (value && !/^\d$/.test(value.slice(-1))) {
+      input.value = this.digits[index] || '';
+      return;
+    }
+
+    // 2. On ne garde que le dernier caractère
+    value = value.slice(-1);
     this.digits[index] = value;
-    this.otpError = '';
+    input.value = value;
+    this.otpError = ''; // On reset l'erreur dès qu'on tape
+
+    // 3. Navigation vers l'avant (pour 4 cases, l'index max est 3)
     if (value && index < 3) {
-      document.getElementById(`otp-r-${index + 1}`)?.focus();
+      const nextInput = document.getElementById(`otp-r-${index + 1}`) as HTMLInputElement;
+      if (nextInput) {
+        nextInput.focus();
+      }
     }
   }
 
   onKeyDown(event: KeyboardEvent, index: number): void {
-    if (event.key === 'Backspace' && !this.digits[index] && index > 0) {
+    const input = event.target as HTMLInputElement;
+
+    if (event.key === 'Backspace') {
+      if (!input.value && index > 0) {
+        event.preventDefault();
+        this.digits[index - 1] = '';
+        const prevInput = document.getElementById(`otp-r-${index - 1}`) as HTMLInputElement;
+        if (prevInput) {
+          prevInput.focus();
+          prevInput.value = '';
+        }
+      } else {
+        this.digits[index] = '';
+      }
+    }
+
+    // Flèches de navigation
+    if (event.key === 'ArrowLeft' && index > 0) {
       document.getElementById(`otp-r-${index - 1}`)?.focus();
+    }
+    if (event.key === 'ArrowRight' && index < 3) {
+      document.getElementById(`otp-r-${index + 1}`)?.focus();
     }
   }
 
   onPaste(event: ClipboardEvent): void {
     event.preventDefault();
     const pasted = event.clipboardData?.getData('text').replace(/\D/g, '').slice(0, 4) || '';
-    pasted.split('').forEach((char, i) => { if (i < 4) this.digits[i] = char; });
-    const lastIndex = Math.min(pasted.length - 1, 3);
-    document.getElementById(`otp-r-${lastIndex}`)?.focus();
+
+    if (pasted) {
+      // On transforme la chaîne en tableau
+      const pastedArray = pasted.split('');
+
+      // On remplit le tableau global
+      pastedArray.forEach((char, i) => {
+        this.digits[i] = char;
+        // On met à jour l'input physiquement pour éviter tout décalage visuel
+        const input = document.getElementById(`otp-r-${i}`) as HTMLInputElement;
+        if (input) input.value = char;
+      });
+
+      // Focus sur le dernier chiffre collé ou le dernier champ
+      const targetIndex = Math.min(pastedArray.length, 3);
+      document.getElementById(`otp-r-${targetIndex}`)?.focus();
+    }
   }
 
   verifyAndSubmit(): void {
