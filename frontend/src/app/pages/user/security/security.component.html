@@ -15,7 +15,7 @@
         </div>
 
         <!-- Email not verified banner -->
-        <div *ngIf="!isEmailVerified"
+        <div *ngIf="!isLoading && !isEmailVerified"
              class="flex items-center gap-4 p-4 mt-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl">
             <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
                 <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
@@ -46,7 +46,7 @@
             <div class="mb-6 p-5 bg-gradient-to-br from-brand-50 to-blue-50 dark:from-brand-900/20 dark:to-blue-900/20 border border-brand-100 dark:border-brand-800/50 rounded-2xl">
                 <p class="text-xs font-bold text-brand-700 dark:text-brand-300 uppercase tracking-wider mb-3">Security Level</p>
                 <div class="flex items-end gap-2 mb-3">
-                    <span class="text-3xl font-black text-brand-600 dark:text-brand-400">{{ isEmailVerified ? 'Good' : 'Basic' }}</span>
+                    <span class="text-3xl font-black text-brand-600 dark:text-brand-400">{{ isLoading ? '...' : (isEmailVerified ? 'Good' : 'Basic') }}</span>
                 </div>
                 <div class="w-full h-2 rounded-full bg-brand-100 dark:bg-brand-900/40 overflow-hidden">
                     <div class="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-400 transition-all duration-500"
@@ -97,17 +97,16 @@
                         <p class="text-sm font-bold leading-none mb-0.5">Login History</p>
                         <p class="text-xs opacity-60 truncate">Recent activity</p>
                     </div>
-                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full"
-                          [ngClass]="activeSection === 'history' ? 'bg-white/10 text-white dark:bg-indigo-700/20 dark:text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'">
-                        Soon
-                    </span>
+                    <svg *ngIf="activeSection === 'history'" class="w-4 h-4 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
                 </button>
 
                 <!-- Device Alert -->
                 <button (click)="setSection('device')"
-                        [disabled]="!isEmailVerified"
+                        [disabled]="isLoading || !isEmailVerified"
                         class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left transition-all"
-                        [ngClass]="!isEmailVerified
+                        [ngClass]="isLoading || !isEmailVerified
                             ? 'opacity-40 cursor-not-allowed text-gray-400 dark:text-gray-600'
                             : activeSection === 'device'
                                 ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-700 dark:to-indigo-600 text-white shadow-lg'
@@ -132,9 +131,9 @@
 
                 <!-- 2FA -->
                 <button (click)="setSection('2fa')"
-                        [disabled]="!isEmailVerified"
+                        [disabled]="isLoading || !isEmailVerified"
                         class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left transition-all"
-                        [ngClass]="!isEmailVerified
+                        [ngClass]="isLoading || !isEmailVerified
                             ? 'opacity-40 cursor-not-allowed text-gray-400 dark:text-gray-600'
                             : activeSection === '2fa'
                                 ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-700 dark:to-indigo-600 text-white shadow-lg'
@@ -198,15 +197,7 @@
                         Keep an eye on your account activity. If you see something unfamiliar, change your password immediately.
                     </p>
                 </div>
-                <div class="flex flex-col items-center justify-center py-16 bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-2xl">
-                    <div class="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-                        <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <p class="text-base font-bold text-gray-900 dark:text-white mb-1">Coming Soon</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 text-center max-w-xs">Login history tracking is being built. You'll be able to see all your recent sessions here.</p>
-                </div>
+                <app-login-history />
             </div>
 
             <!-- Section: Device Alert -->

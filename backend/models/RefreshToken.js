@@ -13,7 +13,15 @@ const RefreshTokenSchema = new mongoose.Schema({
     expiresAt: {
         type: Date,
         required: true
-    }
+    },
+    // Session info
+    ipAddress: { type: String, default: null },
+    userAgent: { type: String, default: null },
+    device: { type: String, default: null },    // "Mobile", "Desktop", "Tablet"
+    browser: { type: String, default: null },   // "Chrome", "Firefox", "Safari"
+    os: { type: String, default: null },        // "Windows", "macOS", "Android", "iOS"
+    location: { type: String, default: null },  // "Antananarivo, MG"
+    isRevoked: { type: Boolean, default: false }
 }, {
     timestamps: true
 });

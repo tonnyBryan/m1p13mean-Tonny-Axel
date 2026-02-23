@@ -54,6 +54,10 @@ export class AuthService {
         localStorage.setItem('token', token);
     }
 
+    logoutApi(): Observable<any> {
+        return this.api.post<any>('auth/logout', {});
+    }
+
     logout(): void {
         this.session.clear();
         this.userState.clear();
@@ -119,14 +123,27 @@ export class AuthService {
     }
 
     // Change password for authenticated users
-    changePassword(currentPassword: string, newPassword: string): Observable<any> {
+    changePassword(currentPassword: string, newPassword: string, revokeOtherSessions: boolean): Observable<any> {
         const token = this.getToken();
 
         const headers = new HttpHeaders({
             Authorization: `Bearer ${token}`
         });
 
-        const body = { currentPassword, newPassword };
+        const body = { currentPassword, newPassword, revokeOtherSessions  };
         return this.api.post<any>('auth/change-password', body, headers);
+    }
+
+    getLoginHistory(params?: any): Observable<any> {
+        const token = this.getToken();
+        const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+        const query = params ? '?' + new URLSearchParams(params).toString() : '';
+        return this.api.get<any>(`auth/login-history${query}`, headers);
+    }
+
+    revokeSession(sessionId: string): Observable<any> {
+        const token = this.getToken();
+        const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+        return this.api.delete<any>(`auth/login-history/${sessionId}`, headers);
     }
 }

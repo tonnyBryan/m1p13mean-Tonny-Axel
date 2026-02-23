@@ -46,5 +46,5 @@ app.use('/api/user-dashboard', require('./routes/user-dashboard.routes'));
 app.use('/api/boutique-dashboard', require('./routes/boutique-dashboard.routes'));
 app.use('/api/categories', require('./routes/category.routes'));
 
-
+app.set('trust proxy', 1);
 module.exports = app;

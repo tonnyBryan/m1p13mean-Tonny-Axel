@@ -131,12 +131,19 @@ export class HeaderLandingComponent implements OnInit {
   onLogout(): void {
     this.userMenuOpen = false;
     this.logoutService.show();
-    setTimeout(() => {
-      this.authService.logout();
-      this.currentUser = null;
-      this.logoutService.hide();
-      this.router.navigate(['/']);
-    }, 3000);
+
+    this.authService.logoutApi().subscribe({
+      next: () => {},
+      error: () => {},
+      complete: () => {
+        this.authService.logout();
+        this.currentUser = null;
+        setTimeout(() => {
+          this.logoutService.hide();
+          this.router.navigate(['/']);
+        }, 3000);
+      }
+    });
   }
 
   scrollToFeatures(event: Event): void {

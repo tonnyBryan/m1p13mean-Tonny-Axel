@@ -2,6 +2,16 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const { protect, authorize } = require('../middlewares/auth.middleware');
+const advancedResults = require("../middlewares/advancedResults");
+const RefreshToken = require('../models/RefreshToken');
+
+const injectUserFilter = (req, res, next) => {
+    try {
+        req.query.user = req.user._id.toString();
+    } catch (e) {}
+    next();
+};
+
 
 /**
  * @swagger
@@ -110,5 +120,15 @@ router.post('/reset-password', authController.resetPassword);
  *         description: Non autorisé, token manquant ou invalide
  */
 router.post('/change-password', protect, authorize('user', 'boutique'), authController.changePassword);
+
+router.get(
+    '/login-history',
+    protect,
+    injectUserFilter,
+    advancedResults(RefreshToken),
+    authController.getLoginHistory
+);
+
+router.delete('/login-history/:id', protect, authController.revokeSession);
 
 module.exports = router;

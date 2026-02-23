@@ -8,8 +8,15 @@ const { generateAccessToken } = require('../utils/auth.utils');
 const Boutique = require('../models/Boutique');
 const PasswordResetToken = require('../models/PasswordResetToken');
 const {sendPasswordResetEmail} = require("../mail/mail.service");
+const {buildSessionInfo} = require("../utils/session.utils");
 
 
+function parseExpireEnv(expireStr) {
+    const unit = expireStr.slice(-1);
+    const value = parseInt(expireStr.slice(0, -1));
+    const multipliers = { s: 1000, m: 60000, h: 3600000, d: 86400000 };
+    return value * (multipliers[unit] || 86400000);
+}
 
 exports.login = async (req, res) => {
     try {
@@ -63,10 +70,30 @@ exports.login = async (req, res) => {
             .update(refreshToken)
             .digest('hex');
 
+        const sessionInfo = await buildSessionInfo(req);
+
+        await RefreshToken.deleteMany({
+            user: user._id,
+            expiresAt: { $lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+        });
+
+        // Révoquer l'ancienne session du même appareil si elle existe
+        await RefreshToken.findOneAndUpdate(
+            {
+                user: user._id,
+                ipAddress: sessionInfo.ipAddress,
+                userAgent: sessionInfo.userAgent,
+                isRevoked: false,
+                expiresAt: { $gt: new Date() }
+            },
+            { isRevoked: true }
+        );
+
         await RefreshToken.create({
             user: user._id,
             token: refreshTokenHash,
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            expiresAt: new Date(Date.now() + parseExpireEnv(process.env.JWT_REFRESH_EXPIRE)),
+            ...sessionInfo
         });
 
         // Cookie HTTPOnly
@@ -185,10 +212,13 @@ exports.signupUser = async (req, res) => {
             .update(refreshToken)
             .digest('hex');
 
+        const sessionInfo = await buildSessionInfo(req);
+
         await RefreshToken.create({
             user: user._id,
             token: refreshTokenHash,
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            ...sessionInfo
         });
 
         // Cookie HTTPOnly
@@ -236,7 +266,7 @@ exports.refreshToken = async (req, res) => {
             token: tokenHash
         });
 
-        if (!storedToken) {
+        if (!storedToken || storedToken.isRevoked) {
             return errorResponse(res, 450, 'The provided refresh token is invalid. Please login again.');
         }
 
@@ -280,7 +310,10 @@ exports.logout = async (req, res) => {
 
         if (token) {
             const hash = crypto.createHash('sha256').update(token).digest('hex');
-            await RefreshToken.deleteOne({ token: hash });
+            await RefreshToken.findOneAndUpdate(
+                { token: hash },
+                { isRevoked: true }
+            );
         }
 
         res.clearCookie('refreshToken');
@@ -440,7 +473,7 @@ exports.resetPassword = async (req, res) => {
 // Change password for authenticated users (currentPassword + newPassword)
 exports.changePassword = async (req, res) => {
     try {
-        const { currentPassword, newPassword } = req.body;
+        const { currentPassword, newPassword, revokeOtherSessions } = req.body;
 
         if (!currentPassword || !newPassword) {
             return errorResponse(res, 400, 'Both currentPassword and newPassword are required.');
@@ -476,12 +509,64 @@ exports.changePassword = async (req, res) => {
         user.password = await bcrypt.hash(newPassword, salt);
         await user.save();
 
-        // Note: could invalidate refresh tokens here if desired
+        if (revokeOtherSessions) {
+            const currentToken = req.cookies?.refreshToken;
+            if (currentToken) {
+                const currentHash = crypto.createHash('sha256').update(currentToken).digest('hex');
+                await RefreshToken.deleteMany({
+                    user: user._id,
+                    token: { $ne: currentHash }
+                });
+            } else {
+                await RefreshToken.deleteMany({ user: user._id });
+            }
+        }
 
         return successResponse(res, 200, 'Your password has been updated successfully. For security reasons, please sign in again with your new password.');
 
     } catch (error) {
         console.error('changePassword error:', error);
         return errorResponse(res, 500, 'An unexpected error occurred while changing the password. Please try again later.');
+    }
+};
+
+exports.getLoginHistory = async (req, res) => {
+    const currentToken = req.cookies?.refreshToken;
+    let currentTokenHash = null;
+
+    if (currentToken) {
+        currentTokenHash = crypto.createHash('sha256').update(currentToken).digest('hex');
+    }
+
+    const items = res.advancedResults.items.map(session => ({
+        ...session.toObject(),
+        isCurrent: currentTokenHash ? session.token === currentTokenHash : false
+    }));
+
+    return successResponse(res, 200, 'Login history retrieved successfully.', {
+        ...res.advancedResults,
+        items
+    });
+};
+
+
+exports.revokeSession = async (req, res) => {
+    try {
+        const session = await RefreshToken.findOne({
+            _id: req.params.id,
+            user: req.user._id
+        });
+
+        if (!session) {
+            return errorResponse(res, 404, 'Session not found.');
+        }
+
+        session.isRevoked = true;
+        await session.save();
+
+        return successResponse(res, 200, 'Session revoked successfully.');
+    } catch (error) {
+        console.error('revokeSession error:', error);
+        return errorResponse(res, 500, 'An unexpected error occurred.');
     }
 };

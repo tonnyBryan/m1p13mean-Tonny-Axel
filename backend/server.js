@@ -13,6 +13,9 @@ connectDB()
         try {
             const initExpireDraftsJob = require('./jobs/expireDrafts.job');
             // initExpireDraftsJob();
+
+            const initCleanExpiredSessionsJob = require('./jobs/cleanExpiredSessions.job');
+            // initCleanExpiredSessionsJob();
         } catch (err) {
             console.error('Failed to init jobs:', err);
         }

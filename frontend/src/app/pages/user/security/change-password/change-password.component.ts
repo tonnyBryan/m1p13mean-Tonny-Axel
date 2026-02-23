@@ -19,6 +19,7 @@ export class ChangePasswordComponent {
   showConfirm = false;
   isLoading = false;
   isOpen = false;
+  revokeOtherSessions = false;
 
   constructor(
       private toast: ToastService,
@@ -58,7 +59,7 @@ export class ChangePasswordComponent {
     }
 
     this.isLoading = true;
-    this.auth.changePassword(this.currentPassword, this.newPassword).subscribe({
+    this.auth.changePassword(this.currentPassword, this.newPassword, this.revokeOtherSessions).subscribe({
       next: (res: any) => {
         this.isLoading = false;
         if (res.success) {

@@ -38,10 +38,17 @@ export class AdminDropdownComponent implements OnInit{
   onSignOut() {
     this.closeDropdown();
     this.logoutService.show();
-    setTimeout(() => {
-      this.authService.logout();
-      this.logoutService.hide();
-      this.router.navigate(['/admin']);
-    }, 3000);
+
+    this.authService.logoutApi().subscribe({
+      next: () => {},
+      error: () => {},
+      complete: () => {
+        this.authService.logout();
+        setTimeout(() => {
+          this.logoutService.hide();
+          this.router.navigate(['/admin']);
+        }, 3000);
+      }
+    });
   }
 }
