@@ -149,13 +149,41 @@ export class OrderDetailBoutiqueComponent implements OnInit {
   // accepted → delivering
   startDelivery(): void {
     if (!this.order || !this.order._id) return;
+    if (this.order.deliveryMode === 'pickup') return;
     this.performStatusChange(this.commandeService.startDelivery(this.order._id), 'deliver', 'Delivery started');
   }
 
   // accepted → success (pickup)
   markAsPickedUp(): void {
     if (!this.order || !this.order._id) return;
-    this.performStatusChange(this.commandeService.markAsPickedUp(this.order._id), 'pickup', 'Order marked as picked up');
+
+    if (this.order.deliveryMode === 'delivery') {
+      this.toast.confirm(
+          'Confirm Pickup',
+          'This order is set for delivery. Are you sure the customer picked it up in-store?',
+          () => {
+            this.performStatusChange(
+                this.commandeService.markAsPickedUp(this.order._id),
+                'pickup',
+                'Order marked as picked up'
+            );
+          },
+          () => {},
+          {
+            confirmLabel: 'Yes, picked up',
+            cancelLabel: 'Cancel',
+            variant: 'primary',
+            position: 'top-center',
+            backdrop: true,
+          }
+      );
+    } else {
+      this.performStatusChange(
+          this.commandeService.markAsPickedUp(this.order._id),
+          'pickup',
+          'Order marked as picked up'
+      );
+    }
   }
 
   // delivering → success

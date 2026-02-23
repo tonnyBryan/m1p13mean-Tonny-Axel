@@ -130,8 +130,13 @@
             <div class="flex flex-wrap gap-3">
                 <!-- Start Delivery -->
                 <button (click)="startDelivery()"
-                        [disabled]="anyActionLoading"
-                        class="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl transition-all hover:scale-105 shadow-md shadow-blue-500/20">
+                        [disabled]="anyActionLoading || order.deliveryMode === 'pickup'"
+                        [title]="order.deliveryMode === 'pickup' ? 'Not available for pickup orders' : ''"
+                        class="inline-flex items-center gap-2 px-5 py-3 font-bold text-sm rounded-xl transition-all shadow-md"
+                        [ngClass]="order.deliveryMode === 'pickup'
+                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed shadow-none'
+                    : 'bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white hover:scale-105 shadow-blue-500/20'"
+                >
                     <svg *ngIf="!isActionLoading('deliver')" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
                         <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
