@@ -41,6 +41,7 @@ import {MailComposeComponent} from "./pages/admin/mail-compose/mail-compose.comp
 import {DashboardBoutiqueComponent} from "./pages/boutique/dashboard-boutique/dashboard-boutique.component";
 import {ForgotPasswordComponent} from "./pages/auth-pages/forgot-password/forgot-password.component";
 import {ResetPasswordComponent} from "./pages/auth-pages/reset-password/reset-password.component";
+import {SecurityComponent} from "./pages/user/security/security.component";
 
 const appName = environment.plateformeName || 'Shopticus';
 
@@ -161,6 +162,13 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         title: 'Profile | ' + appName
+      },
+      {
+        path: 'profile/security',
+        component: SecurityComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.userRole] },
+        title: 'Security | ' + appName
       },
       {
         path: 'stores/:idStore/products/:idProduct',

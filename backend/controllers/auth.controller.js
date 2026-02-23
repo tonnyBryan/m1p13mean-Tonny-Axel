@@ -419,7 +419,7 @@ exports.resetPassword = async (req, res) => {
             resetToken.user,
             {
                 password: hashedPassword,
-                isEmailVerified: true 
+                isEmailVerified: true
             },
             { new: true }
         ).select('role');
@@ -434,5 +434,54 @@ exports.resetPassword = async (req, res) => {
     } catch (error) {
         console.error('resetPassword error:', error);
         return errorResponse(res, 500, 'An unexpected error occurred. Please try again later.');
+    }
+};
+
+// Change password for authenticated users (currentPassword + newPassword)
+exports.changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return errorResponse(res, 400, 'Both currentPassword and newPassword are required.');
+        }
+
+        if (typeof newPassword !== 'string' || newPassword.length < 8) {
+            return errorResponse(res, 400, 'The new password must be at least 8 characters long.');
+        }
+
+        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/;
+        if (!strongPasswordRegex.test(newPassword)) {
+            return errorResponse(res, 400, 'The new password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.');
+        }
+
+        // Reload user from DB to get the hashed password
+        const user = await User.findById(req.user._id).select('+password');
+        if (!user) {
+            return errorResponse(res, 404, 'Authenticated user not found.');
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return errorResponse(res, 401, 'Current password is incorrect. Please verify your current password and try again.');
+        }
+
+        // Prevent reusing the same password (optional but helpful)
+        const isSameAsNew = await bcrypt.compare(newPassword, user.password);
+        if (isSameAsNew) {
+            return errorResponse(res, 400, 'The new password must be different from your current password.');
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        // Note: could invalidate refresh tokens here if desired
+
+        return successResponse(res, 200, 'Your password has been updated successfully. For security reasons, please sign in again with your new password.');
+
+    } catch (error) {
+        console.error('changePassword error:', error);
+        return errorResponse(res, 500, 'An unexpected error occurred while changing the password. Please try again later.');
     }
 };

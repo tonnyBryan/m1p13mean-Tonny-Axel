@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
+const { protect, authorize } = require('../middlewares/auth.middleware');
 
 /**
  * @swagger
@@ -81,5 +82,33 @@ router.get('/verify-token', authController.verifyToken);
 router.post('/forgot-password', authController.forgotPassword);
 router.get('/verify-reset-token', authController.verifyResetToken);
 router.post('/reset-password', authController.resetPassword);
+
+/**
+ * @swagger
+ * /api/auth/change-password:
+ *   post:
+ *     summary: Changer le mot de passe
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - oldPassword
+ *               - newPassword
+ *             properties:
+ *               oldPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Mot de passe changé avec succès
+ *       401:
+ *         description: Non autorisé, token manquant ou invalide
+ */
+router.post('/change-password', protect, authorize('user', 'boutique'), authController.changePassword);
 
 module.exports = router;
