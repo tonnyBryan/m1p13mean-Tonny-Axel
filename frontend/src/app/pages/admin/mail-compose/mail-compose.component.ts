@@ -47,8 +47,10 @@ export class MailComposeComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) this.loadRequest(id);
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) this.loadRequest(id);
+    });
 
     this.themeSub = this.themeService.theme$.subscribe(theme => {
       this.isDark = theme === 'dark';

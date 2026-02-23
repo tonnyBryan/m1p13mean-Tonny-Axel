@@ -68,11 +68,12 @@ export class ProductFicheBoutiqueComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        const productId = this.route.snapshot.paramMap.get('id');
-
-        if (productId) {
-            this.loadProduct(productId);
-        }
+        this.route.paramMap.subscribe(params => {
+            const productId = params.get('id');
+            if (productId) {
+                this.loadProduct(productId);
+            }
+        });
 
         this.loadCategories();
     }

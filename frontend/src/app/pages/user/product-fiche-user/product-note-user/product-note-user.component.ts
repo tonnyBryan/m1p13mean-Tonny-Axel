@@ -61,6 +61,7 @@ export class ProductNoteUserComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['product'] && this.product && this.product._id) {
+      console.log("id = " + this.product._id);
       this.currentUserId = this.authService.userHash?.id || null;
       this.resetAndLoad();
     }
@@ -74,6 +75,8 @@ export class ProductNoteUserComponent implements OnChanges {
 
   loadProductRatings(): void {
     if (!this.product || !this.product._id) return;
+
+    console.log("id lasa = " + this.product._id);
 
     this.isLoading = true;
     this.productService.getRatingsByProduct(this.product._id, { page: this.page, limit: this.limit })

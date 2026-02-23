@@ -55,7 +55,7 @@ router.post('/:productId', protect, authorize('user'), productRatingController.a
 // Remove rating for a product by current user (user only)
 router.delete('/:productId', protect, authorize('user'), productRatingController.removeRating);
 
-// Example: GET /product/:productId?page=1&limit=10&sort=-createdAt
-router.get('/product/:productId', advancedResults(ProductRating), productRatingController.getRatingsByProduct);
+// Example: GET ?page=1&limit=10&sort=-createdAt&product=60d21b4667d0d8992e610c85
+router.get('/', advancedResults(ProductRating), productRatingController.getRatingsByProduct);
 
 module.exports = router;

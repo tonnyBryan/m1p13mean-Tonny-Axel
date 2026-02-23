@@ -70,81 +70,68 @@
                     <div
                         #searchDropdown
                         *ngIf="showSearchDropdown"
-                        class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden z-[99999] max-h-[500px] overflow-y-auto">
+                        class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-lg overflow-hidden z-[99999]">
 
                         <!-- Loading State -->
-                        <div *ngIf="isSearching" class="p-6 text-center">
-                            <div class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <span>Searching...</span>
-                            </div>
+                        <div *ngIf="isSearching" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                            <svg class="animate-spin w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            Searching...
                         </div>
 
                         <!-- No Results -->
-                        <div *ngIf="!isSearching && searchResults.length === 0" class="p-6 text-center">
-                            <svg class="w-12 h-12 mx-auto mb-3 text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        <div *ngIf="!isSearching && searchResults.length === 0"
+                             class="flex flex-col items-center justify-center py-8 text-center">
+                            <svg class="w-8 h-8 text-gray-300 dark:text-gray-700 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z"/>
                             </svg>
-                            <p class="text-sm font-semibold text-gray-900 dark:text-white mb-1">No results found</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Try a different search term</p>
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No results found</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-600 mt-1">Try a different search term</p>
                         </div>
 
-                        <!-- Results List -->
-                        <div *ngIf="!isSearching && searchResults.length > 0" class="py-2">
-                            <div
-                                    *ngFor="let result of searchResults; let last = last"
-                                    (click)="navigateToResult(result)"
-                                    class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0">
+                        <!-- Results -->
+                        <ul *ngIf="!isSearching && searchResults.length > 0">
+                            <li *ngFor="let result of searchResults"
+                                (click)="navigateToResult(result)"
+                                class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors border-b border-gray-100 dark:border-gray-800 last:border-0">
 
-                                <div class="flex items-center gap-3">
-                                    <!-- Image -->
-                                    <div class="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 ring-2 ring-gray-200 dark:ring-gray-600">
-                                        <img
-                                                *ngIf="result.image"
-                                                [src]="result.image"
-                                                [alt]="result.name"
-                                                class="w-full h-full object-cover">
-                                        <div *ngIf="!result.image" class="w-full h-full flex items-center justify-center text-2xl">
-                                            {{ getResultIcon(result.type) }}
-                                        </div>
-                                    </div>
-
-                                    <!-- Content -->
-                                    <div class="flex-1 min-w-0">
-                                        <!-- Type Badge + Name -->
-                                        <div class="flex items-center gap-2 mb-1">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-                                                  [ngClass]="{
-                                                    'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300': result.type === 'product',
-                                                    'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300': result.type === 'boutique'
-                                                  }">
-                                                {{ result.type === 'product' ? 'Product' : 'Store' }}
-                                            </span>
-                                        </div>
-                                        <p class="text-sm font-semibold text-gray-900 dark:text-white line-clamp-1 mb-0.5">
-                                            {{ result.name }}
-                                        </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">
-                                            {{ result.description }}
-                                        </p>
-                                    </div>
-
-                                    <!-- Arrow Icon -->
-                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                <div class="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                    <img *ngIf="result.image" [src]="result.image" class="w-full h-full object-cover" [alt]="result.name"/>
+                                    <svg *ngIf="!result.image && result.type === 'product'" class="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                    </svg>
+                                    <svg *ngIf="!result.image && result.type === 'boutique'" class="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                                        <polyline points="9 22 9 12 15 12 15 22"/>
                                     </svg>
                                 </div>
-                            </div>
-                        </div>
+
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-0.5">
+                    <span class="text-xs font-semibold px-1.5 py-0.5 rounded-md"
+                          [ngClass]="{
+                            'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300': result.type === 'product',
+                            'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300': result.type === 'boutique'
+                          }">
+                        {{ result.type === 'product' ? 'Product' : 'Store' }}
+                    </span>
+                                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ result.name }}</p>
+                                    </div>
+                                    <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ result.description }}</p>
+                                </div>
+
+                                <svg class="w-4 h-4 text-gray-300 dark:text-gray-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </li>
+                        </ul>
 
                         <!-- Footer -->
-                        <div *ngIf="!isSearching && searchResults.length > 0" class="px-4 py-2 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
-                            <p class="text-xs text-gray-500 dark:text-gray-400 text-center">
-                                Found {{ searchResults.length }} result{{ searchResults.length !== 1 ? 's' : '' }}
-                            </p>
+                        <div *ngIf="!isSearching && searchResults.length > 0"
+                             class="px-4 py-2 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                            <p class="text-xs text-gray-400 dark:text-gray-500">{{ searchResults.length }} result{{ searchResults.length > 1 ? 's' : '' }} found</p>
                         </div>
                     </div>
                 </div>

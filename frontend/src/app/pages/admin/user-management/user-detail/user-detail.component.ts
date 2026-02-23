@@ -40,12 +40,14 @@ export class UserDetailComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        const id = this.route.snapshot.paramMap.get('id');
-        if (id) {
-            this.loadProfile(id);
-        } else {
-            this.router.navigate(['/admin/app/users']);
-        }
+        this.route.paramMap.subscribe(params => {
+            const id = params.get('id');
+            if (id) {
+                this.loadProfile(id);
+            } else {
+                this.router.navigate(['/admin/app/users']);
+            }
+        });
     }
 
     loadProfile(id: string): void {

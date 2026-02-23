@@ -23,10 +23,12 @@ export class VenteDetailComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        const id = this.route.snapshot.paramMap.get('id');
-        if (id) {
-            this.loadVente(id);
-        }
+        this.route.paramMap.subscribe(params => {
+            const id = params.get('id');
+            if (id) {
+                this.loadVente(id);
+            }
+        });
     }
 
     loadVente(id: string): void {

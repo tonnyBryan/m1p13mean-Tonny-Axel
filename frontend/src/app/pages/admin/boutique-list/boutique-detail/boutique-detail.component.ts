@@ -45,10 +45,13 @@ export class BoutiqueDetailComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.boutiqueId = this.route.snapshot.paramMap.get('id');
-        if (this.boutiqueId) {
-            this.loadBoutique();
-        }
+        this.route.paramMap.subscribe(params => {
+            const id = params.get('id');
+            if (id && id !== this.boutiqueId) {
+                this.boutiqueId = id;
+                this.loadBoutique();
+            }
+        });
     }
 
     loadBoutique(): void {

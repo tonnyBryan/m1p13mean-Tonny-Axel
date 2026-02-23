@@ -6,6 +6,8 @@ const { errorResponse, successResponse } = require("../utils/apiResponse");
 const ResultSearch = require("../models/dto/ResultSearch");
 const Commande = require('../models/Commande');
 const Vente = require('../models/Vente');
+const mongoose = require('mongoose');
+
 
 /**
  * GET /api/search?q=mot
@@ -25,7 +27,6 @@ exports.globalSearch = async (req, res) => {
             $or: [
                 { name: regex },
                 { description: regex },
-                { category: regex },
                 { tags: regex },
                 { sku: regex }
             ]
@@ -158,5 +159,97 @@ exports.searchGlobalForBoutique = async (req, res) => {
     } catch (err) {
         console.error('searchGlobalForBoutique error:', err);
         return errorResponse(res, 500, 'Search failed. Please try again.');
+    }
+};
+
+
+exports.searchGlobalForAdmin = async (req, res) => {
+    try {
+        const { q } = req.query;
+
+        if (!q || q.trim().length < 2) {
+            return res.status(400).json({ success: false, message: 'Query too short' });
+        }
+
+        const query = q.trim();
+        const regex = new RegExp(query, 'i');
+
+        const results = [];
+
+        // Users (role = user) — par name, email, ou fullName via UserProfile
+        const userProfileMatches = await mongoose.model('UserProfile').find({
+            $or: [
+                { firstName: regex },
+                { lastName: regex }
+            ]
+        }).select('user').lean();
+
+        const profileUserIds = userProfileMatches.map(p => p.user);
+
+        const users = await mongoose.model('User').find({
+            role: 'user',
+            $or: [
+                { name: regex },
+                { email: regex },
+                { _id: { $in: profileUserIds } }
+            ]
+        })
+            .populate('profile', 'firstName lastName photo')
+            .limit(5)
+            .lean();
+
+        users.forEach(u => {
+            const fullName = u.profile ? `${u.profile.firstName} ${u.profile.lastName}` : null;
+            results.push({
+                type: 'user',
+                id: u._id,
+                name: fullName || u.name,
+                description: u.email,
+                image: u.profile?.photo || null,
+                link: `/admin/app/users/${u._id}`
+            });
+        });
+
+        // Boutiques — par nom
+        const boutiques = await mongoose.model('Boutique').find({
+            name: regex
+        })
+            .limit(5)
+            .lean();
+
+        boutiques.forEach(b => {
+            results.push({
+                type: 'boutique',
+                id: b._id,
+                name: b.name,
+                description: b.isValidated ? 'Validated' : 'Pending validation',
+                image: b.logo || null,
+                link: `/admin/app/boutiques/${b._id}`
+            });
+        });
+
+        // Support Requests — par email
+        const supportRequests = await mongoose.model('SupportRequest').find({
+            email: regex
+        })
+            .limit(3)
+            .lean();
+
+        supportRequests.forEach(s => {
+            results.push({
+                type: 'support',
+                id: s._id,
+                name: s.fullName,
+                description: s.email,
+                image: null,
+                link: `/admin/app/support-requests/` + s._id + '/reply'
+            });
+        });
+
+        return res.json({ success: true, results });
+
+    } catch (err) {
+        console.error('searchGlobalForAdmin error:', err);
+        return res.status(500).json({ success: false, message: 'Server error' });
     }
 };

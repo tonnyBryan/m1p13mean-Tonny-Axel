@@ -68,18 +68,19 @@ export class ProductService {
         return this.api.delete<any>(`product-ratings/${productId}`, headers);
     }
 
-    // Get ratings for a product (GET /api/product-ratings/product/:productId) with optional params (page, limit, sort, fields...)
     getRatingsByProduct(productId: string, params: any = {}): Observable<any> {
         const token = this.auth.getToken();
         const headers = new HttpHeaders({
             Authorization: `Bearer ${token}`
         });
 
-        const queryString = Object.keys(params)
-            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+        const allParams = { product : productId, ...params };
+
+        const queryString = Object.keys(allParams)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(allParams[key])}`)
             .join('&');
 
-        const url = queryString ? `product-ratings/product/${productId}?${queryString}` : `product-ratings/product/${productId}`;
+        const url = `product-ratings?${queryString}`;
         return this.api.get<any>(url, headers);
     }
 
