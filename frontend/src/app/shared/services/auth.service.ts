@@ -104,4 +104,17 @@ export class AuthService {
 
         return this.api.get<any>('auth/verify-token', headers);
     }
+
+
+    forgotPassword(email: string): Observable<any> {
+        return this.api.post<any>('auth/forgot-password', { email });
+    }
+
+    verifyResetToken(token: string): Observable<any> {
+        return this.api.get<any>(`auth/verify-reset-token?token=${token}`);
+    }
+
+    resetPassword(token: string, password: string): Observable<any> {
+        return this.api.post<any>('auth/reset-password', { token, password });
+    }
 }

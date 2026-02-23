@@ -82,4 +82,37 @@ async function sendSupportEmail({ to, subject, contentHtml, text }) {
     }
 }
 
-module.exports = { sendVerificationEmail, sendSupportEmail };
+async function sendPasswordResetEmail({ to, name, resetLink }) {
+    try {
+        const contentHtml = renderTemplate("password-reset", {
+            name: name || "there",
+            resetLink,
+            appName: APP_CONFIG.name
+        });
+
+        const html = renderTemplate("base", {
+            title: "Reset your password",
+            content: contentHtml,
+            year: new Date().getFullYear(),
+            appName: APP_CONFIG.name,
+            supportUrl: APP_CONFIG.supportUrl,
+            privacyUrl: APP_CONFIG.privacyUrl
+        });
+
+        const info = await transporter.sendMail({
+            from: `"${APP_CONFIG.name}" <${APP_CONFIG.email}>`,
+            to,
+            subject: `Reset your ${APP_CONFIG.name} password`,
+            html,
+            text: `Hi ${name || "there"},\n\nWe received a request to reset your password.\n\nClick the link below to reset it:\n${resetLink}\n\nThis link will expire in 1 hour.\n\nIf you didn't request this, you can safely ignore this email.\n\nThanks,\nThe ${APP_CONFIG.name} team`
+        });
+
+        console.log("Password reset email sent:", info.messageId);
+        return { success: true, messageId: info.messageId };
+    } catch (error) {
+        console.error("Password reset email error:", error);
+        throw error;
+    }
+}
+
+module.exports = { sendVerificationEmail, sendSupportEmail, sendPasswordResetEmail };

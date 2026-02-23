@@ -6,6 +6,8 @@ const RefreshToken = require('../models/RefreshToken');
 const crypto = require('crypto');
 const { generateAccessToken } = require('../utils/auth.utils');
 const Boutique = require('../models/Boutique');
+const PasswordResetToken = require('../models/PasswordResetToken');
+const {sendPasswordResetEmail} = require("../mail/mail.service");
 
 
 
@@ -305,5 +307,132 @@ exports.verifyToken = (req, res) => {
             return errorResponse(res, 420, 'The access token has expired. Please refresh your token or login again.');
         }
         return errorResponse(res, 401, 'The provided authorization token is invalid. Please check and try again.');
+    }
+};
+
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return errorResponse(res, 400, 'Email is required.');
+        }
+
+        // Toujours répondre la même chose pour ne pas leak les emails
+        const successMsg = 'If this email exists, you will receive a reset link shortly.';
+
+        const user = await User.findOne({ email: email.trim().toLowerCase() });
+        if (!user) {
+            return successResponse(res, 200, successMsg);
+        }
+
+        // Invalider les anciens tokens non utilisés
+        await PasswordResetToken.updateMany(
+            { user: user._id, used: false },
+            { used: true }
+        );
+
+        // Générer un token sécurisé
+        const rawToken = crypto.randomBytes(32).toString('hex');
+
+        await PasswordResetToken.create({
+            user: user._id,
+            email: user.email,
+            token: rawToken,
+            expiresAt: new Date(Date.now() + 60 * 60 * 1000) // 1h
+        });
+
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${rawToken}`;
+
+        await sendPasswordResetEmail({
+            to: user.email,
+            name: user.name,
+            resetLink
+        });
+
+        return successResponse(res, 200, successMsg);
+
+    } catch (error) {
+        console.error('forgotPassword error:', error);
+        return errorResponse(res, 500, 'An unexpected error occurred. Please try again later.');
+    }
+};
+
+exports.verifyResetToken = async (req, res) => {
+    try {
+        const { token } = req.query;
+
+        if (!token) {
+            return errorResponse(res, 400, 'Token is required.');
+        }
+
+        const resetToken = await PasswordResetToken.findOne({
+            token,
+            used: false,
+            expiresAt: { $gt: new Date() }
+        });
+
+        if (!resetToken) {
+            return errorResponse(res, 400, 'This reset link is invalid or has expired.');
+        }
+
+        return successResponse(res, 200, 'Token is valid.', { email: resetToken.email });
+
+    } catch (error) {
+        console.error('verifyResetToken error:', error);
+        return errorResponse(res, 500, 'An unexpected error occurred. Please try again later.');
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token, password } = req.body;
+
+        if (!token || !password) {
+            return errorResponse(res, 400, 'Token and new password are required.');
+        }
+
+        if (password.length < 8) {
+            return errorResponse(res, 400, 'Password must be at least 8 characters long.');
+        }
+
+        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/;
+        if (!strongPasswordRegex.test(password)) {
+            return errorResponse(res, 400, 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.');
+        }
+
+        const resetToken = await PasswordResetToken.findOne({
+            token,
+            used: false,
+            expiresAt: { $gt: new Date() }
+        });
+
+        if (!resetToken) {
+            return errorResponse(res, 400, 'This reset link is invalid or has expired.');
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const user = await User.findByIdAndUpdate(
+            resetToken.user,
+            {
+                password: hashedPassword,
+                isEmailVerified: true 
+            },
+            { new: true }
+        ).select('role');
+
+        resetToken.used = true;
+        await resetToken.save();
+
+        return successResponse(res, 200, 'Password reset successfully. You can now sign in.', {
+            role: user.role
+        });
+
+    } catch (error) {
+        console.error('resetPassword error:', error);
+        return errorResponse(res, 500, 'An unexpected error occurred. Please try again later.');
     }
 };

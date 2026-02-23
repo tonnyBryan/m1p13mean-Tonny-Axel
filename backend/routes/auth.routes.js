@@ -77,4 +77,9 @@ router.post('/logout', authController.logout);
  */
 router.get('/verify-token', authController.verifyToken);
 
+
+router.post('/forgot-password', authController.forgotPassword);
+router.get('/verify-reset-token', authController.verifyResetToken);
+router.post('/reset-password', authController.resetPassword);
+
 module.exports = router;

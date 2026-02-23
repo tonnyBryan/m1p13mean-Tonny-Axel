@@ -39,6 +39,8 @@ import {SubscriptionListComponent} from "./pages/admin/subscription-list/subscri
 import {SupportRequestComponent} from "./pages/admin/support-request/support-request.component";
 import {MailComposeComponent} from "./pages/admin/mail-compose/mail-compose.component";
 import {DashboardBoutiqueComponent} from "./pages/boutique/dashboard-boutique/dashboard-boutique.component";
+import {ForgotPasswordComponent} from "./pages/auth-pages/forgot-password/forgot-password.component";
+import {ResetPasswordComponent} from "./pages/auth-pages/reset-password/reset-password.component";
 
 const appName = environment.plateformeName || 'Shopticus';
 
@@ -81,6 +83,18 @@ export const routes: Routes = [
         component: TermsPageComponent,
         title: 'Terms of Service | ' + appName,
         data: { animation: 'terms' }
+      },
+      {
+        path: 'forgot-password',
+        component: ForgotPasswordComponent,
+        title: 'Forgot Password | ' + appName,
+        data: { animation: 'forgot-password' }
+      },
+      {
+        path: 'reset-password',
+        component: ResetPasswordComponent,
+        title: 'Reset Password | ' + appName,
+        data: { animation: 'reset-password' }
       },
     ]
   },
