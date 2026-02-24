@@ -109,4 +109,9 @@ export class VenteDetailComponent implements OnInit {
             }
         });
     }
+
+    getOrderLink(): string {
+        const orderId = typeof this.vente?.order === 'object' ? this.vente.order._id : this.vente?.order;
+        return `/store/app/orders/${orderId}`;
+    }
 }
