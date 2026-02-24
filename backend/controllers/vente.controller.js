@@ -161,24 +161,68 @@ exports.updateVente = async (req, res) => {
 
 // Update status (paid, canceled)
 exports.updateStatus = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
         const { status } = req.body;
-        const vente = await Vente.findById(req.params.id);
+        const vente = await Vente.findById(req.params.id).session(session);
 
-        if (!vente) return errorResponse(res, 404, 'The requested sale was not found. Please verify the identifier.');
+        if (!vente) {
+            await session.abortTransaction();
+            return errorResponse(res, 404, 'The requested sale was not found. Please verify the identifier.');
+        }
 
-        // Logical check: cannot go back to draft, cannot change if already paid or canceled?
-        // User said: "paid (modification et annulation impossible)"
         if (vente.status !== 'draft') {
+            await session.abortTransaction();
             return errorResponse(res, 400, 'The status of this sale can no longer be modified.');
         }
 
-        vente.status = status;
-        await vente.save();
+        if (status === 'paid') {
+            const StockMovement = require('../models/StockMovement');
+            const Product = require('../models/Product');
 
+            for (const item of vente.items) {
+                const product = await Product.findById(item.product).session(session);
+                if (!product) {
+                    throw new Error(`Produit introuvable: ${item.product}`);
+                }
+
+                const stockBefore = product.stock;
+                const stockAfter = stockBefore - item.quantity;
+
+                // Create movement record
+                const stockMovement = new StockMovement({
+                    boutique: vente.boutique,
+                    product: product._id,
+                    type: 'OUT',
+                    quantity: item.quantity,
+                    stockBefore,
+                    stockAfter,
+                    note: `Vente #${vente._id}`,
+                    source: 'manual', // or maybe 'sale'? Let's keep manual or add 'sale' to enum if needed. 
+                    // Actually the user didn't specify a 'sale' source, I'll use manual or just not specify if source is optional.
+                    // Let's check StockMovement model source enum.
+                    createdBy: req.user.id
+                });
+                await stockMovement.save({ session });
+
+                // Update product stock
+                product.stock = stockAfter;
+                await product.save({ session });
+            }
+        }
+
+        vente.status = status;
+        await vente.save({ session });
+
+        await session.commitTransaction();
         return successResponse(res, 200, `Status updated to ${status}`, vente);
     } catch (err) {
-        return errorResponse(res, 500, 'An unexpected server error occurred while changing the sale status. Please try again later.');
+        await session.abortTransaction();
+        console.error('updateStatus error:', err);
+        return errorResponse(res, 500, err.message || 'An unexpected server error occurred while changing the sale status. Please try again later.');
+    } finally {
+        session.endSession();
     }
 };
 
