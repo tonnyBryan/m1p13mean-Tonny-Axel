@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SessionService } from '../../../shared/services/session.service';
-import { ChangePasswordComponent } from './change-password/change-password.component';
-import {LoginHistoryComponent} from "./login-history/login-history.component";
+import { ChangePasswordComponent } from '../../../shared/components/common/change-password/change-password.component';
+import {LoginHistoryComponent} from "../../../shared/components/common/login-history/login-history.component";
 
 @Component({
   selector: 'app-security',
