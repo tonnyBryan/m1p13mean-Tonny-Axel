@@ -1,251 +1,268 @@
 <div class="mx-auto max-w-7xl">
-@if (isLoading) {
+    @if (isLoading) {
     <app-product-skeleton></app-product-skeleton>
-}
+    }
 
-@else if (errorMessage) {
-    <app-product-error
-            [message]="errorMessage"
-            linkForBackButton="/store/app/products"
-            linkText="Back to products"
-    />
-}
+    @else if (errorMessage) {
+    <app-product-error [message]="errorMessage" linkForBackButton="/store/app/products" linkText="Back to products" />
+    }
 
 
-@else if (product) {
+    @else if (product) {
 
-<app-page-breadcrumb [pageTitle]="pageTitle" [breadcrumbs]="[{ label: 'Store', link: '/store/app' }, { label: 'Products', link: '/store/app/products' }, { label: product.name }]" />
+    <app-page-breadcrumb [pageTitle]="pageTitle"
+        [breadcrumbs]="[{ label: 'Store', link: '/store/app' }, { label: 'Products', link: '/store/app/products' }, { label: product.name }]" />
 
-<!-- ════════════════════════════════════════════ -->
-<!--  HEADER - Actions de gestion                 -->
-<!-- ════════════════════════════════════════════ -->
-<div class="flex items-start justify-between mb-8">
-    <div>
-        <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            {{ product.name }}
-        </h1>
-        <div class="flex items-center gap-3">
-    <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 px-3 py-1 text-sm font-medium text-brand-700 dark:text-brand-300">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M7 1L8.5 5L13 5.5L9.5 8.5L10.5 13L7 10.5L3.5 13L4.5 8.5L1 5.5L5.5 5L7 1Z" fill="currentColor"/>
-      </svg>
-        {{ product.category?.name || 'Uncategorized' }}
-    </span>
-            <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold"
-                  [ngClass]="{
+    <!-- ════════════════════════════════════════════ -->
+    <!--  HEADER - Actions de gestion                 -->
+    <!-- ════════════════════════════════════════════ -->
+    <div class="flex items-start justify-between mb-8">
+        <div>
+            <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                {{ product.name }}
+            </h1>
+            <div class="flex items-center gap-3">
+                <span
+                    class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 px-3 py-1 text-sm font-medium text-brand-700 dark:text-brand-300">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M7 1L8.5 5L13 5.5L9.5 8.5L10.5 13L7 10.5L3.5 13L4.5 8.5L1 5.5L5.5 5L7 1Z"
+                            fill="currentColor" />
+                    </svg>
+                    {{ product.category?.name || 'Uncategorized' }}
+                </span>
+                <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold" [ngClass]="{
             'bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300': product.isActive,
             'bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400': !product.isActive
           }">
-      <span class="h-2 w-2 rounded-full"
-            [ngClass]="product.isActive ? 'bg-emerald-500' : 'bg-gray-400'"></span>
-                {{ product.isActive ? 'Active' : 'Inactive' }}
-    </span>
+                    <span class="h-2 w-2 rounded-full"
+                        [ngClass]="product.isActive ? 'bg-emerald-500' : 'bg-gray-400'"></span>
+                    {{ product.isActive ? 'Active' : 'Inactive' }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2">
+            <button type="button" (click)="editProduct()"
+                class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 transition-colors shadow-sm">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M11.3 2.3L13.7 4.7L5 13.4L2 14L2.6 11L11.3 2.3Z" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M10 3.5L12.5 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+                Edit
+            </button>
         </div>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="flex items-center gap-2">
-        <button
-                type="button"
-                (click)="editProduct()"
-                class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-600 transition-colors shadow-sm"
-        >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M11.3 2.3L13.7 4.7L5 13.4L2 14L2.6 11L11.3 2.3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M10 3.5L12.5 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            Edit
-        </button>
-    </div>
-</div>
+    <!-- ════════════════════════════════════════════ -->
+    <!--  MAIN LAYOUT                                 -->
+    <!-- ════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
 
-<!-- ════════════════════════════════════════════ -->
-<!--  MAIN LAYOUT                                 -->
-<!-- ════════════════════════════════════════════ -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+        <!-- ══════════════════════════════════════════ -->
+        <!--  LEFT: IMAGE GALLERY (6 cols)             -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="lg:col-span-6">
+            <div class="space-y-4">
 
-    <!-- ══════════════════════════════════════════ -->
-    <!--  LEFT: IMAGE GALLERY (6 cols)             -->
-    <!-- ══════════════════════════════════════════ -->
-    <div class="lg:col-span-6">
-        <div class="space-y-4">
+                <!-- Main Image Display -->
+                <div
+                    class="relative aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 group">
 
-            <!-- Main Image Display -->
-            <div class="relative aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 group">
+                    <img [src]="selectedImage" [alt]="product.name"
+                        class="absolute inset-0 w-full h-full object-cover" />
 
-                <img
-                        [src]="selectedImage"
-                        [alt]="product.name"
-                        class="absolute inset-0 w-full h-full object-cover"
-                />
-
-                <!-- Discount Badge -->
-                @if (discountPercent > 0) {
+                    <!-- Discount Badge -->
+                    @if (discountPercent > 0) {
                     <div class="absolute top-4 left-4">
                         <div class="rounded-full bg-gradient-to-br from-red-500 to-pink-600 px-3.5 py-1.5 shadow-lg">
                             <span class="text-sm font-bold text-white">-{{ discountPercent }}%</span>
                         </div>
                     </div>
-                }
+                    }
 
-                <!-- Navigation Arrows -->
-                @if (product.images.length > 1) {
-                    <button
-                            type="button"
-                            (click)="previousImage()"
-                            class="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 dark:bg-gray-800/90 text-gray-800 dark:text-white shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:scale-110 transition-all"
-                    >
+                    <!-- Navigation Arrows -->
+                    @if (product.images.length > 1) {
+                    <button type="button" (click)="previousImage()"
+                        class="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 dark:bg-gray-800/90 text-gray-800 dark:text-white shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:scale-110 transition-all">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                            <path d="M11 14L6 9L11 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M11 14L6 9L11 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
                         </svg>
                     </button>
 
-                    <button
-                            type="button"
-                            (click)="nextImage()"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 dark:bg-gray-800/90 text-gray-800 dark:text-white shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:scale-110 transition-all"
-                    >
+                    <button type="button" (click)="nextImage()"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 dark:bg-gray-800/90 text-gray-800 dark:text-white shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:scale-110 transition-all">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                            <path d="M7 4L12 9L7 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M7 4L12 9L7 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
                         </svg>
                     </button>
-                }
+                    }
 
-                <!-- Image Counter -->
-                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/60 backdrop-blur-sm px-2.5 py-1">
-                    <span class="text-xs font-medium text-white">{{ selectedImageIndex + 1 }} / {{ product.images.length }}</span>
+                    <!-- Image Counter -->
+                    <div
+                        class="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/60 backdrop-blur-sm px-2.5 py-1">
+                        <span class="text-xs font-medium text-white">{{ selectedImageIndex + 1 }} / {{
+                            product.images.length }}</span>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Thumbnail Gallery -->
-            @if (product.images.length > 1) {
+                <!-- Thumbnail Gallery -->
+                @if (product.images.length > 1) {
                 <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
                     @for (image of product.images; track $index) {
-                        <button
-                                type="button"
-                                (click)="selectImage($index)"
-                                class="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden transition-all border-2"
-                                [class.border-brand-500]="selectedImageIndex === $index"
-                                [class.border-gray-200]="selectedImageIndex !== $index"
-                                [class.dark:border-brand-400]="selectedImageIndex === $index"
-                                [class.dark:border-gray-700]="selectedImageIndex !== $index"
-                                [class.opacity-60]="selectedImageIndex !== $index"
-                                [class.hover:opacity-100]="selectedImageIndex !== $index"
-                        >
-                            <img [src]="image" [alt]="'Image ' + ($index + 1)" class="w-full h-full object-cover" />
-                        </button>
+                    <button type="button" (click)="selectImage($index)"
+                        class="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden transition-all border-2"
+                        [class.border-brand-500]="selectedImageIndex === $index"
+                        [class.border-gray-200]="selectedImageIndex !== $index"
+                        [class.dark:border-brand-400]="selectedImageIndex === $index"
+                        [class.dark:border-gray-700]="selectedImageIndex !== $index"
+                        [class.opacity-60]="selectedImageIndex !== $index"
+                        [class.hover:opacity-100]="selectedImageIndex !== $index">
+                        <img [src]="image" [alt]="'Image ' + ($index + 1)" class="w-full h-full object-cover" />
+                    </button>
                     }
                 </div>
-            }
+                }
 
-            <div [class]="product.images.length > 1 ? 'mt-6' : 'mt-5'">
-                <app-product-note-boutique [product]="product"></app-product-note-boutique>
+                <div [class]="product.images.length > 1 ? 'mt-6' : 'mt-5'">
+                    <app-product-note-boutique [product]="product"></app-product-note-boutique>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!--  RIGHT: PRODUCT INFO (6 cols)             -->
-    <!-- ══════════════════════════════════════════ -->
-    <div class="lg:col-span-6">
-        <div class="space-y-6">
+        <!-- ══════════════════════════════════════════ -->
+        <!--  RIGHT: PRODUCT INFO (6 cols)             -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="lg:col-span-6">
+            <div class="space-y-6">
 
-            <!-- Description -->
-            <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide">Description</h3>
-                <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {{ product.description }}
-                </p>
-            </div>
-
-            <!-- Prix & Stock -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                <!-- Prix -->
-                <!-- Prix Card with Sale Price Toggle -->
+                <!-- Description -->
                 <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-2">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" class="text-gray-400">
-                                <path d="M8 2H3C2.4 2 2 2.4 2 3V8L8 14L15 7L9 1C8.6 0.6 8.4 0 8 0H3C2.4 0 2 0.4 2 1V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                <circle cx="5" cy="5" r="1" fill="currentColor"/>
-                            </svg>
-                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">Price</h3>
-                        </div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide">
+                        Description</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        {{ product.description }}
+                    </p>
+                </div>
 
-                        <!-- Sale Price Toggle Switch -->
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs text-gray-500 dark:text-gray-400">Sale</span>
-                            <button
-                                    type="button"
-                                    (click)="toggleSalePrice()"
+                <!-- Prix & Stock -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                    <!-- Prix -->
+                    <!-- Prix Card with Sale Price Toggle -->
+                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" class="text-gray-400">
+                                    <path
+                                        d="M8 2H3C2.4 2 2 2.4 2 3V8L8 14L15 7L9 1C8.6 0.6 8.4 0 8 0H3C2.4 0 2 0.4 2 1V6"
+                                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                    <circle cx="5" cy="5" r="1" fill="currentColor" />
+                                </svg>
+                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+                                    Price</h3>
+                            </div>
+
+                            <!-- Sale Price Toggle Switch -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Sale</span>
+                                <button type="button" (click)="toggleSalePrice()"
                                     class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                                     [ngClass]="product.isSale ? 'bg-brand-500' : 'bg-gray-200 dark:bg-gray-700'"
-                                    [attr.aria-label]="'Toggle sale price'"
-                            >
-                                <span class="sr-only">Toggle sale price</span>
-                                <span
+                                    [attr.aria-label]="'Toggle sale price'">
+                                    <span class="sr-only">Toggle sale price</span>
+                                    <span
                                         class="inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-200"
-                                        [ngClass]="product.isSale ? 'translate-x-6' : 'translate-x-1'"
-                                ></span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="space-y-2">
-                        <div class="flex items-baseline gap-2">
-                            <span class="text-xs text-gray-500 dark:text-gray-400">Regular:</span>
-                            <span class="text-lg font-bold text-gray-900 dark:text-white">${{ product.regularPrice }}</span>
+                                        [ngClass]="product.isSale ? 'translate-x-6' : 'translate-x-1'"></span>
+                                </button>
+                            </div>
                         </div>
 
-                        @if (product.isSale && product.salePrice && product.salePrice < product.regularPrice) {
+                        <div class="space-y-2">
                             <div class="flex items-baseline gap-2">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Regular:</span>
+                                <span class="text-lg font-bold text-gray-900 dark:text-white">${{ product.regularPrice
+                                    }}</span>
+                            </div>
+
+                            @if (product.isSale && product.salePrice && product.salePrice < product.regularPrice) { <div
+                                class="flex items-baseline gap-2">
                                 <span class="text-xs text-gray-500 dark:text-gray-400">Sale:</span>
-                                <span class="text-lg font-bold text-emerald-600 dark:text-emerald-400">${{ product.salePrice }}</span>
-                            </div>
+                                <span class="text-lg font-bold text-emerald-600 dark:text-emerald-400">${{
+                                    product.salePrice }}</span>
+                        </div>
                         } @else {
-                            <div class="flex items-center gap-1.5 pt-1">
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="text-gray-400">
-                                    <path d="M7 13A6 6 0 1 0 7 1a6 6 0 0 0 0 12z" stroke="currentColor" stroke-width="1.5"/>
-                                    <path d="M7 4v3M7 9.5h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                </svg>
-                                <p class="text-xs text-gray-400 dark:text-gray-500 italic">No sale price active</p>
-                            </div>
+                        <div class="flex items-center gap-1.5 pt-1">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="text-gray-400">
+                                <path d="M7 13A6 6 0 1 0 7 1a6 6 0 0 0 0 12z" stroke="currentColor"
+                                    stroke-width="1.5" />
+                                <path d="M7 4v3M7 9.5h.01" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 italic">No sale price active</p>
+                        </div>
                         }
                     </div>
                 </div>
 
                 <!-- Stock -->
                 <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
-                    <div class="flex items-center gap-2 mb-3">
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" class="text-gray-400">
-                            <path d="M15 7V15H3V7M16.5 3H1.5V7H16.5V3ZM7.5 10.5H10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">Stock</h3>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-3xl font-bold text-gray-900 dark:text-white">{{ product.stockReal }}</span>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" class="text-gray-400">
+                                <path d="M15 7V15H3V7M16.5 3H1.5V7H16.5V3ZM7.5 10.5H10.5" stroke="currentColor"
+                                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+                                Stock Management</h3>
+                        </div>
                         <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
-                              [ngClass]="{
-                  'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400': stockStatus === 'in-stock',
-                  'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400': stockStatus === 'low-stock',
-                  'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400': stockStatus === 'out-of-stock'
-                }">
-            <span class="h-1.5 w-1.5 rounded-full"
-                  [ngClass]="{
-                    'bg-emerald-500': stockStatus === 'in-stock',
-                    'bg-amber-500': stockStatus === 'low-stock',
-                    'bg-red-500': stockStatus === 'out-of-stock'
-                  }"></span>
-                            {{ stockStatus === 'out-of-stock' ? 'Out of stock' : stockStatus === 'low-stock' ? 'Low stock' : 'In stock' }}
-          </span>
+                            [ngClass]="{
+                    'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400': stockStatus === 'in-stock',
+                    'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400': stockStatus === 'low-stock',
+                    'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400': stockStatus === 'out-of-stock'
+                    }">
+                            <span class="h-1.5 w-1.5 rounded-full" [ngClass]="{
+                                    'bg-emerald-500': stockStatus === 'in-stock',
+                                    'bg-amber-500': stockStatus === 'low-stock',
+                                    'bg-red-500': stockStatus === 'out-of-stock'
+                                }"></span>
+                            {{ stockStatus === 'out-of-stock' ? 'Out of stock' : stockStatus === 'low-stock' ? 'Low
+                            stock' : 'In stock' }}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <div
+                            class="flex flex-col items-center p-2 rounded-lg bg-gray-50 dark:bg-white/2 border border-gray-100 dark:border-gray-800">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Total</span>
+                            <span class="text-xl font-bold text-gray-900 dark:text-white">{{ product.stock }}</span>
+                        </div>
+                        <div
+                            class="flex flex-col items-center p-2 rounded-lg bg-gray-50 dark:bg-white/2 border border-gray-100 dark:border-gray-800">
+                            <span class="text-xs text-gray-500 uppercase font-medium mb-1">Engagé</span>
+                            <span class="text-xl font-bold text-amber-600 dark:text-amber-400">{{ product.stockEngaged
+                                }}</span>
+                        </div>
+                        <div
+                            class="flex flex-col items-center p-2 rounded-lg bg-brand-50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-800">
+                            <span
+                                class="text-xs text-brand-600 dark:text-brand-400 uppercase font-bold mb-1">Réel</span>
+                            <span class="text-xl font-black text-brand-700 dark:text-brand-300">{{ product.stockReal
+                                }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Informations de commande -->
             <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Order Info</h3>
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Order Info
+                </h3>
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <p class="text-gray-500 dark:text-gray-400 mb-1">Minimum quantity</p>
@@ -264,21 +281,22 @@
 
                     <!-- SKU -->
                     <div>
-                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Stock Keeping Unit</h3>
-                        <button
-                                type="button"
-                                (click)="copySku()"
-                                class="group relative inline-flex items-center gap-2 rounded-lg bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
-                        >
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">
+                            Stock Keeping Unit</h3>
+                        <button type="button" (click)="copySku()"
+                            class="group relative inline-flex items-center gap-2 rounded-lg bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
                             <span class="font-mono text-sm">{{ product.sku }}</span>
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="opacity-60">
-                                <rect x="4.5" y="4.5" width="9" height="9" rx="1" stroke="currentColor" stroke-width="1.3"/>
-                                <path d="M11 2.5H3.5C2.9 2.5 2.5 2.9 2.5 3.5V11" stroke="currentColor" stroke-width="1.3"/>
+                                <rect x="4.5" y="4.5" width="9" height="9" rx="1" stroke="currentColor"
+                                    stroke-width="1.3" />
+                                <path d="M11 2.5H3.5C2.9 2.5 2.5 2.9 2.5 3.5V11" stroke="currentColor"
+                                    stroke-width="1.3" />
                             </svg>
                             @if (showCopiedSku) {
-                                <span class="absolute -top-9 left-1/2 -translate-x-1/2 rounded-md bg-gray-800 dark:bg-gray-700 px-2.5 py-1 text-xs text-white whitespace-nowrap shadow-lg">
-                Copied!
-              </span>
+                            <span
+                                class="absolute -top-9 left-1/2 -translate-x-1/2 rounded-md bg-gray-800 dark:bg-gray-700 px-2.5 py-1 text-xs text-white whitespace-nowrap shadow-lg">
+                                Copied!
+                            </span>
                             }
                         </button>
                     </div>
@@ -290,20 +308,19 @@
                         </h3>
 
                         @if (product.tags.length > 0) {
-                            <div class="flex flex-wrap gap-2">
-                                @for (tag of product.tags; track tag) {
-                                    <span
-                                            class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-900
+                        <div class="flex flex-wrap gap-2">
+                            @for (tag of product.tags; track tag) {
+                            <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-900
                                              border border-gray-200 dark:border-gray-700 px-3 py-1
                                              text-xs font-medium text-gray-700 dark:text-gray-300">
-                                      #{{ tag }}
-                                    </span>
-                                }
-                            </div>
+                                #{{ tag }}
+                            </span>
+                            }
+                        </div>
                         } @else {
-                            <p class="text-sm text-gray-500 dark:text-gray-400 italic">
-                                No tags
-                            </p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 italic">
+                            No tags
+                        </p>
                         }
                     </div>
 
@@ -312,7 +329,8 @@
 
             <!-- Métadonnées -->
             <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">System info</h3>
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">System info
+                </h3>
                 <div class="space-y-3 text-sm">
                     <div class="flex items-center justify-between">
                         <span class="text-gray-500 dark:text-gray-400">Product ID</span>
@@ -320,37 +338,38 @@
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-gray-500 dark:text-gray-400">Created</span>
-                        <span class="font-medium text-gray-900 dark:text-white">{{ formatDate(product.createdAt) }}</span>
+                        <span class="font-medium text-gray-900 dark:text-white">{{ formatDate(product.createdAt)
+                            }}</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-gray-500 dark:text-gray-400">Updated</span>
-                        <span class="font-medium text-gray-900 dark:text-white">{{ formatDate(product.updatedAt) }}</span>
+                        <span class="font-medium text-gray-900 dark:text-white">{{ formatDate(product.updatedAt)
+                            }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Toggle Status Button -->
-            <button
-                    type="button"
-                    (click)="toggleActiveStatus()"
-                    class="w-full rounded-xl border-2 px-6 py-3.5 text-sm font-semibold transition-all"
-                    [ngClass]="product.isActive
+            <button type="button" (click)="toggleActiveStatus()"
+                class="w-full rounded-xl border-2 px-6 py-3.5 text-sm font-semibold transition-all"
+                [ngClass]="product.isActive
                         ? 'border-red-300 dark:border-red-800 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
-                        : 'border-emerald-300 dark:border-emerald-800 bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'"
-            >
-              <span class="flex items-center justify-center gap-2">
-                @if (product.isActive) {
+                        : 'border-emerald-300 dark:border-emerald-800 bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'">
+                <span class="flex items-center justify-center gap-2">
+                    @if (product.isActive) {
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <path d="M14 7L9 2L4 7M9 2V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+                        <path d="M14 7L9 2L4 7M9 2V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
                     Desactivate product
-                } @else {
+                    } @else {
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <path d="M9 2V15M14 10L9 15L4 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+                        <path d="M9 2V15M14 10L9 15L4 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
                     Activate product
-                }
-              </span>
+                    }
+                </span>
             </button>
 
         </div>
@@ -359,308 +378,255 @@
 </div>
 
 <!-- Edit Product Modal -->
-        <!-- Edit Product Modal -->
-    <app-modal [isOpen]="isEditModalOpen" (close)="closeEditModal()" className="max-w-[1000px] m-4">
-        <div class="relative w-full max-w-[1000px] rounded-2xl bg-white dark:bg-gray-900 shadow-2xl">
+<!-- Edit Product Modal -->
+<app-modal [isOpen]="isEditModalOpen" (close)="closeEditModal()" className="max-w-[1000px] m-4">
+    <div class="relative w-full max-w-[1000px] rounded-2xl bg-white dark:bg-gray-900 shadow-2xl">
 
-            <!-- Header -->
-            <div class="border-b border-gray-200 dark:border-gray-700 px-6 lg:px-8 py-5">
-                <h4 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Edit Product</h4>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Modify the product details and save your changes</p>
-            </div>
-
-            <!-- Content with scroll -->
-            <div class="px-6 lg:px-8 py-6 max-h-[calc(100vh-200px)] overflow-y-auto">
-                <div class="space-y-6">
-
-                    <!-- Card: Basic Info -->
-                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-5">
-                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Basic Information</h3>
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            <div>
-                                <app-label for="edit-name">Product Name <span class="text-red-500">*</span></app-label>
-                                <app-input-field
-                                        type="text"
-                                        id="edit-name"
-                                        [(ngModel)]="editName"
-                                        name="editName"
-                                        placeholder="Enter product name"
-                                />
-                                @if (editSubmitted && !editName.trim()) {
-                                    <p class="mt-1.5 text-xs text-red-500">Product name is required.</p>
-                                }
-                            </div>
-                            <div>
-                                <app-label for="edit-sku">SKU</app-label>
-                                <app-input-field
-                                        type="text"
-                                        id="edit-sku"
-                                        [(ngModel)]="editSku"
-                                        name="editSku"
-                                        placeholder="Stock Keeping Unit"
-                                />
-                            </div>
-                            <!-- Category -->
-                            <div class="lg:col-span-2">
-                                <app-label for="edit-category">Category <span class="text-red-500">*</span></app-label>
-                                <select
-                                        id="edit-category"
-                                        [(ngModel)]="editCategoryId"
-                                        name="editCategoryId"
-                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-800 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
-                                        [ngClass]="editSubmitted && !editCategoryId ? 'border-red-500' : ''">
-                                    <option value="" disabled>Select a category</option>
-                                    <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
-                                </select>
-                                <p *ngIf="editSubmitted && !editCategoryId" class="mt-1.5 text-xs text-red-500">
-                                    Category is required.
-                                </p>
-                                <!-- Lien rapide si aucune catégorie -->
-                                <p *ngIf="categories.length === 0" class="mt-1.5 text-xs text-amber-500">
-                                    No categories found.
-                                    <a routerLink="/store/app/settings" class="underline font-semibold">Create one first</a>
-                                </p>
-                            </div>
-                            <div class="lg:col-span-2">
-                                <app-label for="edit-description">Description <span class="text-red-500">*</span></app-label>
-                                <textarea
-                                        id="edit-description"
-                                        [(ngModel)]="editDescription"
-                                        name="editDescription"
-                                        rows="4"
-                                        placeholder="Describe your product in detail…"
-                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200 resize-none"
-                                        [ngClass]="editSubmitted && !editDescription.trim() ? 'border-red-500' : ''"
-                                ></textarea>
-                                @if (editSubmitted && !editDescription.trim()) {
-                                    <p class="mt-1.5 text-xs text-red-500">Description is required.</p>
-                                }
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card: Pricing & Quantities -->
-                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-5">
-                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Pricing & Quantities</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <!-- Regular Price -->
-                            <div>
-                                <app-label for="edit-regular-price">Regular Price <span class="text-red-500">*</span></app-label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-500 dark:text-gray-400">$</span>
-                                    <input
-                                            type="number"
-                                            id="edit-regular-price"
-                                            [(ngModel)]="editRegularPrice"
-                                            name="editRegularPrice"
-                                            placeholder="0.00"
-                                            min="0"
-                                            step="0.01"
-                                            class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 pl-8 pr-4 py-2.5 text-sm text-gray-800 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
-                                            [ngClass]="editSubmitted && (!editRegularPrice || editRegularPrice <= 0) ? 'border-red-500' : ''"
-                                    />
-                                </div>
-                                @if (editSubmitted && (!editRegularPrice || editRegularPrice <= 0)) {
-                                    <p class="mt-1.5 text-xs text-red-500">Valid price required.</p>
-                                }
-                            </div>
-
-                            <!-- Sale Price -->
-                            <div>
-                                <app-label for="edit-sale-price">Sale Price <span class="text-xs font-normal text-gray-400">(optional)</span></app-label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-500 dark:text-gray-400">$</span>
-                                    <input
-                                            type="number"
-                                            id="edit-sale-price"
-                                            [(ngModel)]="editSalePrice"
-                                            name="editSalePrice"
-                                            placeholder="0.00"
-                                            min="0"
-                                            step="0.01"
-                                            class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 pl-8 pr-4 py-2.5 text-sm text-gray-800 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
-                                    />
-                                </div>
-                            </div>
-
-                            <!-- Min Order Qty -->
-                            <div>
-                                <app-label for="edit-min-qty">Min Order Qty <span class="text-red-500">*</span></app-label>
-                                <input
-                                        type="number"
-                                        id="edit-min-qty"
-                                        [(ngModel)]="editMinOrderQty"
-                                        name="editMinOrderQty"
-                                        min="1"
-                                        step="1"
-                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-800 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
-                                        [ngClass]="editSubmitted && editMinOrderQty < 1 ? 'border-red-500' : ''"
-                                />
-                            </div>
-
-                            <!-- Max Order Qty -->
-                            <div>
-                                <app-label for="edit-max-qty">Max Order Qty <span class="text-red-500">*</span></app-label>
-                                <input
-                                        type="number"
-                                        id="edit-max-qty"
-                                        [(ngModel)]="editMaxOrderQty"
-                                        name="editMaxOrderQty"
-                                        [min]="editMinOrderQty"
-                                        step="1"
-                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-800 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
-                                        [ngClass]="editSubmitted && editMaxOrderQty < editMinOrderQty ? 'border-red-500' : ''"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card: Images -->
-                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-5">
-                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Product Images <span class="text-red-500">*</span></h3>
-
-                        <!-- URL Input -->
-                        <div class="flex gap-2 mb-4">
-                            <div class="relative flex-1">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                    <path d="M6.5 9.5C7 10.5 8.2 11.5 10 10C11.8 8.5 11.5 7 10.5 6.5" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"/>
-                                    <path d="M9.5 6.5C8.5 5.5 7.3 4.5 5.5 5.5C3.7 7 4 8.5 5 9.5" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"/>
-                                </svg>
-                            </span>
-                                <input
-                                        type="text"
-                                        [(ngModel)]="editCurrentImageUrl"
-                                        (keydown)="onEditImageUrlKeydown($event)"
-                                        name="editCurrentImageUrl"
-                                        placeholder="Paste image URL and press Enter"
-                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
-                                />
-                            </div>
-                            <button
-                                    type="button"
-                                    (click)="addEditImageUrl()"
-                                    [disabled]="!editCurrentImageUrl.trim()"
-                                    class="rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 px-4 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                            >
-                                Add
-                            </button>
-                        </div>
-
-                        <!-- Image Previews -->
-                        @if (editPreviewImages.length > 0) {
-                            <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                                @for (img of editPreviewImages; track $index) {
-                                    <div class="group relative aspect-square rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900">
-                                        <img [src]="img.url" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                                        <!-- Overlay -->
-                                        <div class="absolute inset-0 flex items-end justify-between bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2">
-                                        <span class="text-xs font-medium text-white">
-                                            @if ($index === 0) {
-                                                <span class="inline-flex items-center gap-1 rounded-md bg-brand-500 px-1.5 py-0.5 text-[10px] font-semibold">★ Main</span>
-                                            }
-                                        </span>
-                                            <button
-                                                    type="button"
-                                                    (click)="removeEditImage($index)"
-                                                    class="flex h-6 w-6 items-center justify-center rounded-md bg-red-500 hover:bg-red-600 text-white transition-colors"
-                                            >
-                                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                                    <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        } @else {
-                            <p class="text-xs text-gray-400 dark:text-gray-500 italic text-center py-4">No images added yet</p>
-                        }
-
-                        @if (editSubmitted && editPreviewImages.length === 0) {
-                            <p class="mt-2 text-xs text-red-500">At least one image is required.</p>
-                        }
-                    </div>
-
-                    <!-- Card: Tags -->
-                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-5">
-                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Tags</h3>
-
-                        <!-- Tag Input -->
-                        <div class="flex gap-2 mb-3">
-                            <div class="relative flex-1">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                    <path d="M13.3 2.7L8.9 1.3C8.6 1.2 8.3 1.1 8 1.1H3.5C2.4 1.1 1.5 2 1.5 3.1V7.5C1.5 7.8 1.6 8.1 1.8 8.4L3.1 12.7C3.4 13.8 4.6 14.4 5.7 14L12.7 11.5C13.8 11.1 14.4 9.9 14.1 8.8L12.7 4.4C12.6 4.1 12.5 3.8 13.3 2.7Z" stroke="#9CA3AF" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <circle cx="5.5" cy="5.5" r="1" fill="#9CA3AF"/>
-                                </svg>
-                            </span>
-                                <input
-                                        type="text"
-                                        [(ngModel)]="editCurrentTag"
-                                        (keydown)="onEditTagKeydown($event)"
-                                        name="editCurrentTag"
-                                        placeholder="Add tag and press Enter or comma"
-                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
-                                />
-                            </div>
-                            <button
-                                    type="button"
-                                    (click)="addEditTag()"
-                                    [disabled]="!editCurrentTag.trim()"
-                                    class="rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 px-4 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                            >
-                                Add
-                            </button>
-                        </div>
-
-                        <!-- Tag Chips -->
-                        @if (editTags.length > 0) {
-                            <div class="flex flex-wrap gap-2">
-                                @for (tag of editTags; track tag; let i = $index) {
-                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 px-3 py-1 text-xs font-medium text-brand-700 dark:text-brand-300">
-                                    #{{ tag }}
-                                        <button
-                                                type="button"
-                                                (click)="removeEditTag(i)"
-                                                class="text-brand-400 hover:text-brand-600 dark:text-brand-500 dark:hover:text-brand-300 transition-colors"
-                                        >
-                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                            <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                                        </svg>
-                                    </button>
-                                </span>
-                                }
-                            </div>
-                        } @else {
-                            <p class="text-xs text-gray-400 dark:text-gray-500 italic">No tags added yet</p>
-                        }
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Footer Actions -->
-            <div class="border-t border-gray-200 dark:border-gray-700 px-6 lg:px-8 py-5 flex items-center gap-3">
-                <button
-                        type="button"
-                        (click)="closeEditModal()"
-                        class="w-fit rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
-                >
-                    Cancel
-                </button>
-                <app-button
-                        size="sm"
-                        (btnClick)="saveEdit()"
-                        [loading]="editLoading"
-                        [disabled]="!isEditFormValid"
-                        class="flex-1"
-                >
-                    Save Changes
-                </app-button>
-            </div>
-
+        <!-- Header -->
+        <div class="border-b border-gray-200 dark:border-gray-700 px-6 lg:px-8 py-5">
+            <h4 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Edit Product</h4>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Modify the product details and save your changes</p>
         </div>
-    </app-modal>
+
+        <!-- Content with scroll -->
+        <div class="px-6 lg:px-8 py-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+            <div class="space-y-6">
+
+                <!-- Card: Basic Info -->
+                <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-5">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Basic
+                        Information</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div>
+                            <app-label for="edit-name">Product Name <span class="text-red-500">*</span></app-label>
+                            <app-input-field type="text" id="edit-name" [(ngModel)]="editName" name="editName"
+                                placeholder="Enter product name" />
+                            @if (editSubmitted && !editName.trim()) {
+                            <p class="mt-1.5 text-xs text-red-500">Product name is required.</p>
+                            }
+                        </div>
+                        <div>
+                            <app-label for="edit-sku">SKU</app-label>
+                            <app-input-field type="text" id="edit-sku" [(ngModel)]="editSku" name="editSku"
+                                placeholder="Stock Keeping Unit" />
+                        </div>
+                        <!-- Category -->
+                        <div class="lg:col-span-2">
+                            <app-label for="edit-category">Category <span class="text-red-500">*</span></app-label>
+                            <select id="edit-category" [(ngModel)]="editCategoryId" name="editCategoryId"
+                                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-800 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                                [ngClass]="editSubmitted && !editCategoryId ? 'border-red-500' : ''">
+                                <option value="" disabled>Select a category</option>
+                                <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+                            </select>
+                            <p *ngIf="editSubmitted && !editCategoryId" class="mt-1.5 text-xs text-red-500">
+                                Category is required.
+                            </p>
+                            <!-- Lien rapide si aucune catégorie -->
+                            <p *ngIf="categories.length === 0" class="mt-1.5 text-xs text-amber-500">
+                                No categories found.
+                                <a routerLink="/store/app/settings" class="underline font-semibold">Create one first</a>
+                            </p>
+                        </div>
+                        <div class="lg:col-span-2">
+                            <app-label for="edit-description">Description <span
+                                    class="text-red-500">*</span></app-label>
+                            <textarea id="edit-description" [(ngModel)]="editDescription" name="editDescription"
+                                rows="4" placeholder="Describe your product in detail…"
+                                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200 resize-none"
+                                [ngClass]="editSubmitted && !editDescription.trim() ? 'border-red-500' : ''"></textarea>
+                            @if (editSubmitted && !editDescription.trim()) {
+                            <p class="mt-1.5 text-xs text-red-500">Description is required.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Pricing & Quantities -->
+                <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-5">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Pricing
+                        & Quantities</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Regular Price -->
+                        <div>
+                            <app-label for="edit-regular-price">Regular Price <span
+                                    class="text-red-500">*</span></app-label>
+                            <div class="relative">
+                                <span
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-500 dark:text-gray-400">$</span>
+                                <input type="number" id="edit-regular-price" [(ngModel)]="editRegularPrice"
+                                    name="editRegularPrice" placeholder="0.00" min="0" step="0.01"
+                                    class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 pl-8 pr-4 py-2.5 text-sm text-gray-800 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                                    [ngClass]="editSubmitted && (!editRegularPrice || editRegularPrice <= 0) ? 'border-red-500' : ''" />
+                            </div>
+                            @if (editSubmitted && (!editRegularPrice || editRegularPrice <= 0)) { <p
+                                class="mt-1.5 text-xs text-red-500">Valid price required.</p>
+                                }
+                        </div>
+
+                        <!-- Sale Price -->
+                        <div>
+                            <app-label for="edit-sale-price">Sale Price <span
+                                    class="text-xs font-normal text-gray-400">(optional)</span></app-label>
+                            <div class="relative">
+                                <span
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-500 dark:text-gray-400">$</span>
+                                <input type="number" id="edit-sale-price" [(ngModel)]="editSalePrice"
+                                    name="editSalePrice" placeholder="0.00" min="0" step="0.01"
+                                    class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 pl-8 pr-4 py-2.5 text-sm text-gray-800 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200" />
+                            </div>
+                        </div>
+
+                        <!-- Min Order Qty -->
+                        <div>
+                            <app-label for="edit-min-qty">Min Order Qty <span class="text-red-500">*</span></app-label>
+                            <input type="number" id="edit-min-qty" [(ngModel)]="editMinOrderQty" name="editMinOrderQty"
+                                min="1" step="1"
+                                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-800 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                                [ngClass]="editSubmitted && editMinOrderQty < 1 ? 'border-red-500' : ''" />
+                        </div>
+
+                        <!-- Max Order Qty -->
+                        <div>
+                            <app-label for="edit-max-qty">Max Order Qty <span class="text-red-500">*</span></app-label>
+                            <input type="number" id="edit-max-qty" [(ngModel)]="editMaxOrderQty" name="editMaxOrderQty"
+                                [min]="editMinOrderQty" step="1"
+                                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-800 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                                [ngClass]="editSubmitted && editMaxOrderQty < editMinOrderQty ? 'border-red-500' : ''" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Images -->
+                <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-5">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Product
+                        Images <span class="text-red-500">*</span></h3>
+
+                    <!-- URL Input -->
+                    <div class="flex gap-2 mb-4">
+                        <div class="relative flex-1">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M6.5 9.5C7 10.5 8.2 11.5 10 10C11.8 8.5 11.5 7 10.5 6.5" stroke="#9CA3AF"
+                                        stroke-width="1.5" stroke-linecap="round" />
+                                    <path d="M9.5 6.5C8.5 5.5 7.3 4.5 5.5 5.5C3.7 7 4 8.5 5 9.5" stroke="#9CA3AF"
+                                        stroke-width="1.5" stroke-linecap="round" />
+                                </svg>
+                            </span>
+                            <input type="text" [(ngModel)]="editCurrentImageUrl"
+                                (keydown)="onEditImageUrlKeydown($event)" name="editCurrentImageUrl"
+                                placeholder="Paste image URL and press Enter"
+                                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200" />
+                        </div>
+                        <button type="button" (click)="addEditImageUrl()" [disabled]="!editCurrentImageUrl.trim()"
+                            class="rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 px-4 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                            Add
+                        </button>
+                    </div>
+
+                    <!-- Image Previews -->
+                    @if (editPreviewImages.length > 0) {
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                        @for (img of editPreviewImages; track $index) {
+                        <div
+                            class="group relative aspect-square rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900">
+                            <img [src]="img.url"
+                                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                            <!-- Overlay -->
+                            <div
+                                class="absolute inset-0 flex items-end justify-between bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2">
+                                <span class="text-xs font-medium text-white">
+                                    @if ($index === 0) {
+                                    <span
+                                        class="inline-flex items-center gap-1 rounded-md bg-brand-500 px-1.5 py-0.5 text-[10px] font-semibold">★
+                                        Main</span>
+                                    }
+                                </span>
+                                <button type="button" (click)="removeEditImage($index)"
+                                    class="flex h-6 w-6 items-center justify-center rounded-md bg-red-500 hover:bg-red-600 text-white transition-colors">
+                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                        <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" stroke-width="1.8"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    } @else {
+                    <p class="text-xs text-gray-400 dark:text-gray-500 italic text-center py-4">No images added yet</p>
+                    }
+
+                    @if (editSubmitted && editPreviewImages.length === 0) {
+                    <p class="mt-2 text-xs text-red-500">At least one image is required.</p>
+                    }
+                </div>
+
+                <!-- Card: Tags -->
+                <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-5">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wide">Tags
+                    </h3>
+
+                    <!-- Tag Input -->
+                    <div class="flex gap-2 mb-3">
+                        <div class="relative flex-1">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path
+                                        d="M13.3 2.7L8.9 1.3C8.6 1.2 8.3 1.1 8 1.1H3.5C2.4 1.1 1.5 2 1.5 3.1V7.5C1.5 7.8 1.6 8.1 1.8 8.4L3.1 12.7C3.4 13.8 4.6 14.4 5.7 14L12.7 11.5C13.8 11.1 14.4 9.9 14.1 8.8L12.7 4.4C12.6 4.1 12.5 3.8 13.3 2.7Z"
+                                        stroke="#9CA3AF" stroke-width="1.3" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                    <circle cx="5.5" cy="5.5" r="1" fill="#9CA3AF" />
+                                </svg>
+                            </span>
+                            <input type="text" [(ngModel)]="editCurrentTag" (keydown)="onEditTagKeydown($event)"
+                                name="editCurrentTag" placeholder="Add tag and press Enter or comma"
+                                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200" />
+                        </div>
+                        <button type="button" (click)="addEditTag()" [disabled]="!editCurrentTag.trim()"
+                            class="rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 px-4 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                            Add
+                        </button>
+                    </div>
+
+                    <!-- Tag Chips -->
+                    @if (editTags.length > 0) {
+                    <div class="flex flex-wrap gap-2">
+                        @for (tag of editTags; track tag; let i = $index) {
+                        <span
+                            class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 px-3 py-1 text-xs font-medium text-brand-700 dark:text-brand-300">
+                            #{{ tag }}
+                            <button type="button" (click)="removeEditTag(i)"
+                                class="text-brand-400 hover:text-brand-600 dark:text-brand-500 dark:hover:text-brand-300 transition-colors">
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                    <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" stroke-width="1.8"
+                                        stroke-linecap="round" />
+                                </svg>
+                            </button>
+                        </span>
+                        }
+                    </div>
+                    } @else {
+                    <p class="text-xs text-gray-400 dark:text-gray-500 italic">No tags added yet</p>
+                    }
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="border-t border-gray-200 dark:border-gray-700 px-6 lg:px-8 py-5 flex items-center gap-3">
+            <button type="button" (click)="closeEditModal()"
+                class="w-fit rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm">
+                Cancel
+            </button>
+            <app-button size="sm" (btnClick)="saveEdit()" [loading]="editLoading" [disabled]="!isEditFormValid"
+                class="flex-1">
+                Save Changes
+            </app-button>
+        </div>
+
+    </div>
+</app-modal>
 }
 </div>
