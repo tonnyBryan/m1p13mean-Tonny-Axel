@@ -1,0 +1,203 @@
+<div class="mx-auto max-w-7xl">
+    <app-page-breadcrumb pageTitle="Mouvements de Stock" [breadcrumbs]="[
+        { label: 'Store', link: '/store/app' },
+        { label: 'Stock' },
+        { label: 'Mouvements' }
+    ]"></app-page-breadcrumb>
+
+    <div
+        class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-visible shadow-lg">
+        <!-- Header -->
+        <div
+            class="flex flex-col justify-between gap-5 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center dark:border-gray-800">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Liste des mouvements</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Historique des entrées et sorties de stock.</p>
+            </div>
+            <div class="flex gap-3">
+                <a routerLink="/store/app/stock/mouvements/add"
+                    class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Nouvel Ajout / Retrait
+                </a>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div
+            class="border-b border-gray-200 px-5 py-4 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01] overflow-visible">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-4 lg:grid-cols-5 overflow-visible">
+                <div>
+                    <app-select [options]="productOptions" placeholder="Produit" [value]="filters.product"
+                        (valueChange)="onSelectChange('product', $event)" className="bg-white dark:bg-gray-900" />
+                </div>
+                <div>
+                    <app-select [options]="typeOptions" placeholder="Type" [value]="filters.type"
+                        (valueChange)="onSelectChange('type', $event)" className="bg-white dark:bg-gray-900" />
+                </div>
+                <div>
+                    <app-select [options]="sourceOptions" placeholder="Source" [value]="filters.source"
+                        (valueChange)="onSelectChange('source', $event)" className="bg-white dark:bg-gray-900" />
+                </div>
+                <div class="md:col-span-1 lg:col-span-1 grid grid-cols-2 gap-2 overflow-visible">
+                    <app-date-picker placeholder="Du..." (dateChange)="onDateChange('startDate', $event)" />
+                    <app-date-picker placeholder="Au..." (dateChange)="onDateChange('endDate', $event)" />
+                </div>
+                <div class="lg:col-span-1">
+                    <app-input-field placeholder="Note / Motif" [value]="filters.note"
+                        (valueChange)="onInputChange('note', $event)" className="bg-white dark:bg-gray-900" />
+                </div>
+                <div class="flex items-end">
+                    <button (click)="resetFilters()"
+                        class="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/5">
+                        Réinitialiser
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto overflow-y-visible custom-scrollbar">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01]">
+                        <th class="px-5 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-5 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
+                        <th class="px-5 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-5 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
+                        <th class="px-5 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">
+                            Quantité</th>
+                        <th class="px-5 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">
+                            Avant</th>
+                        <th class="px-5 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">
+                            Après</th>
+                        <th class="px-5 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Note</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                    <ng-container *ngIf="isSkeletonLoading; else tableContent">
+                        <tr *ngFor="let i of [1,2,3,4,5]">
+                            <td class="px-5 py-4">
+                                <div class="h-4 w-24 animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="h-4 w-32 animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="h-6 w-16 animate-pulse bg-gray-200 rounded-lg dark:bg-white/10"></div>
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="h-6 w-16 animate-pulse bg-gray-200 rounded-lg dark:bg-white/10"></div>
+                            </td>
+                            <td class="px-5 py-4 text-right">
+                                <div class="h-4 w-12 ml-auto animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            </td>
+                            <td class="px-5 py-4 text-right">
+                                <div class="h-4 w-12 ml-auto animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            </td>
+                            <td class="px-5 py-4 text-right">
+                                <div class="h-4 w-12 ml-auto animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="h-4 w-40 animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            </td>
+                        </tr>
+                    </ng-container>
+
+                    <ng-template #tableContent>
+                        <tr *ngFor="let m of movements" class="transition hover:bg-gray-50 dark:hover:bg-gray-900/50">
+                            <td class="px-5 py-4 whitespace-nowrap">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white">{{ m.createdAt |
+                                        date:'shortDate' }}</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ m.createdAt |
+                                        date:'shortTime' }}</span>
+                                </div>
+                            </td>
+                            <td class="px-5 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-10 w-10 flex-shrink-0">
+                                        <img *ngIf="m.product && $any(m.product).images && $any(m.product).images[0]"
+                                            [src]="$any(m.product).images[0]"
+                                            class="h-10 w-10 rounded-lg object-cover border dark:border-gray-700"
+                                            alt="">
+                                        <div *ngIf="!(m.product && $any(m.product).images && $any(m.product).images[0])"
+                                            class="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                                <polyline points="21 15 16 10 5 21"></polyline>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{
+                                        $any(m.product)?.name || 'Produit inconnu' }}</span>
+                                </div>
+                            </td>
+                            <td class="px-5 py-4">
+                                <span [ngClass]="getTypeColor(m.type)"
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                                    {{ m.type }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-4">
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">
+                                    {{ m.source === 'manual' ? 'Manuelle' : 'Inventaire' }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-4 text-right font-bold"
+                                [ngClass]="m.type === 'IN' ? 'text-green-600' : 'text-red-600'">
+                                {{ m.type === 'IN' ? '+' : '-' }}{{ m.quantity }}
+                            </td>
+                            <td class="px-5 py-4 text-right text-sm text-gray-600 dark:text-gray-400">
+                                {{ m.stockBefore }}
+                            </td>
+                            <td class="px-5 py-4 text-right text-sm font-medium text-gray-900 dark:text-white">
+                                {{ m.stockAfter }}
+                            </td>
+                            <td class="px-5 py-4">
+                                <span class="text-sm text-gray-600 dark:text-gray-400 italic">{{ m.note || '-' }}</span>
+                            </td>
+                        </tr>
+                        <tr *ngIf="movements.length === 0 && !isLoading">
+                            <td colspan="7" class="py-12 text-center text-gray-500 dark:text-gray-400">
+                                Aucun mouvement trouvé.
+                            </td>
+                        </tr>
+                    </ng-template>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="border-t border-gray-100 px-4 py-4 sm:px-6 dark:border-white/[0.05]">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Affichage de <span class="font-medium">{{ (pagination.page - 1) * pagination.limit + 1 }}</span>
+                    à <span class="font-medium">{{ Math.min(pagination.page * pagination.limit, pagination.totalDocs)
+                        }}</span>
+                    sur <span class="font-medium">{{ pagination.totalDocs }}</span> résultats
+                </p>
+
+                <div class="flex items-center gap-2">
+                    <button (click)="changePage(pagination.page - 1)" [disabled]="pagination.page === 1"
+                        class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 transition-colors">
+                        Précédent
+                    </button>
+
+                    <button (click)="changePage(pagination.page + 1)"
+                        [disabled]="pagination.page === pagination.totalPages"
+                        class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 transition-colors">
+                        Suivant
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
