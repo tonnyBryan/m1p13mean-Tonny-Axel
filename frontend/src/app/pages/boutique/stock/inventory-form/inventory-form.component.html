@@ -1,0 +1,159 @@
+<div class="mx-auto max-w-7xl">
+    <app-page-breadcrumb pageTitle="Saisie Inventaire" [breadcrumbs]="[
+        { label: 'Store', link: '/store/app' },
+        { label: 'Stock', link: '/store/app/stock/mouvements' },
+        { label: 'Inventaire', link: '/store/app/stock/inventaire' },
+        { label: 'Saisie' }
+    ]"></app-page-breadcrumb>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <!-- Search and Global Note -->
+        <div class="lg:col-span-1">
+            <div
+                class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
+                <h3 class="mb-4 text-lg font-bold text-gray-900 dark:text-white">Détails de l'inventaire</h3>
+
+                <div class="mb-6">
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Rechercher des
+                        produits</label>
+                    <div class="relative">
+                        <input id="productSearch" type="text" placeholder="Nom ou SKU du produit..."
+                            (input)="onProductSearch($event)"
+                            class="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-2.5 text-sm outline-hidden focus:border-brand-500 dark:border-gray-800 dark:text-white" />
+
+                        <!-- Search Results Dropdown -->
+                        <div *ngIf="showResults"
+                            class="absolute z-50 mt-1 w-full rounded-lg border border-gray-200 bg-white p-2 shadow-xl dark:border-gray-800 dark:bg-gray-900">
+                            <ul class="max-h-60 overflow-y-auto">
+                                <li *ngFor="let product of searchResults" (click)="selectProduct(product)"
+                                    class="flex cursor-pointer items-center gap-3 rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                    <img [src]="product.images[0] || 'assets/images/placeholder.png'"
+                                        class="h-10 w-10 rounded-md object-cover shadow-sm" alt="">
+                                    <div class="flex-1 overflow-hidden">
+                                        <div class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{
+                                            product.name }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Stock actuel: {{
+                                            product.stock }} | SKU: {{ product.sku }}</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Note / Motif</label>
+                    <textarea [(ngModel)]="note" rows="4" placeholder="Ex: Inventaire mensuel Février 2026"
+                        class="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-2.5 text-sm outline-hidden focus:border-brand-500 dark:border-gray-800 dark:text-white"></textarea>
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <app-button [disabled]="isSaving || items.length === 0" (click)="submitInventory()" class="w-full"
+                        variant="primary">
+                        {{ isSaving ? 'Enregistrement...' : 'Valider l\'inventaire' }}
+                    </app-button>
+                    <button routerLink="/store/app/stock/inventaire"
+                        class="w-full rounded-lg border border-gray-200 px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/5 transition-all">
+                        Annuler
+                    </button>
+                </div>
+
+                <div *ngIf="errorMessage"
+                    class="mt-4 rounded-lg bg-red-50 p-4 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
+                    {{ errorMessage }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Items List -->
+        <div class="lg:col-span-2">
+            <div
+                class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
+                <div class="mb-6 flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Tableau de comptage</h3>
+                    <span
+                        class="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-600 dark:bg-brand-500/10 dark:text-brand-400">
+                        {{ items.length }} produit(s)
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-gray-100 dark:border-gray-800">
+                                <th class="pb-3 text-sm font-semibold text-gray-500 uppercase tracking-wider">Produit
+                                </th>
+                                <th
+                                    class="pb-3 text-sm font-semibold text-gray-500 uppercase tracking-wider text-center">
+                                    Stock Théo.</th>
+                                <th
+                                    class="pb-3 text-sm font-semibold text-gray-500 uppercase tracking-wider text-center w-32">
+                                    Pysique (Compté)</th>
+                                <th
+                                    class="pb-3 text-sm font-semibold text-gray-500 uppercase tracking-wider text-center">
+                                    Ecart</th>
+                                <th
+                                    class="pb-3 text-sm font-semibold text-gray-500 uppercase tracking-wider text-right">
+                                    Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            <tr *ngFor="let item of items; let i = index"
+                                class="group transition-colors hover:bg-gray-50/50 dark:hover:bg-white/2">
+                                <td class="py-4">
+                                    <div class="flex items-center gap-3">
+                                        <img [src]="item.productDetails.images[0] || 'assets/images/placeholder.png'"
+                                            class="h-10 w-10 rounded-lg object-cover shadow-sm" alt="">
+                                        <div class="overflow-hidden">
+                                            <div class="truncate text-sm font-medium text-gray-900 dark:text-white">{{
+                                                item.productDetails.name }}</div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">SKU: {{
+                                                item.productDetails.sku }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-4 text-center">
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">{{
+                                        item.stockBefore }}</span>
+                                </td>
+                                <td class="py-4 text-center">
+                                    <input type="number" [(ngModel)]="item.countedQuantity"
+                                        class="w-full rounded-lg border border-gray-200 bg-transparent px-3 py-1.5 text-center text-sm outline-hidden focus:border-brand-500 dark:border-gray-800 dark:text-white"
+                                        min="0" />
+                                </td>
+                                <td class="py-4 text-center">
+                                    <span [ngClass]="{
+                                        'text-green-600': item.countedQuantity > item.stockBefore,
+                                        'text-red-600': item.countedQuantity < item.stockBefore,
+                                        'text-gray-500': item.countedQuantity === item.stockBefore
+                                    }" class="text-sm font-bold">
+                                        {{ item.countedQuantity - item.stockBefore > 0 ? '+' : '' }}{{
+                                        item.countedQuantity - item.stockBefore }}
+                                    </span>
+                                </td>
+                                <td class="py-4 text-right">
+                                    <button (click)="removeItem(i)"
+                                        class="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 transition-all">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr *ngIf="items.length === 0">
+                                <td colspan="5" class="py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                                    Aucun produit sélectionné. Utilisez la barre de recherche pour ajouter des produits
+                                    au tableau de comptage.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
