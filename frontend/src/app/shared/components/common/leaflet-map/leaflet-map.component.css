@@ -2,10 +2,9 @@
     display: block;
     height: 100%;
     position: relative;
-    z-index: 0;  /* ← ajouter ça */
+    z-index: 0;
 }
 
-/* ensure the map container fills the height passed as input or the host */
 :host > div {
     width: 100%;
     height: 100%;
@@ -16,7 +15,6 @@
     width: 100% !important;
 }
 
-/* Fix Tailwind CSS conflicts with Leaflet */
 .leaflet-container img {
     max-width: none !important;
     max-height: none !important;
@@ -24,4 +22,25 @@
 
 .leaflet-tile {
     max-width: none !important;
+}
+
+/* ── User marker pulse animation ── */
+@keyframes markerPulse {
+    0%   { transform: scale(0.5); opacity: 0.8; }
+    70%  { transform: scale(2.2); opacity: 0; }
+    100% { transform: scale(2.2); opacity: 0; }
+}
+
+.user-marker-pulse {
+    animation: markerPulse 0.6s ease-out forwards;
+}
+
+@keyframes markerDrop {
+    0%   { transform: translateY(-12px) scale(0.8); opacity: 0; }
+    60%  { transform: translateY(3px) scale(1.05); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.user-marker-pin {
+    animation: markerDrop 0.3s ease-out forwards;
 }

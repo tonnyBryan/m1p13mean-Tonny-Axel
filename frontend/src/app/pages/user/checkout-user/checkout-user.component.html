@@ -222,7 +222,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
                                             </svg>
                                             <span class="font-bold text-base">
-                                                {{ formatPrice(getPrixLivraison(centre?.location?.coordinates || centre?.location, address)) }}
+                                                {{ formatPrice(getPrixLivraison(address)) }}
                                             </span>
                                             <span class="text-xs font-medium opacity-90">Ar</span>
                                         </div>
@@ -276,7 +276,7 @@
                                 <div class="text-right">
                                     <p class="text-xs font-medium text-brand-700 dark:text-brand-300">Delivery Fee</p>
                                     <p class="text-sm font-bold text-brand-900 dark:text-brand-100">
-                                        {{ formatPrice(getPrixLivraison(centre?.location?.coordinates || centre?.location, newAddress)) }} Ar
+                                        {{ formatPrice(getPrixLivraison(newAddress)) }} Ar Ar
                                         <span class="text-xs font-normal">(~{{ getDistanceKmForAddress(newAddress) }} km)</span>
                                     </p>
                                 </div>
@@ -322,11 +322,11 @@
                             <div class="aspect-video rounded-xl overflow-hidden border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-brand-500 dark:hover:border-brand-500 transition-colors cursor-pointer group">
                                 <!-- Leaflet map component: use 100% height so aspect-video parent controls aspect ratio -->
                                 <app-leaflet-map
-                                  [center]="mapCenter"
-                                  [zoom]="(newAddress.latitude && newAddress.longitude) ? 20 : 15"
-                                  [height]="'100%'"
-                                  [autoSetMarker]="true"
-                                  (mapClick)="onMapClick($event)">
+                                        [center]="mapCenter"
+                                        [zoom]="(newAddress.latitude && newAddress.longitude) ? 20 : 15"
+                                        [height]="'100%'"
+                                        [autoSetMarker]="true"
+                                        (mapClick)="onMapClick($event)">
                                 </app-leaflet-map>
                             </div>
                             <!-- Live coordinates indicator -->

@@ -4,7 +4,6 @@ import {FormsModule} from '@angular/forms';
 import {Router, RouterModule} from '@angular/router';
 import {UserService} from "../../../shared/services/user.service";
 import {CommandeService} from "../../../shared/services/commande.service";
-import {CentreService} from '../../../shared/services/centre.service';
 import {PageBreadcrumbComponent} from "../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
 import {LeafletMapComponent} from '../../../shared/components/common/leaflet-map/leaflet-map.component';
 import {SkeletonCheckoutComponent} from "./skeleton-checkout/skeleton-checkout.component";
@@ -28,7 +27,6 @@ export class CheckoutUserComponent implements OnInit {
   profile: any = null;
   cart: any = null;
   isLoading = false;
-  centre: any = null;
 
   profileIncomplete = false;
 
@@ -67,7 +65,6 @@ export class CheckoutUserComponent implements OnInit {
   constructor(
       private userService: UserService,
       private commandeService: CommandeService,
-      private centreService: CentreService,
       private router: Router,
       private toast: ToastService,
       private session : SessionService
@@ -75,13 +72,21 @@ export class CheckoutUserComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.loadCentre();
     this.loadProfile();
     this.loadFullDraft();
   }
 
   get isEmailVerified(): boolean {
     return this.session.currentUser?.isEmailVerified === true;
+  }
+
+  get boutiqueCoords(): { latitude: number; longitude: number } | null {
+    const addr = this.cart?.boutique?.address;
+    if (!addr) return null;
+    const lat = Number(addr.latitude);
+    const lng = Number(addr.longitude);
+    if (!isFinite(lat) || !isFinite(lng)) return null;
+    return { latitude: lat, longitude: lng };
   }
 
   loadFullDraft() {
@@ -147,29 +152,8 @@ export class CheckoutUserComponent implements OnInit {
     });
   }
 
-  loadCentre(): void {
-    this.centreService.getCentreCommercial().subscribe({
-      next: (res: any) => {
-        if (res?.success && res?.data) {
-          this.centre = res.data;
-        } else {
-          this.centre = null;
-        }
-      },
-      error: (err) => {
-        console.error('Error loading centre commercial', err);
-        this.centre = null;
-        if (err.error && err.error.message) {
-          this.toast.error('Error',err.error.message,0);
-        } else {
-          this.toast.error('Error','An error occurred while fetching application details',0);
-        }
-      }
-    });
-  }
-
   checkLoadingComplete(): void {
-    if (this.centre && this.cart && this.profile) {
+    if (this.cart && this.profile) {
       this.isLoading = false;
     }
   }
@@ -226,16 +210,13 @@ export class CheckoutUserComponent implements OnInit {
 
   get deliveryFee(): number {
     if (this.deliveryMode !== 'delivery') return 0;
-
-    // Need both boutique livraisonConfig and a selected address (or new address)
     const livraison = this.cart?.boutique?.livraisonConfig;
     if (!livraison || !livraison.deliveryRules) return 0;
 
     const addr = this.showNewAddressForm ? this.newAddress : this.getSelectedAddress();
     if (!addr) return 0;
 
-    const centreCoords = this.centre?.location?.coordinates || this.centre?.location;
-    return this.getPrixLivraison(centreCoords, addr);
+    return this.getPrixLivraison(addr);  // ← plus de centreCoords
   }
 
   get taxPrice(): number {
@@ -277,44 +258,41 @@ export class CheckoutUserComponent implements OnInit {
     }
   }
 
+  private roundPrice(price: number): number {
+    if (price < 1000) {
+      return Math.round(price / 10) * 10;
+    }
+    return Math.round(price / 100) * 100;
+  }
+
   // Calculate delivery price between centre coords and an address object
-  getPrixLivraison(centreCoords: any, address: any): number {
-    // If no boutique or no delivery rules, return 0
+  getPrixLivraison(address: any): number {
     const livraison = this.cart?.boutique?.livraisonConfig;
-    if (!livraison || !livraison.deliveryRules) return 0;
+    if (!livraison || !livraison.deliveryRules || !livraison.isDeliveryAvailable) return 0;
 
-    // If delivery not available, return 0
-    if (!livraison.isDeliveryAvailable) return 0;
+    const origin = this.boutiqueCoords;
+    if (!origin) return 0;
 
-    // Prepare coordinates
-    let centre = centreCoords;
-    if (centre && centre.coordinates) centre = centre.coordinates; // support different shapes
+    const distanceKm = this.haversineDistanceKm(origin, address) || 5;
 
-    // fallback to 5 km when coordinates missing
-    const distanceKm = this.haversineDistanceKm(centre, address) || 5;
-
-    const rules = livraison.deliveryRules || { minPrice: 0, baseDistanceKm: 0, extraPricePerKm: 0 };
+    const rules = livraison.deliveryRules;
     const baseKm = Number(rules.baseDistanceKm || 0);
     const minPrice = Number(rules.minPrice || 0);
     const extraPerKm = Number(rules.extraPricePerKm || 0);
 
-    let price = 0;
-    if (distanceKm <= baseKm) {
-      price = minPrice;
-    } else {
-      price = minPrice + (distanceKm - baseKm) * extraPerKm;
-    }
+    const price = distanceKm <= baseKm
+        ? minPrice
+        : minPrice + (distanceKm - baseKm) * extraPerKm;
 
-    return Math.max(0, Math.round(price));
+    return Math.max(0, this.roundPrice(price));
   }
 
-  // Retourne la distance en km (arrondie à 1 décimale) entre le centre commercial et l'adresse fournie
   getDistanceKmForAddress(address: any): number {
     try {
-      const centreCoords = this.centre?.location?.coordinates || this.centre?.location;
-      const d = this.haversineDistanceKm(centreCoords, address);
+      const origin = this.boutiqueCoords;
+      if (!origin) return 5;
+      const d = this.haversineDistanceKm(origin, address);
       if (!isFinite(d) || d <= 0) return 5;
-      // arrondir à 1 décimale
       return Math.round(d * 10) / 10;
     } catch (e) {
       return 5;
@@ -406,8 +384,7 @@ export class CheckoutUserComponent implements OnInit {
           saveNewAddress: this.saveNewAddress
         };
         // compute price using existing helper
-        const centreCoords = this.centre?.location?.coordinates || this.centre?.location;
-        addr.price = this.getPrixLivraison(centreCoords, addr);
+        addr.price = this.getPrixLivraison(addr);
         deliveryAddressPayload = addr;
       } else {
         const addr = this.getSelectedAddress();
@@ -422,8 +399,7 @@ export class CheckoutUserComponent implements OnInit {
           price: 0,
           saveNewAddress: false
         };
-        const centreCoords = this.centre?.location?.coordinates || this.centre?.location;
-        addrPayload.price = this.getPrixLivraison(centreCoords, addrPayload);
+        addrPayload.price = this.getPrixLivraison(addrPayload);  // ← avant: this.getPrixLivraison(centreCoords, addrPayload)
         deliveryAddressPayload = addrPayload;
       }
     }
@@ -678,30 +654,18 @@ export class CheckoutUserComponent implements OnInit {
 
   // Provide center for the Leaflet map (prefer centre commercial, otherwise existing newAddress coords or fallback)
   get mapCenter(): [number, number] {
-    // prefer centre commercial coordinates if present
-    const centreCoords = this.centre?.location?.coordinates || this.centre?.location || null;
-    if (centreCoords) {
-      // support different shapes: [lng, lat] or { latitude, longitude }
-      if (Array.isArray(centreCoords) && centreCoords.length >= 2) {
-        // Many geojson store as [lng, lat]
-        const lng = Number(centreCoords[0]);
-        const lat = Number(centreCoords[1]);
-        if (isFinite(lat) && isFinite(lng)) return [lat, lng];
-      }
-      if (centreCoords.latitude && centreCoords.longitude) {
-        return [Number(centreCoords.latitude), Number(centreCoords.longitude)];
-      }
-    }
+    // Préférer les coords de la boutique comme centre de la carte
+    const origin = this.boutiqueCoords;
+    if (origin) return [origin.latitude, origin.longitude];
 
-    // fallback: if user typed coordinates already
-    if (this.newAddress && this.newAddress.latitude && this.newAddress.longitude) {
+    // Fallback: coords déjà saisies par l'utilisateur
+    if (this.newAddress?.latitude && this.newAddress?.longitude) {
       const lat = Number(this.newAddress.latitude);
       const lng = Number(this.newAddress.longitude);
       if (isFinite(lat) && isFinite(lng)) return [lat, lng];
     }
 
-    // default to Antananarivo (Madagascar) roughly
-    return [-18.8792, 47.5079];
+    return [-18.8792, 47.5079]; // Antananarivo
   }
 
   // When user clicks on the leaflet map: fill newAddress latitude/longitude (as strings for ngModel)
