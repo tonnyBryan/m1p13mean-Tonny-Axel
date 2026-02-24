@@ -56,7 +56,12 @@ export class AppHeaderBoutiqueComponent implements OnInit, OnDestroy {
     this.userService.loadUser();
     this.session.user$
         .pipe(distinctUntilChanged((a, b) => a?._id === b?._id))
-        .subscribe(user => { this.user = user; });
+        .subscribe(user => {
+          this.user = user;
+          if (user && user.role === 'boutique' && !user.isValidated) {
+            this.toast.warning("Account Pending Validation", "Your boutique account is pending validation. Please wait for approval.");
+          }
+        });
 
     this.searchSubject.pipe(
         debounceTime(300),

@@ -17,9 +17,9 @@ function renderTemplate(templateName, data) {
     return template(data);
 }
 
-async function sendVerificationEmail({ to, name, code, expiresIn }) {
+async function sendVerificationEmail({ to, name, code, expiresIn, hbsTemplate }) {
     try {
-        const contentHtml = renderTemplate("code-verification", {
+        const contentHtml = renderTemplate(hbsTemplate, {
             name: name || "there",
             code,
             expiresIn,

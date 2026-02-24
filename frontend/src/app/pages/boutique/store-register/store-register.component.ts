@@ -12,6 +12,7 @@ export interface StoreRegisterData {
     firstName: string;
     lastName: string;
     email: string;
+    password: string;
   };
   boutique: {
     name: string;
@@ -55,7 +56,7 @@ export class StoreRegisterComponent {
   totalSteps = 5;
 
   formData: StoreRegisterData = {
-    manager: { firstName: '', lastName: '', email: '' },
+    manager: { firstName: '', lastName: '', email: '', password: '' },
     boutique: { name: '', description: '', logo: null, logoPreview: null },
     plan: { type: null, box: null, lat: null, lng: null },
     livraison: {

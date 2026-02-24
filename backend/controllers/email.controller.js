@@ -80,7 +80,8 @@ exports.sendVerification = async (req, res) => {
                     to: email,
                     name: req.user?.name || 'there',
                     code,
-                    expiresIn: codeExpiresMinutes
+                    expiresIn: codeExpiresMinutes,
+                    hbsTemplate : "code-verification"
                 });
                 console.log(`Verification email sent to ${email}`);
             } catch (err) {

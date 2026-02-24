@@ -23,16 +23,18 @@ exports.getMyParentProfile = async (req, res) => {
         const currentUser = req.user || {};
 
         let avatar = null;
+        let isValidated = null;
         if (currentUser.role === 'boutique') {
-            const boutique = await Boutique.findOne({ owner: userId }).select('logo');
+            const boutique = await Boutique.findOne({ owner: userId }).select('logo isValidated');
             avatar = boutique?.logo ?? null;
+            isValidated = boutique?.isValidated ?? null;
         } else if (currentUser.role === 'user') {
             const profile = await UserProfile.findOne({ user: userId }).select('photo');
             avatar = profile?.photo ?? null;
         }
 
         // Return the user object enriched with avatar (keeps existing user fields)
-        const payload = { ...currentUser, avatar };
+        const payload = { ...currentUser, avatar, isValidated };
         return successResponse(res, 200, null, payload);
     } catch (error) {
         console.error(error);

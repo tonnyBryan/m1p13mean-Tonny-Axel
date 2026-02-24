@@ -32,6 +32,24 @@ const uploadImage = (fileBuffer, folder = 'products') => {
     });
 };
 
+/**
+ * Supprime une ressource Cloudinary par son public_id
+ * @param {String} publicId
+ */
+const deleteImage = (publicId) => {
+    return new Promise((resolve, reject) => {
+        if (!publicId) return resolve({ success: false, message: 'No publicId provided' });
+        cloudinary.uploader.destroy(publicId, { resource_type: 'image' }, (error, result) => {
+            if (error) {
+                console.error('Cloudinary delete error:', error);
+                return reject(error);
+            }
+            resolve(result);
+        });
+    });
+};
+
 module.exports = {
-    uploadImage
+    uploadImage,
+    deleteImage
 };

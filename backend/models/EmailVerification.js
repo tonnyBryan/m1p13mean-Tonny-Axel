@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const EmailVerificationSchema = new mongoose.Schema(
     {
         email: { type: String, required: true },
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
         code: { type: String, required: true },
         isUsed: { type: Boolean, default: false },
         attempts: { type: Number, default: 0 },

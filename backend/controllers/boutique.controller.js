@@ -4,12 +4,17 @@ const Boutique = require('../models/Boutique');
 const LivraisonConfig = require('../models/LivraisonConfig');
 const { uploadImage } = require('../utils/cloudinary');
 const bcrypt = require('bcryptjs'); // Assuming password hashing is needed for user
+const mongoose = require('mongoose');
+const CentreCommercial = require('../models/CentreCommercial');
+const { deleteImage } = require('../utils/cloudinary');
 
 /**
  * POST /api/boutiques
  * Create a full boutique with owner and delivery config
  */
 exports.createBoutiqueFull = async (req, res) => {
+    const session = await mongoose.startSession();
+    let uploadedPublicId = null; // for cleanup in case of failure
     try {
         // 1. Parse Data
         let userPayload, boutiquePayload, livraisonPayload;
@@ -27,67 +32,99 @@ exports.createBoutiqueFull = async (req, res) => {
         if (req.file) {
             const uploaded = await uploadImage(req.file.buffer, 'boutiques');
             logoUrl = uploaded.secure_url;
+            uploadedPublicId = uploaded.public_id || null;
         }
 
         if (!logoUrl) {
             return errorResponse(res, 400, 'A boutique logo is required. Please upload a file or provide a valid URL.');
         }
 
-        // 3. Create User (Owner)
-        // Check if user exists
-        const existingUser = await User.findOne({ email: userPayload.email });
-        if (existingUser) {
-            return errorResponse(res, 400, 'A user with the provided email already exists. Please use a different email or recover access to the existing account.');
-        }
+        // Start transaction
+        let result = null;
+        await session.withTransaction(async () => {
+            // 3. Create User (Owner) - ensure email uniqueness
+            const existingUser = await User.findOne({ email: userPayload.email }).session(session);
+            if (existingUser) {
+                // throw to abort transaction and return error later
+                throw { status: 400, message: 'A user with the provided email already exists. Please use a different email or recover access to the existing account.' };
+            }
 
-        // Create new user
-        // Note: Password generation or input? Frontend didn't ask for password. 
-        // We'll generate a default one or handle it. 
-        // For now, let's assume a default password or if frontend adds it later.
-        // The prompt said "User (on inserera seulement le name et email )".
-        // So we must generate a random password or set a default.
+            const defaultPassword = 'Password123!';
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(defaultPassword, salt);
 
-        const defaultPassword = 'Password123!';
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(defaultPassword, salt);
+            const newUser = await User.create([{ // use array form to pass session
+                name: userPayload.name,
+                email: userPayload.email,
+                password: hashedPassword,
+                role: 'boutique',
+                isActive: true
+            }], { session });
 
-        const newUser = await User.create({
-            name: userPayload.name,
-            email: userPayload.email,
-            password: hashedPassword,
-            role: 'boutique',
-            isActive: true
+            // newUser is an array when using create with array
+            const createdUser = Array.isArray(newUser) ? newUser[0] : newUser;
+
+            // 4. Find CentreCommercial to use its address (there is expected to be a single doc)
+            const centre = await CentreCommercial.findOne().session(session);
+            const addressObj = centre && centre.location && centre.location.coordinates ? {
+                latitude: centre.location.coordinates.latitude || null,
+                longitude: centre.location.coordinates.longitude || null
+            } : { latitude: null, longitude: null };
+
+            // 5. Create Boutique with isLocal true and address from centre commercial
+            const boutiqueDoc = await Boutique.create([{
+                owner: createdUser._id,
+                name: boutiquePayload.name,
+                description: boutiquePayload.description,
+                logo: logoUrl,
+                isActive: true,
+                isValidated: true,
+                isLocal: true,
+                address: addressObj
+            }], { session });
+
+            const createdBoutique = Array.isArray(boutiqueDoc) ? boutiqueDoc[0] : boutiqueDoc;
+
+            // 6. Create LivraisonConfig
+            await LivraisonConfig.create([{
+                boutique: createdBoutique._id,
+                isDeliveryAvailable: livraisonPayload.isDeliveryAvailable,
+                deliveryRules: livraisonPayload.deliveryRules,
+                deliveryDays: livraisonPayload.deliveryDays,
+                orderCutoffTime: livraisonPayload.orderCutoffTime,
+                isActive: true
+            }], { session });
+
+            // prepare result to return after transaction
+            result = {
+                user: createdUser,
+                boutique: createdBoutique,
+                defaultPassword
+            };
         });
 
-        // 4. Create Boutique
-        const newBoutique = await Boutique.create({
-            owner: newUser._id,
-            name: boutiquePayload.name,
-            description: boutiquePayload.description,
-            logo: logoUrl,
-            isActive: true, // Default as per frontend
-            isValidated: true
-        });
-
-        // 5. Create LivraisonConfig
-        await LivraisonConfig.create({
-            boutique: newBoutique._id,
-            isDeliveryAvailable: livraisonPayload.isDeliveryAvailable,
-            deliveryRules: livraisonPayload.deliveryRules,
-            deliveryDays: livraisonPayload.deliveryDays,
-            orderCutoffTime: livraisonPayload.orderCutoffTime,
-            isActive: true
-        });
-
-        return successResponse(res, 201, 'Boutique created successfully.', {
-            user: newUser,
-            boutique: newBoutique,
-            defaultPassword
-        });
+        // If transaction completed without throwing
+        return successResponse(res, 201, 'Boutique created successfully.', result);
 
     } catch (error) {
         console.error('Error creating boutique:', error);
+
+        // Attempt to cleanup uploaded image if any (best-effort)
+        if (uploadedPublicId) {
+            try {
+                await deleteImage(uploadedPublicId);
+            } catch (delErr) {
+                console.error('Failed to cleanup uploaded image after transaction failure:', delErr);
+            }
+        }
+
+        // handle custom thrown errors with status/message
+        if (error && error.status && error.message) {
+            return errorResponse(res, error.status, error.message);
+        }
         return errorResponse(res, 500, 'An unexpected server error occurred while creating the boutique. Please try again later.');
+    } finally {
+        session.endSession();
     }
 };
 
