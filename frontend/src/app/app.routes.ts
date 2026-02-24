@@ -23,27 +23,27 @@ import { ProductFicheUserComponent } from "./pages/user/product-fiche-user/produ
 import { CartUserComponent } from "./pages/user/cart-user/cart-user.component";
 import { CheckoutUserComponent } from "./pages/user/checkout-user/checkout-user.component";
 import { VerifyEmailComponent } from "./pages/user/verify-email/verify-email.component";
-import {OrdersUserComponent} from "./pages/user/orders-user/orders-user.component";
-import {OrderDetailComponent} from "./pages/user/order-detail/order-detail.component";
-import {OrdersListBoutiqueComponent} from "./pages/boutique/orders-list-boutique/orders-list-boutique.component";
-import {OrderDetailBoutiqueComponent} from "./pages/boutique/order-detail-boutique/order-detail-boutique.component";
-import {WishlistUserComponent} from "./pages/user/wishlist-user/wishlist-user.component";
-import {LandingPageComponent} from "./pages/public/landing-page/landing-page.component";
-import {HelpPageComponent} from "./pages/public/help-page/help-page.component";
-import {SupportPageComponent} from "./pages/public/support-page/support-page.component";
-import {PrivacyPageComponent} from "./pages/public/privacy-page/privacy-page.component";
-import {TermsPageComponent} from "./pages/public/terms-page/terms-page.component";
-import {LandingLayoutComponent} from "./shared/layout/landing-layout/landing-layout.component";
-import {DashboardUserComponent} from "./pages/user/dashboard-user/dashboard-user.component";
-import {SubscriptionListComponent} from "./pages/admin/subscription-list/subscription-list.component";
-import {SupportRequestComponent} from "./pages/admin/support-request/support-request.component";
-import {MailComposeComponent} from "./pages/admin/mail-compose/mail-compose.component";
-import {DashboardBoutiqueComponent} from "./pages/boutique/dashboard-boutique/dashboard-boutique.component";
-import {ForgotPasswordComponent} from "./pages/auth-pages/forgot-password/forgot-password.component";
-import {ResetPasswordComponent} from "./pages/auth-pages/reset-password/reset-password.component";
-import {SecurityComponent} from "./pages/user/security/security.component";
-import {StoreRegisterComponent} from "./pages/boutique/store-register/store-register.component";
-import {SecurityBoutiqueComponent} from "./pages/boutique/security-boutique/security-boutique.component";
+import { OrdersUserComponent } from "./pages/user/orders-user/orders-user.component";
+import { OrderDetailComponent } from "./pages/user/order-detail/order-detail.component";
+import { OrdersListBoutiqueComponent } from "./pages/boutique/orders-list-boutique/orders-list-boutique.component";
+import { OrderDetailBoutiqueComponent } from "./pages/boutique/order-detail-boutique/order-detail-boutique.component";
+import { WishlistUserComponent } from "./pages/user/wishlist-user/wishlist-user.component";
+import { LandingPageComponent } from "./pages/public/landing-page/landing-page.component";
+import { HelpPageComponent } from "./pages/public/help-page/help-page.component";
+import { SupportPageComponent } from "./pages/public/support-page/support-page.component";
+import { PrivacyPageComponent } from "./pages/public/privacy-page/privacy-page.component";
+import { TermsPageComponent } from "./pages/public/terms-page/terms-page.component";
+import { LandingLayoutComponent } from "./shared/layout/landing-layout/landing-layout.component";
+import { DashboardUserComponent } from "./pages/user/dashboard-user/dashboard-user.component";
+import { SubscriptionListComponent } from "./pages/admin/subscription-list/subscription-list.component";
+import { SupportRequestComponent } from "./pages/admin/support-request/support-request.component";
+import { MailComposeComponent } from "./pages/admin/mail-compose/mail-compose.component";
+import { DashboardBoutiqueComponent } from "./pages/boutique/dashboard-boutique/dashboard-boutique.component";
+import { ForgotPasswordComponent } from './pages/auth-pages/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './pages/auth-pages/reset-password/reset-password.component';
+import { SecurityBoutiqueComponent } from './pages/boutique/security-boutique/security-boutique.component';
+import { StoreRegisterComponent } from './pages/boutique/store-register/store-register.component';
+import { SecurityComponent } from './pages/user/security/security.component';
 
 const appName = environment.plateformeName || 'Shopticus';
 
@@ -422,6 +422,30 @@ export const routes: Routes = [
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
         title: 'Sale Details | ' + appName
+      },
+      {
+        path: 'stock/mouvements',
+        loadComponent: () => import('./pages/boutique/stock/stock-mouvements-list/stock-mouvements-list.component').then(m => m.StockMouvementsListComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        pathMatch: 'full',
+        title: 'Stock Movements | ' + appName
+      },
+      {
+        path: 'stock/mouvements/add',
+        loadComponent: () => import('./pages/boutique/stock/stock-mouvement-form/stock-mouvement-form.component').then(m => m.StockMouvementFormComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        pathMatch: 'full',
+        title: 'New Stock Movement | ' + appName
+      },
+      {
+        path: 'stock/inventaire',
+        loadComponent: () => import('./pages/boutique/stock/inventory-list/inventory-list.component').then(m => m.InventoryListComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        pathMatch: 'full',
+        title: 'Inventory Counts | ' + appName
       },
     ]
   },
