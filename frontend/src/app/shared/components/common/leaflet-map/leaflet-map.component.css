@@ -2,6 +2,7 @@
     display: block;
     height: 100%;
     position: relative;
+    z-index: 0;  /* ← ajouter ça */
 }
 
 /* ensure the map container fills the height passed as input or the host */

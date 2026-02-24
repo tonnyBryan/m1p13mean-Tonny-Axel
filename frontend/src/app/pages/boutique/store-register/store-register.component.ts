@@ -25,6 +25,7 @@ export interface StoreRegisterData {
     box: string | null;
     lat: number | null;
     lng: number | null;
+    payment: { cardNumber: string; cardName: string; expiryDate: string; cvv: string } | null;
   };
   livraison: {
     isDeliveryAvailable: boolean;
@@ -58,7 +59,7 @@ export class StoreRegisterComponent {
   formData: StoreRegisterData = {
     manager: { firstName: '', lastName: '', email: '', password: '' },
     boutique: { name: '', description: '', logo: null, logoPreview: null },
-    plan: { type: null, box: null, lat: null, lng: null },
+    plan: { type: null, box: null, lat: null, lng: null, payment: null },
     livraison: {
       isDeliveryAvailable: true,
       minPrice: 0,

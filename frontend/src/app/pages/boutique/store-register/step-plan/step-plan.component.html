@@ -1,15 +1,13 @@
 <div>
     <!-- Step header -->
     <div class="mb-10">
-        <span class="inline-flex items-center gap-2 text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider mb-3">
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
-            </svg>
-            Step 3 — Plan
-        </span>
-        <h2 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-3">
-            Choose your plan
-        </h2>
+    <span class="inline-flex items-center gap-2 text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider mb-3">
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+      </svg>
+      Step 3 — Plan
+    </span>
+        <h2 class="text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-3">Choose your plan</h2>
         <p class="text-base text-gray-500 dark:text-gray-400 max-w-md">
             Select the option that best fits your business model. You can always upgrade later.
         </p>
@@ -22,38 +20,30 @@
         <button (click)="selectPlan('A')"
                 class="relative text-left p-6 rounded-2xl border-2 transition-all duration-300 group self-stretch"
                 [ngClass]="data.type === 'A'
-                ? 'border-brand-500 bg-gradient-to-b from-brand-50 to-white dark:from-brand-900/30 dark:to-brand-900/10 shadow-xl shadow-brand-500/15'
-                : 'border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-700 bg-white dark:bg-white/[0.02] hover:shadow-lg'">
-
-            <div *ngIf="data.type === 'A'"
-                 class="absolute top-4 right-4 w-6 h-6 rounded-full bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/40">
+              ? 'border-brand-500 bg-gradient-to-b from-brand-50 to-white dark:from-brand-900/30 dark:to-brand-900/10 shadow-xl shadow-brand-500/15'
+              : 'border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-700 bg-white dark:bg-white/[0.02] hover:shadow-lg'">
+            <div *ngIf="data.type === 'A'" class="absolute top-4 right-4 w-6 h-6 rounded-full bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/40">
                 <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                 </svg>
             </div>
-
             <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 transition-all duration-300"
                  [ngClass]="data.type === 'A' ? 'bg-amber-500 shadow-lg shadow-amber-500/30' : 'bg-amber-100 dark:bg-amber-900/30 group-hover:bg-amber-200 dark:group-hover:bg-amber-900/50'">
-                <svg class="w-6 h-6 transition-colors"
-                     [ngClass]="data.type === 'A' ? 'text-white' : 'text-amber-600 dark:text-amber-400'"
+                <svg class="w-6 h-6 transition-colors" [ngClass]="data.type === 'A' ? 'text-white' : 'text-amber-600 dark:text-amber-400'"
                      fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
             </div>
-
             <p class="text-base font-black text-gray-900 dark:text-white mb-1">External Store</p>
             <p class="text-xs text-gray-500 dark:text-gray-400 mb-5 leading-relaxed">Your own location outside the center</p>
-
             <div class="p-3 rounded-xl mb-5 transition-colors"
                  [ngClass]="data.type === 'A' ? 'bg-brand-100/60 dark:bg-brand-900/30' : 'bg-gray-50 dark:bg-gray-800/50'">
                 <p class="text-xs text-gray-400 dark:text-gray-500 mb-0.5">Hosting only</p>
                 <p class="text-xl font-black text-gray-900 dark:text-white">
-                    {{ formatPrice(planAPrice) }}
-                    <span class="text-xs font-semibold text-gray-400">/mo</span>
+                    {{ formatPrice(planAPrice) }}<span class="text-xs font-semibold text-gray-400">/mo</span>
                 </p>
             </div>
-
             <ul class="space-y-2">
                 <li *ngFor="let f of ['Full autonomy', 'Your own space', 'Online visibility']"
                     class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
@@ -66,49 +56,49 @@
                     {{ f }}
                 </li>
             </ul>
+
+            <!-- Bouton Explorer — Plan A -->
+            <button (click)="openModal('A', $event)"
+                    class="mt-4 w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-500 dark:text-gray-400 hover:border-amber-400 hover:text-amber-600 dark:hover:text-amber-400 transition-all">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Learn more
+            </button>
         </button>
 
         <!-- Plan B -->
         <button (click)="selectPlan('B')"
                 class="relative text-left p-6 rounded-2xl border-2 transition-all duration-300 group"
                 [ngClass]="data.type === 'B'
-                ? 'border-brand-500 bg-gradient-to-b from-brand-50 to-white dark:from-brand-900/30 dark:to-brand-900/10 shadow-xl shadow-brand-500/15'
-                : 'border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-700 bg-white dark:bg-white/[0.02] hover:shadow-lg'">
-
+              ? 'border-brand-500 bg-gradient-to-b from-brand-50 to-white dark:from-brand-900/30 dark:to-brand-900/10 shadow-xl shadow-brand-500/15'
+              : 'border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-700 bg-white dark:bg-white/[0.02] hover:shadow-lg'">
             <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
-            <span class="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-brand-500 to-brand-600 text-white text-xs font-black rounded-full shadow-lg shadow-brand-500/30">
-                ⭐ Popular
-            </span>
+        <span class="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-brand-500 to-brand-600 text-white text-xs font-black rounded-full shadow-lg shadow-brand-500/30">
+          ⭐ Popular
+        </span>
             </div>
-
-            <div *ngIf="data.type === 'B'"
-                 class="absolute top-4 right-4 w-6 h-6 rounded-full bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/40">
+            <div *ngIf="data.type === 'B'" class="absolute top-4 right-4 w-6 h-6 rounded-full bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/40">
                 <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                 </svg>
             </div>
-
             <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 transition-all duration-300"
                  [ngClass]="data.type === 'B' ? 'bg-purple-500 shadow-lg shadow-purple-500/30' : 'bg-purple-100 dark:bg-purple-900/30 group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50'">
-                <svg class="w-6 h-6 transition-colors"
-                     [ngClass]="data.type === 'B' ? 'text-white' : 'text-purple-600 dark:text-purple-400'"
+                <svg class="w-6 h-6 transition-colors" [ngClass]="data.type === 'B' ? 'text-white' : 'text-purple-600 dark:text-purple-400'"
                      fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                 </svg>
             </div>
-
             <p class="text-base font-black text-gray-900 dark:text-white mb-1">Rent a Box</p>
             <p class="text-xs text-gray-500 dark:text-gray-400 mb-5 leading-relaxed">Ready-to-use box inside our center</p>
-
             <div class="p-3 rounded-xl mb-5 transition-colors"
                  [ngClass]="data.type === 'B' ? 'bg-brand-100/60 dark:bg-brand-900/30' : 'bg-gray-50 dark:bg-gray-800/50'">
                 <p class="text-xs text-gray-400 dark:text-gray-500 mb-0.5">Hosting + box from</p>
                 <p class="text-xl font-black text-gray-900 dark:text-white">
-                    {{ formatPrice(planBHostingPrice) }}
-                    <span class="text-xs font-semibold text-gray-400">/mo</span>
+                    {{ formatPrice(planBHostingPrice) }}<span class="text-xs font-semibold text-gray-400">/mo</span>
                 </p>
             </div>
-
             <ul class="space-y-2">
                 <li *ngFor="let f of ['Ready-to-use space', 'Reduced hosting fee', 'Prime location']"
                     class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
@@ -121,67 +111,212 @@
                     {{ f }}
                 </li>
             </ul>
+
+            <!-- Bouton Explorer — Plan A -->
+            <button (click)="openModal('B', $event)"
+                    class="mt-4 w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-500 dark:text-gray-400 hover:border-amber-400 hover:text-amber-600 dark:hover:text-amber-400 transition-all">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Learn more
+            </button>
         </button>
     </div>
-    <!-- Plan A — Map -->
-    <div *ngIf="data.type === 'A'" class="mb-8 max-w-2xl">
-        <div class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-2xl mb-4">
-            <p class="text-sm font-bold text-amber-900 dark:text-amber-100 mb-1">📍 Pin your store location</p>
-            <p class="text-xs text-amber-700 dark:text-amber-300">Click on the map to place your store's exact location. Customers will use this to estimate delivery distance.</p>
+
+    <!-- ── Plan A — Map + Payment ── -->
+    <div *ngIf="data.type === 'A'" class="mb-8 max-w-2xl space-y-6">
+
+        <!-- Map -->
+        <div>
+            <div class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-2xl mb-4">
+                <p class="text-sm font-bold text-amber-900 dark:text-amber-100 mb-1">📍 Pin your store location</p>
+                <p class="text-xs text-amber-700 dark:text-amber-300">Click on the map to place your store's exact location. Customers will use this to estimate delivery distance.</p>
+            </div>
+            <div class="rounded-2xl overflow-hidden border-2 transition-all" style="height: 320px;"
+                 [ngClass]="data.lat ? 'border-green-400 dark:border-green-600' : 'border-gray-200 dark:border-gray-700'">
+                <app-leaflet-map [center]="[-18.9137, 47.5361]" [zoom]="13" height="320px" [markerOnClick]="true" (mapClick)="onMapClick($event)"/>
+            </div>
+            <div *ngIf="data.lat && data.lng" class="mt-3 flex items-center gap-2 text-xs font-semibold text-green-600 dark:text-green-400">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Location set — {{ data.lat | number:'1.4-4' }}, {{ data.lng | number:'1.4-4' }}
+            </div>
         </div>
-        <div class="rounded-2xl overflow-hidden border-2 transition-all"
-             style="height: 320px;"
-             [ngClass]="data.lat ? 'border-green-400 dark:border-green-600' : 'border-gray-200 dark:border-gray-700'">
-            <app-leaflet-map
-                    [center]="[-18.9137, 47.5361]"
-                    [zoom]="13"
-                    height="320px"
-                    [markerOnClick]="true"
-                    (mapClick)="onMapClick($event)"/>
-        </div>
-        <div *ngIf="data.lat && data.lng"
-             class="mt-3 flex items-center gap-2 text-xs font-semibold text-green-600 dark:text-green-400">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-            Location set — {{ data.lat | number:'1.4-4' }}, {{ data.lng | number:'1.4-4' }}
+
+        <!-- Payment form -->
+        <div class="p-6 bg-white dark:bg-white/[0.03] border-2 border-gray-100 dark:border-gray-800 rounded-2xl">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-9 h-9 rounded-xl bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">Payment information</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Your card will only be charged after your store is validated</p>
+                </div>
+            </div>
+
+            <div class="space-y-5">
+
+                <!-- Card Number -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Card Number</label>
+                    <div class="relative">
+                        <input type="text"
+                               [(ngModel)]="paymentInfo.cardNumber"
+                               (input)="formatCardNumber($event)"
+                               placeholder="1234 5678 9012 3456"
+                               maxlength="19"
+                               class="w-full pl-11 pr-16 py-3.5 rounded-xl border-2 bg-gray-50 dark:bg-gray-800/50 text-sm text-gray-900 dark:text-white font-mono focus:outline-none transition-all"
+                               [ngClass]="paymentInfo.cardNumber && !isValidCardNumber(paymentInfo.cardNumber)
+                     ? 'border-red-400 dark:border-red-600'
+                     : 'border-gray-100 dark:border-gray-800 focus:border-brand-500'"/>
+                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                            </svg>
+                        </div>
+                        <div *ngIf="getCardType()" class="absolute right-3.5 top-1/2 -translate-y-1/2">
+                            <img [src]="getCardTypeIcon()" [alt]="getCardType()!" class="h-6"/>
+                        </div>
+                    </div>
+                    <p *ngIf="paymentInfo.cardNumber && !isValidCardNumber(paymentInfo.cardNumber)"
+                       class="mt-1.5 text-xs font-semibold text-red-500 flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        Invalid card number
+                    </p>
+                </div>
+
+                <!-- Cardholder Name -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Cardholder Name</label>
+                    <div class="relative">
+                        <input type="text"
+                               [(ngModel)]="paymentInfo.cardName"
+                               (input)="formatCardName($event)"
+                               placeholder="JOHN DOE"
+                               class="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 bg-gray-50 dark:bg-gray-800/50 text-sm text-gray-900 dark:text-white uppercase tracking-wider focus:outline-none transition-all"
+                               [ngClass]="paymentInfo.cardName && !isValidCardName(paymentInfo.cardName)
+                     ? 'border-red-400 dark:border-red-600'
+                     : 'border-gray-100 dark:border-gray-800 focus:border-brand-500'"/>
+                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 008 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <p *ngIf="paymentInfo.cardName && !isValidCardName(paymentInfo.cardName)"
+                       class="mt-1.5 text-xs font-semibold text-red-500 flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        Invalid name
+                    </p>
+                </div>
+
+                <!-- Expiry + CVV -->
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Expiry -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Expiry Date</label>
+                        <div class="relative">
+                            <input type="text"
+                                   [(ngModel)]="paymentInfo.expiryDate"
+                                   (input)="formatExpiryDate($event)"
+                                   placeholder="MM/YY"
+                                   maxlength="5"
+                                   class="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 bg-gray-50 dark:bg-gray-800/50 text-sm text-gray-900 dark:text-white font-mono focus:outline-none transition-all"
+                                   [ngClass]="paymentInfo.expiryDate && !isValidExpiryDate(paymentInfo.expiryDate)
+                       ? 'border-red-400 dark:border-red-600'
+                       : 'border-gray-100 dark:border-gray-800 focus:border-brand-500'"/>
+                            <div class="absolute left-3.5 top-1/2 -translate-y-1/2">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <p *ngIf="paymentInfo.expiryDate && !isValidExpiryDate(paymentInfo.expiryDate)"
+                           class="mt-1.5 text-xs font-semibold text-red-500 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                            Invalid date (MM/YY)
+                        </p>
+                    </div>
+
+                    <!-- CVV -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">CVV</label>
+                        <div class="relative">
+                            <input type="text"
+                                   [(ngModel)]="paymentInfo.cvv"
+                                   placeholder="123"
+                                   maxlength="4"
+                                   class="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 bg-gray-50 dark:bg-gray-800/50 text-sm text-gray-900 dark:text-white font-mono focus:outline-none transition-all"
+                                   [ngClass]="paymentInfo.cvv && !isValidCVV(paymentInfo.cvv)
+                       ? 'border-red-400 dark:border-red-600'
+                       : 'border-gray-100 dark:border-gray-800 focus:border-brand-500'"/>
+                            <div class="absolute left-3.5 top-1/2 -translate-y-1/2">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <p *ngIf="paymentInfo.cvv && !isValidCVV(paymentInfo.cvv)"
+                           class="mt-1.5 text-xs font-semibold text-red-500 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                            Invalid CVV
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Security note -->
+                <p class="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 flex-shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    Your card information is encrypted and secure
+                </p>
+            </div>
         </div>
     </div>
 
-    <!-- Plan B — Box selection -->
+    <!-- ── Plan B — Box selection ── -->
     <div *ngIf="data.type === 'B'" class="mb-8 max-w-2xl">
         <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Select a Box</p>
-        <div class="grid grid-cols-5 gap-2">
+        <div class="grid grid-cols-5 gap-2 mb-6">
             <button *ngFor="let box of boxes"
                     (click)="!box.taken && selectBox(box.id)"
                     [disabled]="box.taken"
                     class="relative flex flex-col items-center p-3 rounded-xl border-2 transition-all text-center"
                     [ngClass]="box.taken
-                        ? 'border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/30 cursor-not-allowed opacity-50'
-                        : data.box === box.id
-                            ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-md shadow-brand-500/10'
-                            : 'border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-600 bg-white dark:bg-white/[0.02] cursor-pointer'">
-
+                ? 'border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/30 cursor-not-allowed opacity-50'
+                : data.box === box.id
+                  ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-md shadow-brand-500/10'
+                  : 'border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-600 bg-white dark:bg-white/[0.02] cursor-pointer'">
                 <div *ngIf="box.taken" class="absolute inset-0 flex items-center justify-center rounded-xl">
                     <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
                     </svg>
                 </div>
-
-                <svg class="w-5 h-5 mb-1"
-                     [ngClass]="data.box === box.id ? 'text-brand-500' : 'text-gray-400'"
+                <svg class="w-5 h-5 mb-1" [ngClass]="data.box === box.id ? 'text-brand-500' : 'text-gray-400'"
                      fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                 </svg>
-                <p class="text-xs font-bold"
-                   [ngClass]="data.box === box.id ? 'text-brand-600 dark:text-brand-400' : 'text-gray-700 dark:text-gray-300'">
+                <p class="text-xs font-bold" [ngClass]="data.box === box.id ? 'text-brand-600 dark:text-brand-400' : 'text-gray-700 dark:text-gray-300'">
                     {{ box.label }}
                 </p>
                 <p class="text-xs text-gray-400 mt-0.5">{{ formatPrice(box.price) }}</p>
             </button>
         </div>
 
-        <div *ngIf="selectedBox" class="mt-4 p-4 bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-800/50 rounded-2xl">
+        <div *ngIf="selectedBox" class="mb-6 p-4 bg-brand-50 dark:bg-brand-900/20 border border-brand-100 dark:border-brand-800/50 rounded-2xl">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-bold text-brand-900 dark:text-brand-100">{{ selectedBox.label }} selected</p>
@@ -191,6 +326,38 @@
                     <p class="text-xs text-brand-600 dark:text-brand-400">Total</p>
                     <p class="text-lg font-black text-brand-700 dark:text-brand-300">{{ formatPrice(totalPlanB) }}<span class="text-xs">/mo</span></p>
                 </div>
+            </div>
+        </div>
+
+        <!-- On-site billing info -->
+        <div class="flex items-start gap-4 p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/50 rounded-2xl">
+            <div class="w-9 h-9 rounded-xl bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-purple-900 dark:text-purple-100 mb-1">Billing handled on-site</p>
+                <p class="text-xs text-purple-700 dark:text-purple-300 leading-relaxed">
+                    No card required now. Once your store is validated, our team will contact you to arrange the payment and hand over the keys to your box.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Billing reassurance (both plans) ── -->
+    <div *ngIf="data.type" class="max-w-2xl mb-8">
+        <div class="flex items-start gap-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/50 rounded-2xl">
+            <div class="w-9 h-9 rounded-xl bg-green-100 dark:bg-green-900/40 flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-green-900 dark:text-green-100 mb-1">Billing starts only when your store is approved</p>
+                <p class="text-xs text-green-700 dark:text-green-300 leading-relaxed">
+                    You won't be charged a single cent until your store is validated by our team. And don't worry — <span class="font-bold">99.9% of applications are approved</span>, usually within a few hours. You're almost there!
+                </p>
             </div>
         </div>
     </div>
@@ -209,12 +376,18 @@
                 class="group relative bg-gradient-to-r from-brand-500 to-brand-600 text-white font-bold py-4 px-10 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-brand-500/30 hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none">
             <div class="absolute inset-0 bg-gradient-to-r from-brand-600 to-brand-700 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <span class="relative flex items-center gap-2 text-base">
-                Continue
-                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                </svg>
-            </span>
+        Continue
+        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </span>
         </button>
     </div>
 
+    <!-- Modal -->
+    <app-plan-detail-modal
+            *ngIf="showModal"
+            [plan]="modalPlan"
+            (close)="closeModal()"
+            (selectPlan)="selectPlan($event)"/>
 </div>

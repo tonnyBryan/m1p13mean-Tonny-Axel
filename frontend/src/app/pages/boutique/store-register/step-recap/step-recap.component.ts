@@ -267,8 +267,29 @@ export class StepRecapComponent implements OnInit {
   }
 
   private generatePassword(): string {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#!';
-    return Array.from({ length: 12 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    const lower = 'abcdefghjkmnpqrstuvwxyz';
+    const digits = '23456789';
+    const special = '@#!';
+
+    const passwordChars: string[] = [
+      upper[Math.floor(Math.random() * upper.length)],
+      lower[Math.floor(Math.random() * lower.length)],
+      digits[Math.floor(Math.random() * digits.length)],
+      special[Math.floor(Math.random() * special.length)]
+    ];
+
+    const allChars = upper + lower + digits + special;
+
+    while (passwordChars.length < 9) {
+      passwordChars.push(
+          allChars[Math.floor(Math.random() * allChars.length)]
+      );
+    }
+
+    return passwordChars
+        .sort(() => Math.random() - 0.5)
+        .join('');
   }
 
   private startCooldown(): void {
