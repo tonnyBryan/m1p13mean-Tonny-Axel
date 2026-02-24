@@ -1,0 +1,204 @@
+<div class="mx-auto max-w-7xl">
+    <app-page-breadcrumb pageTitle="Saisie Mouvement de Stock" [breadcrumbs]="[
+        { label: 'Store', link: '/store/app' },
+        { label: 'Stock', link: '/store/app/stock/mouvements' },
+        { label: 'Saisie' }
+    ]"></app-page-breadcrumb>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <!-- Product Selection -->
+        <div class="lg:col-span-8 flex flex-col gap-6">
+            <div
+                class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
+                <div class="mb-5">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Sélection des produits</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Recherchez un produit pour l'ajouter à la liste
+                        de mouvement.</p>
+                </div>
+
+                <div class="relative">
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </span>
+                        <input type="text" id="productSearch" (input)="onProductSearch($event)"
+                            placeholder="Rechercher un produit (nom, SKU...)"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-12 pr-5 font-medium text-gray-900 outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white dark:focus:border-brand-500" />
+                    </div>
+
+                    <!-- Autocomplete Results -->
+                    <div *ngIf="showResults"
+                        class="absolute left-0 mt-2 w-full z-50 rounded-2xl border border-gray-200 bg-white p-2 shadow-2xl dark:border-white/[0.05] dark:bg-gray-900 transition-all">
+                        <div class="max-h-80 overflow-y-auto">
+                            <div *ngFor="let product of searchResults" (click)="selectProduct(product)"
+                                class="flex items-center gap-4 rounded-xl p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors border-b border-gray-100 last:border-0 dark:border-white/[0.05]">
+                                <div class="h-12 w-12 flex-shrink-0">
+                                    <img [src]="product.images && product.images[0] ? product.images[0] : '/product-placeholder.svg'"
+                                        alt="product" class="h-full w-full rounded-lg object-cover shadow-sm" />
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-gray-900 dark:text-white">{{ product.name }}</span>
+                                        <span class="text-xs font-mono text-gray-400">Stock: {{ product.stock }}</span>
+                                    </div>
+                                    <span class="text-xs text-gray-500">{{ product.sku }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Movements List Table -->
+            <div
+                class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
+                <div class="border-b border-gray-100 p-6 dark:border-white/[0.05] flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Produits à traiter</h3>
+                    <span
+                        class="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-500 dark:bg-brand-500/10">
+                        {{ items.length }} produit(s)
+                    </span>
+                </div>
+
+                <div class="max-w-full overflow-x-auto p-6">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr
+                                class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-white/[0.05]">
+                                <th class="pb-4 pr-4">Produit</th>
+                                <th class="pb-4 px-4 text-center">Type</th>
+                                <th class="pb-4 px-4 text-center">Quantité</th>
+                                <th class="pb-4 px-4">Note / Motif</th>
+                                <th class="pb-4 pl-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                            <tr *ngFor="let item of items; let i = index"
+                                class="group hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
+                                <td class="py-5 pr-4">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-gray-900 dark:text-white">{{
+                                            item.productDetails?.name }}</span>
+                                        <span class="text-xs text-gray-500">Actuel: {{ item.productDetails?.stock
+                                            }}</span>
+                                    </div>
+                                </td>
+                                <td class="py-5 px-4 text-center">
+                                    <select [(ngModel)]="item.type"
+                                        class="rounded-lg border border-gray-200 bg-gray-50 p-2 text-xs font-bold outline-none dark:border-white/[0.1] dark:bg-gray-800 dark:text-white"
+                                        [ngClass]="item.type === 'IN' ? 'text-green-600' : 'text-red-600'">
+                                        <option value="IN">ENTRÉE (IN)</option>
+                                        <option value="OUT">SORTIE (OUT)</option>
+                                    </select>
+                                </td>
+                                <td class="py-5 px-4 text-center">
+                                    <input type="number" [(ngModel)]="item.quantity" min="1"
+                                        class="w-20 rounded-lg border border-gray-200 bg-gray-50 p-2 text-center text-sm font-semibold outline-none dark:border-white/[0.1] dark:bg-gray-800 dark:text-white" />
+                                </td>
+                                <td class="py-5 px-4">
+                                    <input type="text" [(ngModel)]="item.note"
+                                        placeholder="Ex: Livraison fournisseur..."
+                                        class="w-full rounded-lg border border-gray-200 bg-gray-50 p-2 text-sm outline-none dark:border-white/[0.1] dark:bg-gray-800 dark:text-white" />
+                                </td>
+                                <td class="py-5 pl-4 text-right">
+                                    <button (click)="removeItem(i)"
+                                        class="text-gray-400 hover:text-red-500 transition-colors">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path
+                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr *ngIf="items.length === 0">
+                                <td colspan="5" class="py-12 text-center">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <div class="rounded-full bg-gray-50 p-4 dark:bg-white/[0.03]">
+                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="1.5"
+                                                class="text-gray-300 dark:text-gray-600">
+                                                <path
+                                                    d="M20 7V17C20 18.1 19.1 19 18 19H6C4.9 19 4 18.1 4 17V7M20 7L12 3L4 7M20 7L12 11L4 7M12 11V21">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Aucun produit
+                                            sélectionné</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Summary & Save -->
+        <div class="lg:col-span-4 flex flex-col gap-6">
+            <div
+                class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
+                <h3 class="mb-5 text-lg font-bold text-gray-900 dark:text-white">Validation</h3>
+
+                <div class="space-y-4">
+                    <div class="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider mb-2">
+                            Résumé</p>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm">Nombre de lignes :</span>
+                            <span class="font-bold">{{ items.length }}</span>
+                        </div>
+                    </div>
+
+                    <div *ngIf="errorMessage"
+                        class="animate-fade-in rounded-xl bg-red-50 p-4 border border-red-200 dark:bg-red-500/10 dark:border-red-500/20">
+                        <p class="text-center text-sm font-bold text-red-600 dark:text-red-500">{{ errorMessage }}</p>
+                    </div>
+
+                    <button (click)="submitMovements()" [disabled]="items.length === 0 || isSaving"
+                        class="w-full flex items-center justify-center gap-2 rounded-xl bg-brand-500 py-4 text-base font-bold text-white shadow-lg shadow-brand-500/30 hover:bg-brand-600 active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale">
+                        <svg *ngIf="!isSaving" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.5">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <svg *ngIf="isSaving" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        {{ isSaving ? 'TRAITEMENT...' : 'VALIDER LES MOUVEMENTS' }}
+                    </button>
+
+                    <a routerLink="/store/app/stock/mouvements"
+                        class="block text-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white transition-colors">
+                        Annuler et retourner
+                    </a>
+                </div>
+            </div>
+
+            <div
+                class="rounded-2xl border border-blue-100 bg-blue-50/50 p-6 dark:border-blue-500/10 dark:bg-blue-500/5">
+                <div class="flex gap-3">
+                    <svg class="h-5 w-5 text-blue-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="text-xs text-blue-700 dark:text-blue-300">
+                        <p class="font-bold mb-1">Attention</p>
+                        <p>La validation mettra à jour le stock réel des produits. Cette action est irréversible.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
