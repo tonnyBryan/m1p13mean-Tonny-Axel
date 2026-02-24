@@ -322,9 +322,9 @@ layer(base);
 
 /* ── Shadow shrink/grow sync with float ── */
 @keyframes markerShadow {
-  0%   { transform: translateX(-50%) scale(1);    opacity: 0.3; }
-  50%  { transform: translateX(-50%) scale(0.6);  opacity: 0.15; }
-  100% { transform: translateX(-50%) scale(1);    opacity: 0.3; }
+  0%   { transform: translateX(-50%) scale(1);   opacity: 0.3; }
+  50%  { transform: translateX(-50%) scale(0.6); opacity: 0.15; }
+  100% { transform: translateX(-50%) scale(1);   opacity: 0.3; }
 }
 
 .user-marker-pin {
@@ -332,14 +332,17 @@ layer(base);
 }
 
 .user-marker-float {
+  will-change: transform;
   animation: markerFloat 2s ease-in-out infinite;
 }
 
 .user-marker-ring {
+  will-change: transform, opacity;
   animation: markerRingPulse 2s ease-out infinite;
 }
 
 .user-marker-shadow {
+  will-change: transform, opacity;
   animation: markerShadow 2s ease-in-out infinite;
 }
 

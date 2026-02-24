@@ -325,7 +325,16 @@
                                         [center]="mapCenter"
                                         [zoom]="(newAddress.latitude && newAddress.longitude) ? 20 : 15"
                                         [height]="'100%'"
+                                        [markerOnClick]="true"
                                         [autoSetMarker]="true"
+                                        [staticMarker]="{
+                                            lat: cart.boutique.address.latitude,
+                                            lng: cart.boutique.address.longitude,
+                                            logoUrl: cart.boutique.logo,
+                                            label: cart.boutique.name,
+                                            color: '#10b981',
+                                            isLocal: cart.boutique.isLocal
+                                          }"
                                         (mapClick)="onMapClick($event)">
                                 </app-leaflet-map>
                             </div>
