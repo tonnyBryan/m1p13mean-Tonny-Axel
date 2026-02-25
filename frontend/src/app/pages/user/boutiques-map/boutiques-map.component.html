@@ -1,0 +1,199 @@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<div class="mx-auto max-w-7xl">
+    <app-page-breadcrumb pageTitle="Stores Map" [breadcrumbs]="[
+        { label: 'Store', link: '/store/app' },
+        { label: 'Stores Map' }
+    ]"></app-page-breadcrumb>
+
+    <div class="rounded-2xl border border-gray-200 dark:border-white/[0.05] bg-white dark:bg-white/[0.03] shadow-sm overflow-hidden">
+
+        <!-- ── Top bar ── -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4 border-b border-gray-100 dark:border-white/[0.05]">
+
+            <!-- Search -->
+            <div class="relative flex-1 max-w-sm">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </span>
+                <input type="text" [value]="searchQuery" (input)="onSearchInput($event)"
+                       placeholder="Search a store..."
+                       class="w-full h-10 rounded-xl border border-gray-200 dark:border-white/[0.08] bg-gray-50 dark:bg-white/[0.04] pl-9 pr-8 text-sm text-gray-900 dark:text-white outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 placeholder:text-gray-400" />
+                <button *ngIf="searchQuery" (click)="clearSearch()"
+                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+
+                <!-- Dropdown -->
+                <div *ngIf="showDropdown"
+                     class="absolute top-full left-0 mt-1.5 w-full z-[1000] rounded-xl border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-gray-900 shadow-2xl overflow-hidden">
+                    <div *ngFor="let b of searchResults" (click)="selectBoutique(b)"
+                         class="flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-colors border-b border-gray-100 dark:border-white/[0.04] last:border-0">
+                        <img [src]="b.logo || '/placeholder.svg'"
+                             class="w-8 h-8 rounded-lg object-cover flex-shrink-0 border border-gray-100 dark:border-white/[0.08]" />
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white flex-1 truncate">{{ b.name }}</p>
+                        <span *ngIf="b.isLocal"
+                              class="text-xs font-bold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex-shrink-0">In center</span>
+                        <span *ngIf="!b.isLocal"
+                              class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex-shrink-0">External</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="flex items-center gap-2 sm:ml-auto flex-shrink-0">
+                <div *ngIf="isLoading" class="flex items-center gap-2 text-sm text-gray-400">
+                    <svg class="animate-spin h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                    </svg>
+                    Loading...
+                </div>
+                <ng-container *ngIf="!isLoading">
+                    <button (click)="openCentreModal()"
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors">
+                        <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
+                        <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400">{{ localCount }} in center</span>
+                    </button>
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">{{ externalCount }} external</span>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+
+        <!-- ── Map ── -->
+        <div class="relative">
+            <div #mapContainer style="height: calc(100vh - 260px); min-height: 500px;" class="w-full"></div>
+
+            <!-- Fly buttons -->
+            <div class="absolute bottom-5 left-4 z-[999] flex flex-col gap-2">
+                <button (click)="flyToCentre()"
+                        class="group relative w-9 h-9 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg flex items-center justify-center transition-all hover:bg-indigo-50 dark:hover:bg-indigo-900/40 hover:border-indigo-400 hover:shadow-xl">
+                    <svg class="w-4 h-4 text-indigo-400 group-hover:text-indigo-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span class="pointer-events-none absolute left-11 top-1/2 -translate-y-1/2 bg-gray-900 dark:bg-gray-700 text-white text-xs font-semibold px-2 py-1 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">Our center</span>
+                </button>
+                <button (click)="flyToMyLocation()"
+                        class="group relative w-9 h-9 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg flex items-center justify-center transition-all hover:bg-red-50 dark:hover:bg-red-900/40 hover:border-red-400 hover:shadow-xl">
+                    <svg class="w-4 h-4 text-red-400 group-hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="pointer-events-none absolute left-11 top-1/2 -translate-y-1/2 bg-gray-900 dark:bg-gray-700 text-white text-xs font-semibold px-2 py-1 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">My location</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     CENTRE MODAL — full Tailwind dark/light
+══════════════════════════════════════════════════════════════ -->
+<div *ngIf="showCentreModal"
+     class="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center sm:p-6"
+     (click)="closeCentreModal()">
+
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/50 dark:bg-black/65 backdrop-blur-sm"></div>
+
+    <!-- Sheet -->
+    <div class="relative w-full sm:max-w-[540px] max-h-[78vh] sm:max-h-[82vh]
+                bg-white dark:bg-gray-900
+                border-t sm:border border-gray-200 dark:border-white/[0.07]
+                rounded-t-3xl sm:rounded-2xl
+                flex flex-col overflow-hidden
+                shadow-2xl
+                bm-modal-slide-up"
+         (click)="$event.stopPropagation()">
+
+        <!-- Drag handle (mobile) -->
+        <div class="sm:hidden flex justify-center pt-3 pb-1 flex-shrink-0">
+            <div class="w-10 h-1 rounded-full bg-gray-300 dark:bg-white/20"></div>
+        </div>
+
+        <!-- Header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/[0.06] flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <!-- Icon -->
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-gray-900 dark:text-white leading-tight">Our Center</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ localCount }} store{{ localCount > 1 ? 's' : '' }} inside</p>
+                </div>
+            </div>
+            <button (click)="closeCentreModal()"
+                    class="w-8 h-8 rounded-full flex items-center justify-center
+                           bg-gray-100 dark:bg-white/[0.06]
+                           text-gray-500 dark:text-gray-400
+                           hover:bg-gray-200 dark:hover:bg-white/[0.1]
+                           hover:text-gray-700 dark:hover:text-white
+                           transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Store list -->
+        <div class="overflow-y-auto flex-1 p-4">
+
+            <!-- Empty state -->
+            <div *ngIf="localBoutiques.length === 0"
+                 class="flex flex-col items-center gap-3 py-12 text-gray-400 dark:text-gray-600">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M20 7V17C20 18.1 19.1 19 18 19H6C4.9 19 4 18.1 4 17V7M20 7L12 3L4 7M20 7L12 11L4 7"/>
+                </svg>
+                <p class="text-sm font-medium">No stores in this center yet</p>
+            </div>
+
+            <!-- Cards -->
+            <div class="flex flex-col gap-2">
+                <a *ngFor="let b of localBoutiques"
+                   href="/v1/stores/{{ b._id }}"
+                   class="group flex items-center gap-3 p-3 rounded-2xl
+                          border border-gray-100 dark:border-white/[0.05]
+                          bg-transparent
+                          hover:bg-gray-50 dark:hover:bg-white/[0.03]
+                          hover:border-gray-200 dark:hover:border-white/[0.09]
+                          transition-all duration-150 no-underline">
+
+                    <!-- Logo -->
+                    <div class="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0
+                                border border-gray-100 dark:border-white/[0.07]
+                                bg-gray-50 dark:bg-white/[0.04]">
+                        <img [src]="b.logo || '/placeholder.svg'" [alt]="b.name"
+                             onerror="this.src='/placeholder.svg'"
+                             class="w-full h-full object-cover" />
+                    </div>
+
+                    <!-- Info -->
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-700 text-gray-900 dark:text-white truncate font-bold">{{ b.name }}</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5 leading-snug">
+                            {{ b.description?.slice(0, 60) }}{{ (b.description?.length || 0) > 60 ? '...' : '' }}
+                        </p>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="text-gray-300 dark:text-gray-600 group-hover:text-indigo-500 dark:group-hover:text-indigo-400
+                                transition-all group-hover:translate-x-0.5 flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

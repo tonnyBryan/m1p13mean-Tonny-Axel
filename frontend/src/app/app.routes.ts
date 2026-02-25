@@ -44,6 +44,7 @@ import { ResetPasswordComponent } from './pages/auth-pages/reset-password/reset-
 import { SecurityBoutiqueComponent } from './pages/boutique/security-boutique/security-boutique.component';
 import { StoreRegisterComponent } from './pages/boutique/store-register/store-register.component';
 import { SecurityComponent } from './pages/user/security/security.component';
+import {BoutiquesMapComponent} from "./pages/user/boutiques-map/boutiques-map.component";
 
 const appName = environment.plateformeName || 'Shopticus';
 
@@ -139,6 +140,14 @@ export const routes: Routes = [
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
         title: 'My Orders | ' + appName,
+      },
+      {
+        path: 'maps',
+        component: BoutiquesMapComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.userRole] },
+        pathMatch: 'full',
+        title: 'Maps | ' + appName,
       },
       {
         path: 'wishlist',
