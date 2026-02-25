@@ -31,7 +31,7 @@ interface Boutique {
 @Component({
   selector: 'app-boutiques-map',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, PageBreadcrumbComponent, NgOptimizedImage],
+  imports: [CommonModule, RouterModule, FormsModule, PageBreadcrumbComponent],
   templateUrl: './boutiques-map.component.html',
   styleUrls: ['./boutiques-map.component.css']
 })

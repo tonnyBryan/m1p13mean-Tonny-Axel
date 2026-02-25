@@ -121,6 +121,9 @@ router.post('/reset-password', authController.resetPassword);
  */
 router.post('/change-password', protect, authorize('user', 'boutique'), authController.changePassword);
 
+// Toggle new device alert preference (authenticated users only)
+router.post('/toggle-new-device-alert', protect, authorize('user', 'boutique'), authController.toggleNewDeviceAlert);
+
 router.get(
     '/login-history',
     protect,

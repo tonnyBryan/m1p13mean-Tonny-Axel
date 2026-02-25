@@ -27,6 +27,10 @@ const UserSchema = new mongoose.Schema(
         isEmailVerified: {
             type: Boolean,
             default: false
+        },
+        isAlertedToNewDevice: {
+            type: Boolean,
+            default: false
         }
     },
     {

@@ -8,6 +8,7 @@ const { generateAccessToken } = require('../utils/auth.utils');
 const Boutique = require('../models/Boutique');
 const PasswordResetToken = require('../models/PasswordResetToken');
 const {sendPasswordResetEmail} = require("../mail/mail.service");
+const {sendNewDeviceEmail} = require('../mail/mail.service');
 const {buildSessionInfo} = require("../utils/session.utils");
 
 
@@ -38,6 +39,34 @@ exports.login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return errorResponse(res, 401, 'Authentication failed. Please check your email, password and role and try again.');
+        }
+
+        if (user.isAlertedToNewDevice) {
+            try {
+                const sessionInfo = await buildSessionInfo(req);
+
+                const lastToken = await RefreshToken.findOne({ user: user._id, isRevoked: false }).sort({ createdAt: -1 }).lean();
+
+                if (lastToken) {
+                    const sameIp = (lastToken.ipAddress || null) === (sessionInfo.ipAddress || null);
+                    const sameUA = (lastToken.userAgent || null) === (req.headers['user-agent'] || null);
+
+                    if (!sameIp || !sameUA) {
+                        sendNewDeviceEmail({
+                            to: user.email,
+                            name: user.name,
+                            device: sessionInfo.device,
+                            browser: sessionInfo.browser,
+                            os: sessionInfo.os,
+                            ip: sessionInfo.ipAddress,
+                            location: sessionInfo.location,
+                            loginAt: new Date().toISOString()
+                        }).catch(err => console.error('New device email failed:', err));
+                    }
+                }
+            } catch (err) {
+                console.error('Device detection failed:', err);
+            }
         }
 
         const tokenPayload = {
@@ -568,5 +597,32 @@ exports.revokeSession = async (req, res) => {
     } catch (error) {
         console.error('revokeSession error:', error);
         return errorResponse(res, 500, 'An unexpected error occurred.');
+    }
+};
+
+// Toggle new device alert preference for authenticated user
+exports.toggleNewDeviceAlert = async (req, res) => {
+    try {
+        const userId = req.user && req.user._id;
+        if (!userId) {
+            return errorResponse(res, 401, 'Authentication required.');
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return errorResponse(res, 404, 'Authenticated user not found.');
+        }
+
+        user.isAlertedToNewDevice = !user.isAlertedToNewDevice;
+        await user.save();
+
+        const statusMessage = user.isAlertedToNewDevice
+            ? 'New device alerting has been enabled. You will receive an email when a sign-in from an unrecognized device is detected.'
+            : 'New device alerting has been disabled. You will no longer receive emails for sign-ins from unrecognized devices.';
+
+        return successResponse(res, 200, statusMessage, { isAlertedToNewDevice: user.isAlertedToNewDevice });
+    } catch (error) {
+        console.error('toggleNewDeviceAlert error:', error);
+        return errorResponse(res, 500, 'An unexpected error occurred while updating your notification preferences. Please try again later.');
     }
 };

@@ -1,0 +1,15 @@
+<p>Hi {{name}},</p>
+
+<p>We detected a sign-in to your {{appName}} account from a device we don't recognize.</p>
+
+<ul>
+  <li><strong>Device:</strong> {{device}}</li>
+  <li><strong>Browser:</strong> {{browser}}</li>
+  <li><strong>Operating System:</strong> {{os}}</li>
+  <li><strong>IP / Location:</strong> {{ip}} {{#if location}}({{location}}){{/if}}</li>
+  <li><strong>Time:</strong> {{loginAt}}</li>
+</ul>
+
+<p>If this was you, no action is required. If you do not recognize this activity, please secure your account immediately by changing your password and contacting our support team.</p>
+
+<p>Thank you,<br>The {{appName}} Security Team</p>

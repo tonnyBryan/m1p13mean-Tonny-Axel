@@ -115,4 +115,37 @@ async function sendPasswordResetEmail({ to, name, resetLink }) {
     }
 }
 
-module.exports = { sendVerificationEmail, sendSupportEmail, sendPasswordResetEmail };
+async function sendNewDeviceEmail({ to, name, device, browser, os, ip, location, loginAt }) {
+    const contentHtml = renderTemplate("new-device", {
+        name: name || 'there',
+        device,
+        browser,
+        os,
+        ip,
+        location,
+        loginAt,
+        appName: APP_CONFIG.name
+    });
+
+    const html = renderTemplate("base", {
+        title: "New sign-in detected",
+        content: contentHtml,
+        year: new Date().getFullYear(),
+        appName: APP_CONFIG.name,
+        supportUrl: APP_CONFIG.supportUrl,
+        privacyUrl: APP_CONFIG.privacyUrl
+    });
+
+    const info = await transporter.sendMail({
+        from: `"${APP_CONFIG.name}" <${APP_CONFIG.email}>`,
+        to,
+        subject: `New sign-in to your ${APP_CONFIG.name} account`,
+        html,
+        text: `Hi ${name || 'there'},\n\nWe detected a sign-in to your ${APP_CONFIG.name} account from a device we don't recognize.\n\nDevice: ${device}\nBrowser: ${browser}\nOS: ${os}\nIP: ${ip}\nLocation: ${location}\nTime: ${loginAt}\n\nIf this was you, no action is required. If you do not recognize this activity, please secure your account immediately by changing your password and contacting our support team.`
+    });
+
+    console.log('New device email sent:', info.messageId);
+    return { success: true, messageId: info.messageId };
+}
+
+module.exports = { sendVerificationEmail, sendSupportEmail, sendPasswordResetEmail, sendNewDeviceEmail };
