@@ -146,4 +146,10 @@ export class AuthService {
         const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
         return this.api.delete<any>(`auth/login-history/${sessionId}`, headers);
     }
+
+    toggleAlertDevice(): Observable<any> {
+        const token = this.getToken();
+        const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+        return this.api.post<any>(`auth/toggle-new-device-alert`, headers);
+    }
 }

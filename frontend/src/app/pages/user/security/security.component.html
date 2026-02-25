@@ -1,34 +1,34 @@
 <div class="mx-auto max-w-7xl">
 
-<!-- Page Header -->
-    <div class="mb-10">
-        <div class="flex items-center gap-4 mb-3">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-lg shadow-brand-500/25">
-                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <!-- ── Page Header ── -->
+    <div class="mb-6 lg:mb-10">
+        <div class="flex items-center gap-3 lg:gap-4 mb-3">
+            <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-lg shadow-brand-500/25 flex-shrink-0">
+                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                 </svg>
             </div>
             <div>
-                <h1 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Account Security</h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Your security is our top priority — manage your protection settings here</p>
+                <h1 class="text-xl lg:text-2xl font-black text-gray-900 dark:text-white tracking-tight">Account Security</h1>
+                <p class="text-xs lg:text-sm text-gray-500 dark:text-gray-400">Manage your protection settings here</p>
             </div>
         </div>
 
         <!-- Email not verified banner -->
         <div *ngIf="!isLoading && !isEmailVerified"
-             class="flex items-center gap-4 p-4 mt-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl">
+             class="flex items-start sm:items-center gap-3 p-4 mt-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl">
             <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
                 <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                 </svg>
             </div>
-            <div class="flex-1">
+            <div class="flex-1 min-w-0">
                 <p class="text-sm font-bold text-amber-900 dark:text-amber-100">Email not verified</p>
-                <p class="text-xs text-amber-700 dark:text-amber-300">Verify your email to unlock advanced security features like 2FA and device alerts.</p>
+                <p class="text-xs text-amber-700 dark:text-amber-300">Verify your email to unlock 2FA and device alerts.</p>
             </div>
             <a routerLink="/v1/verify-email"
                class="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg transition-colors">
-                Verify now
+                Verify
                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                 </svg>
@@ -36,11 +36,97 @@
         </div>
     </div>
 
-    <!-- Layout sidebar + contenu -->
+    <!-- ══════════════════════════════════════════════════════════
+         MOBILE — horizontal tab bar (< lg)
+    ══════════════════════════════════════════════════════════ -->
+    <div class="lg:hidden mb-5">
+
+        <!-- Security score — compact strip -->
+        <div class="flex items-center gap-3 p-3.5 mb-4 bg-gradient-to-r from-brand-50 to-blue-50 dark:from-brand-900/20 dark:to-blue-900/20 border border-brand-100 dark:border-brand-800/50 rounded-2xl">
+            <div class="flex-1 min-w-0">
+                <p class="text-xs font-bold text-brand-700 dark:text-brand-300 uppercase tracking-wider mb-1">Security Level</p>
+                <div class="flex items-center gap-2">
+                    <div class="flex-1 h-1.5 rounded-full bg-brand-100 dark:bg-brand-900/40 overflow-hidden">
+                        <div class="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-400 transition-all duration-500"
+                             [style.width]="isEmailVerified ? '60%' : '30%'"></div>
+                    </div>
+                    <span class="text-sm font-black text-brand-600 dark:text-brand-400 flex-shrink-0">
+                        {{ isLoading ? '...' : (isEmailVerified ? 'Good' : 'Basic') }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Horizontal scrollable tabs -->
+        <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
+
+            <!-- Password tab -->
+            <button (click)="setSection('password')"
+                    class="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap"
+                    [ngClass]="activeSection === 'password'
+                        ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md shadow-indigo-500/25'
+                        : 'bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.07] text-gray-600 dark:text-gray-400'">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                </svg>
+                Password
+            </button>
+
+            <!-- Login History tab -->
+            <button (click)="setSection('history')"
+                    class="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap"
+                    [ngClass]="activeSection === 'history'
+                        ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md shadow-indigo-500/25'
+                        : 'bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.07] text-gray-600 dark:text-gray-400'">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Login History
+            </button>
+
+            <!-- Device Alert tab -->
+            <button (click)="setSection('device')"
+                    [disabled]="isLoading || !isEmailVerified"
+                    class="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap"
+                    [ngClass]="isLoading || !isEmailVerified
+                        ? 'opacity-40 cursor-not-allowed bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.07] text-gray-400'
+                        : activeSection === 'device'
+                            ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md shadow-indigo-500/25'
+                            : 'bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.07] text-gray-600 dark:text-gray-400'">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+                Device Alert
+                <svg *ngIf="!isEmailVerified" class="w-3 h-3 opacity-60" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                </svg>
+            </button>
+
+            <!-- 2FA tab -->
+            <button (click)="setSection('2fa')"
+                    [disabled]="isLoading || !isEmailVerified"
+                    class="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap"
+                    [ngClass]="isLoading || !isEmailVerified
+                        ? 'opacity-40 cursor-not-allowed bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.07] text-gray-400'
+                        : activeSection === '2fa'
+                            ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md shadow-indigo-500/25'
+                            : 'bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.07] text-gray-600 dark:text-gray-400'">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+                2FA
+                <span class="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-black/10 dark:bg-white/10">Soon</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         DESKTOP — sidebar + content (≥ lg)
+    ══════════════════════════════════════════════════════════ -->
     <div class="flex gap-8 items-start">
 
-        <!-- ── Sidebar ── -->
-        <aside class="w-72 flex-shrink-0 sticky top-24">
+        <!-- Sidebar — hidden on mobile -->
+        <aside class="hidden lg:block w-72 flex-shrink-0 sticky top-24">
 
             <!-- Security score card -->
             <div class="mb-6 p-5 bg-gradient-to-br from-brand-50 to-blue-50 dark:from-brand-900/20 dark:to-blue-900/20 border border-brand-100 dark:border-brand-800/50 rounded-2xl">
@@ -67,7 +153,7 @@
                             ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-700 dark:to-indigo-600 text-white shadow-lg'
                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white'">
                     <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                         [ngClass]="activeSection === 'password' ? 'bg-white/10 dark:bg-indigo-700/20' : 'bg-gray-100 dark:bg-gray-800'">
+                         [ngClass]="activeSection === 'password' ? 'bg-white/10' : 'bg-gray-100 dark:bg-gray-800'">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
                         </svg>
@@ -88,7 +174,7 @@
                             ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-700 dark:to-indigo-600 text-white shadow-lg'
                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white'">
                     <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                         [ngClass]="activeSection === 'history' ? 'bg-white/10 dark:bg-indigo-700/20' : 'bg-gray-100 dark:bg-gray-800'">
+                         [ngClass]="activeSection === 'history' ? 'bg-white/10' : 'bg-gray-100 dark:bg-gray-800'">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
@@ -112,7 +198,7 @@
                                 ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-700 dark:to-indigo-600 text-white shadow-lg'
                                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white'">
                     <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                         [ngClass]="activeSection === 'device' ? 'bg-white/10 dark:bg-indigo-700/20' : 'bg-gray-100 dark:bg-gray-800'">
+                         [ngClass]="activeSection === 'device' ? 'bg-white/10' : 'bg-gray-100 dark:bg-gray-800'">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                         </svg>
@@ -126,7 +212,6 @@
                         </p>
                         <p class="text-xs opacity-60 truncate">New login notifications</p>
                     </div>
-                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500">Soon</span>
                 </button>
 
                 <!-- 2FA -->
@@ -139,7 +224,7 @@
                                 ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 dark:from-indigo-700 dark:to-indigo-600 text-white shadow-lg'
                                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white'">
                     <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                         [ngClass]="activeSection === '2fa' ? 'bg-white/10 dark:bg-indigo-700/20' : 'bg-gray-100 dark:bg-gray-800'">
+                         [ngClass]="activeSection === '2fa' ? 'bg-white/10' : 'bg-gray-100 dark:bg-gray-800'">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                         </svg>
@@ -159,20 +244,19 @@
             </nav>
         </aside>
 
-        <!-- ── Contenu dynamique ── -->
-        <div class="flex-1 min-w-0">
+        <!-- ── Contenu dynamique — full width mobile, flex-1 desktop ── -->
+        <div class="flex-1 min-w-0 w-full">
 
             <!-- Section: Password -->
             <div *ngIf="activeSection === 'password'">
-                <div class="mb-6">
-                    <h2 class="text-xl font-black text-gray-900 dark:text-white mb-1">Change Password</h2>
+                <div class="mb-5 lg:mb-6">
+                    <h2 class="text-lg lg:text-xl font-black text-gray-900 dark:text-white mb-1">Change Password</h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                        A strong password is your first line of defense. We recommend using a unique password that you don't use anywhere else.
+                        A strong password is your first line of defense. Use a unique password you don't use anywhere else.
                     </p>
                 </div>
-
                 <!-- Tips card -->
-                <div class="flex items-start gap-4 p-4 mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-2xl">
+                <div class="flex items-start gap-3 lg:gap-4 p-4 mb-5 lg:mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-2xl">
                     <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
@@ -181,18 +265,17 @@
                     <div>
                         <p class="text-sm font-bold text-blue-900 dark:text-blue-100 mb-1">Tips for a strong password</p>
                         <p class="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
-                            Use at least 8 characters with a mix of uppercase, lowercase, numbers and symbols. Avoid using personal information or common words.
+                            Use at least 8 characters with uppercase, lowercase, numbers and symbols. Avoid personal information or common words.
                         </p>
                     </div>
                 </div>
-
                 <app-change-password />
             </div>
 
             <!-- Section: Login History -->
             <div *ngIf="activeSection === 'history'">
-                <div class="mb-6">
-                    <h2 class="text-xl font-black text-gray-900 dark:text-white mb-1">Login History</h2>
+                <div class="mb-5 lg:mb-6">
+                    <h2 class="text-lg lg:text-xl font-black text-gray-900 dark:text-white mb-1">Login History</h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
                         Keep an eye on your account activity. If you see something unfamiliar, change your password immediately.
                     </p>
@@ -202,39 +285,34 @@
 
             <!-- Section: Device Alert -->
             <div *ngIf="activeSection === 'device'">
-                <div class="mb-6">
-                    <h2 class="text-xl font-black text-gray-900 dark:text-white mb-1">New Device Alert</h2>
+                <div class="mb-5 lg:mb-6">
+                    <h2 class="text-lg lg:text-xl font-black text-gray-900 dark:text-white mb-1">New Device Alert</h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                        Get notified by email whenever your account is accessed from a new or unrecognized device. Stay in control at all times.
+                        Get notified by email whenever your account is accessed from a new or unrecognized device.
                     </p>
                 </div>
-                <div class="flex flex-col items-center justify-center py-16 bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-2xl">
-                    <div class="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-                        <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                        </svg>
-                    </div>
-                    <p class="text-base font-bold text-gray-900 dark:text-white mb-1">Coming Soon</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 text-center max-w-xs">We're working on real-time device monitoring to keep your account safe.</p>
-                </div>
+                <app-device-alert
+                        [enabled]="isAlertNewDevice"
+                        (goToHistory)="setSection('history')">
+                </app-device-alert>
             </div>
 
             <!-- Section: 2FA -->
             <div *ngIf="activeSection === '2fa'">
-                <div class="mb-6">
-                    <h2 class="text-xl font-black text-gray-900 dark:text-white mb-1">Two-Factor Authentication</h2>
+                <div class="mb-5 lg:mb-6">
+                    <h2 class="text-lg lg:text-xl font-black text-gray-900 dark:text-white mb-1">Two-Factor Authentication</h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                        Add a second layer of protection to your account. Even if someone gets your password, they won't be able to access your account without the code sent to your email.
+                        Add a second layer of protection. Even if someone gets your password, they won't access your account without a code.
                     </p>
                 </div>
-                <div class="flex flex-col items-center justify-center py-16 bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-2xl">
-                    <div class="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-                        <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <div class="flex flex-col items-center justify-center py-12 lg:py-16 bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-2xl">
+                    <div class="w-14 h-14 lg:w-16 lg:h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+                        <svg class="w-7 h-7 lg:w-8 lg:h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                         </svg>
                     </div>
                     <p class="text-base font-bold text-gray-900 dark:text-white mb-1">Coming Soon</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 text-center max-w-xs">Two-factor authentication via email OTP is on its way. Maximum security, minimum hassle.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 text-center max-w-xs px-4">Two-factor authentication via email OTP is on its way. Maximum security, minimum hassle.</p>
                 </div>
             </div>
 
