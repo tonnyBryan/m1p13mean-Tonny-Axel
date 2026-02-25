@@ -12,10 +12,10 @@ connectDB()
     .then(() => {
         try {
             const initExpireDraftsJob = require('./jobs/expireDrafts.job');
-            // initExpireDraftsJob();
+            initExpireDraftsJob();
 
             const initCleanExpiredSessionsJob = require('./jobs/cleanExpiredSessions.job');
-            // initCleanExpiredSessionsJob();
+            initCleanExpiredSessionsJob();
         } catch (err) {
             console.error('Failed to init jobs:', err);
         }

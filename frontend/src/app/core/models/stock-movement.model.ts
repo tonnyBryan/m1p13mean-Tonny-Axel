@@ -9,7 +9,7 @@ export interface StockMovement {
     stockBefore: number;
     stockAfter: number;
     note?: string;
-    source: 'manual' | 'inventory';
+    source: 'manual' | 'inventory' | 'sale';
     createdBy: any;
     createdAt?: Date;
     updatedAt?: Date;

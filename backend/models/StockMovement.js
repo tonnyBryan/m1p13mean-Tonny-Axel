@@ -35,7 +35,7 @@ const StockMovementSchema = new mongoose.Schema(
         },
         source: {
             type: String,
-            enum: ['manual', 'inventory'],
+            enum: ['manual', 'inventory', 'sale'],
             default: 'manual'
         },
         createdBy: {

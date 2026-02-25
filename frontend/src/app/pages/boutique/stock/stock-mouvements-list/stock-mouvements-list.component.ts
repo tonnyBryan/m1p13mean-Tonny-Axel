@@ -61,7 +61,8 @@ export class StockMouvementsListComponent implements OnInit {
     sourceOptions = [
         { value: '', label: 'All sources' },
         { value: 'manual', label: 'Manual' },
-        { value: 'inventory', label: 'Inventory' }
+        { value: 'inventory', label: 'Inventory' },
+        { value: 'sale', label: 'Sale' }
     ];
 
     isLoading = false;

@@ -2,6 +2,8 @@ const Product = require('../models/Product');
 const Vente = require('../models/Vente');
 const User = require('../models/User');
 const UserProfile = require('../models/UserProfile');
+const StockMovement = require('../models/StockMovement');
+
 
 async function removeEngagement(commande, session) {
     if (!commande || !Array.isArray(commande.products)) return;
@@ -80,4 +82,52 @@ async function createVenteFromCommande(commande, sellerId, session) {
     return vente;
 }
 
-module.exports = { removeEngagement, createVenteFromCommande };
+async function removeFromStock(commande, userId, session) {
+    if (!commande || !Array.isArray(commande.products)) return;
+
+    for (const item of commande.products) {
+        const productId = item?.product?._id || item?.product;
+        const qty = Number(item?.quantity) || 0;
+
+        if (!productId || qty <= 0) {
+            throw new Error(`Invalid product or quantity for product ${productId}`);
+        }
+
+        const product = await Product.findById(productId).session(session);
+        if (!product) {
+            throw new Error(`Product not found: ${productId}`);
+        }
+
+        const stock = product.stock || 0;
+        const stockEngaged = product.stockEngaged || 0;
+        const stockReal = stock - stockEngaged;
+
+        if (stockReal < qty) {
+            throw new Error(`Insufficient real stock for product ${product.name}`);
+        }
+
+        const stockBefore = stock;
+        const stockAfter = stock - qty;
+
+        // 1️⃣ Mouvement de stock (OUT)
+        await StockMovement.create(
+            [{
+                boutique: commande.boutique,
+                product: product._id,
+                type: 'OUT',
+                quantity: qty,
+                stockBefore,
+                stockAfter,
+                note: `Order accepted (${commande._id})`,
+                source: 'sale',
+                createdBy: userId
+            }],
+            { session }
+        );
+
+        product.stock = stockAfter;
+        await product.save({ session });
+    }
+}
+
+module.exports = { removeEngagement, createVenteFromCommande, removeFromStock };

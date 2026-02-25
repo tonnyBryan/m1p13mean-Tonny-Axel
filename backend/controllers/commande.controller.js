@@ -5,7 +5,7 @@ const LivraisonConfig = require('../models/LivraisonConfig');
 const UserProfile = require('../models/UserProfile');
 const Boutique = require('../models/Boutique');
 const Vente = require('../models/Vente');
-const {removeEngagement, createVenteFromCommande} = require("../services/commande.service");
+const {removeEngagement, createVenteFromCommande, removeFromStock} = require("../services/commande.service");
 const mongoose = require('mongoose');
 const { sendNotification } = require('../services/notification.service');
 
@@ -661,6 +661,7 @@ exports.acceptOrder = async (req, res) => {
         const sellerId = req.user._id;
 
         const vente = await createVenteFromCommande(commande, sellerId, session);
+        await removeFromStock(commande, sellerId, session);
         await removeEngagement(commande, session);
 
         // TODO:  sortie de stock (business logic to be added later)
