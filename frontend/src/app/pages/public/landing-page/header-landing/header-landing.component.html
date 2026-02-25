@@ -240,11 +240,11 @@
 
             <!-- Mobile : Guest buttons -->
             <div *ngIf="!currentUser" class="flex gap-3 px-2 pt-1 pb-2">
-                <a routerLink="/v1/auth/login" (click)="mobileMenuOpen = false"
+                <a routerLink="/signin" (click)="mobileMenuOpen = false"
                    class="flex-1 text-center px-4 py-3 rounded-xl border-2 border-gray-900 dark:border-white text-gray-900 dark:text-white text-sm font-semibold hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-gray-900 transition-all duration-200">
                     Sign In
                 </a>
-                <a routerLink="/v1/auth/register" (click)="mobileMenuOpen = false"
+                <a routerLink="/signup" (click)="mobileMenuOpen = false"
                    class="flex-1 text-center px-4 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 text-white text-sm font-semibold shadow-sm active:scale-[0.98] transition-all duration-200">
                     Sign Up
                 </a>
