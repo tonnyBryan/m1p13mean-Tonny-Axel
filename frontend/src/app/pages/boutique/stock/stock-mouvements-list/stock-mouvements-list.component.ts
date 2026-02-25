@@ -1,14 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { StockMovementService } from '../../../../shared/services/stock-movement.service';
 import { ProductService } from '../../../../shared/services/product.service';
 import { PageBreadcrumbComponent } from '../../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
-import { InputFieldComponent } from '../../../../shared/components/form/input/input-field.component';
 import { SelectComponent } from '../../../../shared/components/form/select/select.component';
 import { DatePickerComponent } from '../../../../shared/components/form/date-picker/date-picker.component';
 import { StockMovement } from '../../../../core/models/stock-movement.model';
+import { Product } from '../../../../core/models/product.model';
 
 @Component({
     selector: 'app-stock-mouvements-list',
@@ -18,7 +19,6 @@ import { StockMovement } from '../../../../core/models/stock-movement.model';
         FormsModule,
         RouterModule,
         PageBreadcrumbComponent,
-        InputFieldComponent,
         SelectComponent,
         DatePickerComponent
     ],
@@ -26,7 +26,6 @@ import { StockMovement } from '../../../../core/models/stock-movement.model';
 })
 export class StockMouvementsListComponent implements OnInit {
     movements: StockMovement[] = [];
-    products: any[] = [];
     pagination = {
         totalDocs: 0,
         totalPages: 0,
@@ -41,50 +40,125 @@ export class StockMouvementsListComponent implements OnInit {
         type: '',
         source: '',
         startDate: '',
-        endDate: '',
-        note: ''
+        endDate: ''
     };
 
+    // ── Product autocomplete ──────────────────────────────────────
+    productSearchQuery = '';
+    productSearchResults: Product[] = [];
+    showProductDropdown = false;
+    isSearchingProduct = false;
+    selectedProductLabel = '';
+    productSearchSubject = new Subject<string>();
+    productSearchMode: 'name' | 'sku' = 'name';
+
     typeOptions = [
-        { value: '', label: 'Tous les types' },
-        { value: 'IN', label: 'Entrée (IN)' },
-        { value: 'OUT', label: 'Sortie (OUT)' }
+        { value: '', label: 'All types' },
+        { value: 'IN', label: 'IN' },
+        { value: 'OUT', label: 'OUT' }
     ];
 
     sourceOptions = [
-        { value: '', label: 'Toutes les sources' },
-        { value: 'manual', label: 'Manuelle' },
-        { value: 'inventory', label: 'Inventaire' }
+        { value: '', label: 'All sources' },
+        { value: 'manual', label: 'Manual' },
+        { value: 'inventory', label: 'Inventory' }
     ];
-
-    productOptions: { value: string; label: string }[] = [{ value: '', label: 'Tous les produits' }];
 
     isLoading = false;
     isSkeletonLoading = true;
 
     constructor(
         private stockService: StockMovementService,
-        private productService: ProductService
-    ) { }
+        private productService: ProductService,
+        private elementRef: ElementRef
+    ) {}
 
     ngOnInit(): void {
-        this.loadProducts();
         this.loadMovements();
+        this.initProductSearch();
     }
 
-    loadProducts(): void {
-        this.productService.getProducts({ limit: 1000 }).subscribe({
-            next: (res) => {
-                this.products = res.data.items;
-                this.productOptions = [
-                    { value: '', label: 'Tous les produits' },
-                    ...this.products.map(p => ({ value: p._id, label: p.name }))
-                ];
-            },
-            error: (err) => console.error(err)
+    // ── Product search autocomplete ───────────────────────────────
+    private initProductSearch(): void {
+        this.productSearchSubject.pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            switchMap(term => {
+                if (term.length < 2) {
+                    this.productSearchResults = [];
+                    this.showProductDropdown = false;
+                    this.isSearchingProduct = false;
+                    return of({ data: { items: [] } });
+                }
+
+                this.isSearchingProduct = true;
+                this.showProductDropdown = false;
+
+                const params: any = { isActive: true, limit: 20 };
+                if (this.productSearchMode === 'sku') {
+                    params['sku[regex]'] = term;
+                    params['sku[options]'] = 'i';
+                } else {
+                    params['name[regex]'] = term;
+                    params['name[options]'] = 'i';
+                }
+
+                return this.productService.getProducts(params);
+            })
+        ).subscribe((res: any) => {
+            this.isSearchingProduct = false;
+            this.productSearchResults = res?.data?.items || [];
+            this.showProductDropdown = this.productSearchResults.length > 0;
         });
     }
 
+    onProductSearchInput(event: any): void {
+        const value = event.target.value;
+        this.productSearchQuery = value;
+
+        // If user clears input, reset filter
+        if (!value) {
+            this.clearProductFilter();
+            return;
+        }
+
+        this.productSearchSubject.next(value);
+    }
+
+    selectProductFilter(product: Product): void {
+        this.filters.product = product._id as string;
+        this.selectedProductLabel = product.name;
+        this.productSearchQuery = product.name;
+        this.showProductDropdown = false;
+        this.productSearchResults = [];
+        this.onFilterChange();
+    }
+
+    clearProductFilter(): void {
+        this.filters.product = '';
+        this.selectedProductLabel = '';
+        this.productSearchQuery = '';
+        this.productSearchResults = [];
+        this.showProductDropdown = false;
+        this.onFilterChange();
+    }
+
+    setProductSearchMode(mode: 'name' | 'sku'): void {
+        this.productSearchMode = mode;
+        this.productSearchQuery = '';
+        this.productSearchResults = [];
+        this.showProductDropdown = false;
+    }
+
+    // Close dropdown when clicking outside
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: MouseEvent): void {
+        if (!this.elementRef.nativeElement.contains(event.target)) {
+            this.showProductDropdown = false;
+        }
+    }
+
+    // ── Movements ─────────────────────────────────────────────────
     loadMovements(): void {
         this.isLoading = true;
         this.isSkeletonLoading = true;
@@ -100,10 +174,6 @@ export class StockMouvementsListComponent implements OnInit {
         if (this.filters.source) params.source = this.filters.source;
         if (this.filters.startDate) params['createdAt[gte]'] = this.filters.startDate;
         if (this.filters.endDate) params['createdAt[lte]'] = this.filters.endDate;
-        if (this.filters.note) {
-            params['note[regex]'] = this.filters.note;
-            params['note[options]'] = 'i';
-        }
 
         this.stockService.getStockMovementList(params).subscribe({
             next: (res) => {
@@ -137,30 +207,14 @@ export class StockMouvementsListComponent implements OnInit {
         }
     }
 
-    onInputChange(key: string, value: any): void {
-        (this.filters as any)[key] = value;
-        this.onFilterChange();
-    }
-
     resetFilters(): void {
-        this.filters = {
-            product: '',
-            type: '',
-            source: '',
-            startDate: '',
-            endDate: '',
-            note: ''
-        };
-        this.onFilterChange();
+        this.filters = { product: '', type: '', source: '', startDate: '', endDate: '' };
+        this.clearProductFilter();
     }
 
     changePage(page: number): void {
         if (page < 1 || page > this.pagination.totalPages) return;
         this.pagination.page = page;
         this.loadMovements();
-    }
-
-    getTypeColor(type: string): string {
-        return type === 'IN' ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100';
     }
 }

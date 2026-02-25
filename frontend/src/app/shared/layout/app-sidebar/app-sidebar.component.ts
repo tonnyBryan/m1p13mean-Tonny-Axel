@@ -107,12 +107,22 @@ export class AppSidebarComponent implements OnInit {
       path: "/store/app/orders",
     },
     {
-      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 7V17C20 18.1 19.1 19 18 19H6C4.9 19 4 18.1 4 17V7M20 7L12 3L4 7M20 7L12 11L4 7M12 11V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 9V6.5C2 4.01 4.01 2 6.5 2h11C19.99 2 22 4.01 22 6.5V9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 15v2.5C2 19.99 4.01 22 6.5 22h11c2.49 0 4.5-2.01 4.5-4.5V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M6 9h12M6 15h12M6 12h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>`,
       name: "Stock",
       roles: [environment.boutiqueRole],
       subItems: [
-        { name: "Inventaire", path: "/store/app/stock/inventaire" },
-        { name: "Mouvements", path: "/store/app/stock/mouvements" },
+        {
+          name: "Inventory",
+          path: "/store/app/stock/inventaire",
+        },
+        {
+          name: "Movements",
+          path: "/store/app/stock/mouvements",
+        },
       ]
     },
   ];
