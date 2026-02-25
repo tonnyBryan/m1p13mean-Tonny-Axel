@@ -400,6 +400,20 @@ layer(base);
   border: none !important;
 }
 
+/* External boutique chip marker wrapper */
+.bm-ext-marker-wrapper {
+  overflow: visible !important;
+  background: transparent !important;
+  border: none !important;
+}
+/* Hover lift on chip */
+.bm-ext-marker-wrapper > div {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.bm-ext-marker-wrapper:hover > div {
+  transform: translateY(-2px);
+}
+
 /* User marker ring pulse */
 .bm-user-ring {
   will-change: transform, opacity;

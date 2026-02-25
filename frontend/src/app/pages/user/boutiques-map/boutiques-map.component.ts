@@ -8,7 +8,7 @@ import {
   ChangeDetectorRef,
   HostListener
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
@@ -31,7 +31,7 @@ interface Boutique {
 @Component({
   selector: 'app-boutiques-map',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, PageBreadcrumbComponent],
+  imports: [CommonModule, RouterModule, FormsModule, PageBreadcrumbComponent, NgOptimizedImage],
   templateUrl: './boutiques-map.component.html',
   styleUrls: ['./boutiques-map.component.css']
 })
@@ -125,8 +125,16 @@ export class BoutiquesMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (navigator?.geolocation) {
       navigator.geolocation.getCurrentPosition(
-          pos => this.placeUserMarker(pos.coords.latitude, pos.coords.longitude),
-          () => {},
+          pos => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            this.placeUserMarker(lat, lng);
+            this.map?.setView([lat, lng], 15);
+          },
+          () => {
+            // No geolocation — fly to centre if loaded
+            if (this.centreLatLng) this.map?.setView(this.centreLatLng, 15);
+          },
           { enableHighAccuracy: true, timeout: 8000 }
       );
     }
@@ -140,47 +148,42 @@ export class BoutiquesMapComponent implements OnInit, AfterViewInit, OnDestroy {
     const icon = L.divIcon({
       className: 'bm-centre-icon-wrapper',
       html: `
-        <div style="
-          display:flex;flex-direction:column;align-items:center;
-          cursor:pointer;
-          filter:drop-shadow(0 4px 14px rgba(0,0,0,0.55)) drop-shadow(0 2px 4px rgba(0,0,0,0.4));
-        ">
-          <!-- Label pill -->
+        <div style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+          <!-- Main chip — bigger, indigo, with building icon -->
           <div style="
-            display:inline-flex;align-items:center;gap:5px;
-            margin-bottom:6px;
-            background:#0f172a;color:#e2e8f0;
-            font-size:10px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;
-            padding:4px 10px 4px 7px;border-radius:99px;white-space:nowrap;
-            border:1.5px solid rgba(255,255,255,0.22);
+            display:inline-flex;align-items:center;gap:7px;
+            background:#4f46e5;
+            border-radius:99px;
+            padding:6px 14px 6px 6px;
+            box-shadow:0 4px 20px rgba(79,70,229,0.45),0 2px 6px rgba(0,0,0,0.2);
+            white-space:nowrap;
           ">
-            <svg xmlns='http://www.w3.org/2000/svg' width='11' height='11' fill='none' viewBox='0 0 24 24' stroke='#818cf8' stroke-width='2.5'>
-              <path stroke-linecap='round' stroke-linejoin='round' d='M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'/>
-            </svg>
-            Our Center
+            <!-- Icon circle -->
+            <div style="
+              width:30px;height:30px;border-radius:50%;
+              background:rgba(255,255,255,0.18);
+              border:1.5px solid rgba(255,255,255,0.3);
+              display:flex;align-items:center;justify-content:center;flex-shrink:0;
+            ">
+              <svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' fill='none' viewBox='0 0 24 24' stroke='white' stroke-width='2'>
+                <path stroke-linecap='round' stroke-linejoin='round' d='M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'/>
+              </svg>
+            </div>
+            <span style="
+              font-size:12px;font-weight:800;color:white;
+              letter-spacing:0.04em;text-transform:uppercase;
+            ">Our Center</span>
           </div>
-          <!-- Circle body -->
+          <!-- Stem dot -->
           <div style="
-            width:54px;height:54px;border-radius:50%;
-            background:#0f172a;
-            border:3.5px solid #ffffff;
-            display:flex;align-items:center;justify-content:center;
-          ">
-            <svg xmlns='http://www.w3.org/2000/svg' width='26' height='26' fill='none' viewBox='0 0 24 24' stroke='#818cf8' stroke-width='1.8'>
-              <path stroke-linecap='round' stroke-linejoin='round' d='M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'/>
-            </svg>
-          </div>
-          <!-- Stem -->
-          <div style="
-            width:0;height:0;
-            border-left:9px solid transparent;
-            border-right:9px solid transparent;
-            border-top:13px solid #0f172a;
-            margin-top:-1px;
+            width:8px;height:8px;border-radius:50%;
+            background:#4f46e5;
+            margin-top:2px;
+            box-shadow:0 0 0 2.5px white,0 0 0 4px rgba(79,70,229,0.3);
           "></div>
         </div>`,
-      iconSize: [130, 100],
-      iconAnchor: [65, 96],
+      iconSize: [180, 60],
+      iconAnchor: [90, 57],
     });
 
     this.centreMarker = L.marker([lat, lng], { icon })
@@ -213,19 +216,52 @@ export class BoutiquesMapComponent implements OnInit, AfterViewInit, OnDestroy {
           : `<svg xmlns='http://www.w3.org/2000/svg' width='13' height='13' fill='none' viewBox='0 0 24 24' stroke='white' stroke-width='2'>
              <path stroke-linecap='round' stroke-linejoin='round' d='M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'/></svg>`;
 
+      // Modern flat chip marker — logo thumbnail + name pill, no rotation tricks
       const icon = L.divIcon({
-        className: '',
+        className: 'bm-ext-marker-wrapper',
         html: `
-          <div style="position:relative;display:flex;flex-direction:column;align-items:center;filter:${ds};">
-            <div style="background:linear-gradient(135deg,${color}dd,${color});border:2.5px solid white;border-radius:50% 50% 50% 0;width:36px;height:36px;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;">
-              <div style="transform:rotate(45deg);display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;overflow:hidden;background:${boutique.logo ? 'white' : 'transparent'};">
-                ${logoContent}
-              </div>
+          <div style="
+            display:inline-flex;align-items:center;gap:6px;
+            background:white;
+            border:1.5px solid rgba(16,185,129,0.3);
+            border-radius:99px;
+            padding:4px 10px 4px 4px;
+            box-shadow:0 2px 12px rgba(0,0,0,0.15),0 1px 3px rgba(0,0,0,0.1);
+            cursor:pointer;
+            white-space:nowrap;
+            position:relative;
+          ">
+            <!-- Logo circle -->
+            <div style="
+              width:26px;height:26px;border-radius:50%;overflow:hidden;flex-shrink:0;
+              background:#ecfdf5;border:1.5px solid rgba(16,185,129,0.25);
+              display:flex;align-items:center;justify-content:center;
+            ">
+              ${boutique.logo
+            ? `<img src="${boutique.logo}" style="width:100%;height:100%;object-fit:cover;display:block;"
+                       onerror="this.style.display='none'" />`
+            : `<svg xmlns='http://www.w3.org/2000/svg' width='13' height='13' fill='none' viewBox='0 0 24 24' stroke='#10b981' stroke-width='2'>
+                     <path stroke-linecap='round' stroke-linejoin='round' d='M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'/></svg>`
+        }
             </div>
-            <div style="margin-top:5px;background:${color};color:white;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;white-space:nowrap;border:1.5px solid white;letter-spacing:0.02em;max-width:110px;overflow:hidden;text-overflow:ellipsis;">${boutique.name}</div>
-          </div>`,
-        iconSize: [110, 68],
-        iconAnchor: [55, 40],
+            <!-- Name -->
+            <span style="
+              font-size:11px;font-weight:700;color:#0f172a;
+              letter-spacing:0.01em;max-width:100px;
+              overflow:hidden;text-overflow:ellipsis;
+            ">${boutique.name}</span>
+            <!-- Bottom stem dot -->
+          </div>
+          <!-- Stem -->
+          <div style="
+            width:6px;height:6px;border-radius:50%;
+            background:#10b981;
+            margin:1px auto 0;
+            box-shadow:0 0 0 2px white, 0 0 0 3px rgba(16,185,129,0.3);
+          "></div>
+        `,
+        iconSize: [160, 52],
+        iconAnchor: [80, 49],
       });
 
       const marker = L.marker([latitude, longitude], { icon })

@@ -97,7 +97,7 @@
      CENTRE MODAL — full Tailwind dark/light
 ══════════════════════════════════════════════════════════════ -->
 <div *ngIf="showCentreModal"
-     class="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center sm:p-6"
+     class="fixed inset-0 z-[100000] flex items-end sm:items-center justify-center sm:p-6"
      (click)="closeCentreModal()">
 
     <!-- Backdrop -->
@@ -123,9 +123,7 @@
             <div class="flex items-center gap-3">
                 <!-- Icon -->
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/30">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                    </svg>
+                    <img [src]="'/logo.svg'" alt="app_logo">
                 </div>
                 <div>
                     <h2 class="text-base font-bold text-gray-900 dark:text-white leading-tight">Our Center</h2>
