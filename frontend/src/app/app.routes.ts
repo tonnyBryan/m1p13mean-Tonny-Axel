@@ -46,6 +46,7 @@ import { StoreRegisterComponent } from './pages/boutique/store-register/store-re
 import { SecurityComponent } from './pages/user/security/security.component';
 import {BoutiquesMapComponent} from "./pages/user/boutiques-map/boutiques-map.component";
 import {unsavedChangesGuard} from "./shared/guards/unsaved-changes.guard";
+import {ChatPageComponent} from "./shared/components/chatbot/chat-page/chat-page.component";
 
 const appName = environment.plateformeName || 'Shopticus';
 
@@ -361,6 +362,14 @@ export const routes: Routes = [
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
         title: 'Order Details | ' + appName
+      },
+      {
+        path: 'chat',
+        component: ChatPageComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        pathMatch: 'full',
+        title: 'Chat | ' + appName,
       },
       {
         path: 'products',

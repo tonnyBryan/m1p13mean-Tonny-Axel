@@ -30,7 +30,7 @@ const options = {
             }
         ]
     },
-    apis: ["./routes/*.js"]
+    apis: ["./routes/*.js", "./chatbot/chat.router.js"]
 };
 
 module.exports = swaggerJsdoc(options);

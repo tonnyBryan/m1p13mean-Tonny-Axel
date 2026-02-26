@@ -48,6 +48,8 @@ app.use('/api/categories', require('./routes/category.routes'));
 app.use('/api/store/register', require('./routes/store-register.routes'));
 app.use('/api/stock-movements', require('./routes/stockMovement.routes'));
 app.use('/api/inventories', require('./routes/inventory.routes'));
+app.use('/api/chat', require('./chatbot/chat.router'));
+
 
 app.set('trust proxy', 1);
 module.exports = app;

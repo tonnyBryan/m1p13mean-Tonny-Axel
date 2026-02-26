@@ -1,7 +1,7 @@
 export const environment = {
     production: true,
-    apiBaseUrl: 'https://mon-backend-prod.com/api',
-    baseUrl: 'http://localhost:3000',
+    apiBaseUrl: 'https://m1p13mean-tonny-axel.onrender.com/api',
+    baseUrl: 'https://m1p13mean-tonny-axel.onrender.com',
     adminRole: 'admin',
     userRole: 'user',
     boutiqueRole: 'boutique',

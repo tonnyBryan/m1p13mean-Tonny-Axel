@@ -1,0 +1,118 @@
+<!-- chat/chat-page/chat-page.component.html -->
+
+<!-- Wrapper: full height flex column, colle dans le conteneur du layout -->
+<div class="flex flex-col -m-4 md:-m-6 -mt-8 min-h-[calc(100vh-64px)]">
+
+    <!-- ── MESSAGES ZONE — scrollable ── -->
+    <div class="flex-1 overflow-y-auto">
+        <div class="max-w-3xl mx-auto px-4 pt-6 pb-6">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
+                        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2h-1"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-sm font-semibold text-gray-900 dark:text-white">AI Assistant</h1>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="text-xs text-gray-400 dark:text-gray-500">Online</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Clear button -->
+                <div class="relative">
+                    <button *ngIf="!showClearConfirm"
+                            (click)="showClearConfirm = true"
+                            [disabled]="messages.length === 0"
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Clear
+                    </button>
+                    <div *ngIf="showClearConfirm"
+                         class="absolute right-0 top-0 z-10 flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg px-3 py-2">
+                        <span class="text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap">Clear history?</span>
+                        <button (click)="clearHistory()" class="px-2 py-1 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-medium transition-colors">Yes</button>
+                        <button (click)="showClearConfirm = false" class="px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium transition-colors">No</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading skeleton -->
+            <ng-container *ngIf="isLoadingHistory">
+                <div *ngFor="let i of [1,2,3]" class="flex gap-2.5 animate-pulse mb-5">
+                    <div class="w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0"></div>
+                    <div class="flex-1 space-y-2 pt-1">
+                        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- Empty state -->
+            <div *ngIf="isEmpty" class="flex flex-col items-center justify-center gap-6 py-16">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2h-1"/>
+                    </svg>
+                </div>
+                <div class="text-center">
+                    <h2 class="text-base font-semibold text-gray-800 dark:text-white">Hello! How can I help you?</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Ask me anything about your store.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-lg">
+                    <button *ngFor="let q of suggestedQuestions"
+                            (click)="send(q)"
+                            class="text-left px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-300 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-700 dark:hover:text-blue-400 transition-all">
+                        {{ q }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div *ngIf="!isLoadingHistory && !isEmpty" class="space-y-5">
+                <app-chat-message *ngFor="let msg of messages" [message]="msg"></app-chat-message>
+                <div #messagesEnd></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── INPUT — sticky bottom, dans le même flux que le contenu ── -->
+    <div class="sticky bottom-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-800">
+        <div class="max-w-3xl mx-auto px-4 py-3">
+            <div class="flex items-end gap-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-2.5 focus-within:border-blue-400 dark:focus-within:border-blue-600 transition-colors shadow-sm">
+        <textarea #inputRef
+                  [(ngModel)]="input"
+                  (keydown)="onKeydown($event)"
+                  (input)="autoResize($event)"
+                  [disabled]="isLoading"
+                  placeholder="Ask a question..."
+                  rows="1"
+                  class="flex-1 resize-none bg-transparent text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none disabled:opacity-50 max-h-[120px] leading-relaxed py-0.5">
+        </textarea>
+                <button (click)="send()"
+                        [disabled]="!input.trim() || isLoading"
+                        class="shrink-0 w-8 h-8 rounded-xl flex items-center justify-center transition-all
+                       disabled:opacity-40 disabled:cursor-not-allowed
+                       bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-700
+                       text-white shadow-sm">
+                    <svg *ngIf="!isLoading" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.269 20.876L5.999 12zm0 0h7.5"/>
+                    </svg>
+                    <svg *ngIf="isLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 12 0 12 0v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 dark:text-gray-600 text-center mt-2">Enter to send · Shift+Enter for new line</p>
+        </div>
+    </div>
+
+</div>
