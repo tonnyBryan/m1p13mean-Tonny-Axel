@@ -12,8 +12,12 @@ import {StoreRegisterService} from "../../../../shared/services/store-register.s
 })
 export class StepRecapComponent implements OnInit {
   @Input() formData!: StoreRegisterData;
+  /** Quand true, affiche directement le success screen (utilisé par le parent pour le centrage plein écran) */
+  @Input() forceSuccess = false;
   @Output() goToStep = new EventEmitter<number>();
   @Output() prev = new EventEmitter<void>();
+  /** Émis dès que la soumission réussit — le parent peut cacher sidebar/stepper */
+  @Output() submitted = new EventEmitter<void>();
 
   // OTP state
   otpSent = false;
@@ -42,6 +46,9 @@ export class StepRecapComponent implements OnInit {
 
   ngOnInit(): void {
     this.generatedPassword = this.generatePassword();
+    if (this.forceSuccess) {
+      this.isSubmitted = true;
+    }
   }
 
   // ─────────────────────────────────────────
@@ -49,7 +56,7 @@ export class StepRecapComponent implements OnInit {
   // ─────────────────────────────────────────
   toggleEmailEdit(): void {
     if (this.isEditingEmail) {
-      // Sauvegarde — vérifier la dispo de l'email
+      // Sauvegarde — spinner pendant la vérification
       this.isCheckingEmail = true;
       this.emailError = '';
 
@@ -134,6 +141,8 @@ export class StepRecapComponent implements OnInit {
       next: () => {
         this.isVerifying = false;
         this.isSubmitted = true;
+        this.submitted.emit();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       },
       error: (err) => {
         this.isVerifying = false;
@@ -282,14 +291,10 @@ export class StepRecapComponent implements OnInit {
     const allChars = upper + lower + digits + special;
 
     while (passwordChars.length < 9) {
-      passwordChars.push(
-          allChars[Math.floor(Math.random() * allChars.length)]
-      );
+      passwordChars.push(allChars[Math.floor(Math.random() * allChars.length)]);
     }
 
-    return passwordChars
-        .sort(() => Math.random() - 0.5)
-        .join('');
+    return passwordChars.sort(() => Math.random() - 0.5).join('');
   }
 
   private startCooldown(): void {

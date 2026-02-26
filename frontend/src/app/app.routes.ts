@@ -45,6 +45,7 @@ import { SecurityBoutiqueComponent } from './pages/boutique/security-boutique/se
 import { StoreRegisterComponent } from './pages/boutique/store-register/store-register.component';
 import { SecurityComponent } from './pages/user/security/security.component';
 import {BoutiquesMapComponent} from "./pages/user/boutiques-map/boutiques-map.component";
+import {unsavedChangesGuard} from "./shared/guards/unsaved-changes.guard";
 
 const appName = environment.plateformeName || 'Shopticus';
 
@@ -103,6 +104,7 @@ export const routes: Routes = [
       {
         path: 'store/register',
         component: StoreRegisterComponent,
+        canDeactivate: [unsavedChangesGuard],
         title: 'Register | ' + appName,
         data: { animation: 'reset-password' }
       },

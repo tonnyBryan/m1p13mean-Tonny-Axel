@@ -6,6 +6,7 @@ import {StepBoutiqueComponent} from "./step-boutique/step-boutique.component";
 import {StepPlanComponent} from "./step-plan/step-plan.component";
 import {StepLivraisonComponent} from "./step-livraison/step-livraison.component";
 import {StepRecapComponent} from "./step-recap/step-recap.component";
+import {ToastService} from "../../../shared/services/toast.service";
 
 export interface StoreRegisterData {
   manager: {
@@ -53,8 +54,13 @@ export interface StoreRegisterData {
   templateUrl: './store-register.component.html',
 })
 export class StoreRegisterComponent {
+  constructor(public toastService: ToastService) {}
+
   currentStep = 1;
   totalSteps = 5;
+
+  /** Passé à true par le StepRecap quand la soumission réussit */
+  isSubmitted = false;
 
   formData: StoreRegisterData = {
     manager: { firstName: '', lastName: '', email: '', password: '' },
@@ -130,5 +136,15 @@ export class StoreRegisterComponent {
 
   private scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  hasUnsavedChanges(): boolean {
+    if (this.isSubmitted) return false; // soumis avec succès → pas de warning
+    return !!(
+        this.formData.manager.firstName ||
+        this.formData.manager.email ||
+        this.formData.boutique.name ||
+        this.formData.plan.type
+    );
   }
 }

@@ -7,18 +7,18 @@ import {PlanDetailModalComponent} from "./plan-detail-modal/plan-detail-modal.co
 export const BOXES = [
   { id: 'BOX-01', label: 'Box 01', price: 20000, taken: false },
   { id: 'BOX-02', label: 'Box 02', price: 20000, taken: false },
-  { id: 'BOX-03', label: 'Box 03', price: 25000, taken: false },
-  { id: 'BOX-04', label: 'Box 04', price: 25000, taken: false },
-  { id: 'BOX-05', label: 'Box 05', price: 30000, taken: true },
-  { id: 'BOX-06', label: 'Box 06', price: 30000, taken: true },
-  { id: 'BOX-07', label: 'Box 07', price: 35000, taken: true },
-  { id: 'BOX-08', label: 'Box 08', price: 35000, taken: true },
-  { id: 'BOX-09', label: 'Box 09', price: 40000, taken: true },
-  { id: 'BOX-10', label: 'Box 10', price: 40000, taken: true },
+  { id: 'BOX-03', label: 'Box 03', price: 20000, taken: false },
+  { id: 'BOX-04', label: 'Box 04', price: 20000, taken: false },
+  { id: 'BOX-05', label: 'Box 05', price: 20000, taken: true },
+  { id: 'BOX-06', label: 'Box 06', price: 20000, taken: true },
+  { id: 'BOX-07', label: 'Box 07', price: 20000, taken: true },
+  { id: 'BOX-08', label: 'Box 08', price: 20000, taken: true },
+  { id: 'BOX-09', label: 'Box 09', price: 20000, taken: true },
+  { id: 'BOX-10', label: 'Box 10', price: 20000, taken: true },
 ];
 
 export const PLAN_A_PRICE = 15000;
-export const PLAN_B_HOSTING_PRICE = 8000;
+export const PLAN_B_HOSTING_PRICE = 28000;
 
 export interface PaymentInfo {
   cardNumber: string;
@@ -66,8 +66,18 @@ export class StepPlanComponent {
     this.modalPlan = null;
   }
 
+  get firstAvailableBox() {
+    return this.boxes.find(b => !b.taken) || null;
+  }
+
   get selectedBox() {
     return this.boxes.find(b => b.id === this.data.box) || null;
+  }
+
+  /** Prix affiché sur la carte Plan B = hosting + première box dispo (ou box sélectionnée) */
+  get planBDisplayPrice(): number {
+    const box = this.selectedBox || this.firstAvailableBox;
+    return this.planBHostingPrice + (box?.price || 0);
   }
 
   get totalPlanB(): number {
@@ -90,11 +100,19 @@ export class StepPlanComponent {
 
   selectPlan(type: 'A' | 'B'): void {
     this.data.type = type;
-    this.data.box = null;
     this.data.lat = null;
     this.data.lng = null;
     this.data.payment = null;
     this.paymentInfo = { cardNumber: '', cardName: '', expiryDate: '', cvv: '' };
+
+    // Auto-sélectionner la première box disponible pour Plan B
+    if (type === 'B') {
+      const first = this.firstAvailableBox;
+      this.data.box = first ? first.id : null;
+    } else {
+      this.data.box = null;
+    }
+
     this.dataChange.emit(this.data);
   }
 
