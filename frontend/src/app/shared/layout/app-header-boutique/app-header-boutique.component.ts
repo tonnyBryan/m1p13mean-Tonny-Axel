@@ -12,6 +12,7 @@ import { SessionService } from "../../services/session.service";
 import { SearchService } from "../../services/search.service";
 import { Router } from "@angular/router";
 import { ToastService } from "../../services/toast.service";
+import {ChatHeaderButtonComponent} from "../../components/chatbot/chat-header-button/chat-header-button.component";
 
 @Component({
   selector: 'app-header-boutique',
@@ -21,6 +22,7 @@ import { ToastService } from "../../services/toast.service";
     ThemeToggleButtonComponent,
     NotificationDropdownComponent,
     BoutiqueDropdownComponent,
+    ChatHeaderButtonComponent,
   ],
   templateUrl: './app-header-boutique.component.html',
 })

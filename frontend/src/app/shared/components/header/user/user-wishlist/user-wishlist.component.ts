@@ -1,13 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { WishlistService } from '../../../../services/wishlist.service';
-import {NgClass, NgIf} from "@angular/common";
+import {NgClass} from "@angular/common";
 import { Router } from "@angular/router";
 
 @Component({
   selector: 'app-user-wishlist',
   standalone: true,
-  imports: [NgIf, NgClass],
+  imports: [NgClass],
   templateUrl: './user-wishlist.component.html',
   styleUrls: ['./user-wishlist.component.css']
 })

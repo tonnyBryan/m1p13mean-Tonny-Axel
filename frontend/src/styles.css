@@ -1,5 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap")
-layer(base);
+/*@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap")*/
+/*layer(base);*/
 
 @import "tailwindcss";
 @import "swiper/css/bundle";
@@ -7,6 +7,8 @@ layer(base);
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+  --chat-offset: 200px;  /* 64px navbar + 32px padding */
+
   --font-*: initial;
   --font-outfit: Outfit, sans-serif;
 

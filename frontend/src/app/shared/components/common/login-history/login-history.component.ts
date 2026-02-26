@@ -25,7 +25,7 @@ export class LoginHistoryComponent implements OnInit {
 
   loadHistory(): void {
     this.loading = true;
-    this.authService.getLoginHistory({ limit: 20, sort: '-createdAt' }).subscribe({
+    this.authService.getLoginHistory({ limit: 10, sort: '-createdAt' }).subscribe({
       next: (res: any) => {
         this.loading = false;
         if (res.success) {
