@@ -1,0 +1,314 @@
+<div class="mx-auto max-w-7xl">
+    <app-page-breadcrumb pageTitle="Sales History" [breadcrumbs]="[
+        { label: 'Store', link: '/store/app' },
+        { label: 'Sales' }
+    ]"></app-page-breadcrumb>
+
+    <!-- Statistics Cards -->
+    @if (isSkeletonLoading) {
+        <div class="grid gap-6 grid-cols-1 md:grid-cols-4 mb-6">
+            @for(i of [1,2,3,4]; track i) {
+                <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/[0.05] dark:bg-white/[0.03] shadow-lg animate-pulse">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="h-3 w-20 rounded bg-gray-200 dark:bg-gray-700 mb-3"></div>
+                            <div class="h-6 w-12 rounded bg-gray-200 dark:bg-gray-700"></div>
+                        </div>
+                        <div class="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    } @else {
+        <div class="grid gap-6 grid-cols-1 md:grid-cols-4 mb-6">
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/[0.05] dark:bg-white/[0.03] shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-theme-xs font-medium text-gray-600 dark:text-gray-400">Total Sales</p>
+                        <p class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">{{ stats.totalDocs }}</p>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                        <svg class="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/[0.05] dark:bg-white/[0.03] shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-theme-xs font-medium text-gray-600 dark:text-gray-400">Today's Sales</p>
+                        <p class="mt-2 text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.todayDocs }}</p>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                        <svg class="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/[0.05] dark:bg-white/[0.03] shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-theme-xs font-medium text-gray-600 dark:text-gray-400">This Month</p>
+                        <p class="mt-2 text-2xl font-bold text-purple-600 dark:text-purple-400">{{ stats.monthDocs }}</p>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
+                        <svg class="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/[0.05] dark:bg-white/[0.03] shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-theme-xs font-medium text-gray-600 dark:text-gray-400">Pending / Draft</p>
+                        <p class="mt-2 text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ stats.pendingDocs }}</p>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30">
+                        <svg class="h-6 w-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- FIX: overflow-visible sur le container principal -->
+    <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-visible">
+        <!-- Header -->
+        <div class="flex flex-col justify-between gap-5 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center dark:border-gray-800">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Sales List</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Track your shop sales.</p>
+            </div>
+            <div class="flex gap-3">
+                <a routerLink="/store/app/vente-liste/add"
+                   class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 10.0002H15.0006M10.0002 5V15.0006" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    New Sale
+                </a>
+            </div>
+        </div>
+
+        <!-- FIX: overflow-visible sur la section des filtres -->
+        <div class="border-b border-gray-200 px-5 py-4 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01] overflow-visible">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-4 lg:grid-cols-5 overflow-visible">
+                <div>
+                    <app-input-field label="Client Name" placeholder="Search..." [value]="filters.clientName"
+                                     (valueChange)="onInputChange('clientName', $event)" className="bg-white dark:bg-gray-900" />
+                </div>
+                <div>
+                    <app-select [options]="statusOptions" placeholder="Status" [value]="filters.status"
+                                (valueChange)="onSelectChange('status', $event)" className="bg-white dark:bg-gray-900" />
+                </div>
+                <div>
+                    <app-select [options]="saleTypeOptions" placeholder="Sale Type" [value]="filters.saleType"
+                                (valueChange)="onSelectChange('saleType', $event)" className="bg-white dark:bg-gray-900" />
+                </div>
+                <div>
+                    <app-select [options]="originOptions" placeholder="Origin" [value]="filters.origin"
+                                (valueChange)="onSelectChange('origin', $event)" className="bg-white dark:bg-gray-900" />
+                </div>
+                <!-- FIX: overflow-visible sur le container des datepickers -->
+                <div class="md:col-span-2 lg:col-span-1 grid grid-cols-2 gap-2 overflow-visible">
+                    <app-date-picker placeholder="From..." (dateChange)="onDateChange('startDate', $event)" />
+                    <app-date-picker placeholder="To..." (dateChange)="onDateChange('endDate', $event)" />
+                </div>
+            </div>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-4 lg:grid-cols-5 mt-4">
+                <div class="grid grid-cols-2 gap-2 md:col-span-2">
+                    <app-input-field type="number" placeholder="Min Amt" (valueChange)="onInputChange('minAmount', $event)" className="bg-white dark:bg-gray-900" />
+                    <app-input-field type="number" placeholder="Max Amt" (valueChange)="onInputChange('maxAmount', $event)" className="bg-white dark:bg-gray-900" />
+                </div>
+                <div class="flex items-end">
+                    <button (click)="resetFilters()"
+                            class="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/5">
+                        Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FIX: overflow-x-auto seulement, overflow-y-visible pour le tableau -->
+        <div class="overflow-x-auto overflow-y-visible custom-scrollbar">
+            <table class="w-full">
+                <thead>
+                <tr class="border-b border-gray-200 dark:divide-gray-800 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01]">
+                    <th class="px-5 py-4 text-start text-xs font-medium text-gray-500 dark:text-gray-400">Date</th>
+                    <th class="px-5 py-4 text-start text-xs font-medium text-gray-500 dark:text-gray-400">Client</th>
+                    <th class="px-5 py-4 text-start text-xs font-medium text-gray-500 dark:text-gray-400">Origin</th>
+                    <th class="px-5 py-4 text-start text-xs font-medium text-gray-500 dark:text-gray-400">Type</th>
+                    <th class="px-5 py-4 text-start text-xs font-medium text-gray-500 dark:text-gray-400">Amount</th>
+                    <th class="px-5 py-4 text-start text-xs font-medium text-gray-500 dark:text-gray-400">Status</th>
+                    <th class="px-5 py-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                <ng-container *ngIf="isSkeletonLoading; else tableContent">
+                    <tr *ngFor="let i of [1,2,3,4,5]">
+                        <td class="px-5 py-4">
+                            <div class="space-y-1.5">
+                                <div class="h-4 w-32 animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                                <div class="h-3 w-20 animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4">
+                            <div class="space-y-1.5">
+                                <div class="h-4 w-24 animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                                <div class="h-3 w-28 animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4">
+                            <div class="h-6 w-16 animate-pulse bg-gray-200 rounded-lg dark:bg-white/10"></div>
+                        </td>
+                        <td class="px-5 py-4">
+                            <div class="h-6 w-20 animate-pulse bg-gray-200 rounded-lg dark:bg-white/10"></div>
+                        </td>
+                        <td class="px-5 py-4">
+                            <div class="h-4 w-24 animate-pulse bg-gray-200 rounded dark:bg-white/10"></div>
+                        </td>
+                        <td class="px-5 py-4">
+                            <div class="h-6 w-16 animate-pulse bg-gray-200 rounded-lg dark:bg-white/10"></div>
+                        </td>
+                        <td class="px-5 py-4 text-center">
+                            <div class="h-7 w-14 mx-auto animate-pulse bg-gray-200 rounded-md dark:bg-white/10"></div>
+                        </td>
+                    </tr>
+                </ng-container>
+
+                <ng-template #tableContent>
+                    <tr *ngFor="let v of ventes" class="transition hover:bg-gray-50 dark:hover:bg-gray-900">
+                        <td class="px-5 py-4 whitespace-nowrap">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ v.saleDate | date:'longDate' }}</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ v.saleDate | date:'shortTime' }}</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 whitespace-nowrap">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ v.client.name }}</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ v.client.phoneNumber || 'N/A' }}</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 whitespace-nowrap">
+                            <div [ngSwitch]="v.origin">
+                                <span *ngSwitchCase="'direct'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+                                    </svg>
+                                    Direct
+                                </span>
+                                <span *ngSwitchCase="'order'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Order
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 whitespace-nowrap">
+                            <div [ngSwitch]="v.saleType">
+                                <span *ngSwitchCase="'dine-in'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Dine-in
+                                </span>
+                                <span *ngSwitchCase="'delivery'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                                        <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
+                                    </svg>
+                                    Delivery
+                                </span>
+                                <span *ngSwitchDefault class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                                    {{ v.saleType }}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 whitespace-nowrap">
+                            <span class="text-sm font-bold text-gray-900 dark:text-white">{{ v.totalAmount | number }} Ar</span>
+                        </td>
+                        <td class="px-5 py-4 whitespace-nowrap">
+                            <div [ngSwitch]="v.status">
+                                <span *ngSwitchCase="'paid'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Paid
+                                </span>
+                                <span *ngSwitchCase="'draft'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Draft
+                                </span>
+                                <span *ngSwitchCase="'canceled'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Canceled
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 whitespace-nowrap text-center">
+                            <a [routerLink]="['/store/app/vente-liste', v._id]"
+                               class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] transition-colors">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="currentColor"/>
+                                </svg>
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    <tr *ngIf="ventes.length === 0 && !isLoading">
+                        <td colspan="7" class="py-12 text-center text-gray-500 dark:text-gray-400">
+                            No sales found for these filters.
+                        </td>
+                    </tr>
+                </ng-template>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="border-t border-gray-100 px-4 py-4 sm:px-6 dark:border-white/[0.05]">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <p class="text-theme-sm text-gray-600 dark:text-gray-400">
+                    Showing <span class="font-medium">{{ (pagination.page - 1) * pagination.limit + 1 }}</span>
+                    to <span class="font-medium">{{ Math.min(pagination.page * pagination.limit, pagination.totalDocs) }}</span>
+                    of <span class="font-medium">{{ pagination.totalDocs }}</span> results
+                </p>
+
+                <div class="flex items-center gap-2">
+                    <button (click)="changePage(pagination.page - 1)" [disabled]="pagination.page === 1"
+                            class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 transition-colors">
+                        Previous
+                    </button>
+
+                    <ng-container *ngFor="let i of [].constructor(Math.min(pagination.totalPages, 5)); let idx = index">
+                        <button (click)="changePage(idx + 1)"
+                                [ngClass]="pagination.page === idx + 1 ? 'bg-brand-600 text-white border-brand-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400'"
+                                class="inline-flex items-center justify-center rounded-lg border w-9 h-9 text-theme-sm font-medium shadow-theme-xs transition-colors">
+                            {{ idx + 1 }}
+                        </button>
+                    </ng-container>
+
+                    <button (click)="changePage(pagination.page + 1)" [disabled]="pagination.page === pagination.totalPages"
+                            class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 transition-colors">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

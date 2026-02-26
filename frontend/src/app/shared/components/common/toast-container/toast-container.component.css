@@ -1,0 +1,53 @@
+/* Progress bar animation */
+@keyframes shrink {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+.animate-shrink {
+    animation: shrink linear forwards;
+}
+
+/* Smooth transitions pour tous les éléments */
+.toast-item {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, opacity;
+}
+
+/* Anti-aliasing pour des animations plus fluides */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Optimisation GPU pour les animations */
+.toast-item {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+.backdrop-blur {
+    position: fixed;
+    inset: 0;
+    z-index: 999998; /* Juste en dessous des toasts (z-[99999]) */
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    pointer-events: none; /* Ne bloque pas les clics */
+}
+
+/* Support pour les navigateurs qui ne supportent pas backdrop-filter */
+@supports not (backdrop-filter: blur(8px)) {
+    .backdrop-blur {
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+}
+
+/* Dark mode - backdrop plus sombre */
+:host-context(.dark) .backdrop-blur {
+    background-color: rgba(0, 0, 0, 0.6);
+}

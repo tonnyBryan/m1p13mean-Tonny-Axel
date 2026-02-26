@@ -1,0 +1,265 @@
+<main class="pt-16">
+
+    <!-- Hero -->
+    <div class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 py-16">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 rounded-full mb-4">
+                <span class="text-xs font-semibold text-brand-700 dark:text-brand-300">Legal</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                Terms of Service
+            </h1>
+            <p class="text-gray-500 dark:text-gray-400 text-sm">
+                Last updated: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ lastUpdated }}</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="flex flex-col lg:flex-row gap-12">
+
+            <!-- Sidebar Navigation -->
+            <aside class="lg:w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <p class="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
+                        On this page
+                    </p>
+                    <nav class="space-y-1">
+                        <a *ngFor="let section of sections"
+                           href="#"
+                           (click)="scrollTo($event, section.id)"
+                           class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-all duration-200"
+                           [ngClass]="activeSection === section.id
+                               ? 'bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-300 font-semibold'
+                               : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'"
+                        >
+                            <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors"
+                                  [ngClass]="activeSection === section.id ? 'bg-brand-500' : 'bg-gray-300 dark:bg-gray-600'">
+                            </span>
+                            {{ section.label }}
+                        </a>
+                    </nav>
+
+                    <!-- Quick contact -->
+                    <div class="mt-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700">
+                        <p class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Questions?</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Contact our legal team.</p>
+                        <a [href]="'mailto:' + appMail" target="_blank" rel="noopener"
+                           class="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline">
+                            {{ appMail }}
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0 space-y-10">
+
+                <!-- Intro card -->
+                <div class="bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-200 dark:border-amber-800 p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-amber-800 dark:text-amber-200 mb-1">Please read carefully</h3>
+                            <p class="text-sm text-amber-700 dark:text-amber-300 leading-relaxed">
+                                By accessing or using {{ appName }}, you agree to be bound by these Terms of Service. If you do not agree, please do not use our platform.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 1 -->
+                <section [id]="sections[0].id">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400">01</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Acceptance of Terms</h2>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 text-sm text-gray-600 dark:text-gray-400 leading-relaxed space-y-3">
+                        <p>By creating an account or using {{ appName }} in any way, you confirm that you are at least 18 years old, have read and understood these Terms, and agree to be bound by them.</p>
+                        <p>We reserve the right to update these Terms at any time. Continued use of the platform after changes constitutes your acceptance of the revised Terms.</p>
+                    </div>
+                </section>
+
+                <!-- Section 2 -->
+                <section [id]="sections[1].id">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400">02</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">User Accounts</h2>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-4 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <p>When you create an account, you are responsible for:</p>
+                        <div class="space-y-2">
+                            <div *ngFor="let item of accountItems"
+                                 class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <svg class="w-4 h-4 text-brand-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>{{ item }}</span>
+                            </div>
+                        </div>
+                        <p>We reserve the right to suspend or terminate accounts that violate these Terms or engage in fraudulent activity.</p>
+                    </div>
+                </section>
+
+                <!-- Section 3 -->
+                <section [id]="sections[2].id">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400">03</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Customer Obligations</h2>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-3 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <p>As a customer on {{ appName }}, you agree to:</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div *ngFor="let item of customerItems"
+                                 class="flex items-start gap-2.5 p-3 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <svg class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>{{ item }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4 -->
+                <section [id]="sections[3].id">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400">04</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Store Owner Obligations</h2>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-4 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <p>As a store owner on {{ appName }}, you agree to:</p>
+                        <div class="space-y-2">
+                            <div *ngFor="let item of storeItems"
+                                 class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <svg class="w-4 h-4 text-brand-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>{{ item }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 5 -->
+                <section [id]="sections[4].id">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400">05</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Prohibited Conduct</h2>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 space-y-3 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <p>The following actions are strictly prohibited on {{ appName }}:</p>
+                        <div class="space-y-2">
+                            <div *ngFor="let item of prohibitedItems"
+                                 class="flex items-start gap-3 p-3 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-900/30">
+                                <svg class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                                <span>{{ item }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 6 -->
+                <section [id]="sections[5].id">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400">06</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Intellectual Property</h2>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 text-sm text-gray-600 dark:text-gray-400 leading-relaxed space-y-3">
+                        <p>All content, logos, trademarks, and software on {{ appName }} are the property of {{ appName }} or its licensors and are protected by applicable intellectual property laws.</p>
+                        <p>Store owners retain ownership of their product content but grant {{ appName  }} a non-exclusive license to display it on the platform. You may not copy, reproduce, or distribute platform content without our written permission.</p>
+                    </div>
+                </section>
+
+                <!-- Section 7 -->
+                <section [id]="sections[6].id">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400">07</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Limitation of Liability</h2>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 text-sm text-gray-600 dark:text-gray-400 leading-relaxed space-y-3">
+                        <p>{{ appName }} acts as a platform connecting customers and stores. We are not responsible for the quality, safety, legality, or availability of products listed by stores.</p>
+                        <p>To the maximum extent permitted by law, {{ appName }} shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform.</p>
+                    </div>
+                </section>
+
+                <!-- Section 8 -->
+                <section [id]="sections[7].id">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400">08</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Termination</h2>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 text-sm text-gray-600 dark:text-gray-400 leading-relaxed space-y-3">
+                        <p>You may close your account at any time by contacting our support team. We may suspend or terminate your access at our discretion if you violate these Terms.</p>
+                        <p>Upon termination, your right to use the platform ceases immediately. Provisions that by their nature should survive termination will remain in effect.</p>
+                    </div>
+                </section>
+
+                <!-- Section 9 -->
+                <section [id]="sections[8].id">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400">09</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Governing Law</h2>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 text-sm text-gray-600 dark:text-gray-400 leading-relaxed space-y-3">
+                        <p>These Terms are governed by and construed in accordance with applicable laws. Any disputes arising from these Terms shall be resolved through good-faith negotiation, or if necessary, through binding arbitration.</p>
+                        <p>If any provision of these Terms is found to be unenforceable, the remaining provisions will continue in full force and effect.</p>
+                    </div>
+                </section>
+
+                <!-- Contact card -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">Questions about our Terms?</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Our legal team is happy to clarify anything.</p>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <a [href]="'mailto:' + appMail" target="_blank" rel="noopener"
+                                   class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-200">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                    Email Legal Team
+                                </a>
+                                <a href="/support"
+                                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-gray-900 dark:border-white bg-transparent text-gray-900 dark:text-white text-sm font-semibold hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-gray-900 transition-all duration-200 active:scale-[0.98]">
+                                    Contact Support
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>

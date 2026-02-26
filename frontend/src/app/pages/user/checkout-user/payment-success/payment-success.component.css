@@ -1,0 +1,25 @@
+/* Animation pour le checkmark */
+@keyframes check {
+    0% {
+        stroke-dashoffset: 100;
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+.animate-check {
+    stroke-dasharray: 100;
+    animation: check 0.6s ease-in-out 0.3s forwards;
+}
+
+/* Smooth transitions */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

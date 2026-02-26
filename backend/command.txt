@@ -4,5 +4,17 @@ npm audit fix
 npm install --save-dev nodemon
 npm install cors dotenv mongoose
 npm install swagger-ui-express swagger-jsdoc --save
+npm install bcryptjs jsonwebtoken
+npm install cookie-parser
+npm install cors
+npm install multer
+npm install cloudinary (asorina)
+npm install axios
+npm install form-data
+npm install node-cron
+
+
+
+
 
 

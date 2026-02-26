@@ -1,0 +1,442 @@
+    <div class="w-full max-w-5xl mx-auto">
+
+        <!-- ── Page Header ── -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Add New Product</h1>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Fill in the details below to create a new product listing.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button
+                        type="button"
+                        (click)="onCancel()"
+                        class="rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                >
+                    Cancel
+                </button>
+                <app-button
+                        size="sm"
+                        type="button"
+                        [startIcon]="createIcon"
+                        (click)="onSubmit()"
+                        [loading]="isLoading"
+                        [disabled]="!isFormValid"
+                >
+                    Create Product
+                </app-button>
+            </div>
+        </div>
+
+        <!-- ── 2-Column Layout ── -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- ════════ LEFT COL (2/3) ════════ -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Card: Basic Info -->
+                <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                    <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+                        <h2 class="text-base font-semibold text-gray-800 dark:text-white">Basic Information</h2>
+                    </div>
+                    <div class="p-6 space-y-5">
+
+                        <!-- Name -->
+                        <div>
+                            <app-label for="product-name">Product Name <span class="text-red-500">*</span></app-label>
+                            <app-input-field
+                                    type="text"
+                                    id="product-name"
+                                    placeholder="e.g. Premium Wireless Headphones"
+                                    [(ngModel)]="name"
+                                    [ngClass]="submitted && !name.trim() ? 'border-red-500 focus:ring-red-500' : ''"
+                            />
+                            @if (submitted && !name.trim()) {
+                                <p class="mt-1.5 text-xs text-red-500">Product name is required.</p>
+                            }
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <app-label for="product-desc">Description <span class="text-red-500">*</span></app-label>
+                            <textarea
+                                    id="product-desc"
+                                    [(ngModel)]="description"
+                                    placeholder="Describe your product in detail…"
+                                    rows="4"
+                                    class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200 resize-none"
+                                    [ngClass]="submitted && !description.trim() ? 'border-red-500 focus:ring-red-500' : ''"
+                            ></textarea>
+                            @if (submitted && !description.trim()) {
+                                <p class="mt-1.5 text-xs text-red-500">Description is required.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Pricing -->
+                <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                    <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+                        <h2 class="text-base font-semibold text-gray-800 dark:text-white">Pricing</h2>
+                        @if (discountPercent) {
+                            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1L7.5 4.5L11.5 5L8.5 7.5L9.5 11.5L6 9.5L2.5 11.5L3.5 7.5L0.5 5L4.5 4.5L6 1Z" fill="currentColor"/></svg>
+                -{{ discountPercent }}% off
+              </span>
+                        }
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <!-- Regular Price -->
+                            <div>
+                                <app-label for="regular-price">Regular Price <span class="text-red-500">*</span></app-label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-500 dark:text-gray-400">$</span>
+                                    <input
+                                            type="number"
+                                            id="regular-price"
+                                            [(ngModel)]="regularPrice"
+                                            placeholder="0.00"
+                                            min="0"
+                                            step="0.01"
+                                            class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 pl-8 pr-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                                            [ngClass]="submitted && (!regularPrice || regularPrice <= 0) ? 'border-red-500 focus:ring-red-500' : ''"
+                                    />
+                                </div>
+                                @if (submitted && (!regularPrice || regularPrice <= 0)) {
+                                    <p class="mt-1.5 text-xs text-red-500">A valid price is required.</p>
+                                }
+                            </div>
+
+                            <!-- Sale Price -->
+                            <div>
+                                <app-label for="sale-price">Sale Price <span class="text-xs font-normal text-gray-400">(optional)</span></app-label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-500 dark:text-gray-400">$</span>
+                                    <input
+                                            type="number"
+                                            id="sale-price"
+                                            [(ngModel)]="salePrice"
+                                            placeholder="0.00"
+                                            min="0"
+                                            step="0.01"
+                                            class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 pl-8 pr-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                                    />
+                                </div>
+                                @if (salePrice && regularPrice && salePrice >= regularPrice) {
+                                    <p class="mt-1.5 text-xs text-amber-500">Sale price should be less than the regular price.</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Category & Order Settings -->
+                <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                    <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+                        <h2 class="text-base font-semibold text-gray-800 dark:text-white">Category & Order Settings</h2>
+                    </div>
+                    <div class="p-6 space-y-5">
+
+                        <!-- Category Select -->
+                        <div>
+                            <app-label for="category">Category <span class="text-red-500">*</span></app-label>
+                            <select
+                                    [(ngModel)]="categoryId"
+                                    name="categoryId"
+                                    [disabled]="categoriesLoading"
+                                    class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-800 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                                    [ngClass]="submitted && !categoryId ? 'border-red-500' : ''">
+                                <option value="" disabled>
+                                    {{ categoriesLoading ? 'Loading...' : 'Select a category' }}
+                                </option>
+                                <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+                            </select>
+
+                            <p *ngIf="submitted && !categoryId" class="mt-1.5 text-xs text-red-500">
+                                Category is required.
+                            </p>
+
+                            <p *ngIf="!categoriesLoading && categories.length === 0" class="mt-1.5 text-xs text-amber-500">
+                                No categories found.
+                                <a routerLink="/store/app/settings" class="underline font-semibold">Create one first</a>
+                            </p>
+                        </div>
+
+                        <!-- Order Quantities -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <!-- Min Order Qty -->
+                            <div>
+                                <app-label for="min-qty">Min Order Qty <span class="text-red-500">*</span></app-label>
+                                <input
+                                        type="number"
+                                        id="min-qty"
+                                        [(ngModel)]="minOrderQty"
+                                        [min]="1"
+                                        step="1"
+                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                                        [ngClass]="submitted && minOrderQty < 1 ? 'border-red-500 focus:ring-red-500' : ''"
+                                />
+                                @if (submitted && minOrderQty < 1) {
+                                    <p class="mt-1.5 text-xs text-red-500">Minimum quantity must be at least 1.</p>
+                                }
+                            </div>
+
+                            <!-- Max Order Qty -->
+                            <div>
+                                <app-label for="max-qty">Max Order Qty <span class="text-red-500">*</span></app-label>
+                                <input
+                                        type="number"
+                                        id="max-qty"
+                                        [(ngModel)]="maxOrderQty"
+                                        [min]="minOrderQty"
+                                        step="1"
+                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                                        [ngClass]="submitted && maxOrderQty < minOrderQty ? 'border-red-500 focus:ring-red-500' : ''"
+                                />
+                                @if (submitted && maxOrderQty < minOrderQty) {
+                                    <p class="mt-1.5 text-xs text-red-500">Max quantity must be ≥ min quantity.</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Product Images (Dropzone + URL + Previews) -->
+                <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                    <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+                        <h2 class="text-base font-semibold text-gray-800 dark:text-white">Product Images <span class="text-red-500">*</span></h2>
+                        @if (previewImages.length > 0) {
+                            <span class="text-xs text-gray-500 dark:text-gray-400">{{ previewImages.length }} image{{ previewImages.length > 1 ? 's' : '' }} added</span>
+                        }
+                    </div>
+                    <div class="p-6 space-y-5">
+
+                        <!-- Dropzone -->
+                        <div
+                                class="transition border border-dashed cursor-pointer rounded-xl hover:border-brand-500"
+                                [ngClass]="isDragActive ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'"
+                        >
+                            <div
+                                    class="rounded-xl border-dashed p-7 lg:p-10 flex flex-col items-center justify-center text-center"
+                                    [ngClass]="isDragActive
+                  ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20'
+                  : 'border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900'"
+                                    (dragover)="onDragOver($event)"
+                                    (dragleave)="onDragLeave($event)"
+                                    (drop)="onDrop($event)"
+                                    (click)="fileInput.click()"
+                            >
+                                <!-- Hidden file input -->
+                                <input
+                                    #fileInput
+                                    type="file"
+                                    accept="image/png, image/jpeg, image/webp, image/svg+xml"
+                                    multiple
+                                    style="display: none"
+                                    (change)="onFileSelected($event)"
+                                />
+
+                                <!-- Icon -->
+                                <div class="mb-4 flex justify-center">
+                                    <div class="flex h-[60px] w-[60px] items-center justify-center rounded-full bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400 transition-colors duration-200"
+                                         [ngClass]="isDragActive ? 'bg-brand-100 dark:bg-brand-900/40 text-brand-500' : ''">
+                                        <svg class="fill-current" width="26" height="26" viewBox="0 0 29 28" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M14.5019 3.91699C14.2852 3.91699 14.0899 4.00891 13.953 4.15589L8.57363 9.53186C8.28065 9.82466 8.2805 10.2995 8.5733 10.5925C8.8661 10.8855 9.34097 10.8857 9.63396 10.5929L13.7519 6.47752V18.667C13.7519 19.0812 14.0877 19.417 14.5019 19.417C14.9161 19.417 15.2519 19.0812 15.2519 18.667V6.48234L19.3653 10.5929C19.6583 10.8857 20.1332 10.8855 20.426 10.5925C20.7188 10.2995 20.7186 9.82463 20.4256 9.53184L15.0838 4.19378C14.9463 4.02488 14.7367 3.91699 14.5019 3.91699ZM5.91626 18.667C5.91626 18.2528 5.58047 17.917 5.16626 17.917C4.75205 17.917 4.41626 18.2528 4.41626 18.667V21.8337C4.41626 23.0763 5.42362 24.0837 6.66626 24.0837H22.3339C23.5766 24.0837 24.5839 23.0763 24.5839 21.8337V18.667C24.5839 18.2528 24.2482 17.917 23.8339 17.917C23.4197 17.917 23.0839 18.2528 23.0839 18.667V21.8337C23.0839 22.2479 22.7482 22.5837 22.3339 22.5837H6.66626C6.25205 22.5837 5.91626 22.2479 5.91626 21.8337V18.667Z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <!-- Text -->
+                                <h4 class="font-semibold text-gray-800 dark:text-white text-sm mb-1">
+                                    {{ isDragActive ? 'Drop your images here!' : 'Drag & Drop images here' }}
+                                </h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3 max-w-[260px] mx-auto">
+                                    Supports PNG, JPG, WebP, SVG. You can upload multiple files at once.
+                                </p>
+                                <span class="text-xs font-semibold text-brand-500 underline underline-offset-2 cursor-pointer">Browse Files</span>
+                            </div>
+                        </div>
+
+                        <!-- Séparateur OR -->
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+                            <span class="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">or add by URL</span>
+                            <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+                        </div>
+
+                        <!-- URL Input -->
+                        <div class="flex gap-2">
+                            <div class="relative flex-1">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6.5 9.5C7 10.5 8.2 11.5 10 10C11.8 8.5 11.5 7 10.5 6.5" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M9.5 6.5C8.5 5.5 7.3 4.5 5.5 5.5C3.7 7 4 8.5 5 9.5" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M11 3L13 1" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M5 9L3 11" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                                <input
+                                        type="text"
+                                        [(ngModel)]="currentImageUrl"
+                                        placeholder="Paste image URL here…"
+                                        (keydown)="onImageUrlKeydown($event)"
+                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                                />
+                            </div>
+                            <button
+                                    type="button"
+                                    (click)="addImageUrl()"
+                                    [disabled]="!currentImageUrl.trim()"
+                                    class="rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 px-4 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                Add
+                            </button>
+                        </div>
+
+                        @if (submitted && previewImages.length === 0) {
+                            <p class="text-xs text-red-500">At least one product image is required.</p>
+                        }
+
+                        <!-- ── Image Previews Grid ── -->
+                        @if (previewImages.length > 0) {
+                            <div class="grid grid-cols-3 sm:grid-cols-4 gap-3 pt-2">
+                                @for (img of previewImages; track $index) {
+                                    <div class="group relative aspect-square rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900">
+                                        <img
+                                                [src]="img.url"
+                                                alt="Preview {{ $index + 1 }}"
+                                                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                        />
+                                        <!-- Overlay on hover -->
+                                        <div class="absolute inset-0 flex items-end justify-between bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2">
+                      <span class="text-xs font-medium text-white">
+                        @if ($index === 0) { <span class="inline-flex items-center gap-1 rounded-md bg-brand-500 px-1.5 py-0.5 text-[10px] font-semibold">★ Main</span> }
+                      </span>
+                                            <!-- Delete btn -->
+                                            <button
+                                                    type="button"
+                                                    (click)="removeImage($index)"
+                                                    class="flex h-6 w-6 items-center justify-center rounded-md bg-red-500 hover:bg-red-600 text-white transition-colors duration-150"
+                                            >
+                                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M9 3L3 9M3 3L9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                            </button>
+                                        </div>
+                                        <!-- Source badge (URL) -->
+                                        @if (img.source === 'url') {
+                                            <span class="absolute top-2 left-2 rounded-md bg-white/90 dark:bg-gray-800/90 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600 dark:text-gray-300 shadow-sm">
+                        URL
+                      </span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════════ RIGHT COL (1/3) ════════ -->
+            <div class="lg:col-span-1 space-y-6">
+
+                <!-- Card: Tags -->
+                <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                    <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+                        <h2 class="text-base font-semibold text-gray-800 dark:text-white">Tags</h2>
+                        <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Press <kbd class="px-1.5 py-0.5 rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-xs font-mono text-gray-600 dark:text-gray-400">Enter</kbd> or <kbd class="px-1.5 py-0.5 rounded border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-xs font-mono text-gray-600 dark:text-gray-400">,</kbd> to add</p>
+                    </div>
+                    <div class="p-5 space-y-3">
+                        <!-- Tag input -->
+                        <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M13.3 2.7L8.9 1.3C8.6 1.2 8.3 1.1 8 1.1H3.5C2.4 1.1 1.5 2 1.5 3.1V7.5C1.5 7.8 1.6 8.1 1.8 8.4L3.1 12.7C3.4 13.8 4.6 14.4 5.7 14L12.7 11.5C13.8 11.1 14.4 9.9 14.1 8.8L12.7 4.4C12.6 4.1 12.5 3.8 13.3 2.7Z" stroke="#9CA3AF" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="5.5" cy="5.5" r="1" fill="#9CA3AF"/>
+                </svg>
+              </span>
+                            <input
+                                    type="text"
+                                    [(ngModel)]="currentTag"
+                                    placeholder="e.g. electronics, sale…"
+                                    (keydown)="onTagKeydown($event)"
+                                    class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors duration-200"
+                            />
+                        </div>
+
+                        <!-- Tag Chips -->
+                        @if (tags.length > 0) {
+                            <div class="flex flex-wrap gap-2">
+                                @for (tag of tags; track tag; let i = $index) {
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 px-3 py-1 text-xs font-medium text-brand-700 dark:text-brand-300">
+                    #{{ tag }}
+                                        <button
+                                                type="button"
+                                                (click)="removeTag(i)"
+                                                class="text-brand-400 hover:text-brand-600 dark:text-brand-500 dark:hover:text-brand-300 transition-colors"
+                                        >
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M9 3L3 9M3 3L9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    </button>
+                  </span>
+                                }
+                            </div>
+                        }
+                        @else {
+                            <p class="text-xs text-gray-400 dark:text-gray-500 italic">No tags added yet.</p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Card: Quick Summary -->
+                <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                    <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+                        <h2 class="text-base font-semibold text-gray-800 dark:text-white">Summary</h2>
+                    </div>
+                    <div class="p-5 space-y-3 text-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 dark:text-gray-400">Name</span>
+                            <span class="font-medium text-gray-800 dark:text-white truncate ml-2 max-w-[140px] text-right">{{ name || '—' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 dark:text-gray-400">Category</span>
+                            <span class="font-medium text-gray-800 dark:text-white">
+                            {{ getCategoryName() }}
+                          </span>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 dark:text-gray-400">Price</span>
+                            <span class="font-medium text-gray-800 dark:text-white">{{ regularPrice ? ('$' + regularPrice) : '—' }}</span>
+                        </div>
+                        @if (salePrice && regularPrice && salePrice < regularPrice) {
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-500 dark:text-gray-400">Sale Price</span>
+                                <span class="font-semibold text-emerald-600 dark:text-emerald-400">${{ salePrice }}</span>
+                            </div>
+                        }
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 dark:text-gray-400">Order Range</span>
+                            <span class="font-medium text-gray-800 dark:text-white">{{ minOrderQty }} - {{ maxOrderQty }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 dark:text-gray-400">Tags</span>
+                            <span class="font-medium text-gray-800 dark:text-white">{{ tags.length }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 dark:text-gray-400">Images</span>
+                            <span class="font-medium text-gray-800 dark:text-white">{{ previewImages.length }}</span>
+                        </div>
+                        <div class="pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                            <span class="text-gray-500 dark:text-gray-400">Status</span>
+                            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                                  [ngClass]="isFormValid
+                      ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400'
+                      : 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400'">
+                <span class="h-1.5 w-1.5 rounded-full" [ngClass]="isFormValid ? 'bg-emerald-500' : 'bg-amber-500'"></span>
+                                {{ isFormValid ? 'Ready' : 'Incomplete' }}
+              </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>

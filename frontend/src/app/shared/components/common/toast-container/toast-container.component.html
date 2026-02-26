@@ -1,0 +1,99 @@
+<ng-container *ngIf="toasts$ | async as toasts">
+
+    <!-- ✅ Backdrop flou (affiché uniquement si un toast confirm avec backdrop=true existe) -->
+    <div *ngIf="hasBackdrop(toasts)"
+         class="backdrop-blur"
+         [@backdropAnimation]></div>
+
+    <ng-container *ngFor="let position of positions">
+        <div *ngIf="getToastsByPosition(toasts, position).length > 0"
+             [ngClass]="getPositionClasses(position)"
+             [@listAnimation]="getToastsByPosition(toasts, position).length">
+
+            <div *ngFor="let toast of getToastsByPosition(toasts, position); trackBy: trackByToastId"
+                 [ngClass]="getToastClasses()"
+                 [@toastAnimation]
+                 class="toast-item">
+
+                <div class="flex items-start gap-3">
+                    <!-- Icon avec background coloré -->
+                    <div [ngClass]="getIconWrapperClasses(toast.type)">
+                        <!-- Success Icon -->
+                        <svg *ngIf="toast.type === 'success'" [ngClass]="getIconClasses(toast.type)" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+
+                        <!-- Error Icon -->
+                        <svg *ngIf="toast.type === 'error'" [ngClass]="getIconClasses(toast.type)" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+
+                        <!-- Warning Icon -->
+                        <svg *ngIf="toast.type === 'warning'" [ngClass]="getIconClasses(toast.type)" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                        </svg>
+
+                        <!-- Info Icon -->
+                        <svg *ngIf="toast.type === 'info'" [ngClass]="getIconClasses(toast.type)" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/>
+                        </svg>
+
+                        <!-- Confirm Icon -->
+                        <svg *ngIf="toast.type === 'confirm'" [ngClass]="getIconClasses(toast.type)" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-sm mb-1" [ngClass]="getTitleClasses(toast.type)">
+                            {{ toast.title }}
+                        </p>
+                        <p *ngIf="toast.message" class="text-xs leading-relaxed" [ngClass]="getMessageClasses(toast.type)">
+                            {{ toast.message }}
+                        </p>
+
+                        <!-- Action Button (pour les toasts normaux) -->
+                        <button *ngIf="toast.action && toast.type !== 'confirm'"
+                                (click)="toast.action.onClick(); removeToast(toast.id)"
+                                class="mt-2 text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline transition-all">
+                            {{ toast.action.label }}
+                        </button>
+
+                        <!-- Boutons de confirmation (pour les toasts confirm) -->
+                        <div *ngIf="toast.confirmActions && toast.type === 'confirm'" class="flex items-center gap-2 mt-4">
+                            <button
+                                    (click)="toast.confirmActions.cancel.onClick ? toast.confirmActions.cancel.onClick() : removeToast(toast.id)"
+                                    [ngClass]="getCancelButtonClasses()">
+                                {{ toast.confirmActions.cancel.label }}
+                            </button>
+                            <button
+                                    (click)="toast.confirmActions.confirm.onClick()"
+                                    [ngClass]="getConfirmButtonClasses(toast.confirmActions.confirm.variant)">
+                                {{ toast.confirmActions.confirm.label }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Close Button (caché pour les confirmations) -->
+                    <button
+                            *ngIf="toast.type !== 'confirm'"
+                            (click)="removeToast(toast.id)"
+                            class="flex-shrink-0 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Progress Bar (pas pour les confirmations) -->
+                <div *ngIf="toast.duration && toast.duration > 0 && toast.type !== 'confirm'"
+                     class="h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden mt-3">
+                    <div class="h-full animate-shrink"
+                         [ngClass]="getProgressBarClasses(toast.type)"
+                         [style.animation-duration.ms]="toast.duration"></div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</ng-container>

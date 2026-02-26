@@ -1,0 +1,376 @@
+<div class="mx-auto max-w-7xl">
+
+<app-page-breadcrumb [breadcrumbs]="[
+     { label: 'Home', link: '/v1/stores' },
+        { label: 'Orders', link: '/v1/orders' },
+        { label: orderId ? '#' + orderId.slice(-8).toUpperCase() : 'Order Details' }
+    ]" />
+
+    <!-- Loading State -->
+    <app-skeleton-order-detail *ngIf="loading"></app-skeleton-order-detail>
+
+    <!-- Order Content -->
+    <div *ngIf="order && !loading" class="space-y-6">
+
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Order Details</h1>
+                    <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-mono font-semibold text-gray-700 dark:text-gray-300">
+                        #{{ order._id.slice(-8).toUpperCase() }}
+                    </span>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Placed on {{ formatDate(order.createdAt) }}
+                </p>
+            </div>
+            <button
+                    (click)="goBack()"
+                    class="inline-flex items-center gap-2 px-4 py-2 border-2 border-gray-300 dark:border-gray-700 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-all">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back to Orders
+            </button>
+        </div>
+
+        <!-- Status Card -->
+        <div [ngSwitch]="order.status" class="overflow-hidden rounded-2xl border border-transparent shadow-sm hover:shadow-md transition-shadow duration-300">
+
+            <!-- Paid Status -->
+            <ng-container *ngSwitchCase="'paid'">
+                <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-emerald-900 dark:text-emerald-100 mb-1">
+                                {{ getStatusInfo(order.status).label }}
+                            </h3>
+                            <p class="text-sm text-emerald-800 dark:text-emerald-200">
+                                {{ getStatusInfo(order.status).description }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- Accepted Status -->
+            <ng-container *ngSwitchCase="'accepted'">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1">
+                                {{ getStatusInfo(order.status).label }}
+                            </h3>
+                            <p class="text-sm text-blue-800 dark:text-blue-200">
+                                {{ getStatusInfo(order.status).description }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- Delivering Status -->
+            <ng-container *ngSwitchCase="'delivering'">
+                <div class="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-amber-900 dark:text-amber-100 mb-1">
+                                {{ getStatusInfo(order.status).label }}
+                            </h3>
+                            <p class="text-sm text-amber-800 dark:text-amber-200">
+                                {{ getStatusInfo(order.status).description }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- Success Status -->
+            <ng-container *ngSwitchCase="'success'">
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-purple-900 dark:text-purple-100 mb-1">
+                                {{ getStatusInfo(order.status).label }}
+                            </h3>
+                            <p class="text-sm text-purple-800 dark:text-purple-200">
+                                {{ getStatusInfo(order.status).description }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- Canceled Status -->
+            <ng-container *ngSwitchCase="'canceled'">
+                <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-red-500 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-red-900 dark:text-red-100 mb-1">
+                                {{ getStatusInfo(order.status).label }}
+                            </h3>
+                            <p class="text-sm text-red-800 dark:text-red-200">
+                                {{ getStatusInfo(order.status).description }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Products List -->
+                <div class="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-2xl overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 dark:border-white/[0.05]">
+                        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Order Items</h2>
+                    </div>
+                    <div class="divide-y divide-gray-200 dark:divide-white/[0.05]">
+                        <div *ngFor="let item of order.products" class="p-6 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                            <div class="flex gap-4">
+                                <!-- Product Image -->
+                                <div class="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
+                                    <img
+                                            *ngIf="item.product?.images?.[0]"
+                                            [src]="item.product.images[0]"
+                                            [alt]="item.product.name"
+                                            class="w-full h-full object-cover" />
+                                    <div *ngIf="!item.product?.images?.[0]" class="w-full h-full flex items-center justify-center">
+                                        <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <!-- Product Info -->
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1 cursor-pointer hover:text-brand-600 dark:hover:text-brand-400 transition-colors line-clamp-2"
+                                        (click)="router.navigate(['/v1/stores', order.boutique._id, 'products', item.product._id])"
+                                    >
+                                        {{ item.product?.name || 'Product' }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
+                                        {{ item.product?.description || 'No description' }}
+                                    </p>
+                                    <div class="flex items-center gap-4 text-sm">
+                                        <span class="text-gray-600 dark:text-gray-400">
+                                            Qty: <span class="font-semibold text-gray-900 dark:text-white">{{ item.quantity }}</span>
+                                        </span>
+                                        <span class="text-gray-600 dark:text-gray-400">×</span>
+                                        <span class="text-gray-600 dark:text-gray-400">
+                                            <span class="font-semibold text-gray-900 dark:text-white">{{ item.unitPrice.toLocaleString() }} Ar</span>
+                                        </span>
+                                        <span *ngIf="item.isSale" class="px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded text-xs font-bold">
+                                            SALE
+                                        </span>
+                                    </div>
+                                </div>
+                                <!-- Product Total -->
+                                <div class="text-right">
+                                    <p class="text-lg font-bold text-gray-900 dark:text-white">
+                                        {{ item.totalPrice.toLocaleString() }} Ar
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Address (if delivery mode) -->
+                <div *ngIf="order.deliveryMode === 'delivery' && order.deliveryAddress"
+                     class="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-2xl p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-3">Delivery Address</h3>
+                            <p class="text-base font-semibold text-gray-900 dark:text-white mb-1">
+                                {{ order.deliveryAddress.label }}
+                            </p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                {{ order.deliveryAddress.description }}
+                            </p>
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                                    <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
+                                </svg>
+                                <span class="text-sm font-bold text-blue-700 dark:text-blue-300">
+                                    Delivery fee: {{ order.deliveryAddress.price.toLocaleString() }} Ar
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+
+                <!-- Store Info -->
+                <div class="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-2xl p-6">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Store Information</h3>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800">
+                            <img
+                                    *ngIf="order.boutique?.logo"
+                                    [src]="order.boutique.logo"
+                                    [alt]="order.boutique.name"
+                                    class="w-full h-full object-cover" />
+                            <div *ngIf="!order.boutique?.logo" class="w-full h-full flex items-center justify-center">
+                                <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-900 dark:text-white cursor-pointer hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                               (click)="router.navigate(['/v1/stores', order.boutique._id])"
+                            >
+                                {{ order.boutique?.name || 'Store' }}
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ order.boutique?.description || 'No description' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <!-- Order Summary Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-lg">
+
+                    <!-- Header -->
+                    <div class="relative px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <svg class="w-5 h-5 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Order Summary
+                            </h3>
+                            <span class="text-xs font-semibold px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
+                {{ order.products.length }} {{ order.products.length === 1 ? 'item' : 'items' }}
+            </span>
+                        </div>
+                    </div>
+
+                    <!-- Price Breakdown -->
+                    <div class="p-6 bg-gray-50 dark:bg-gray-900/50">
+                        <div class="space-y-3">
+
+                            <!-- Delivery Mode -->
+                            <div class="flex items-center justify-between py-2">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Delivery Mode</span>
+                                </div>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white capitalize">{{ order.deliveryMode }}</span>
+                            </div>
+
+                            <!-- Payment Method -->
+                            <div class="flex items-center justify-between py-2">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Payment Method</span>
+                                </div>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white capitalize">{{ order.paymentMethod }}</span>
+                            </div>
+
+                            <!-- Subtotal -->
+                            <div class="flex items-center justify-between py-2">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        Subtotal ({{ order.products.length }} {{ order.products.length === 1 ? 'item' : 'items' }})
+                    </span>
+                                </div>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">
+                    {{ (order.totalAmount - (order.deliveryAddress?.price || 0)).toLocaleString() }} Ar
+                </span>
+                            </div>
+
+                            <!-- Delivery Fee -->
+                            <div *ngIf="order.deliveryAddress?.price" class="flex items-center justify-between py-2">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Delivery Fee</span>
+                                </div>
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">
+                    {{ order.deliveryAddress.price.toLocaleString() }} Ar
+                </span>
+                            </div>
+
+                            <!-- Divider -->
+                            <div class="border-t-2 border-gray-200 dark:border-gray-700 my-3"></div>
+
+                            <!-- Total -->
+                            <div class="flex items-center justify-between py-3 px-4 bg-gradient-to-r from-brand-50 to-blue-50 dark:from-brand-900/20 dark:to-blue-900/20 rounded-xl border-2 border-brand-200 dark:border-brand-800">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-brand-600 dark:text-brand-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span class="text-base font-bold text-gray-900 dark:text-white">Total Amount</span>
+                                </div>
+                                <div class="text-2xl font-black text-brand-600 dark:text-brand-400">
+                                    {{ order.totalAmount.toLocaleString() }} Ar
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Order ID -->
+                <div class="bg-gray-50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/[0.05] rounded-2xl p-4">
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Order ID</p>
+                    <p class="text-sm font-mono font-semibold text-gray-900 dark:text-white break-all">{{ order._id }}</p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

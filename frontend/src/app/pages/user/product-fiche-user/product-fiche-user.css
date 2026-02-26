@@ -1,0 +1,174 @@
+/* ════════════════════════════════════════════ */
+/*  ANIMATIONS                                  */
+/* ════════════════════════════════════════════ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Shimmer effect for loading */
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.animate-shimmer {
+    animation: shimmer 2s infinite;
+}
+
+/* Scale in animation for success checkmark */
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.animate-scale-in {
+    animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Shake animation for error */
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+.animate-shake {
+    animation: shake 0.5s;
+}
+
+/* Slide down animation for error message */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-down {
+    animation: slideDown 0.3s ease-out;
+}
+
+/* Confetti animation */
+@keyframes confettiFall {
+    0% {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(100px) rotate(360deg);
+    }
+}
+
+.confetti-piece {
+    position: absolute;
+    top: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    animation: confettiFall 1s ease-out forwards;
+}
+
+/* ════════════════════════════════════════════ */
+/*  CUSTOM SCROLLBAR                            */
+/* ════════════════════════════════════════════ */
+
+.scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+    border-radius: 9999px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.7);
+}
+
+/* Dark mode scrollbar */
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.5);
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(75, 85, 99, 0.7);
+}
+
+/* ════════════════════════════════════════════ */
+/*  IMAGE TRANSITIONS                           */
+/* ════════════════════════════════════════════ */
+
+.group:hover img {
+    transform: scale(1.05);
+}
+
+/* ════════════════════════════════════════════ */
+/*  BUTTON HOVER EFFECTS                        */
+/* ════════════════════════════════════════════ */
+
+button:active {
+    transform: scale(0.96);
+}
+
+/* ════════════════════════════════════════════ */
+/*  GRADIENT BACKGROUNDS                        */
+/* ════════════════════════════════════════════ */
+
+.bg-gradient-mesh {
+    background:
+            radial-gradient(at 27% 37%, hsla(215, 98%, 61%, 0.1) 0px, transparent 50%),
+            radial-gradient(at 97% 21%, hsla(125, 98%, 72%, 0.1) 0px, transparent 50%),
+            radial-gradient(at 52% 99%, hsla(354, 98%, 61%, 0.1) 0px, transparent 50%),
+            radial-gradient(at 10% 29%, hsla(256, 96%, 67%, 0.1) 0px, transparent 50%);
+}
+
+/* ════════════════════════════════════════════ */
+/*  RESPONSIVE UTILITIES                        */
+/* ════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+    .sticky {
+        position: relative;
+        top: 0;
+    }
+}

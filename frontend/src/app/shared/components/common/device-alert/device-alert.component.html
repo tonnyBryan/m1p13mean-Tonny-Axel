@@ -1,0 +1,147 @@
+<div class="space-y-5">
+
+    <!-- ── Hero info card ── -->
+    <div class="relative overflow-hidden rounded-2xl border border-indigo-100 dark:border-indigo-500/20 bg-gradient-to-br from-indigo-50 via-white to-blue-50 dark:from-indigo-950/40 dark:via-gray-900 dark:to-blue-950/30 p-6">
+
+        <!-- Background decoration -->
+        <div class="absolute top-0 right-0 w-48 h-48 opacity-[0.06] dark:opacity-[0.08] pointer-events-none">
+            <svg viewBox="0 0 200 200" fill="none">
+                <circle cx="150" cy="50" r="80" fill="#6366f1"/>
+                <circle cx="180" cy="120" r="50" fill="#818cf8"/>
+            </svg>
+        </div>
+
+        <div class="relative flex items-start gap-5">
+            <!-- Icon -->
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/30">
+                <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-base font-black text-gray-900 dark:text-white mb-1">How ?</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-lg">
+                    Get an instant <span class="font-semibold text-gray-800 dark:text-gray-200">email notification</span> whenever your account is accessed from a new or unrecognized device. Stay in full control of your account security.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Toggle card ── -->
+    <div class="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-2xl overflow-hidden">
+
+        <!-- Toggle row -->
+        <div class="flex items-center gap-5 p-6">
+            <!-- Status icon -->
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors duration-300"
+                 [ngClass]="isAlertEnabled
+                     ? 'bg-emerald-100 dark:bg-emerald-900/30'
+                     : 'bg-gray-100 dark:bg-gray-800'">
+                <svg class="w-5 h-5 transition-colors duration-300"
+                     [ngClass]="isAlertEnabled ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-gray-600'"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+            </div>
+
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">Email alerts for new devices</p>
+                    <!-- Active badge -->
+                    <span *ngIf="isAlertEnabled"
+                          class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold rounded-full">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Active
+                    </span>
+                    <span *ngIf="!isAlertEnabled"
+                          class="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-500 text-xs font-bold rounded-full">
+                        Off
+                    </span>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ isAlertEnabled
+                    ? 'You will receive an email if your account is logged in from an unknown device.'
+                    : 'Enable to be notified immediately when a new device accesses your account.' }}
+                </p>
+            </div>
+
+            <!-- Toggle switch -->
+            <button (click)="toggle()"
+                    [disabled]="isLoading"
+                    class="relative flex-shrink-0 w-12 h-6 rounded-full transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-900"
+                    [ngClass]="isAlertEnabled ? 'bg-indigo-600 dark:bg-indigo-500' : 'bg-gray-200 dark:bg-gray-700'">
+                <span class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 flex items-center justify-center"
+                      [ngClass]="isAlertEnabled ? 'translate-x-6' : 'translate-x-0'">
+                    <!-- Loading spinner inside the knob -->
+                    <svg *ngIf="isLoading" class="w-3 h-3 animate-spin text-indigo-500" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                </span>
+            </button>
+        </div>
+
+        <!-- Divider -->
+        <div class="border-t border-gray-100 dark:border-white/[0.05]"></div>
+
+        <!-- How it works -->
+        <div class="px-6 py-5">
+            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">How it works</p>
+            <div class="space-y-4">
+
+                <div class="flex items-start gap-3">
+                    <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-none mb-0.5">New device detected</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">When a login happens from a browser or device not previously seen on your account.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-none mb-0.5">Instant email sent to you</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">You receive an alert with the device type, browser, location and timestamp of the login.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-none mb-0.5">React immediately if it wasn't you</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">If the login looks suspicious, change your password immediately and revoke the session from Login History.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="border-t border-gray-100 dark:border-white/[0.05]"></div>
+
+        <!-- Info footer -->
+        <div class="px-6 py-4 bg-gray-50 dark:bg-white/[0.02] flex items-center gap-2">
+            <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <p class="text-xs text-gray-400 dark:text-gray-500">
+                Alerts are sent to your verified email address. You can revoke any suspicious session from the
+                <span class="font-semibold text-gray-600 dark:text-gray-400 cursor-pointer hover:text-indigo-500 transition-colors"
+                      (click)="goToHistory.emit()">Login History</span> section.
+            </p>
+        </div>
+
+    </div>
+</div>

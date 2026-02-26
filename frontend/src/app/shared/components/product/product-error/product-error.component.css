@@ -1,0 +1,15 @@
+/* ════════════════════════════════════════════ */
+/*  BASIC TRANSITIONS                           */
+/* ════════════════════════════════════════════ */
+
+button, a {
+    transition: all 0.2s ease;
+}
+
+button:hover, a:hover {
+    transform: translateY(-1px);
+}
+
+button:active, a:active {
+    transform: translateY(0);
+}

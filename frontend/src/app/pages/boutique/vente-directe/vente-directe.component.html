@@ -1,0 +1,455 @@
+<div class="mx-auto max-w-7xl">
+    <app-page-breadcrumb pageTitle="Direct Shop Sale" [breadcrumbs]="[
+        { label: 'Store', link: '/store/app' },
+        { label: 'Sales', link: '/store/app/vente-liste' },
+        { label: 'New Sale' }
+    ]"></app-page-breadcrumb>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <!-- Main Column: Product Selection & Cart -->
+        <div class="lg:col-span-8 flex flex-col gap-6">
+
+            <!-- Product Search Card -->
+            <div
+                class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
+                <div class="mb-5 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Product Selection</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Search by name or SKU to add to cart</p>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M13.414 12L17.707 16.293L16.293 17.707L12 13.414C10.8239 14.4191 9.31998 15 7.5 15C3.35786 15 0 11.6421 0 7.50002C0 3.35788 3.35786 0 7.5 0C11.6421 0 15 3.35788 15 7.50002C15 9.31998 14.4191 10.824 13.414 12ZM7.5 13C10.5376 13 13 10.5376 13 7.50002C13 4.46245 10.5376 2 7.5 2C4.46244 2 2 4.46245 2 7.50002C2 10.5376 4.46244 13 7.5 13Z"
+                                    fill="currentColor" />
+                            </svg>
+                        </span>
+                        <input type="text" id="productSearch" (input)="onProductSearch($event)"
+                            placeholder="Type to search for an item..."
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-12 pr-5 font-medium text-gray-900 outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white dark:focus:border-brand-500" />
+                    </div>
+
+                    <!-- Autocomplete Results -->
+                    <div *ngIf="showResults"
+                        class="absolute left-0 mt-2 w-full z-50 rounded-2xl border border-gray-200 bg-white p-2 shadow-2xl dark:border-white/[0.05] dark:bg-gray-900 transition-all animate-fade-in-down">
+                        <div class="max-h-80 overflow-y-auto">
+                            <div *ngFor="let product of searchResults" (click)="selectProduct(product)"
+                                class="flex items-center gap-4 rounded-xl p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors border-b border-gray-100 last:border-0 dark:border-white/[0.05]">
+                                <div class="h-12 w-12 flex-shrink-0 animate-fade-in">
+                                    <img [src]="product.images && product.images[0] ? product.images[0] : '/product-placeholder.svg'"
+                                        alt="product" class="h-full w-full rounded-lg object-cover shadow-sm" />
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-gray-900 dark:text-white">{{ product.name }}</span>
+                                        <span class="text-xs font-mono text-gray-400">{{ product.sku }}</span>
+                                    </div>
+                                    <div class="mt-1 flex items-center gap-2">
+                                        <span class="text-sm font-semibold text-brand-500">{{ (product.isSale ?
+                                            product.salePrice : product.regularPrice) | number }} Ar</span>
+                                        <span *ngIf="product.isSale" class="text-xs text-gray-400 line-through">{{
+                                            product.regularPrice | number }} Ar</span>
+                                        <span *ngIf="product.isSale"
+                                            class="rounded px-1.5 py-0.5 text-[10px] font-bold bg-green-100 text-green-600 dark:bg-green-500/10 dark:text-green-500">SALE</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cart Table Card -->
+            <div
+                class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03] flex-grow">
+                <div class="border-b border-gray-100 p-6 dark:border-white/[0.05] flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Sales Cart</h3>
+                    <span
+                        class="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-500 dark:bg-brand-500/10">{{
+                        vente.items.length || 0 }} items</span>
+                </div>
+
+                <div class="max-w-full overflow-x-auto p-6">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr
+                                class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-white/[0.05]">
+                                <th class="pb-4 pr-4">Product</th>
+                                <th class="pb-4 px-4 text-center">Unit Price</th>
+                                <th class="pb-4 px-4 text-center">Quantity</th>
+                                <th class="pb-4 px-4 text-right">Total</th>
+                                <th class="pb-4 pl-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                            <tr *ngFor="let item of vente.items; let i = index"
+                                class="group hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
+                                <td class="py-5 pr-4">
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-gray-900 dark:text-white">{{
+                                            item.productDetails?.name || 'Product' }}</span>
+                                        <span *ngIf="item.isSale"
+                                            class="mt-1 inline-flex w-fit items-center rounded-md bg-green-50 px-1.5 py-0.5 text-[10px] font-bold text-green-600 dark:bg-green-500/10 dark:text-green-500">Promo
+                                            Line</span>
+                                    </div>
+                                </td>
+                                <td class="py-5 px-4 text-center">
+                                    <div
+                                        class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1 dark:border-white/[0.1] dark:bg-gray-800">
+                                        <input type="number" [(ngModel)]="item.unitPrice"
+                                            (ngModelChange)="updateUnitPrice(i, $event)"
+                                            class="w-20 bg-transparent text-center text-sm font-semibold text-gray-900 outline-none dark:text-white" />
+                                        <span class="text-[10px] font-bold text-gray-400 mr-1">Ar</span>
+                                    </div>
+                                </td>
+                                <td class="py-5 px-4 text-center">
+                                    <div class="inline-flex items-center justify-center gap-2">
+                                        <button (click)="updateQuantity(i, item.quantity - 1)"
+                                            class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-white hover:text-brand-500 shadow-sm transition-all dark:border-white/[0.1] dark:hover:bg-white/5">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            </svg>
+                                        </button>
+                                        <span class="w-8 text-center font-bold text-gray-900 dark:text-white">{{
+                                            item.quantity }}</span>
+                                        <button (click)="updateQuantity(i, item.quantity + 1)"
+                                            class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-white hover:text-brand-500 shadow-sm transition-all dark:border-white/[0.1] dark:hover:bg-white/5">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td class="py-5 px-4 text-right">
+                                    <span class="font-bold text-gray-900 dark:text-white">{{ item.totalPrice | number }}
+                                        Ar</span>
+                                </td>
+                                <td class="py-5 pl-4 text-right">
+                                    <button (click)="removeItem(i)"
+                                        class="text-gray-400 hover:text-red-500 transition-colors">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path
+                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr *ngIf="vente.items.length === 0">
+                                <td colspan="5" class="py-12 text-center">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <div class="rounded-full bg-gray-50 p-4 dark:bg-white/[0.03]">
+                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="1.5"
+                                                class="text-gray-300 dark:text-gray-600">
+                                                <circle cx="9" cy="21" r="1"></circle>
+                                                <circle cx="20" cy="21" r="1"></circle>
+                                                <path
+                                                    d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Your cart is
+                                            empty</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Client, Summary & Actions -->
+        <div class="lg:col-span-4 flex flex-col gap-6">
+
+            <!-- Client Info Card -->
+            <div
+                class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
+                <div class="mb-5 flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Client Information</h3>
+                    <button (click)="openClientModal()"
+                        class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500 hover:bg-brand-500 hover:text-white transition-colors dark:bg-white/[0.05]">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label
+                            class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Full
+                            Name</label>
+                        <input type="text" [(ngModel)]="vente.client.name" placeholder="Walk-in Client..."
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm font-medium text-gray-900 outline-none transition focus:border-brand-500 dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white" />
+                    </div>
+                    <div>
+                        <label
+                            class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Phone</label>
+                        <input type="text" [(ngModel)]="vente.client.phoneNumber" placeholder="034 XX XXX XX"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm font-medium text-gray-900 outline-none transition focus:border-brand-500 dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white" />
+                    </div>
+                    <div>
+                        <label
+                            class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Sale
+                            Date</label>
+                        <input type="date" [(ngModel)]="vente.saleDate"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm font-medium text-gray-900 outline-none transition focus:border-brand-500 dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment & Summary Card -->
+            <div
+                class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
+                <h3 class="mb-5 text-lg font-bold text-gray-900 dark:text-white">Payment & Total</h3>
+
+                <div class="space-y-4">
+                    <div>
+                        <label
+                            class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Method</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button (click)="vente.paymentMethod = 'cash'"
+                                [class]="vente.paymentMethod === 'cash' ? 'bg-brand-500 text-white' : 'bg-gray-50 text-gray-600 dark:bg-white/[0.05] dark:text-gray-400'"
+                                class="flex flex-col items-center justify-center gap-1 rounded-xl py-3 text-[10px] font-bold transition-all shadow-sm">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                                    <circle cx="12" cy="12" r="2"></circle>
+                                    <path d="M6 12h.01M18 12h.01"></path>
+                                </svg>
+                                Cash
+                            </button>
+                            <button (click)="vente.paymentMethod = 'mobile_money'"
+                                [class]="vente.paymentMethod === 'mobile_money' ? 'bg-brand-500 text-white' : 'bg-gray-50 text-gray-600 dark:bg-white/[0.05] dark:text-gray-400'"
+                                class="flex flex-col items-center justify-center gap-1 rounded-xl py-3 text-[10px] font-bold transition-all shadow-sm">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                    <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                                </svg>
+                                Mobile
+                            </button>
+                            <button (click)="vente.paymentMethod = 'card'"
+                                [class]="vente.paymentMethod === 'card' ? 'bg-brand-500 text-white' : 'bg-gray-50 text-gray-600 dark:bg-white/[0.05] dark:text-gray-400'"
+                                class="flex flex-col items-center justify-center gap-1 rounded-xl py-3 text-[10px] font-bold transition-all shadow-sm">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                                </svg>
+                                Card
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 dark:border-white/[0.05] pt-4 space-y-2">
+                        <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                            <span>Subtotal</span>
+                            <span>{{ vente.totalAmount | number }} Ar</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                            <span>Taxes (0%)</span>
+                            <span>0 Ar</span>
+                        </div>
+                        <div class="flex justify-between pt-2">
+                            <span class="text-xl font-bold text-gray-900 dark:text-white">Total Due</span>
+                            <span class="text-xl font-extrabold text-brand-500">{{ vente.totalAmount | number }}
+                                Ar</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Container -->
+            <div class="flex flex-col gap-3">
+
+                <!-- Feedback Messages -->
+                <div *ngIf="successMessage"
+                    class="animate-fade-in rounded-xl bg-green-50 p-4 border border-green-200 dark:bg-green-500/10 dark:border-green-500/20">
+                    <p class="text-center text-sm font-bold text-green-600 dark:text-green-500">{{ successMessage }}</p>
+                </div>
+                <div *ngIf="errorMessage"
+                    class="animate-fade-in rounded-xl bg-red-50 p-4 border border-red-200 dark:bg-red-500/10 dark:border-red-500/20">
+                    <p class="text-center text-sm font-bold text-red-600 dark:text-red-500">{{ errorMessage }}</p>
+                </div>
+
+                <!-- Status Badge -->
+                <div class="flex justify-center mb-2" *ngIf="vente._id">
+                    <span *ngIf="vente.status === 'draft'"
+                        class="rounded-full bg-orange-100 px-4 py-1.5 text-xs font-bold text-orange-600 dark:bg-orange-500/10">DRAFT
+                        #{{ vente._id.slice(-6) }}</span>
+                    <span *ngIf="vente.status === 'paid'"
+                        class="rounded-full bg-green-100 px-4 py-1.5 text-xs font-bold text-green-600 dark:bg-green-500/10">SALE
+                        PAID #{{ vente._id.slice(-6) }}</span>
+                    <span *ngIf="vente.status === 'canceled'"
+                        class="rounded-full bg-red-100 px-4 py-1.5 text-xs font-bold text-red-600 dark:bg-red-500/10">CANCELED
+                        #{{ vente._id.slice(-6) }}</span>
+                </div>
+
+                <!-- Action Button Groups -->
+                <div class="grid grid-cols-1 gap-3">
+                    <button (click)="createSale()" [disabled]="(vente.items.length || 0) === 0"
+                        class="w-full flex items-center justify-center gap-2 rounded-xl bg-brand-500 py-4 text-base font-bold text-white shadow-lg shadow-brand-500/30 hover:bg-brand-600 active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        {{ isEditMode ? 'UPDATE' : 'CREATE SALE' }}
+                    </button>
+
+                    <!-- Actions have been moved to Vente Detail page -->
+                </div>
+
+                <!-- Canceled state -->
+                <div *ngIf="vente.status === 'canceled'">
+                    <app-button (click)="resetForm()" className="w-full">New Sale</app-button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- API Client Search Modal -->
+<div *ngIf="showClientModal" class="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+
+    <!-- Modal Content -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg h-[560px] flex flex-col overflow-hidden animate-slide-up">
+
+        <!-- Header -->
+        <div class="flex-shrink-0 flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Select a Client</h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Search and select a client by name or email</p>
+            </div>
+            <button
+                    type="button"
+                    (click)="closeClientModal()"
+                    class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Content scrollable -->
+        <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <div class="space-y-4">
+
+                <!-- Search Input -->
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <input
+                            type="text"
+                            [(ngModel)]="clientSearchTerm"
+                            (input)="onClientSearchForModal($event)"
+                            placeholder="Search by name or email..."
+                            class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all" />
+                </div>
+
+                <!-- Loading State -->
+                <div *ngIf="isSearchingClients" class="flex items-center justify-center py-12">
+                    <svg class="animate-spin h-8 w-8 text-brand-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+
+                <!-- Results List -->
+                <div *ngIf="!isSearchingClients && clientSearchResults.length > 0" class="space-y-2 animate-slide-down">
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                        {{ clientSearchResults.length }} {{ clientSearchResults.length === 1 ? 'client' : 'clients' }} found
+                    </p>
+
+                    <div
+                            *ngFor="let client of clientSearchResults"
+                            (click)="selectClient(client)"
+                            class="flex items-center gap-4 p-4 rounded-xl border-2 transition-all cursor-pointer border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+
+                        <!-- Avatar -->
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 rounded-full bg-brand-100 dark:bg-brand-500/20 flex items-center justify-center">
+                                <span class="text-base font-bold text-brand-600 dark:text-brand-400 uppercase">
+                                    {{ client.name?.charAt(0) || 'C' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Client Info -->
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                                {{ client.name }}
+                            </h4>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 truncate">
+                                {{ client.email || 'No email' }} • {{ client.profile?.phoneNumber || client.phoneNumber || 'No phone' }}
+                            </p>
+                        </div>
+
+                        <!-- Arrow -->
+                        <div class="flex-shrink-0">
+                            <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State après recherche -->
+                <div *ngIf="!isSearchingClients && clientSearchTerm && clientSearchResults.length === 0" class="text-center py-12">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No client found</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Try a different search term</p>
+                </div>
+
+                <!-- Empty State avant recherche -->
+                <div *ngIf="!isSearchingClients && !clientSearchTerm && clientSearchResults.length === 0" class="text-center py-12">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-50 dark:bg-brand-900/20 mb-4">
+                        <svg class="w-8 h-8 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Find a client</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Start typing to search for clients</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex-shrink-0 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+            <button
+                    type="button"
+                    (click)="closeClientModal()"
+                    class="w-full px-6 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold rounded-xl transition-colors">
+                Cancel
+            </button>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,293 @@
+import { CommonModule } from '@angular/common';
+import { Component, ElementRef, QueryList, ViewChildren, ChangeDetectorRef, OnInit } from '@angular/core';
+import { SidebarService } from '../../services/sidebar.service';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { SafeHtmlPipe } from '../../pipe/safe-html.pipe';
+import { SidebarWidgetComponent } from './app-sidebar-widget.component';
+import { combineLatest, Subscription } from 'rxjs';
+import { AuthService } from "../../services/auth.service";
+import { environment } from '../../../../environments/environment';
+
+
+type NavItem = {
+  name: string;
+  icon: string;
+  roles?: string[];
+  path?: string;
+  new?: boolean;
+  subItems?: { name: string; path: string; pro?: boolean; new?: boolean; roles?: string[] }[];
+};
+
+@Component({
+  selector: 'app-sidebar',
+  imports: [
+    CommonModule,
+    RouterModule,
+    SafeHtmlPipe,
+    SidebarWidgetComponent
+  ],
+  templateUrl: './app-sidebar.component.html',
+})
+export class AppSidebarComponent implements OnInit {
+  appName = environment.plateformeName;
+
+
+  private ALL_NAV_ITEMS: NavItem[] = [
+    // USER MENU
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 13.5L12 3L21 13.5H18V21H14V16H10V21H6V13.5H3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+      name: "Dashboard",
+      roles: [environment.userRole],
+      path: "/v1/dashboard",
+    },
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      name: "Maps",
+      roles: [environment.userRole],
+      path: "/v1/maps",
+    },
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.5 3.25C4.25736 3.25 3.25 4.25736 3.25 5.5V8.99998C3.25 10.2426 4.25736 11.25 5.5 11.25H9C10.2426 11.25 11.25 10.2426 11.25 8.99998V5.5C11.25 4.25736 10.2426 3.25 9 3.25H5.5ZM4.75 5.5C4.75 5.08579 5.08579 4.75 5.5 4.75H9C9.41421 4.75 9.75 5.08579 9.75 5.5V8.99998C9.75 9.41419 9.41421 9.74998 9 9.74998H5.5C5.08579 9.74998 4.75 9.41419 4.75 8.99998V5.5ZM5.5 12.75C4.25736 12.75 3.25 13.7574 3.25 15V18.5C3.25 19.7426 4.25736 20.75 5.5 20.75H9C10.2426 20.75 11.25 19.7427 11.25 18.5V15C11.25 13.7574 10.2426 12.75 9 12.75H5.5ZM4.75 15C4.75 14.5858 5.08579 14.25 5.5 14.25H9C9.41421 14.25 9.75 14.5858 9.75 15V18.5C9.75 18.9142 9.41421 19.25 9 19.25H5.5C5.08579 19.25 4.75 18.9142 4.75 18.5V15ZM12.75 5.5C12.75 4.25736 13.7574 3.25 15 3.25H18.5C19.7426 3.25 20.75 4.25736 20.75 5.5V8.99998C20.75 10.2426 19.7426 11.25 18.5 11.25H15C13.7574 11.25 12.75 10.2426 12.75 8.99998V5.5ZM15 4.75C14.5858 4.75 14.25 5.08579 14.25 5.5V8.99998C14.25 9.41419 14.5858 9.74998 15 9.74998H18.5C18.9142 9.74998 19.25 9.41419 19.25 8.99998V5.5C19.25 5.08579 18.9142 4.75 18.5 4.75H15ZM15 12.75C13.7574 12.75 12.75 13.7574 12.75 15V18.5C12.75 19.7426 13.7574 20.75 15 20.75H18.5C19.7426 20.75 20.75 19.7427 20.75 18.5V15C20.75 13.7574 19.7426 12.75 18.5 12.75H15ZM14.25 15C14.25 14.5858 14.5858 14.25 15 14.25H18.5C18.9142 14.25 19.25 14.5858 19.25 15V18.5C19.25 18.9142 18.9142 19.25 18.5 19.25H15C14.5858 19.25 14.25 18.9142 14.25 18.5V15Z" fill="currentColor"></path></svg>`,
+      name: "Stores",
+      roles: [environment.userRole],
+      path: "/v1/stores",
+    },
+    {
+      icon: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H15C15.5523 3 16 3.44772 16 4V5H18C18.5523 5 19 5.44772 19 6V20C19 20.5523 18.5523 21 18 21H6C5.44772 21 5 20.5523 5 20V6C5 5.44772 5.44772 5 6 5H8V4C8 3.44772 8.44772 3 9 3Z" stroke="currentColor" stroke-width="1.8"/><path d="M9 10H15M9 14H15M9 18H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+      name: "Orders",
+      roles: [environment.userRole],
+      path: "/v1/orders",
+    },
+    //...
+
+    // ADMIN MENU
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 13V3H3v10h2v-8h14v8h2zm-4 4v-3h-2v3h-3v2h3v3h2v-3h3v-2h-3z" fill="currentColor"/></svg>`,
+      name: "Shops",
+      roles: [environment.adminRole],
+      path: "/admin/app/boutiques",
+    },
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/></svg>`,
+      name: "Users",
+      roles: [environment.adminRole],
+      path: "/admin/app/users",
+    },
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z" fill="currentColor"/></svg>`,
+      name: "Subscriptions",
+      roles: [environment.adminRole],
+      path: "/admin/app/subscriptions",
+    },
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H6L4 18V4H20V16ZM12 15H14V17H12V15ZM12 7H14V13H12V7Z" fill="currentColor"/></svg>`,
+      name: "Support Requests",
+      roles: [environment.adminRole],
+      path: "/admin/app/support-requests",
+    },
+    //...
+    // BOUTIQUE
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.5 3.25C4.25736 3.25 3.25 4.25736 3.25 5.5V8.99998C3.25 10.2426 4.25736 11.25 5.5 11.25H9C10.2426 11.25 11.25 10.2426 11.25 8.99998V5.5C11.25 4.25736 10.2426 3.25 9 3.25H5.5ZM4.75 5.5C4.75 5.08579 5.08579 4.75 5.5 4.75H9C9.41421 4.75 9.75 5.08579 9.75 5.5V8.99998C9.75 9.41419 9.41421 9.74998 9 9.74998H5.5C5.08579 9.74998 4.75 9.41419 4.75 8.99998V5.5ZM5.5 12.75C4.25736 12.75 3.25 13.7574 3.25 15V18.5C3.25 19.7426 4.25736 20.75 5.5 20.75H9C10.2426 20.75 11.25 19.7427 11.25 18.5V15C11.25 13.7574 10.2426 12.75 9 12.75H5.5ZM4.75 15C4.75 14.5858 5.08579 14.25 5.5 14.25H9C9.41421 14.25 9.75 14.5858 9.75 15V18.5C9.75 18.9142 9.41421 19.25 9 19.25H5.5C5.08579 19.25 4.75 18.9142 4.75 18.5V15ZM12.75 5.5C12.75 4.25736 13.7574 3.25 15 3.25H18.5C19.7426 3.25 20.75 4.25736 20.75 5.5V8.99998C20.75 10.2426 19.7426 11.25 18.5 11.25H15C13.7574 11.25 12.75 10.2426 12.75 8.99998V5.5ZM15 4.75C14.5858 4.75 14.25 5.08579 14.25 5.5V8.99998C14.25 9.41419 14.5858 9.74998 15 9.74998H18.5C18.9142 9.74998 19.25 9.41419 19.25 8.99998V5.5C19.25 5.08579 18.9142 4.75 18.5 4.75H15ZM15 12.75C13.7574 12.75 12.75 13.7574 12.75 15V18.5C12.75 19.7426 13.7574 20.75 15 20.75H18.5C19.7426 20.75 20.75 19.7427 20.75 18.5V15C20.75 13.7574 19.7426 12.75 18.5 12.75H15ZM14.25 15C14.25 14.5858 14.5858 14.25 15 14.25H18.5C18.9142 14.25 19.25 14.5858 19.25 15V18.5C19.25 18.9142 18.9142 19.25 18.5 19.25H15C14.5858 19.25 14.25 18.9142 14.25 18.5V15Z" fill="currentColor"></path></svg>`,
+      name: "Dashboard",
+      roles: [environment.boutiqueRole],
+      path: "/store/app/dashboard",
+    },
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 7L12 2L3 7V17L12 22L21 17V7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 7L12 12L21 7" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 12V22" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>`,
+      name: "Products",
+      roles: [environment.boutiqueRole],
+      path: "/store/app/products",
+    },
+
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z" fill="currentColor"/></svg>`,
+      name: "Sales",
+      roles: [environment.boutiqueRole],
+      path: "/store/app/vente-liste",
+    },
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      name: "Orders",
+      roles: [environment.boutiqueRole],
+      path: "/store/app/orders",
+    },
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 9V6.5C2 4.01 4.01 2 6.5 2h11C19.99 2 22 4.01 22 6.5V9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 15v2.5C2 19.99 4.01 22 6.5 22h11c2.49 0 4.5-2.01 4.5-4.5V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M6 9h12M6 15h12M6 12h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>`,
+      name: "Stock",
+      roles: [environment.boutiqueRole],
+      subItems: [
+        {
+          name: "Inventory",
+          path: "/store/app/stock/inventaire",
+        },
+        {
+          name: "Movements",
+          path: "/store/app/stock/mouvements",
+        },
+      ]
+    },
+  ];
+
+  navItems: NavItem[] = [];
+
+  othersItems: NavItem[] = [
+    // aza kitihana
+  ];
+
+  openSubmenu: string | null | number = null;
+  subMenuHeights: { [key: string]: number } = {};
+  @ViewChildren('subMenu') subMenuRefs!: QueryList<ElementRef>;
+
+  readonly isExpanded$;
+  readonly isMobileOpen$;
+  readonly isHovered$;
+
+  private subscription: Subscription = new Subscription();
+
+  constructor(
+    public sidebarService: SidebarService,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService,
+  ) {
+    this.isExpanded$ = this.sidebarService.isExpanded$;
+    this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
+    this.isHovered$ = this.sidebarService.isHovered$;
+  }
+
+  ngOnInit() {
+    const role = this.authService.getRole();
+    this.navItems = this.filterMenuByRole(this.ALL_NAV_ITEMS, role);
+
+    // Subscribe to router events
+    this.subscription.add(
+      this.router.events.subscribe(event => {
+        if (event instanceof NavigationEnd) {
+          this.setActiveMenuFromRoute(this.router.url);
+        }
+      })
+    );
+
+    // Subscribe to combined observables to close submenus when all are false
+    this.subscription.add(
+      combineLatest([this.isExpanded$, this.isMobileOpen$, this.isHovered$]).subscribe(
+        ([isExpanded, isMobileOpen, isHovered]) => {
+          if (!isExpanded && !isMobileOpen && !isHovered) {
+            // this.openSubmenu = null;
+            // this.savedSubMenuHeights = { ...this.subMenuHeights };
+            // this.subMenuHeights = {};
+            this.cdr.detectChanges();
+          } else {
+            // Restore saved heights when reopening
+            // this.subMenuHeights = { ...this.savedSubMenuHeights };
+            // this.cdr.detectChanges();
+          }
+        }
+      )
+    );
+
+    // Initial load
+    this.setActiveMenuFromRoute(this.router.url);
+  }
+
+  ngOnDestroy() {
+    // Clean up subscriptions
+    this.subscription.unsubscribe();
+  }
+
+  isActive(path: string): boolean {
+    if (this.router.url === path) {
+      return true;
+    }
+    // Handle child routes for active state
+    if (this.router.url.startsWith(path + '/')) {
+      return true;
+    }
+    return false;
+  }
+
+  toggleSubmenu(section: string, index: number) {
+    const key = `${section}-${index}`;
+
+    if (this.openSubmenu === key) {
+      this.openSubmenu = null;
+      this.subMenuHeights[key] = 0;
+    } else {
+      this.openSubmenu = key;
+
+      setTimeout(() => {
+        const el = document.getElementById(key);
+        if (el) {
+          this.subMenuHeights[key] = el.scrollHeight;
+          this.cdr.detectChanges(); // Ensure UI updates
+        }
+      });
+    }
+  }
+
+  onSidebarMouseEnter() {
+    this.isExpanded$.subscribe(expanded => {
+      if (!expanded) {
+        this.sidebarService.setHovered(true);
+      }
+    }).unsubscribe();
+  }
+
+  private setActiveMenuFromRoute(currentUrl: string) {
+    const menuGroups = [
+      { items: this.navItems, prefix: 'main' },
+      { items: this.othersItems, prefix: 'others' },
+    ];
+
+    menuGroups.forEach(group => {
+      group.items.forEach((nav, i) => {
+        if (nav.subItems) {
+          nav.subItems.forEach(subItem => {
+            if (currentUrl === subItem.path) {
+              const key = `${group.prefix}-${i}`;
+              this.openSubmenu = key;
+
+              setTimeout(() => {
+                const el = document.getElementById(key);
+                if (el) {
+                  this.subMenuHeights[key] = el.scrollHeight;
+                  this.cdr.detectChanges(); // Ensure UI updates
+                }
+              });
+            }
+          });
+        }
+      });
+    });
+  }
+
+  onSubmenuClick() {
+    console.log('click submenu');
+    this.isMobileOpen$.subscribe(isMobile => {
+      if (isMobile) {
+        this.sidebarService.setMobileOpen(false);
+      }
+    }).unsubscribe();
+  }
+
+  private filterMenuByRole(items: NavItem[], role: string | null): NavItem[] {
+    if (!role) return [];
+
+    return items
+      .filter(item => !item.roles || item.roles.includes(role))
+      .map(item => ({
+        ...item,
+        subItems: item.subItems
+          ? item.subItems.filter(sub => !sub.roles || sub.roles.includes(role))
+          : undefined
+      }))
+      .filter(item => !item.subItems || item.subItems.length > 0);
+  }
+
+
+}

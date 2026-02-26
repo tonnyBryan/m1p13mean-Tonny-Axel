@@ -1,0 +1,121 @@
+<!-- Loading Skeleton -->
+<div class="space-y-6 animate-pulse">
+
+    <!-- Header Skeleton -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="space-y-2">
+            <div class="flex items-center gap-3">
+                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded-lg w-44"></div>
+                <div class="h-7 bg-gray-200 dark:bg-gray-700 rounded-lg w-28"></div>
+            </div>
+            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-52"></div>
+        </div>
+        <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-xl w-36"></div>
+    </div>
+
+    <!-- Status Card Skeleton -->
+    <div class="bg-gray-100 dark:bg-gray-800 rounded-2xl p-6">
+        <div class="flex items-start gap-4">
+            <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl flex-shrink-0"></div>
+            <div class="flex-1 space-y-2 pt-1">
+                <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content Skeleton -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Products Skeleton -->
+            <div class="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-2xl overflow-hidden">
+                <!-- Header -->
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-white/[0.05]">
+                    <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                </div>
+                <!-- Items -->
+                <div class="divide-y divide-gray-200 dark:divide-white/[0.05]">
+                    <div *ngFor="let i of [1, 2]" class="p-6">
+                        <div class="flex gap-4">
+                            <div class="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-xl flex-shrink-0"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                                <div class="flex items-center gap-3 pt-1">
+                                    <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                                    <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-4"></div>
+                                    <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                                </div>
+                            </div>
+                            <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20 flex-shrink-0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Address Skeleton -->
+            <div class="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-2xl p-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl flex-shrink-0"></div>
+                    <div class="flex-1 space-y-2">
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-3"></div>
+                        <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+                        <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded-lg w-48 mt-2"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sidebar Skeleton -->
+        <div class="space-y-6">
+
+            <!-- Store Skeleton -->
+            <div class="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.05] rounded-2xl p-6">
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-36 mb-4"></div>
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl flex-shrink-0"></div>
+                    <div class="flex-1 space-y-2">
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-28"></div>
+                        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Skeleton -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <!-- Header -->
+                <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-36"></div>
+                        <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded-full w-14"></div>
+                    </div>
+                </div>
+                <!-- Lines -->
+                <div class="p-6 bg-gray-50 dark:bg-gray-900/50 space-y-4">
+                    <div *ngFor="let i of [1, 2, 3, 4]" class="flex items-center justify-between py-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-28"></div>
+                        </div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                    </div>
+                    <div class="border-t-2 border-gray-200 dark:border-gray-700 my-3"></div>
+                    <div class="h-14 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+                </div>
+            </div>
+
+            <!-- Order ID Skeleton -->
+            <div class="bg-gray-50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/[0.05] rounded-2xl p-4">
+                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16 mb-2"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+            </div>
+
+        </div>
+    </div>
+</div>

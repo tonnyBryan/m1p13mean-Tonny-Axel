@@ -1,0 +1,57 @@
+/* Smooth details animation */
+details summary::-webkit-details-marker {
+    display: none;
+}
+
+details[open] > summary {
+    margin-bottom: 0;
+}
+
+/* Delivery content animation */
+.delivery-content {
+    max-height: 0;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+details[open] .delivery-content {
+    max-height: 500px;
+}
+
+/* Fade in up animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+/* Reset animation when closed */
+details:not([open]) .animate-fade-in-up {
+    animation: none;
+    opacity: 0;
+}
+
+/* Hover effects */
+details summary:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.dark details summary:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Smooth transitions for all interactive elements */
+details summary,
+.delivery-content,
+.animate-fade-in-up {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

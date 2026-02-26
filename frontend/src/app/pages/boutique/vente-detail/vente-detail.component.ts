@@ -1,0 +1,117 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { VenteService } from '../../../shared/services/vente.service';
+import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
+import { BadgeComponent } from '../../../shared/components/ui/badge/badge.component';
+import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
+import { Vente } from '../../../core/models/vente.model';
+
+@Component({
+    selector: 'app-vente-detail',
+    standalone: true,
+    imports: [CommonModule, RouterModule, PageBreadcrumbComponent, BadgeComponent, ButtonComponent],
+    templateUrl: './vente-detail.component.html',
+})
+export class VenteDetailComponent implements OnInit {
+    vente: Vente | null = null;
+    isLoading = false;
+
+    constructor(
+        private route: ActivatedRoute,
+        private venteService: VenteService
+    ) { }
+
+    ngOnInit(): void {
+        this.route.paramMap.subscribe(params => {
+            const id = params.get('id');
+            if (id) {
+                this.loadVente(id);
+            }
+        });
+    }
+
+    loadVente(id: string): void {
+        this.isLoading = true;
+        this.venteService.getVenteById(id).subscribe({
+            next: (res) => {
+                this.vente = res.data;
+                this.isLoading = false;
+            },
+            error: (err) => {
+                console.error(err);
+                this.isLoading = false;
+            }
+        });
+    }
+
+    getStatusColor(status: string): any {
+        switch (status) {
+            case 'paid': return 'success';
+            case 'draft': return 'warning';
+            case 'canceled': return 'error';
+            default: return 'light';
+        }
+    }
+
+    getProduct(item: any): any {
+        return item.product as any;
+    }
+
+    getSeller(): any {
+        return this.vente?.seller as any;
+    }
+
+    getBoutique(): any {
+        return this.vente?.boutique as any;
+    }
+
+    payVente(): void {
+        if (!this.vente?._id) return;
+        this.venteService.updateStatus(this.vente._id, 'paid').subscribe({
+            next: (res) => {
+                if (res.success) {
+                    this.vente!.status = 'paid';
+                }
+            }
+        });
+    }
+
+    cancelVente(): void {
+        if (!this.vente?._id) return;
+        if (confirm('Are you sure you want to cancel this sale?')) {
+            this.venteService.updateStatus(this.vente._id, 'canceled').subscribe({
+                next: (res) => {
+                    if (res.success) {
+                        this.vente!.status = 'canceled';
+                    }
+                }
+            });
+        }
+    }
+
+    getInvoice(): void {
+        const venteId = this.vente?._id;
+        if (!venteId) return;
+
+        this.venteService.getInvoice(venteId).subscribe({
+            next: (blob: Blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `facture-${venteId}.pdf`;
+                link.click();
+                window.URL.revokeObjectURL(url);
+            },
+            error: (err) => {
+                console.error('Error downloading invoice', err);
+                alert('Unable to download invoice');
+            }
+        });
+    }
+
+    getOrderLink(): string {
+        const orderId = typeof this.vente?.order === 'object' ? this.vente.order._id : this.vente?.order;
+        return `/store/app/orders/${orderId}`;
+    }
+}

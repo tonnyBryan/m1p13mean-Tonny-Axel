@@ -1,0 +1,26 @@
+/* Custom scrollbar for the page */
+:host ::ng-deep .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+
+:host ::ng-deep .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+:host ::ng-deep .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+:host ::ng-deep .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Dark mode scrollbar */
+:host-context(.dark) ::ng-deep .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #475569;
+}
+
+:host-context(.dark) ::ng-deep .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}

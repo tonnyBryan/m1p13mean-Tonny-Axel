@@ -1,0 +1,43 @@
+/* Amélioration de l'animation pulse */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Gradient shimmer effect (optionnel, pour un effet encore plus moderne) */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.skeleton-shimmer {
+    background: linear-gradient(
+            90deg,
+            rgba(229, 231, 235, 0) 0%,
+            rgba(229, 231, 235, 0.8) 50%,
+            rgba(229, 231, 235, 0) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+
+.dark .skeleton-shimmer {
+    background: linear-gradient(
+            90deg,
+            rgba(55, 65, 81, 0) 0%,
+            rgba(55, 65, 81, 0.8) 50%,
+            rgba(55, 65, 81, 0) 100%
+    );
+}
