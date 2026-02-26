@@ -1,59 +1,16 @@
 import { Routes } from '@angular/router';
-import { NotFoundComponent } from './pages/other-page/not-found/not-found.component';
-import { AppLayoutComponent } from './shared/layout/app-layout/app-layout.component';
-import { SignInComponent } from './pages/auth-pages/sign-in/sign-in.component';
-import { SignUpComponent } from './pages/auth-pages/sign-up/sign-up.component';
 import { AuthGuard } from "./shared/guards/auth.guard";
-import { SignInAdminComponent } from "./pages/admin/auth-pages-admin/sign-in-admin/sign-in-admin.component";
 import { RoleGuard } from "./shared/guards/role.guard";
 import { environment } from '../environments/environment';
-import {
-  SignInBoutiqueComponent
-} from "./pages/boutique/auth-pages-boutique/sign-in-boutique/sign-in-boutique.component";
-import { ProductListBoutiqueComponent } from "./pages/boutique/product-list-boutique/product-list-boutique.component";
-import { AddProductBoutiqueComponent } from "./pages/boutique/add-product-boutique/add-product-boutique.component";
-import { BoutiqueListComponent } from "./pages/admin/boutique-list/boutique-list.component";
-import { AddBoutiqueComponent } from "./pages/admin/boutique-list/add-boutique/add-boutique.component";
-import { ProductFicheBoutiqueComponent } from "./pages/boutique/product-fiche-boutique/product-fiche-boutique.component";
-import { BoutiqueListeUserComponent } from "./pages/user/boutique-liste-user/boutique-liste-user.component";
-import { ProfileUserComponent } from "./pages/user/profile-user/profile-user.component";
-import { FicheBoutiqueComponent } from "./pages/boutique/fiche-boutique/fiche-boutique.component";
-import { BoutiqueFicheUserComponent } from "./pages/user/boutique-fiche-user/boutique-fiche-user.component";
-import { ProductFicheUserComponent } from "./pages/user/product-fiche-user/product-fiche-user.component";
-import { CartUserComponent } from "./pages/user/cart-user/cart-user.component";
-import { CheckoutUserComponent } from "./pages/user/checkout-user/checkout-user.component";
-import { VerifyEmailComponent } from "./pages/user/verify-email/verify-email.component";
-import { OrdersUserComponent } from "./pages/user/orders-user/orders-user.component";
-import { OrderDetailComponent } from "./pages/user/order-detail/order-detail.component";
-import { OrdersListBoutiqueComponent } from "./pages/boutique/orders-list-boutique/orders-list-boutique.component";
-import { OrderDetailBoutiqueComponent } from "./pages/boutique/order-detail-boutique/order-detail-boutique.component";
-import { WishlistUserComponent } from "./pages/user/wishlist-user/wishlist-user.component";
-import { LandingPageComponent } from "./pages/public/landing-page/landing-page.component";
-import { HelpPageComponent } from "./pages/public/help-page/help-page.component";
-import { SupportPageComponent } from "./pages/public/support-page/support-page.component";
-import { PrivacyPageComponent } from "./pages/public/privacy-page/privacy-page.component";
-import { TermsPageComponent } from "./pages/public/terms-page/terms-page.component";
-import { LandingLayoutComponent } from "./shared/layout/landing-layout/landing-layout.component";
-import { DashboardUserComponent } from "./pages/user/dashboard-user/dashboard-user.component";
-import { SubscriptionListComponent } from "./pages/admin/subscription-list/subscription-list.component";
-import { SupportRequestComponent } from "./pages/admin/support-request/support-request.component";
-import { MailComposeComponent } from "./pages/admin/mail-compose/mail-compose.component";
-import { DashboardBoutiqueComponent } from "./pages/boutique/dashboard-boutique/dashboard-boutique.component";
-import { ForgotPasswordComponent } from './pages/auth-pages/forgot-password/forgot-password.component';
-import { ResetPasswordComponent } from './pages/auth-pages/reset-password/reset-password.component';
-import { SecurityBoutiqueComponent } from './pages/boutique/security-boutique/security-boutique.component';
-import { StoreRegisterComponent } from './pages/boutique/store-register/store-register.component';
-import { SecurityComponent } from './pages/user/security/security.component';
-import {BoutiquesMapComponent} from "./pages/user/boutiques-map/boutiques-map.component";
-import {unsavedChangesGuard} from "./shared/guards/unsaved-changes.guard";
-import {ChatPageComponent} from "./shared/components/chatbot/chat-page/chat-page.component";
+import { unsavedChangesGuard } from "./shared/guards/unsaved-changes.guard";
 
 const appName = environment.plateformeName || 'Shopticus';
 
 export const routes: Routes = [
+  // ─── PUBLIC LAYOUT ───────────────────────────────────────────────────────────
   {
     path: '',
-    component: LandingLayoutComponent,
+    loadComponent: () => import('./shared/layout/landing-layout/landing-layout.component').then(m => m.LandingLayoutComponent),
     children: [
       {
         path: '',
@@ -62,58 +19,60 @@ export const routes: Routes = [
       },
       {
         path: 'home',
-        component: LandingPageComponent,
+        loadComponent: () => import('./pages/public/landing-page/landing-page.component').then(m => m.LandingPageComponent),
         title: appName + ' | The all-in-one shopping platform',
         data: { animation: 'home' }
       },
       {
         path: 'help',
-        component: HelpPageComponent,
+        loadComponent: () => import('./pages/public/help-page/help-page.component').then(m => m.HelpPageComponent),
         title: 'Help Center | ' + appName,
         data: { animation: 'help' }
       },
       {
         path: 'support',
-        component: SupportPageComponent,
+        loadComponent: () => import('./pages/public/support-page/support-page.component').then(m => m.SupportPageComponent),
         title: 'Support | ' + appName,
         data: { animation: 'support' }
       },
       {
         path: 'privacy',
-        component: PrivacyPageComponent,
+        loadComponent: () => import('./pages/public/privacy-page/privacy-page.component').then(m => m.PrivacyPageComponent),
         title: 'Privacy Policy | ' + appName,
         data: { animation: 'privacy' }
       },
       {
         path: 'terms',
-        component: TermsPageComponent,
+        loadComponent: () => import('./pages/public/terms-page/terms-page.component').then(m => m.TermsPageComponent),
         title: 'Terms of Service | ' + appName,
         data: { animation: 'terms' }
       },
       {
         path: 'forgot-password',
-        component: ForgotPasswordComponent,
+        loadComponent: () => import('./pages/auth-pages/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
         title: 'Forgot Password | ' + appName,
         data: { animation: 'forgot-password' }
       },
       {
         path: 'reset-password',
-        component: ResetPasswordComponent,
+        loadComponent: () => import('./pages/auth-pages/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
         title: 'Reset Password | ' + appName,
         data: { animation: 'reset-password' }
       },
       {
         path: 'store/register',
-        component: StoreRegisterComponent,
+        loadComponent: () => import('./pages/boutique/store-register/store-register.component').then(m => m.StoreRegisterComponent),
         canDeactivate: [unsavedChangesGuard],
         title: 'Register | ' + appName,
         data: { animation: 'reset-password' }
       },
     ]
   },
+
+  // ─── USER APP ─────────────────────────────────────────────────────────────────
   {
     path: 'v1',
-    component: AppLayoutComponent,
+    loadComponent: () => import('./shared/layout/app-layout/app-layout.component').then(m => m.AppLayoutComponent),
     children: [
       {
         path: '',
@@ -122,7 +81,7 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        component: DashboardUserComponent,
+        loadComponent: () => import('./pages/user/dashboard-user/dashboard-user.component').then(m => m.DashboardUserComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
@@ -130,7 +89,7 @@ export const routes: Routes = [
       },
       {
         path: 'stores',
-        component: BoutiqueListeUserComponent,
+        loadComponent: () => import('./pages/user/boutique-liste-user/boutique-liste-user.component').then(m => m.BoutiqueListeUserComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
@@ -138,7 +97,7 @@ export const routes: Routes = [
       },
       {
         path: 'orders',
-        component: OrdersUserComponent,
+        loadComponent: () => import('./pages/user/orders-user/orders-user.component').then(m => m.OrdersUserComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
@@ -146,7 +105,7 @@ export const routes: Routes = [
       },
       {
         path: 'maps',
-        component: BoutiquesMapComponent,
+        loadComponent: () => import('./pages/user/boutiques-map/boutiques-map.component').then(m => m.BoutiquesMapComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
@@ -154,7 +113,7 @@ export const routes: Routes = [
       },
       {
         path: 'wishlist',
-        component: WishlistUserComponent,
+        loadComponent: () => import('./pages/user/wishlist-user/wishlist-user.component').then(m => m.WishlistUserComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
@@ -162,7 +121,7 @@ export const routes: Routes = [
       },
       {
         path: 'orders/:id',
-        component: OrderDetailComponent,
+        loadComponent: () => import('./pages/user/order-detail/order-detail.component').then(m => m.OrderDetailComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
@@ -170,7 +129,7 @@ export const routes: Routes = [
       },
       {
         path: 'stores/:id',
-        component: BoutiqueFicheUserComponent,
+        loadComponent: () => import('./pages/user/boutique-fiche-user/boutique-fiche-user.component').then(m => m.BoutiqueFicheUserComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         pathMatch: 'full',
@@ -178,60 +137,62 @@ export const routes: Routes = [
       },
       {
         path: 'profile',
-        component: ProfileUserComponent,
+        loadComponent: () => import('./pages/user/profile-user/profile-user.component').then(m => m.ProfileUserComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         title: 'Profile | ' + appName
       },
       {
         path: 'profile/security',
-        component: SecurityComponent,
+        loadComponent: () => import('./pages/user/security/security.component').then(m => m.SecurityComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         title: 'Security | ' + appName
       },
       {
         path: 'stores/:idStore/products/:idProduct',
-        component: ProductFicheUserComponent,
+        loadComponent: () => import('./pages/user/product-fiche-user/product-fiche-user.component').then(m => m.ProductFicheUserComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         title: 'Product | ' + appName
       },
       {
         path: 'cart',
-        component: CartUserComponent,
+        loadComponent: () => import('./pages/user/cart-user/cart-user.component').then(m => m.CartUserComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         title: 'Cart | ' + appName
       },
       {
         path: 'cart/checkout',
-        component: CheckoutUserComponent,
+        loadComponent: () => import('./pages/user/checkout-user/checkout-user.component').then(m => m.CheckoutUserComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         title: 'Checkout | ' + appName
       },
       {
         path: 'verify-email',
-        component: VerifyEmailComponent,
+        loadComponent: () => import('./pages/user/verify-email/verify-email.component').then(m => m.VerifyEmailComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.userRole] },
         title: 'Verify Email | ' + appName
       },
     ]
   },
-  // auth pages
+
+  // ─── AUTH PAGES ───────────────────────────────────────────────────────────────
   {
     path: 'signin',
-    component: SignInComponent,
+    loadComponent: () => import('./pages/auth-pages/sign-in/sign-in.component').then(m => m.SignInComponent),
     title: 'Sign In | ' + appName
   },
   {
     path: 'signup',
-    component: SignUpComponent,
+    loadComponent: () => import('./pages/auth-pages/sign-up/sign-up.component').then(m => m.SignUpComponent),
     title: 'Sign Up | ' + appName
   },
-  // ADMIN
+
+  // ─── ADMIN ────────────────────────────────────────────────────────────────────
   {
     path: 'admin',
     redirectTo: 'admin/signin',
@@ -239,12 +200,12 @@ export const routes: Routes = [
   },
   {
     path: 'admin/signin',
-    component: SignInAdminComponent,
+    loadComponent: () => import('./pages/admin/auth-pages-admin/sign-in-admin/sign-in-admin.component').then(m => m.SignInAdminComponent),
     title: 'Admin Sign In | ' + appName
   },
   {
     path: 'admin/app',
-    component: AppLayoutComponent,
+    loadComponent: () => import('./shared/layout/app-layout/app-layout.component').then(m => m.AppLayoutComponent),
     children: [
       {
         path: '',
@@ -253,7 +214,7 @@ export const routes: Routes = [
       },
       {
         path: 'subscriptions',
-        component: SubscriptionListComponent,
+        loadComponent: () => import('./pages/admin/subscription-list/subscription-list.component').then(m => m.SubscriptionListComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.adminRole] },
         pathMatch: 'full',
@@ -261,7 +222,7 @@ export const routes: Routes = [
       },
       {
         path: 'support-requests',
-        component: SupportRequestComponent,
+        loadComponent: () => import('./pages/admin/support-request/support-request.component').then(m => m.SupportRequestComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.adminRole] },
         pathMatch: 'full',
@@ -269,13 +230,13 @@ export const routes: Routes = [
       },
       {
         path: 'support-requests/:id/reply',
-        component: MailComposeComponent,
+        loadComponent: () => import('./pages/admin/mail-compose/mail-compose.component').then(m => m.MailComposeComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.adminRole] },
       },
       {
         path: 'boutiques',
-        component: BoutiqueListComponent,
+        loadComponent: () => import('./pages/admin/boutique-list/boutique-list.component').then(m => m.BoutiqueListComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.adminRole] },
         pathMatch: 'full',
@@ -283,7 +244,7 @@ export const routes: Routes = [
       },
       {
         path: 'boutiques/add',
-        component: AddBoutiqueComponent,
+        loadComponent: () => import('./pages/admin/boutique-list/add-boutique/add-boutique.component').then(m => m.AddBoutiqueComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.adminRole] },
         pathMatch: 'full',
@@ -316,9 +277,7 @@ export const routes: Routes = [
     ]
   },
 
-
-
-  // BOUTIQUE
+  // ─── BOUTIQUE ─────────────────────────────────────────────────────────────────
   {
     path: 'store',
     redirectTo: 'store/signin',
@@ -326,12 +285,12 @@ export const routes: Routes = [
   },
   {
     path: 'store/signin',
-    component: SignInBoutiqueComponent,
+    loadComponent: () => import('./pages/boutique/auth-pages-boutique/sign-in-boutique/sign-in-boutique.component').then(m => m.SignInBoutiqueComponent),
     title: 'Boutique Sign In | ' + appName
   },
   {
     path: 'store/app',
-    component: AppLayoutComponent,
+    loadComponent: () => import('./shared/layout/app-layout/app-layout.component').then(m => m.AppLayoutComponent),
     children: [
       {
         path: '',
@@ -340,16 +299,15 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        component: DashboardBoutiqueComponent,
+        loadComponent: () => import('./pages/boutique/dashboard-boutique/dashboard-boutique.component').then(m => m.DashboardBoutiqueComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
         title: 'Boutique Dashboard | ' + appName,
       },
-
       {
         path: 'orders',
-        component: OrdersListBoutiqueComponent,
+        loadComponent: () => import('./pages/boutique/orders-list-boutique/orders-list-boutique.component').then(m => m.OrdersListBoutiqueComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
@@ -357,7 +315,7 @@ export const routes: Routes = [
       },
       {
         path: 'orders/:id',
-        component: OrderDetailBoutiqueComponent,
+        loadComponent: () => import('./pages/boutique/order-detail-boutique/order-detail-boutique.component').then(m => m.OrderDetailBoutiqueComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
@@ -365,7 +323,7 @@ export const routes: Routes = [
       },
       {
         path: 'chat',
-        component: ChatPageComponent,
+        loadComponent: () => import('./shared/components/chatbot/chat-page/chat-page.component').then(m => m.ChatPageComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
@@ -373,7 +331,7 @@ export const routes: Routes = [
       },
       {
         path: 'products',
-        component: ProductListBoutiqueComponent,
+        loadComponent: () => import('./pages/boutique/product-list-boutique/product-list-boutique.component').then(m => m.ProductListBoutiqueComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
@@ -381,7 +339,7 @@ export const routes: Routes = [
       },
       {
         path: 'products/add',
-        component: AddProductBoutiqueComponent,
+        loadComponent: () => import('./pages/boutique/add-product-boutique/add-product-boutique.component').then(m => m.AddProductBoutiqueComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
@@ -389,7 +347,7 @@ export const routes: Routes = [
       },
       {
         path: 'products/:id',
-        component: ProductFicheBoutiqueComponent,
+        loadComponent: () => import('./pages/boutique/product-fiche-boutique/product-fiche-boutique.component').then(m => m.ProductFicheBoutiqueComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
@@ -397,7 +355,7 @@ export const routes: Routes = [
       },
       {
         path: 'profile',
-        component: FicheBoutiqueComponent,
+        loadComponent: () => import('./pages/boutique/fiche-boutique/fiche-boutique.component').then(m => m.FicheBoutiqueComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
@@ -405,7 +363,7 @@ export const routes: Routes = [
       },
       {
         path: 'profile/security',
-        component: SecurityBoutiqueComponent,
+        loadComponent: () => import('./pages/boutique/security-boutique/security-boutique.component').then(m => m.SecurityBoutiqueComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
@@ -478,12 +436,10 @@ export const routes: Routes = [
     ]
   },
 
-
-
-  // error pages
+  // ─── ERROR PAGES ──────────────────────────────────────────────────────────────
   {
     path: '**',
-    component: NotFoundComponent,
+    loadComponent: () => import('./pages/other-page/not-found/not-found.component').then(m => m.NotFoundComponent),
     title: 'Page Not Found | ' + appName
   },
 ];
