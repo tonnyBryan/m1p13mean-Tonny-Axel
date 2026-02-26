@@ -4,6 +4,7 @@ export interface Boutique {
   name: string;
   logo: string; // URL
   description: string;
+  isLocal: boolean;
   isActive: boolean;
   isValidated: boolean;
   createdAt: Date;

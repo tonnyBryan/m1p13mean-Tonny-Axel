@@ -9,7 +9,7 @@ import {
   HostListener
 } from '@angular/core';
 import {CommonModule, NgOptimizedImage} from '@angular/common';
-import { RouterModule } from '@angular/router';
+import {ActivatedRoute, RouterModule} from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import * as L from 'leaflet';
@@ -59,13 +59,26 @@ export class BoutiquesMapComponent implements OnInit, AfterViewInit, OnDestroy {
   private centreLatLng?: [number, number];
   private defaultCenter: [number, number] = [-18.8792, 47.5079];
 
+  private pendingFocusBoutiqueId: string | null = null;
+
   constructor(
       private boutiqueService: BoutiqueService,
       private centreService: CentreService,
-      private cdr: ChangeDetectorRef
+      private cdr: ChangeDetectorRef,
+      private route: ActivatedRoute
   ) {}
 
-  ngOnInit(): void { this.initSearch(); this.loadData(); }
+  ngOnInit(): void {
+    this.initSearch();
+    this.loadData();
+    this.route.queryParamMap.subscribe(params => {
+      const id = params.get('boutique');
+      if (id) {
+        this.pendingFocusBoutiqueId = id;
+        if (this.boutiques.length > 0) this.focusPendingBoutique();
+      }
+    });
+  }
   ngAfterViewInit(): void { this.initMap(); }
 
   @HostListener('document:keydown.escape')
@@ -117,6 +130,7 @@ export class BoutiquesMapComponent implements OnInit, AfterViewInit, OnDestroy {
               (b: Boutique) => b.address?.latitude && b.address?.longitude
           );
           this.placeBoutiqueMarkers();
+          if (this.pendingFocusBoutiqueId) this.focusPendingBoutique();
           this.cdr.detectChanges();
         }
       },
@@ -138,6 +152,14 @@ export class BoutiquesMapComponent implements OnInit, AfterViewInit, OnDestroy {
           { enableHighAccuracy: true, timeout: 8000 }
       );
     }
+  }
+
+  private focusPendingBoutique(): void {
+    if (!this.pendingFocusBoutiqueId) return;
+    const boutique = this.boutiques.find(b => b._id === this.pendingFocusBoutiqueId);
+    if (!boutique) return;
+    this.pendingFocusBoutiqueId = null;
+    setTimeout(() => this.selectBoutique(boutique), 600);
   }
 
   // ── Centre marker ─────────────────────────────────────────────

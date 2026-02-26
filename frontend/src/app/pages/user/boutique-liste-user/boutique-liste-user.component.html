@@ -5,27 +5,17 @@
     <!-- Skeleton Loading -->
     <div *ngIf="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
         <div *ngFor="let _ of skeletonArray" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700 animate-pulse">
-            <!-- Image skeleton -->
             <div class="h-48 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"></div>
-
-            <!-- Content skeleton -->
             <div class="p-6 space-y-4">
-                <!-- Badge et Box -->
                 <div class="flex items-center justify-between">
                     <div class="h-5 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
                     <div class="h-5 w-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
                 </div>
-
-                <!-- Title -->
                 <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-
-                <!-- Description -->
                 <div class="space-y-2">
                     <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
                     <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
                 </div>
-
-                <!-- Stars et Button -->
                 <div class="flex items-center justify-between pt-2">
                     <div class="h-5 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
                     <div class="h-9 w-28 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
@@ -49,9 +39,7 @@
 
             <!-- Image Container -->
             <div class="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 overflow-hidden">
-                <img *ngIf="b.logo"
-                     [src]="b.logo"
-                     [alt]="b.name"
+                <img *ngIf="b.logo" [src]="b.logo" [alt]="b.name"
                      class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 <div *ngIf="!b.logo" class="absolute inset-0 flex items-center justify-center">
                     <svg class="h-16 w-16 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -59,22 +47,30 @@
                     </svg>
                 </div>
 
-                <!-- Validation Badge -->
+                <!-- Badge isLocal / External (remplace validated/pending) -->
                 <div class="absolute top-3 left-3">
-          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-sm"
-                [ngClass]="b.isValidated ? 'bg-green-100/90 text-green-800 dark:bg-green-900/90 dark:text-green-200' : 'bg-yellow-100/90 text-yellow-800 dark:bg-yellow-900/90 dark:text-yellow-200'">
-            <svg *ngIf="b.isValidated" class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-              {{ b.isValidated ? 'Validated' : 'Pending' }}
-          </span>
+                    <span *ngIf="b.isLocal"
+                          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-sm bg-indigo-600/90 text-white shadow-sm">
+                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1.581.814L10 14.118l-4.419 2.696A1 1 0 014 16V4z" clip-rule="evenodd"/>
+                        </svg>
+                        In Center
+                    </span>
+                    <span *ngIf="!b.isLocal"
+                          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-sm bg-emerald-600/90 text-white shadow-sm">
+                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        External
+                    </span>
                 </div>
 
-                <!-- Box Number -->
-                <div class="absolute top-3 right-3">
-          <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-600/90 text-white backdrop-blur-sm">
-            BOX01
-          </span>
+                <!-- Box Number — seulement si isLocal -->
+                <div *ngIf="b.isLocal" class="absolute top-3 right-3">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-600/90 text-white backdrop-blur-sm shadow-sm">
+                        BOX01
+                    </span>
                 </div>
             </div>
 
@@ -88,22 +84,38 @@
                     {{ truncate(b.description, 120) }}
                 </p>
 
-                <!-- Rating et Action -->
+                <!-- Rating et Actions -->
                 <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+
                     <!-- Rating Stars -->
-                    <div class="flex items-center gap-2 mb-3">
+                    <div class="flex items-center gap-2">
                         <app-rating-star [count]="3" [max]="5"></app-rating-star>
                         <span class="text-xs text-gray-500 dark:text-gray-400">({{ '2 people rated' }})</span>
                     </div>
 
-                    <!-- Action Button -->
-                    <a [routerLink]="['/v1/stores', b._id]"
-                       class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-all duration-200 group-hover:gap-2">
-                        View
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </a>
+                    <!-- Action Buttons -->
+                    <div class="flex items-center gap-2">
+
+                        <!-- Bouton Map — seulement si !isLocal -->
+                        <a *ngIf="!b.isLocal"
+                           [routerLink]="['/v1/maps']"
+                           [queryParams]="{ boutique: b._id }"
+                           title="View on map"
+                           class="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:border-emerald-400 dark:hover:border-emerald-600 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                            </svg>
+                        </a>
+
+                        <!-- Bouton View -->
+                        <a [routerLink]="['/v1/stores', b._id]"
+                           class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-all duration-200 group-hover:gap-2">
+                            View
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
