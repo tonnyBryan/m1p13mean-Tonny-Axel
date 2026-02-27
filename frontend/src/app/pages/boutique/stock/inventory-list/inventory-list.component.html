@@ -1,177 +1,201 @@
 <div class="mx-auto max-w-7xl">
-    <app-page-breadcrumb pageTitle="Liste des Inventaires" [breadcrumbs]="[
+    <app-page-breadcrumb pageTitle="Inventory List" [breadcrumbs]="[
         { label: 'Store', link: '/store/app' },
         { label: 'Stock', link: '/store/app/stock/mouvements' },
-        { label: 'Inventaire' }
+        { label: 'Inventory' }
     ]"></app-page-breadcrumb>
 
-    <!-- Header Actions -->
-    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Historique des inventaires</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Consultez et gérez les rapports de comptage de stock.
-            </p>
-        </div>
-        <button routerLink="/store/app/stock/inventaire/add"
-            class="flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 hover:bg-brand-600 transition-all">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round" />
-            </svg>
-            Nouvel Inventaire
-        </button>
-    </div>
+    <div class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-visible shadow-lg">
 
-    <!-- Filters Section -->
-    <div
-        class="mb-6 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-4 lg:grid-cols-4">
-            <app-date-picker label="Date Début" placeholder="Du..." [value]="filters.startDate"
-                (dateChange)="onDateChange('startDate', $event)">
-            </app-date-picker>
-
-            <app-date-picker label="Date Fin" placeholder="Au..." [value]="filters.endDate"
-                (dateChange)="onDateChange('endDate', $event)">
-            </app-date-picker>
-
-            <div class="flex flex-col gap-2">
-                <label class="text-xs font-medium text-gray-500 uppercase">Note / Motif</label>
-                <input type="text" [(ngModel)]="filters.note" (input)="onFilterChange()"
-                    placeholder="Chercher par note..."
-                    class="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-2.5 text-sm outline-hidden focus:border-brand-500 dark:border-gray-800 dark:text-white" />
+        <!-- ── Header ── -->
+        <div class="flex flex-col justify-between gap-5 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center dark:border-gray-800">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Inventory history</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">View and manage your stock count reports.</p>
             </div>
+            <a routerLink="/store/app/stock/inventaire/add"
+               class="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                New Inventory
+            </a>
+        </div>
 
-            <div class="flex items-end">
+        <!-- ── Filters ── -->
+        <div class="border-b border-gray-200 px-5 py-4 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01]">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+
+                <app-date-picker placeholder="From..." [value]="filters.startDate"
+                                 (dateChange)="onDateChange('startDate', $event)">
+                </app-date-picker>
+
+                <app-date-picker placeholder="To..." [value]="filters.endDate"
+                                 (dateChange)="onDateChange('endDate', $event)">
+                </app-date-picker>
+
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" [(ngModel)]="filters.note" (input)="onFilterChange()"
+                           placeholder="Search by note..."
+                           class="w-full h-11 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-2.5 pl-9 pr-4 text-sm text-gray-900 dark:text-white outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10" />
+                </div>
+
                 <button (click)="resetFilters()"
-                    class="flex h-[42px] w-full items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-white/5 transition-all">
-                    Réinitialiser
+                        class="flex h-11 items-center justify-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+                    </svg>
+                    Reset
                 </button>
+
             </div>
         </div>
-    </div>
 
-    <!-- Table Section -->
-    <div
-        class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] shadow-sm overflow-hidden">
+        <!-- ── Table ── -->
         <div class="overflow-x-auto">
             <table class="w-full text-left">
                 <thead>
-                    <tr class="bg-gray-50/50 border-b border-gray-100 dark:bg-white/2 dark:border-gray-800">
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Note</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">
-                            Produits</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Effectué par
-                        </th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
-                            Actions</th>
-                    </tr>
+                <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01]">
+                    <th class="px-5 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400">Date</th>
+                    <th class="px-5 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400">Note</th>
+                    <th class="px-5 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 text-center">Products</th>
+                    <th class="px-5 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400">Done by</th>
+                    <th class="px-5 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 text-right">Actions</th>
+                </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                    <tr *ngFor="let inv of inventories"
-                        class="transition-colors hover:bg-gray-50/50 dark:hover:bg-white/2">
-                        <td class="px-6 py-4">
-                            <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                {{ inv.createdAt | date:'dd/MM/yyyy' }}
-                            </div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400">
-                                {{ inv.createdAt | date:'HH:mm' }}
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="text-sm text-gray-700 dark:text-gray-300 italic">
-                                {{ inv.note || 'Aucune note' }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span
-                                class="inline-flex rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
-                                {{ inv.lines?.length || 0 }} items
-                            </span>
-                        </td>
-                        <td class="px-6 py-4">
+
+                <!-- Skeleton -->
+                <ng-container *ngIf="isSkeletonLoading; else tableContent">
+                    <tr *ngFor="let i of [1,2,3,4,5]">
+                        <td class="px-5 py-4"><div class="h-4 w-24 animate-pulse bg-gray-200 dark:bg-white/10 rounded"></div></td>
+                        <td class="px-5 py-4"><div class="h-4 w-36 animate-pulse bg-gray-200 dark:bg-white/10 rounded"></div></td>
+                        <td class="px-5 py-4 text-center"><div class="h-6 w-14 mx-auto animate-pulse bg-gray-200 dark:bg-white/10 rounded-full"></div></td>
+                        <td class="px-5 py-4">
                             <div class="flex items-center gap-2">
-                                <div
-                                    class="h-8 w-8 rounded-full bg-brand-50 flex items-center justify-center text-brand-600 font-bold text-xs dark:bg-brand-500/10 dark:text-brand-400">
+                                <div class="h-8 w-8 rounded-full animate-pulse bg-gray-200 dark:bg-white/10"></div>
+                                <div class="h-4 w-24 animate-pulse bg-gray-200 dark:bg-white/10 rounded"></div>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 text-right"><div class="h-8 w-8 ml-auto animate-pulse bg-gray-200 dark:bg-white/10 rounded-lg"></div></td>
+                    </tr>
+                </ng-container>
+
+                <ng-template #tableContent>
+                    <tr *ngFor="let inv of inventories"
+                        class="transition hover:bg-gray-50/60 dark:hover:bg-white/[0.02]">
+
+                        <!-- Date -->
+                        <td class="px-5 py-4 whitespace-nowrap">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ inv.createdAt | date:'mediumDate' }}</span>
+                                <span class="text-xs text-gray-400">{{ inv.createdAt | date:'shortTime' }}</span>
+                            </div>
+                        </td>
+
+                        <!-- Note -->
+                        <td class="px-5 py-4 max-w-[200px]">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 italic truncate block">
+                                    {{ inv.note || '—' }}
+                                </span>
+                        </td>
+
+                        <!-- Products count -->
+                        <td class="px-5 py-4 text-center">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20">
+                                    {{ inv.lines?.length || 0 }} items
+                                </span>
+                        </td>
+
+                        <!-- Done by -->
+                        <td class="px-5 py-4">
+                            <div class="flex items-center gap-2">
+                                <div class="h-8 w-8 rounded-full bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-600 dark:text-brand-400 font-bold text-xs flex-shrink-0">
                                     {{ inv.createdBy?.name?.charAt(0) }}
                                 </div>
-                                <span class="text-sm text-gray-700 dark:text-gray-300 font-medium">
-                                    {{ inv.createdBy?.name }}
-                                </span>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        {{ inv.createdBy?.name }}
+                                    </span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-right">
-                            <button class="text-gray-400 hover:text-brand-500 transition-colors">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" />
-                                    <path
-                                        d="M2.45801 12C3.73201 7.943 7.52301 5 12 5C16.477 5 20.268 7.943 21.542 12C20.268 16.057 16.477 19 12 19C7.52301 19 3.73201 16.057 2.45801 12Z"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" />
+
+                        <!-- Actions -->
+                        <td class="px-5 py-4 text-right">
+                            <a [routerLink]="['/store/app/stock/inventaire', inv._id]"
+                               class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-brand-500 dark:hover:text-brand-400 transition-colors">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z"/>
+                                    <path d="M2.458 12C3.732 7.943 7.523 5 12 5C16.477 5 20.268 7.943 21.542 12C20.268 16.057 16.477 19 12 19C7.523 19 3.732 16.057 2.458 12Z"/>
                                 </svg>
-                            </button>
+                                View
+                            </a>
                         </td>
                     </tr>
 
-                    <!-- Skeleton Loading -->
-                    <tr *ngIf="isSkeletonLoading && inventories.length === 0">
-                        <td colspan="5" class="p-0">
-                            <div class="animate-pulse space-y-4 p-6">
-                                <div class="h-10 w-full rounded bg-gray-100 dark:bg-white/5"></div>
-                                <div class="h-10 w-full rounded bg-gray-100 dark:bg-white/5"></div>
-                                <div class="h-10 w-full rounded bg-gray-100 dark:bg-white/5"></div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Empty State -->
-                    <tr *ngIf="!isSkeletonLoading && inventories.length === 0">
-                        <td colspan="5" class="py-20 text-center">
+                    <!-- Empty state -->
+                    <tr *ngIf="inventories.length === 0 && !isLoading">
+                        <td colspan="5" class="py-16 text-center">
                             <div class="flex flex-col items-center gap-3">
-                                <div class="rounded-full bg-gray-50 p-6 dark:bg-white/5">
-                                    <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                <div class="rounded-2xl bg-gray-100 dark:bg-white/[0.05] p-5">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gray-300 dark:text-gray-600">
+                                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
                                 </div>
-                                <h3 class="text-sm font-medium text-gray-900 dark:text-white">Aucun inventaire trouvé
-                                </h3>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Commencez par créer votre premier
-                                    rapport de comptage.</p>
-                                <button routerLink="/store/app/stock/inventaire/add"
-                                    class="mt-4 rounded-lg bg-brand-500 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-brand-500/20 hover:bg-brand-600 transition-all">
-                                    Nouvel Inventaire
-                                </button>
+                                <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">No inventory found</p>
+                                <p class="text-xs text-gray-400 dark:text-gray-500">Start by creating your first stock count report.</p>
+                                <a routerLink="/store/app/stock/inventaire/add"
+                                   class="mt-2 flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2 text-xs font-semibold text-white shadow-theme-xs hover:bg-brand-600 transition-colors">
+                                    New Inventory
+                                </a>
                             </div>
                         </td>
                     </tr>
+                </ng-template>
+
                 </tbody>
             </table>
         </div>
 
-        <!-- Pagination -->
-        <div *ngIf="pagination.totalPages > 1" class="border-t border-gray-100 px-6 py-4 dark:border-gray-800">
-            <div class="flex items-center justify-between">
-                <span class="text-xs text-gray-500">
-                    Affichage de la page {{ pagination.page }} sur {{ pagination.totalPages }}
-                </span>
-                <div class="flex gap-2">
-                    <button [disabled]="pagination.page === 1" (click)="changePage(pagination.page - 1)"
-                        class="rounded-lg border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-white/5 capitalize transition-all">
-                        Précédent
+        <!-- ── Pagination ── -->
+        <div *ngIf="pagination.totalPages > 0" class="border-t border-gray-100 dark:border-white/[0.05] px-5 py-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Page
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ pagination.page }}</span>
+                    of
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ pagination.totalPages }}</span>
+                </p>
+                <div class="flex items-center gap-2">
+                    <button (click)="changePage(pagination.page - 1)"
+                            [disabled]="pagination.page === 1"
+                            class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                        Previous
                     </button>
-                    <button [disabled]="pagination.page === pagination.totalPages"
-                        (click)="changePage(pagination.page + 1)"
-                        class="rounded-lg border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-white/5 capitalize transition-all">
-                        Suivant
+                    <span class="text-sm text-gray-500 dark:text-gray-400 px-1">
+                        {{ pagination.page }} / {{ pagination.totalPages }}
+                    </span>
+                    <button (click)="changePage(pagination.page + 1)"
+                            [disabled]="pagination.page === pagination.totalPages"
+                            class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                        Next
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
                     </button>
                 </div>
             </div>
         </div>
+
     </div>
 </div>

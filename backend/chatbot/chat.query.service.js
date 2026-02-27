@@ -22,10 +22,35 @@ const FORBIDDEN_STAGES = [
 ];
 
 // Fields that hold ObjectId references — always convert string → ObjectId
+// Also matches dotted paths like "productInfo.boutique", "items.product", etc.
 const OBJECTID_FIELDS = [
     'boutique', '_id', 'user', 'product', 'seller', 'owner',
     'category', 'recipient', 'order', 'createdBy',
     'products.boutique', 'items.product',
+];
+
+// Base field names — used to match ANY dotted path ending with these names
+// e.g. "productInfo.boutique", "info.product", "$lookup result.boutique"
+const OBJECTID_FIELD_SUFFIXES = [
+    'boutique', '_id', 'user', 'product', 'seller', 'owner',
+    'category', 'recipient', 'order', 'createdBy',
+];
+
+function isObjectIdKey(key) {
+    if (OBJECTID_FIELDS.includes(key)) return true;
+    // Match any dotted path ending with a known ObjectId field name
+    // e.g. "productInfo.boutique" → ends with "boutique" ✓
+    const lastPart = key.split('.').pop();
+    return OBJECTID_FIELD_SUFFIXES.includes(lastPart);
+}
+
+// Collections that do NOT have a direct "boutique" field.
+// Their scope is enforced via $lookup on products (or recipient for notifications).
+// enforceBoutiqueScope must NOT inject { boutique } on these — it would match nothing.
+const NO_DIRECT_BOUTIQUE_SCOPE = [
+    'notifications',   // scoped by recipient (user._id)
+    'productratings',  // scoped via $lookup → products.boutique
+    'wishlists',       // scoped via products[].boutique
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -37,7 +62,6 @@ function isObjectIdString(val) {
 /**
  * Recursively walk the entire object and convert any 24-hex string
  * sitting under a known ObjectId field key into a real ObjectId.
- * This fixes the bug where LLM puts boutique/product IDs as plain strings.
  */
 function resolveObjectIds(obj, depth = 0) {
     if (depth > 15 || obj === null || obj === undefined) return obj;
@@ -50,8 +74,7 @@ function resolveObjectIds(obj, depth = 0) {
         const result = {};
         for (const key of Object.keys(obj)) {
             const val = obj[key];
-            // If the key is a known ObjectId field and value is a 24-hex string → convert
-            if (OBJECTID_FIELDS.includes(key) && isObjectIdString(val)) {
+            if (isObjectIdKey(key) && isObjectIdString(val)) {
                 result[key] = new mongoose.Types.ObjectId(val);
             } else {
                 result[key] = resolveObjectIds(val, depth + 1);
@@ -85,12 +108,17 @@ function findForbiddenStage(pipeline) {
 }
 
 /**
- * Ensure boutique scope is present. Inject if missing.
- * ObjectId conversion is handled separately by resolveObjectIds.
+ * Ensure boutique scope is present and correct.
+ *
+ * Collections in NO_DIRECT_BOUTIQUE_SCOPE are skipped entirely —
+ * they scope via $lookup or via recipient, not a direct boutique field.
+ *
+ * For all other collections: inject / overwrite boutique with a real ObjectId.
  */
 function enforceBoutiqueScope(query, boutiqueId) {
-    // notifications scoped by recipient, not boutique
-    if (query.collection === 'notifications') return query;
+    if (NO_DIRECT_BOUTIQUE_SCOPE.includes(query.collection)) {
+        return query; // leave pipeline untouched — LLM handles scope via $lookup
+    }
 
     const oid = new mongoose.Types.ObjectId(boutiqueId);
 
@@ -99,13 +127,7 @@ function enforceBoutiqueScope(query, boutiqueId) {
         const firstStage = pipeline[0];
 
         if (firstStage && firstStage.$match) {
-            const match = firstStage.$match;
-            // Always overwrite boutique with a real ObjectId (even if LLM put a string)
-            if (!match.boutique && !match['products.boutique']) {
-                match.boutique = oid;
-            } else {
-                match.boutique = oid; // force correct ObjectId
-            }
+            firstStage.$match.boutique = oid; // always overwrite
         } else {
             pipeline.unshift({ $match: { boutique: oid } });
         }
@@ -114,7 +136,7 @@ function enforceBoutiqueScope(query, boutiqueId) {
 
     // find / findOne / count
     const filter = query.filter || {};
-    filter.boutique = oid; // always force correct ObjectId
+    filter.boutique = oid;
     return { ...query, filter };
 }
 
@@ -175,12 +197,12 @@ function validateQuery(rawQuery, boutiqueId) {
     if (rawQuery.limit && rawQuery.limit > 200) rawQuery.limit = 200;
 
     // Order matters:
-    // 1. resolve date placeholders (string replacements, safe first)
-    // 2. resolve ObjectId strings recursively (LLM-generated IDs)
-    // 3. enforce boutique scope LAST — injects real ObjectId, must not be overwritten
+    // 1. resolve date placeholders (string replacements)
+    // 2. resolve ObjectId strings recursively
+    // 3. enforce boutique scope LAST
     let safeQuery = resolveDatePlaceholders(rawQuery);
     safeQuery = resolveObjectIds(safeQuery);
-    safeQuery = enforceBoutiqueScope(safeQuery, boutiqueId); // always last
+    safeQuery = enforceBoutiqueScope(safeQuery, boutiqueId);
 
     return { valid: true, query: safeQuery };
 }
@@ -215,9 +237,7 @@ async function runQueries(queries, boutiqueId, userId) {
     const results = {};
 
     for (let rawQuery of queries) {
-        // Resolve REQUESTER_USER_ID placeholder for notifications
-        // NOTE: use string replace on serialized form BEFORE ObjectId conversion
-        // (validateQuery will convert ObjectIds after this step)
+        // Resolve REQUESTER_USER_ID placeholder before ObjectId conversion
         if (userId && JSON.stringify(rawQuery).includes('REQUESTER_USER_ID')) {
             rawQuery = JSON.parse(
                 JSON.stringify(rawQuery).replace(/REQUESTER_USER_ID/g, userId)
@@ -234,10 +254,9 @@ async function runQueries(queries, boutiqueId, userId) {
         }
 
         try {
-            // Log the final validated query to confirm ObjectId conversion
-            console.log(`[chat.query] Executing "${alias}":`, JSON.stringify(validation.query, null, 2).slice(0, 300));
+            console.log(`[chat.query] Executing "${alias}":`, JSON.stringify(validation.query, null, 2).slice(0, 400));
             results[alias] = await executeQuery(validation.query);
-            console.log(`[chat.query] "${alias}" result:`, JSON.stringify(results[alias]).slice(0, 150));
+            console.log(`[chat.query] "${alias}" result:`, JSON.stringify(results[alias]).slice(0, 200));
         } catch (err) {
             console.error(`[chat.query] Execution error "${alias}":`, err.message);
             results[alias] = { error: 'Query execution failed.' };
