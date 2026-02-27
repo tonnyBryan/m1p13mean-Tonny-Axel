@@ -1,8 +1,10 @@
 const fs = require("fs");
 const path = require("path");
 const handlebars = require("handlebars");
-const { transporter } = require("../config/mail");
+const { transactionalEmailsApi, SibApiV3Sdk } = require("../config/mail");
 
+
+// dans sendEmail()
 const APP_CONFIG = {
     name: process.env.APP_NAME,
     email: process.env.MAIL_FROM,
@@ -15,6 +17,19 @@ function renderTemplate(templateName, data) {
     const source = fs.readFileSync(templatePath, "utf8");
     const template = handlebars.compile(source);
     return template(data);
+}
+
+async function sendEmail({ to, subject, html, text }) {
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+    sendSmtpEmail.sender = { name: APP_CONFIG.name, email: APP_CONFIG.email };
+    sendSmtpEmail.to = [{ email: to }];
+    sendSmtpEmail.subject = subject;
+    sendSmtpEmail.htmlContent = html;
+    sendSmtpEmail.textContent = text;
+
+    const result = await transactionalEmailsApi.sendTransacEmail(sendSmtpEmail);
+    console.log("Email sent:", result.messageId);
+    return { success: true, messageId: result.messageId };
 }
 
 async function sendVerificationEmail({ to, name, code, expiresIn, hbsTemplate }) {
@@ -35,26 +50,18 @@ async function sendVerificationEmail({ to, name, code, expiresIn, hbsTemplate })
             privacyUrl: APP_CONFIG.privacyUrl
         });
 
-        const info = await transporter.sendMail({
-            from: `"${APP_CONFIG.name}" <${APP_CONFIG.email}>`,
+        return await sendEmail({
             to,
             subject: `${code} is your ${APP_CONFIG.name} verification code`,
             html,
-            text: `Hi ${name || "there"},\n\nWe received a request for a single-use code to use with your account.\n\nYour single-use code is: ${code}\n\nOnly enter this code on an official website or app. Don't share it with anyone. We'll never ask for it outside an official platform.\n\nThis code will expire in ${expiresIn} minutes.\n\nThanks,\nThe ${APP_CONFIG.name} team\n\nSupport: ${APP_CONFIG.supportUrl}\nPrivacy: ${APP_CONFIG.privacyUrl}`
+            text: `Hi ${name || "there"},\n\nYour single-use code is: ${code}\n\nThis code will expire in ${expiresIn} minutes.\n\nThanks,\nThe ${APP_CONFIG.name} team`
         });
-
-        console.log("Email sent:", info.messageId);
-        return { success: true, messageId: info.messageId };
     } catch (error) {
         console.error("Email error:", error);
         throw error;
     }
 }
 
-/**
- * Send a support reply email using the base template.
- * contentHtml is injected into the base template as the main content.
- */
 async function sendSupportEmail({ to, subject, contentHtml, text }) {
     try {
         const html = renderTemplate("base", {
@@ -66,16 +73,12 @@ async function sendSupportEmail({ to, subject, contentHtml, text }) {
             privacyUrl: APP_CONFIG.privacyUrl
         });
 
-        const info = await transporter.sendMail({
-            from: `"${APP_CONFIG.name}" <${APP_CONFIG.email}>`,
+        return await sendEmail({
             to,
             subject: subject || `${APP_CONFIG.name} support reply`,
             html,
             text: text || (typeof contentHtml === 'string' ? contentHtml.replace(/<[^>]*>/g, '') : '')
         });
-
-        console.log("Support email sent:", info.messageId);
-        return { success: true, messageId: info.messageId };
     } catch (error) {
         console.error("Support email error:", error);
         throw error;
@@ -99,16 +102,12 @@ async function sendPasswordResetEmail({ to, name, resetLink }) {
             privacyUrl: APP_CONFIG.privacyUrl
         });
 
-        const info = await transporter.sendMail({
-            from: `"${APP_CONFIG.name}" <${APP_CONFIG.email}>`,
+        return await sendEmail({
             to,
             subject: `Reset your ${APP_CONFIG.name} password`,
             html,
-            text: `Hi ${name || "there"},\n\nWe received a request to reset your password.\n\nClick the link below to reset it:\n${resetLink}\n\nThis link will expire in 1 hour.\n\nIf you didn't request this, you can safely ignore this email.\n\nThanks,\nThe ${APP_CONFIG.name} team`
+            text: `Hi ${name || "there"},\n\nClick the link below to reset your password:\n${resetLink}\n\nThis link will expire in 1 hour.\n\nThanks,\nThe ${APP_CONFIG.name} team`
         });
-
-        console.log("Password reset email sent:", info.messageId);
-        return { success: true, messageId: info.messageId };
     } catch (error) {
         console.error("Password reset email error:", error);
         throw error;
@@ -116,36 +115,37 @@ async function sendPasswordResetEmail({ to, name, resetLink }) {
 }
 
 async function sendNewDeviceEmail({ to, name, device, browser, os, ip, location, loginAt }) {
-    const contentHtml = renderTemplate("new-device", {
-        name: name || 'there',
-        device,
-        browser,
-        os,
-        ip,
-        location,
-        loginAt,
-        appName: APP_CONFIG.name
-    });
+    try {
+        const contentHtml = renderTemplate("new-device", {
+            name: name || 'there',
+            device,
+            browser,
+            os,
+            ip,
+            location,
+            loginAt,
+            appName: APP_CONFIG.name
+        });
 
-    const html = renderTemplate("base", {
-        title: "New sign-in detected",
-        content: contentHtml,
-        year: new Date().getFullYear(),
-        appName: APP_CONFIG.name,
-        supportUrl: APP_CONFIG.supportUrl,
-        privacyUrl: APP_CONFIG.privacyUrl
-    });
+        const html = renderTemplate("base", {
+            title: "New sign-in detected",
+            content: contentHtml,
+            year: new Date().getFullYear(),
+            appName: APP_CONFIG.name,
+            supportUrl: APP_CONFIG.supportUrl,
+            privacyUrl: APP_CONFIG.privacyUrl
+        });
 
-    const info = await transporter.sendMail({
-        from: `"${APP_CONFIG.name}" <${APP_CONFIG.email}>`,
-        to,
-        subject: `New sign-in to your ${APP_CONFIG.name} account`,
-        html,
-        text: `Hi ${name || 'there'},\n\nWe detected a sign-in to your ${APP_CONFIG.name} account from a device we don't recognize.\n\nDevice: ${device}\nBrowser: ${browser}\nOS: ${os}\nIP: ${ip}\nLocation: ${location}\nTime: ${loginAt}\n\nIf this was you, no action is required. If you do not recognize this activity, please secure your account immediately by changing your password and contacting our support team.`
-    });
-
-    console.log('New device email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
+        return await sendEmail({
+            to,
+            subject: `New sign-in to your ${APP_CONFIG.name} account`,
+            html,
+            text: `Hi ${name || 'there'},\n\nWe detected a sign-in from a new device.\n\nDevice: ${device}\nBrowser: ${browser}\nOS: ${os}\nIP: ${ip}\nLocation: ${location}\nTime: ${loginAt}\n\nIf this was not you, please secure your account immediately.`
+        });
+    } catch (error) {
+        console.error("New device email error:", error);
+        throw error;
+    }
 }
 
 module.exports = { sendVerificationEmail, sendSupportEmail, sendPasswordResetEmail, sendNewDeviceEmail };
