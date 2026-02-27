@@ -1,81 +1,70 @@
-import { inject } from '@angular/core';
-import {
-    HttpInterceptorFn,
-    HttpRequest,
-    HttpHandlerFn,
-    HttpErrorResponse
-} from '@angular/common/http';
-import { catchError, switchMap, throwError } from 'rxjs';
-import { Router } from '@angular/router';
-import { AuthService } from '../../shared/services/auth.service';
+import { BehaviorSubject, filter, take, switchMap, catchError, throwError } from 'rxjs';
+import {HttpErrorResponse, HttpInterceptorFn} from "@angular/common/http";
+import {inject} from "@angular/core";
+import {AuthService} from "../../shared/services/auth.service";
+import {Router} from "@angular/router";
 
+// Utilisez un Subject pour stocker le nouveau token et avertir les requêtes en attente
 let isRefreshing = false;
+let refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
-export const authInterceptor: HttpInterceptorFn = (
-    req: HttpRequest<any>,
-    next: HttpHandlerFn
-) => {
-
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
-    // ⛔ ne pas intercepter le refresh token
-    if (req.url.includes('/auth/refresh-token')) {
-        return next(req);
-    }
+    if (req.url.includes('/auth/refresh-token')) return next(req);
 
     const accessToken = authService.getToken();
-
-    const authReq = accessToken
-        ? req.clone({
-            setHeaders: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        })
-        : req;
+    let authReq = req;
+    if (accessToken) {
+        authReq = req.clone({ setHeaders: { Authorization: `Bearer ${accessToken}` } });
+    }
 
     return next(authReq).pipe(
         catchError((error: HttpErrorResponse) => {
+            if (error.status === 420) {
+                if (!isRefreshing) {
+                    isRefreshing = true;
+                    refreshTokenSubject.next(null);
 
-            /* 🔵 420 → access token expiré → refresh */
-            if (error.status === 420 && !isRefreshing) {
-                isRefreshing = true;
+                    return authService.refreshToken().pipe(
+                        switchMap((res: any) => {
+                            isRefreshing = false;
+                            const newToken = res.data.accessToken;
+                            authService.setToken(newToken);
+                            refreshTokenSubject.next(newToken); // On libère les requêtes en attente
 
-                return authService.refreshToken().pipe(
-                    switchMap((res: any) => {
-                        isRefreshing = false;
-
-                        const newToken = res.data.accessToken;
-                        authService.setToken(newToken);
-
-                        const retryReq = authReq.clone({
-                            setHeaders: {
-                                Authorization: `Bearer ${newToken}`
-                            }
-                        });
-
-                        return next(retryReq);
-                    }),
-                    catchError(err => {
-                        isRefreshing = false;
-                        forceLogout(authService, router);
-                        return throwError(() => err);
-                    })
-                );
+                            return next(req.clone({
+                                setHeaders: { Authorization: `Bearer ${newToken}` }
+                            }));
+                        }),
+                        catchError((err) => {
+                            isRefreshing = false;
+                            forceLogout(authService, router);
+                            return throwError(() => err);
+                        })
+                    );
+                } else {
+                    // Si un refresh est déjà en cours, on attend que le sujet reçoive le nouveau token
+                    return refreshTokenSubject.pipe(
+                        filter(token => token !== null),
+                        take(1),
+                        switchMap((token) => next(req.clone({
+                            setHeaders: { Authorization: `Bearer ${token}` }
+                        })))
+                    );
+                }
             }
 
-            /* 🔴 450 → session expirée → logout */
             if (error.status === 450) {
                 forceLogout(authService, router);
             }
-
             return throwError(() => error);
         })
     );
-};
 
-/* ===== Utils ===== */
-function forceLogout(authService: AuthService, router: Router) {
-    authService.logout();
-    router.navigate(['/signin']);
-}
+    function forceLogout(authService: AuthService, router: Router) {
+        authService.logout();
+        router.navigate(['/signin']);
+    }
+};

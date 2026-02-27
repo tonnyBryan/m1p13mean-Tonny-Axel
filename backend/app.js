@@ -7,6 +7,8 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
 const app = express();
+app.set('trust proxy', 1);
+
 
 // pour JSON
 app.use(express.json({ limit: '20mb' }));
@@ -51,5 +53,4 @@ app.use('/api/inventories', require('./routes/inventory.routes'));
 app.use('/api/chat', require('./chatbot/chat.router'));
 
 
-app.set('trust proxy', 1);
 module.exports = app;
