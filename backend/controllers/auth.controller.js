@@ -275,8 +275,6 @@ exports.signupUser = async (req, res) => {
 
 
 exports.refreshToken = async (req, res) => {
-    console.log("Cookies reçus :", req.cookies); // Vérifiez si 'refreshToken' apparaît ici
-
     try {
         const tokenFromCookie = req.cookies.refreshToken;
 
@@ -286,7 +284,6 @@ exports.refreshToken = async (req, res) => {
 
 
         let decoded = jwt.verify(tokenFromCookie, process.env.JWT_REFRESH_SECRET);
-        console.log(decoded);
 
         const tokenHash = crypto
             .createHash('sha256')
