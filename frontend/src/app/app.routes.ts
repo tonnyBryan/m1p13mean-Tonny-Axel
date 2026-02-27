@@ -251,6 +251,14 @@ export const routes: Routes = [
         title: 'Add Boutique | ' + appName,
       },
       {
+        path: 'boxes',
+        loadComponent: () => import('./pages/admin/box-list/box-list.component').then(m => m.BoxListComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole] },
+        pathMatch: 'full',
+        title: 'Box | ' + appName,
+      },
+      {
         path: 'boutiques/:id',
         loadComponent: () => import('./pages/admin/boutique-list/boutique-detail/boutique-detail.component').then(m => m.BoutiqueDetailComponent),
         canActivate: [AuthGuard, RoleGuard],

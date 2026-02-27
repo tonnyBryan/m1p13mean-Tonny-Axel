@@ -79,10 +79,13 @@ export class BoutiqueService {
      */
     updateBoutique(id: string, payload: any): Observable<any> {
         const token = this.auth.getToken();
-        const headers = new HttpHeaders({
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
+        let headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
         });
+
+        if (!(payload instanceof FormData)) {
+            headers = headers.set('Content-Type', 'application/json');
+        }
 
         return this.api.patch<any>(`boutiques/${id}`, payload, headers);
     }

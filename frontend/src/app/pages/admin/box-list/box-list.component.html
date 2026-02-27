@@ -1,0 +1,145 @@
+<div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <app-page-breadcrumb [title]="pageTitle"></app-page-breadcrumb>
+
+    <!-- Header -->
+    <div class="flex flex-col items-start justify-between gap-4 mb-8 sm:flex-row sm:items-center">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Box Management</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Total Boxes: {{ boxes?.length || 0 }}</p>
+        </div>
+
+        <div class="flex flex-col w-full gap-3 sm:w-auto sm:flex-row">
+            <!-- Filtre -->
+            <select [ngModel]="statusFilter" (ngModelChange)="onFilterChange($event)"
+                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+                <option value="all">Tous les Box</option>
+                <option value="vide">Box Vide</option>
+                <option value="occupe">Box Occupé</option>
+            </select>
+
+            <!-- Ajouter Box -->
+            <button (click)="openModal()"
+                class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 w-full sm:w-auto">
+                <svg class="w-5 h-5 mr-2 -ml-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Nouveau Box
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex items-center justify-center py-12">
+        <div class="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="!isLoading && boxes.length > 0"
+        class="overflow-hidden bg-white shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg dark:bg-gray-800 dark:ring-gray-700">
+        <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-900">
+                <tr>
+                    <th scope="col"
+                        class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">Numéro
+                    </th>
+                    <th scope="col"
+                        class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">Type
+                    </th>
+                    <th scope="col"
+                        class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">Prix /
+                        Mois</th>
+                    <th scope="col"
+                        class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">Statut
+                    </th>
+                    <th scope="col"
+                        class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        Boutique</th>
+                    <th scope="col"
+                        class="py-3.5 pl-4 pr-3 text-right text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white dark:bg-gray-800 dark:divide-gray-700">
+                <tr *ngFor="let box of boxes">
+                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-white">{{
+                        box.number }}</td>
+                    <td class="whitespace-nowrap py-4 text-sm text-gray-500 dark:text-gray-400 pl-4">{{ box.type }}</td>
+                    <td class="whitespace-nowrap py-4 text-sm text-gray-500 dark:text-gray-400 pl-4">{{
+                        box.pricePerMonth }} Ar</td>
+                    <td class="whitespace-nowrap py-4 text-sm pl-4">
+                        <span *ngIf="!box.isOccupied"
+                            class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">Vide</span>
+                        <span *ngIf="box.isOccupied"
+                            class="inline-flex rounded-full bg-red-100 px-2 text-xs font-semibold leading-5 text-red-800">Occupé</span>
+                    </td>
+                    <td class="whitespace-nowrap py-4 text-sm text-gray-500 dark:text-gray-400 pl-4">
+                        <div *ngIf="box.boutiqueId" class="flex items-center gap-2">
+                            <img *ngIf="box.boutiqueId.logo" [src]="box.boutiqueId.logo"
+                                class="w-6 h-6 rounded-full border" />
+                            <span>{{ box.boutiqueId.name }}</span>
+                        </div>
+                        <span *ngIf="!box.boutiqueId" class="text-gray-400">-</span>
+                    </td>
+                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium">
+                        <button (click)="openModal(box)"
+                            class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 hover:underline mr-4">Modifier</button>
+                        <button *ngIf="!box.isOccupied" (click)="deleteBox(box)"
+                            class="text-red-600 hover:text-red-900 dark:text-red-400 hover:underline">Supprimer</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && boxes.length === 0"
+        class="flex flex-col items-center justify-center p-12 bg-white border border-gray-200 border-dashed rounded-lg dark:bg-gray-800 dark:border-gray-700">
+        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Aucun Box trouvé.</p>
+    </div>
+</div>
+
+<!-- Modal -->
+<div *ngIf="showModal" class="relative z-50">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeModal()"></div>
+    <div class="fixed inset-0 z-10 overflow-y-auto w-full">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div
+                class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg dark:bg-gray-800 p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white mb-4">{{ isEditing ? 'Modifier' :
+                    'Nouveau' }} Box</h3>
+                <form #boxForm="ngForm" (ngSubmit)="onSubmit(boxForm)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Numéro</label>
+                            <input type="text" name="number" [(ngModel)]="currentBox.number" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Type /
+                                Taille</label>
+                            <input type="text" name="type" [(ngModel)]="currentBox.type" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prix par mois
+                                (Ar)</label>
+                            <input type="number" name="price" [(ngModel)]="currentBox.pricePerMonth" required min="0"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white">
+                        </div>
+                    </div>
+                    <div class="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse gap-3">
+                        <button type="submit" [disabled]="boxForm.invalid"
+                            class="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto sm:text-sm disabled:opacity-50">
+                            Enregistrer
+                        </button>
+                        <button type="button" (click)="closeModal()"
+                            class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600">
+                            Annuler
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
