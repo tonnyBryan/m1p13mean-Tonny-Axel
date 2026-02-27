@@ -41,7 +41,8 @@ export class ForgotPasswordComponent {
         this.isSending = false;
         this.currentStep = 'email-sent';
       },
-      error: () => {
+      error: (err) => {
+        console.error(err);
         this.isSending = false;
         // On affiche quand même le success pour ne pas leak
         this.currentStep = 'email-sent';

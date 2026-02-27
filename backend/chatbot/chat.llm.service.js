@@ -1,6 +1,6 @@
 // chat/chat.llm.service.js
-// Handles all LLM API calls.
-// Provider selected via LLM_PROVIDER env variable: 'groq' (default) | 'claude' | 'openai'
+// Provider selected via LLM_PROVIDER env variable:
+//   'groq' (default) | 'claude' | 'openai' | 'gemini'
 
 const LLM_PROVIDER = process.env.LLM_PROVIDER || 'groq';
 
@@ -11,8 +11,8 @@ async function callGroq(systemPrompt, userMessage) {
 
     const response = await client.chat.completions.create({
         model:                 'llama-3.3-70b-versatile',
-        max_completion_tokens: 4096,  // increased — long system prompts need more room
-        temperature:           0.2,   // low = deterministic JSON
+        max_completion_tokens: 4096,
+        temperature:           0.2,
         top_p:                 1,
         stream:                false,
         messages: [
@@ -64,11 +64,30 @@ async function callOpenAI(systemPrompt, userMessage) {
     return response.choices[0].message.content;
 }
 
+// ── Google Gemini ─────────────────────────────────────────────────────────────
+async function callGemini(systemPrompt, userMessage) {
+    const { GoogleGenAI } = require('@google/genai');
+    const client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+    const response = await client.models.generateContent({
+        model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+        config: {
+            systemInstruction: systemPrompt,
+            temperature:       0.2,
+            maxOutputTokens:   4096,
+        },
+        contents: userMessage,
+    });
+
+    return response.text;
+}
+
 // ── Shared caller ─────────────────────────────────────────────────────────────
 async function callLLM(systemPrompt, userMessage) {
     switch (LLM_PROVIDER) {
         case 'openai': return callOpenAI(systemPrompt, userMessage);
         case 'claude': return callClaude(systemPrompt, userMessage);
+        case 'gemini': return callGemini(systemPrompt, userMessage);
         case 'groq':
         default:       return callGroq(systemPrompt, userMessage);
     }
@@ -84,7 +103,6 @@ function parseJSON(raw) {
             .replace(/\s*```$/i,    '');
         return JSON.parse(clean);
     } catch (err) {
-        // Log the FULL raw response to diagnose truncation issues
         console.error('[chat.llm] parseJSON failed. Full raw response:\n', raw);
         throw new Error(`LLM returned invalid JSON. Length: ${raw.length} chars.`);
     }
