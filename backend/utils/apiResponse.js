@@ -6,10 +6,10 @@ exports.successResponse = (res, statusCode = 200, message = null, data = null) =
     });
 };
 
-exports.errorResponse = (res, statusCode = 500, message = 'Erreur serveur') => {
+exports.errorResponse = (res, statusCode = 500, message = 'Erreur serveur', data = null) => {
     return res.status(statusCode).json({
         success: false,
         message,
-        data: null
+        data: data
     });
 };
