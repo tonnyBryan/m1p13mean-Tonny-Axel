@@ -1,18 +1,9 @@
-const nodemailer = require('nodemailer');
+const SibApiV3Sdk = require('sib-api-v3-sdk');
 
-const  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: false,
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-    },
-    tls: {
-        rejectUnauthorized: true,
-        minVersion: "TLSv1.2"
-    },
-});
+const defaultClient = SibApiV3Sdk.ApiClient.instance;
+const apiKey = defaultClient.authentications['api-key'];
+apiKey.apiKey = process.env.BREVO_API_KEY;
 
-module.exports = { transporter };
+const transactionalEmailsApi = new SibApiV3Sdk.TransactionalEmailsApi();
 
+module.exports = { transactionalEmailsApi, SibApiV3Sdk };
