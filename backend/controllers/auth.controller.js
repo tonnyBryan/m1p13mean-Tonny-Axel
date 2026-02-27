@@ -417,7 +417,7 @@ exports.forgotPassword = async (req, res) => {
 
     } catch (error) {
         console.error('forgotPassword error:', error);
-        return errorResponse(res, 500, 'An unexpected error occurred. Please try again later.');
+        return errorResponse(res, 500, 'An unexpected error occurred. Please try again later.', error);
     }
 };
 
