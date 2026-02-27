@@ -200,6 +200,7 @@ router.patch(
     '/:id',
     protect,
     authorize('boutique', 'admin'),
+    upload.single('file'),
     boutiqueController.updateBoutique
 );
 

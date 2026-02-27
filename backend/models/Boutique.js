@@ -34,6 +34,11 @@ const BoutiqueSchema = new mongoose.Schema(
         address: {
             latitude: { type: Number, default: null },
             longitude: { type: Number, default: null }
+        },
+        boxId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Box',
+            default: null
         }
     },
     {

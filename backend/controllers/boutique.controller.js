@@ -2,6 +2,7 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
 const User = require('../models/User');
 const Boutique = require('../models/Boutique');
 const LivraisonConfig = require('../models/LivraisonConfig');
+const Box = require('../models/Box');
 const { uploadImage } = require('../utils/cloudinary');
 const bcrypt = require('bcryptjs'); // Assuming password hashing is needed for user
 const mongoose = require('mongoose');
@@ -71,6 +72,12 @@ exports.createBoutiqueFull = async (req, res) => {
                 longitude: centre.location.coordinates.longitude || null
             } : { latitude: null, longitude: null };
 
+            // 4.5 Check for available box
+            const selectedBox = await Box.findOne({ isOccupied: false }).session(session);
+            if (!selectedBox) {
+                throw { status: 400, message: 'Tous les Box sont actuellement occupés. Impossible de créer une nouvelle boutique locale.' };
+            }
+
             // 5. Create Boutique with isLocal true and address from centre commercial
             const boutiqueDoc = await Boutique.create([{
                 owner: createdUser._id,
@@ -80,10 +87,16 @@ exports.createBoutiqueFull = async (req, res) => {
                 isActive: true,
                 isValidated: true,
                 isLocal: true,
-                address: addressObj
+                address: addressObj,
+                boxId: selectedBox._id
             }], { session });
 
             const createdBoutique = Array.isArray(boutiqueDoc) ? boutiqueDoc[0] : boutiqueDoc;
+
+            // 5.5 Update Box
+            selectedBox.isOccupied = true;
+            selectedBox.boutiqueId = createdBoutique._id;
+            await selectedBox.save({ session });
 
             // 6. Create LivraisonConfig
             await LivraisonConfig.create([{
@@ -262,7 +275,13 @@ exports.getBoutiqueStats = async (req, res) => {
  */
 exports.updateBoutique = async (req, res) => {
     try {
-        const { name, description, logo } = req.body;
+        const { name, description } = req.body;
+        let logo = req.body.logo;
+
+        if (req.file) {
+            const uploaded = await uploadImage(req.file.buffer, 'boutiques');
+            logo = uploaded.secure_url;
+        }
 
         // Basic validation
         if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -302,6 +321,13 @@ exports.updateBoutique = async (req, res) => {
 exports.updateDeliveryConfig = async (req, res) => {
     try {
         const { isDeliveryAvailable, orderCutoffTime, deliveryDays, deliveryRules } = req.body;
+
+        if (isDeliveryAvailable && Array.isArray(deliveryDays)) {
+            const activeDays = deliveryDays.filter(d => d.isActive).length;
+            if (activeDays < 1) {
+                return errorResponse(res, 400, "Minimum 1 jour actif obligatoire si la livraison est activée.");
+            }
+        }
 
         console.log(req.body);
 
