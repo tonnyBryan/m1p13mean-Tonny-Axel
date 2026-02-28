@@ -7,43 +7,38 @@ import { BoxService } from '../../../shared/services/box.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { Box } from '../../../core/models/box.model';
 
-import { BadgeComponent } from '../../../shared/components/ui/badge/badge.component';
-import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
-import { ModalComponent } from '../../../shared/components/ui/modal/modal.component';
-import { InputFieldComponent } from '../../../shared/components/form/input/input-field.component';
-import { LabelComponent } from '../../../shared/components/form/label/label.component';
-
 @Component({
     selector: 'app-box-list',
     standalone: true,
-    imports: [
-        CommonModule,
-        PageBreadcrumbComponent,
-        FormsModule,
-        BadgeComponent,
-        ButtonComponent,
-        ModalComponent,
-        InputFieldComponent,
-        LabelComponent
-    ],
+    imports: [CommonModule, PageBreadcrumbComponent, FormsModule],
     templateUrl: './box-list.component.html',
     styleUrls: ['./box-list.component.css']
 })
 export class BoxListComponent implements OnInit {
-    pageTitle = 'Box Management';
+
     boxes: Box[] = [];
-    statusFilter = 'all'; // all, vide, occupe
+    statusFilter = 'all';
     isLoading = false;
 
     showModal = false;
     isEditing = false;
     currentBox: Partial<Box> = {};
 
+    // Spinners par action
+    isSaving = false;
+    deletingId: string | null = null;
+
+    filterOptions = [
+        { value: 'all',    label: 'All Boxes' },
+        { value: 'vide',   label: 'Available' },
+        { value: 'occupe', label: 'Occupied' },
+    ];
+
     constructor(
         private boxService: BoxService,
         private toast: ToastService,
-        private router: Router
-    ) { }
+        public router: Router
+    ) {}
 
     ngOnInit(): void {
         this.loadBoxes();
@@ -54,92 +49,97 @@ export class BoxListComponent implements OnInit {
         this.boxService.getBoxes(this.statusFilter).subscribe({
             next: (res) => {
                 this.isLoading = false;
-                if (res.success) {
-                    this.boxes = res.data;
-                }
+                if (res.success) this.boxes = res.data;
             },
-            error: (err) => {
+            error: () => {
                 this.isLoading = false;
-                console.error('Error loading boxes', err);
-                this.toast.error('Erreur', 'Impossible de charger les Box');
+                this.toast.error('Error', 'Unable to load boxes');
             }
         });
     }
 
-    onFilterChange(status: string) {
+    onFilterChange(status: string): void {
         this.statusFilter = status;
         this.loadBoxes();
     }
 
     openModal(box?: Box): void {
         this.isEditing = !!box;
-        if (box) {
-            this.currentBox = { ...box };
-        } else {
-            this.currentBox = {
-                number: '',
-                type: '',
-                pricePerMonth: 0
-            };
-        }
+        this.currentBox = box ? { ...box } : { number: '', pricePerMonth: 0 };
         this.showModal = true;
     }
 
     closeModal(): void {
         this.showModal = false;
         this.currentBox = {};
+        this.isSaving = false;
     }
 
     onSubmit(form: NgForm): void {
-        if (form.invalid) return;
+        if (form.invalid || this.isSaving) return;
+        this.isSaving = true;
 
         if (this.isEditing && this.currentBox._id) {
             this.boxService.updateBox(this.currentBox._id, this.currentBox).subscribe({
                 next: (res) => {
-                    this.toast.success('Succès', 'Box mis à jour');
+                    this.isSaving = false;
+                    const idx = this.boxes.findIndex(b => b._id === this.currentBox._id);
+                    if (idx !== -1) this.boxes[idx] = { ...this.boxes[idx], ...res.data };
+                    this.toast.success('Success', 'Box updated');
                     this.closeModal();
-                    this.loadBoxes();
                 },
                 error: (err) => {
-                    this.toast.error('Erreur', err.error?.message || 'Erreur lors de la mise à jour');
+                    this.isSaving = false;
+                    this.toast.error('Error', err.error?.message || 'Update failed');
                 }
             });
         } else {
             this.boxService.createBox(this.currentBox).subscribe({
                 next: (res) => {
-                    this.toast.success('Succès', 'Box créé');
+                    this.isSaving = false;
+                    this.boxes = [res.data, ...this.boxes];
+                    this.toast.success('Success', 'Box created');
                     this.closeModal();
-                    this.loadBoxes();
                 },
                 error: (err) => {
-                    this.toast.error('Erreur', err.error?.message || 'Erreur lors de la création');
+                    this.isSaving = false;
+                    this.toast.error('Error', err.error?.message || 'Creation failed');
                 }
             });
         }
     }
 
-    async deleteBox(box: Box): Promise<void> {
+    deleteBox(box: Box): void {
         if (box.isOccupied) {
-            this.toast.error('Erreur', 'Impossible de supprimer un Box occupé');
+            this.toast.error('Error', 'Cannot delete an occupied box');
             return;
         }
 
-        const confirmed = await this.toast.confirmAsync(
-            'Supprimer',
-            `Voulez-vous supprimer le Box ${box.number} ?`,
-            { variant: 'danger' }
+        this.toast.confirm(
+            'Delete Box',
+            `Are you sure you want to delete box #${box.number}?`,
+            () => {
+                this.deletingId = box._id;
+                this.boxService.deleteBox(box._id).subscribe({
+                    next: () => {
+                        this.deletingId = null;
+                        this.boxes = this.boxes.filter(b => b._id !== box._id);
+                        this.toast.success('Success', `Box #${box.number} deleted`);
+                    },
+                    error: (err) => {
+                        this.deletingId = null;
+                        this.toast.error('Error', err.error?.message || 'Deletion failed');
+                    }
+                });
+            },
+            () => {},
+            {
+                confirmLabel: 'Delete',
+                cancelLabel: 'Cancel',
+                variant: 'danger',
+                position: 'top-center',
+                backdrop: true,
+            }
         );
-
-        if (confirmed) {
-            this.boxService.deleteBox(box._id).subscribe({
-                next: () => {
-                    this.toast.success('Succès', 'Box supprimé');
-                    this.loadBoxes();
-                },
-                error: (err) => {
-                    this.toast.error('Erreur', err.error?.message || 'Erreur lors de la suppression');
-                }
-            });
-        }
     }
 }

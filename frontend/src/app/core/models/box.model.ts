@@ -1,7 +1,6 @@
 export interface Box {
     _id: string;
     number: string;
-    type: string;
     pricePerMonth: number;
     isOccupied: boolean;
     boutiqueId?: {

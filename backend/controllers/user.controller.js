@@ -324,6 +324,7 @@ exports.deleteAddress = async (req, res) => {
  */
 exports.getUserProfileById = async (req, res) => {
     try {
+        console.log("id = " + req.params.id);
         // The ID in params is the User ID, not the Profile ID
         let profile = await UserProfile.findOne({ user: req.params.id }).populate('user', 'name email role isActive');
 

@@ -195,6 +195,14 @@ router.patch(
     boutiqueController.updateBoutiqueStatus
 );
 
+// PATCH /api/boutiques/:id/validate - Validate boutique (Admin only)
+router.patch(
+    '/:id/validate',
+    protect,
+    authorize('admin'),
+    boutiqueController.validateBoutique
+);
+
 // PATCH /api/boutiques/:id - Update boutique general info
 router.patch(
     '/:id',

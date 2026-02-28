@@ -8,10 +8,10 @@ const Boutique = require('../models/Boutique');
  */
 exports.createBox = async (req, res) => {
     try {
-        const { number, type, pricePerMonth } = req.body;
+        const { number, pricePerMonth } = req.body;
 
-        if (!number || !type || pricePerMonth === undefined) {
-            return errorResponse(res, 400, "Le numéro, le type et le prix sont obligatoires.");
+        if (!number || pricePerMonth === undefined) {
+            return errorResponse(res, 400, "Le numéro et le prix sont obligatoires.");
         }
 
         const existingBox = await Box.findOne({ number });
@@ -21,7 +21,6 @@ exports.createBox = async (req, res) => {
 
         const box = await Box.create({
             number,
-            type,
             pricePerMonth,
             isOccupied: false
         });
@@ -80,7 +79,7 @@ exports.getBoxById = async (req, res) => {
  */
 exports.updateBox = async (req, res) => {
     try {
-        const { number, type, pricePerMonth } = req.body;
+        const { number, pricePerMonth } = req.body;
         const box = await Box.findById(req.params.id);
 
         if (!box) {
@@ -88,7 +87,6 @@ exports.updateBox = async (req, res) => {
         }
 
         if (number) box.number = number;
-        if (type) box.type = type;
         if (pricePerMonth !== undefined) box.pricePerMonth = pricePerMonth;
 
         await box.save();

@@ -6,7 +6,7 @@ const { protect, authorize } = require("../middlewares/auth.middleware");
 // Routes require admin authentication
 
 // GET /api/boxes
-router.get('/', protect, authorize('admin'), boxController.getBoxes);
+router.get('/', boxController.getBoxes);
 
 // GET /api/boxes/:id
 router.get('/:id', protect, authorize('admin'), boxController.getBoxById);

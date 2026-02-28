@@ -1,25 +1,33 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { StoreRegisterData } from '../store-register.component';
-import {StoreRegisterService} from "../../../../shared/services/store-register.service";
+import { StoreRegisterService } from "../../../../shared/services/store-register.service";
+import { BoxService } from '../../../../shared/services/box.service';
+import { CentreService } from '../../../../shared/services/centre.service';
+import { Box } from '../../../../core/models/box.model';
 
 @Component({
   selector: 'app-step-recap',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './step-recap.component.html',
 })
-export class StepRecapComponent implements OnInit {
+export class StepRecapComponent implements OnInit, OnDestroy {
   @Input() formData!: StoreRegisterData;
-  /** Quand true, affiche directement le success screen (utilisé par le parent pour le centrage plein écran) */
   @Input() forceSuccess = false;
   @Output() goToStep = new EventEmitter<number>();
   @Output() prev = new EventEmitter<void>();
-  /** Émis dès que la soumission réussit — le parent peut cacher sidebar/stepper */
   @Output() submitted = new EventEmitter<void>();
 
-  // OTP state
+  // ── Données dynamiques ────────────────────────────────────────────────
+  planAPrice = 0;
+  planBHostingPrice = 0;
+  selectedBox: Box | null = null;
+  isDataLoading = false;
+
+  // ── OTP state ─────────────────────────────────────────────────────────
   otpSent = false;
   isSending = false;
   digits = ['', '', '', ''];
@@ -28,35 +36,90 @@ export class StepRecapComponent implements OnInit {
   resendCooldown = 0;
   private cooldownInterval: any;
 
-  // Submit state
+  // ── Submit state ──────────────────────────────────────────────────────
   isSubmitted = false;
   generatedPassword = '';
   copied = false;
   submitError = '';
 
-  // Email edit state
+  // ── Email edit state ──────────────────────────────────────────────────
   isEditingEmail = false;
   isCheckingEmail = false;
   emailError = '';
 
-  readonly PLAN_A_PRICE = 15000;
-  readonly PLAN_B_HOSTING = 8000;
-
-  constructor(private storeRegisterService: StoreRegisterService) {}
+  constructor(
+      private storeRegisterService: StoreRegisterService,
+      private boxService: BoxService,
+      private centreService: CentreService
+  ) {}
 
   ngOnInit(): void {
     this.generatedPassword = this.generatePassword();
     if (this.forceSuccess) {
       this.isSubmitted = true;
+      return;
+    }
+    this.loadDynamicData();
+  }
+
+  // ── Loaders ───────────────────────────────────────────────────────────
+
+  private loadDynamicData(): void {
+    this.isDataLoading = true;
+
+    // Charge le centre pour les prix
+    this.centreService.getCentreCommercial().subscribe({
+      next: (res: any) => {
+        if (res?.success && res?.data) {
+          this.planAPrice = res.data.planAPrice ?? 0;
+          this.planBHostingPrice = res.data.planBPrice ?? 0;
+        }
+        // Charge ensuite la box sélectionnée si Plan B
+        this.loadSelectedBox();
+      },
+      error: () => this.loadSelectedBox()
+    });
+  }
+
+  private loadSelectedBox(): void {
+    const boxId = this.formData.plan.box;
+    if (this.formData.plan.type === 'B' && boxId) {
+      this.boxService.getBoxes('all').subscribe({
+        next: (res: any) => {
+          this.isDataLoading = false;
+          const boxes: Box[] = res?.success ? (res.data ?? []) : [];
+          this.selectedBox = boxes.find(b => b._id === boxId) ?? null;
+        },
+        error: () => { this.isDataLoading = false; }
+      });
+    } else {
+      this.isDataLoading = false;
     }
   }
 
-  // ─────────────────────────────────────────
-  // Email edit
-  // ─────────────────────────────────────────
+  // ── Getters ───────────────────────────────────────────────────────────
+
+  get totalMonthly(): number {
+    if (this.formData.plan.type === 'A') return this.planAPrice;
+    if (this.formData.plan.type === 'B') return this.planBHostingPrice + (this.selectedBox?.pricePerMonth || 0);
+    return 0;
+  }
+
+  get activeDays(): string {
+    return this.formData.livraison.deliveryDays
+        .filter(d => d.isActive)
+        .map(d => d.label.slice(0, 3))
+        .join(', ');
+  }
+
+  formatPrice(price: number): string {
+    return price.toLocaleString('fr-MG') + ' Ar';
+  }
+
+  // ── Email edit ────────────────────────────────────────────────────────
+
   toggleEmailEdit(): void {
     if (this.isEditingEmail) {
-      // Sauvegarde — spinner pendant la vérification
       this.isCheckingEmail = true;
       this.emailError = '';
 
@@ -64,7 +127,6 @@ export class StepRecapComponent implements OnInit {
         next: () => {
           this.isCheckingEmail = false;
           this.isEditingEmail = false;
-          // Reset OTP si email changé
           this.otpSent = false;
           this.digits = ['', '', '', ''];
           this.otpError = '';
@@ -74,32 +136,26 @@ export class StepRecapComponent implements OnInit {
         error: (err) => {
           this.isCheckingEmail = false;
           const status = err?.status || err?.error?.status;
-          if (status === 409) {
-            this.emailError = 'This email is already associated with a registered store.';
-          } else {
-            this.emailError = 'Unable to verify email availability. Please try again.';
-          }
+          this.emailError = status === 409
+              ? 'This email is already associated with a registered store.'
+              : 'Unable to verify email availability. Please try again.';
         }
       });
     } else {
-      // Ouvrir l'édition
       this.isEditingEmail = true;
       this.emailError = '';
       setTimeout(() => {
-        const emailInput = document.getElementById('manager-email-input') as HTMLInputElement;
-        emailInput?.focus();
-        emailInput?.select();
+        const el = document.getElementById('manager-email-input') as HTMLInputElement;
+        el?.focus(); el?.select();
       }, 0);
     }
   }
 
-  // ─────────────────────────────────────────
-  // OTP
-  // ─────────────────────────────────────────
+  // ── OTP ───────────────────────────────────────────────────────────────
+
   sendCode(): void {
     this.isSending = true;
     this.otpError = '';
-
     const name = `${this.formData.manager.firstName} ${this.formData.manager.lastName}`;
 
     this.storeRegisterService.sendOtp(this.formData.manager.email, name).subscribe({
@@ -113,13 +169,9 @@ export class StepRecapComponent implements OnInit {
       error: (err) => {
         this.isSending = false;
         const status = err?.status || err?.error?.status;
-        const message = err?.error?.message;
-
-        if (status === 439) {
-          this.otpError = message || 'Please wait before requesting a new code.';
-        } else {
-          this.otpError = 'Failed to send verification code. Please try again.';
-        }
+        this.otpError = status === 439
+            ? (err?.error?.message || 'Please wait before requesting a new code.')
+            : 'Failed to send verification code. Please try again.';
       }
     });
   }
@@ -170,49 +222,31 @@ export class StepRecapComponent implements OnInit {
     });
   }
 
-  // ─────────────────────────────────────────
-  // OTP input handlers
-  // ─────────────────────────────────────────
-  get otpCode(): string {
-    return this.digits.join('');
-  }
+  // ── OTP input handlers ────────────────────────────────────────────────
 
-  get isOtpComplete(): boolean {
-    return this.otpCode.length === 4;
-  }
+  get otpCode(): string { return this.digits.join(''); }
+  get isOtpComplete(): boolean { return this.otpCode.length === 4; }
 
   onDigitInput(event: any, index: number): void {
     const input = event.target as HTMLInputElement;
     let value = input.value;
-
-    if (value && !/^\d$/.test(value.slice(-1))) {
-      input.value = this.digits[index] || '';
-      return;
-    }
-
+    if (value && !/^\d$/.test(value.slice(-1))) { input.value = this.digits[index] || ''; return; }
     value = value.slice(-1);
     this.digits[index] = value;
     input.value = value;
     this.otpError = '';
-
-    if (value && index < 3) {
-      const next = document.getElementById(`otp-r-${index + 1}`) as HTMLInputElement;
-      next?.focus();
-    }
+    if (value && index < 3) (document.getElementById(`otp-r-${index + 1}`) as HTMLInputElement)?.focus();
   }
 
   onKeyDown(event: KeyboardEvent, index: number): void {
     const input = event.target as HTMLInputElement;
-
     if (event.key === 'Backspace') {
       if (!input.value && index > 0) {
         event.preventDefault();
         this.digits[index - 1] = '';
         const prev = document.getElementById(`otp-r-${index - 1}`) as HTMLInputElement;
         if (prev) { prev.focus(); prev.value = ''; }
-      } else {
-        this.digits[index] = '';
-      }
+      } else { this.digits[index] = ''; }
     }
     if (event.key === 'ArrowLeft' && index > 0) document.getElementById(`otp-r-${index - 1}`)?.focus();
     if (event.key === 'ArrowRight' && index < 3) document.getElementById(`otp-r-${index + 1}`)?.focus();
@@ -231,42 +265,6 @@ export class StepRecapComponent implements OnInit {
     }
   }
 
-  // ─────────────────────────────────────────
-  // Getters / Helpers
-  // ─────────────────────────────────────────
-  get selectedBox() {
-    const boxes: any[] = [
-      { id: 'BOX-01', label: 'Box 01', price: 20000 },
-      { id: 'BOX-02', label: 'Box 02', price: 20000 },
-      { id: 'BOX-03', label: 'Box 03', price: 25000 },
-      { id: 'BOX-04', label: 'Box 04', price: 25000 },
-      { id: 'BOX-05', label: 'Box 05', price: 30000 },
-      { id: 'BOX-06', label: 'Box 06', price: 30000 },
-      { id: 'BOX-07', label: 'Box 07', price: 35000 },
-      { id: 'BOX-08', label: 'Box 08', price: 35000 },
-      { id: 'BOX-09', label: 'Box 09', price: 40000 },
-      { id: 'BOX-10', label: 'Box 10', price: 40000 },
-    ];
-    return boxes.find(b => b.id === this.formData.plan.box) || null;
-  }
-
-  get totalMonthly(): number {
-    if (this.formData.plan.type === 'A') return this.PLAN_A_PRICE;
-    if (this.formData.plan.type === 'B') return this.PLAN_B_HOSTING + (this.selectedBox?.price || 0);
-    return 0;
-  }
-
-  get activeDays(): string {
-    return this.formData.livraison.deliveryDays
-        .filter(d => d.isActive)
-        .map(d => d.label.slice(0, 3))
-        .join(', ');
-  }
-
-  formatPrice(price: number): string {
-    return price.toLocaleString('fr-MG') + ' Ar';
-  }
-
   copyCredentials(): void {
     const text = `Email: ${this.formData.manager.email}\nPassword: ${this.generatedPassword}`;
     navigator.clipboard.writeText(text).then(() => {
@@ -280,28 +278,21 @@ export class StepRecapComponent implements OnInit {
     const lower = 'abcdefghjkmnpqrstuvwxyz';
     const digits = '23456789';
     const special = '@#!';
-
-    const passwordChars: string[] = [
+    const chars: string[] = [
       upper[Math.floor(Math.random() * upper.length)],
       lower[Math.floor(Math.random() * lower.length)],
       digits[Math.floor(Math.random() * digits.length)],
-      special[Math.floor(Math.random() * special.length)]
+      special[Math.floor(Math.random() * special.length)],
     ];
-
-    const allChars = upper + lower + digits + special;
-
-    while (passwordChars.length < 9) {
-      passwordChars.push(allChars[Math.floor(Math.random() * allChars.length)]);
-    }
-
-    return passwordChars.sort(() => Math.random() - 0.5).join('');
+    const all = upper + lower + digits + special;
+    while (chars.length < 9) chars.push(all[Math.floor(Math.random() * all.length)]);
+    return chars.sort(() => Math.random() - 0.5).join('');
   }
 
   private startCooldown(): void {
     this.resendCooldown = 60;
     this.cooldownInterval = setInterval(() => {
-      this.resendCooldown--;
-      if (this.resendCooldown <= 0) clearInterval(this.cooldownInterval);
+      if (--this.resendCooldown <= 0) clearInterval(this.cooldownInterval);
     }, 1000);
   }
 

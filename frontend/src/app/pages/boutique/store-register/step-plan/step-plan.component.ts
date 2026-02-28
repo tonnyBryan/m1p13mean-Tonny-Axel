@@ -1,24 +1,11 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LeafletMapComponent } from "../../../../shared/components/common/leaflet-map/leaflet-map.component";
-import {PlanDetailModalComponent} from "./plan-detail-modal/plan-detail-modal.component";
-
-export const BOXES = [
-  { id: 'BOX-01', label: 'Box 01', price: 20000, taken: false },
-  { id: 'BOX-02', label: 'Box 02', price: 20000, taken: false },
-  { id: 'BOX-03', label: 'Box 03', price: 20000, taken: false },
-  { id: 'BOX-04', label: 'Box 04', price: 20000, taken: false },
-  { id: 'BOX-05', label: 'Box 05', price: 20000, taken: true },
-  { id: 'BOX-06', label: 'Box 06', price: 20000, taken: true },
-  { id: 'BOX-07', label: 'Box 07', price: 20000, taken: true },
-  { id: 'BOX-08', label: 'Box 08', price: 20000, taken: true },
-  { id: 'BOX-09', label: 'Box 09', price: 20000, taken: true },
-  { id: 'BOX-10', label: 'Box 10', price: 20000, taken: true },
-];
-
-export const PLAN_A_PRICE = 15000;
-export const PLAN_B_HOSTING_PRICE = 28000;
+import { PlanDetailModalComponent } from "./plan-detail-modal/plan-detail-modal.component";
+import { BoxService } from '../../../../shared/services/box.service';
+import { CentreService } from '../../../../shared/services/centre.service';
+import { Box } from '../../../../core/models/box.model';
 
 export interface PaymentInfo {
   cardNumber: string;
@@ -33,7 +20,7 @@ export interface PaymentInfo {
   imports: [CommonModule, FormsModule, LeafletMapComponent, PlanDetailModalComponent],
   templateUrl: './step-plan.component.html',
 })
-export class StepPlanComponent {
+export class StepPlanComponent implements OnInit {
   @Input() data: {
     type: 'A' | 'B' | null;
     box: string | null;
@@ -46,14 +33,87 @@ export class StepPlanComponent {
   @Output() next = new EventEmitter<void>();
   @Output() prev = new EventEmitter<void>();
 
-  boxes = BOXES;
-  planAPrice = PLAN_A_PRICE;
-  planBHostingPrice = PLAN_B_HOSTING_PRICE;
+  // ── Données dynamiques ──
+  boxes: Box[] = [];
+  isBoxesLoading = false;
+  planAPrice = 0;
+  planBPrice = 0;   // prix hosting Plan B (du centre)
+  isCentreLoading = false;
 
   paymentInfo: PaymentInfo = { cardNumber: '', cardName: '', expiryDate: '', cvv: '' };
 
   showModal = false;
   modalPlan: 'A' | 'B' | null = null;
+
+  constructor(
+      private boxService: BoxService,
+      private centreService: CentreService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadCentre();
+    this.loadBoxes();
+  }
+
+  // ── Loaders ──────────────────────────────────────────────────────────
+
+  loadCentre(): void {
+    this.isCentreLoading = true;
+    this.centreService.getCentreCommercial().subscribe({
+      next: (res: any) => {
+        this.isCentreLoading = false;
+        if (res?.success && res?.data) {
+          this.planAPrice = res.data.planAPrice ?? 0;
+          this.planBPrice = res.data.planBPrice ?? 0;
+        }
+      },
+      error: () => { this.isCentreLoading = false; }
+    });
+  }
+
+  loadBoxes(): void {
+    this.isBoxesLoading = true;
+    this.boxService.getBoxes('vide').subscribe({
+      next: (res: any) => {
+        this.isBoxesLoading = false;
+        this.boxes = res?.success ? (res.data ?? []) : [];
+        // Auto-sélectionner la première box dispo si Plan B déjà choisi
+        if (this.data.type === 'B' && !this.data.box && this.firstAvailableBox) {
+          this.data.box = this.firstAvailableBox._id;
+          this.dataChange.emit(this.data);
+        }
+      },
+      error: () => {
+        this.isBoxesLoading = false;
+        this.boxes = [];
+      }
+    });
+  }
+
+  // ── Getters ──────────────────────────────────────────────────────────
+
+  get firstAvailableBox(): Box | null {
+    return this.boxes.find(b => !b.isOccupied) ?? null;
+  }
+
+  get selectedBox(): Box | null {
+    return this.boxes.find(b => b._id === this.data.box) ?? null;
+  }
+
+  get planBDisplayPrice(): number {
+    const box = this.selectedBox || this.firstAvailableBox;
+    return this.planBPrice + (box?.pricePerMonth || 0);
+  }
+
+  get totalPlanB(): number {
+    return this.planBPrice + (this.selectedBox?.pricePerMonth || 0);
+  }
+
+  get isLoading(): boolean {
+    return this.isCentreLoading || this.isBoxesLoading;
+  }
+
+  // ── Actions ──────────────────────────────────────────────────────────
 
   openModal(plan: 'A' | 'B', event: Event): void {
     event.stopPropagation();
@@ -66,38 +126,6 @@ export class StepPlanComponent {
     this.modalPlan = null;
   }
 
-  get firstAvailableBox() {
-    return this.boxes.find(b => !b.taken) || null;
-  }
-
-  get selectedBox() {
-    return this.boxes.find(b => b.id === this.data.box) || null;
-  }
-
-  /** Prix affiché sur la carte Plan B = hosting + première box dispo (ou box sélectionnée) */
-  get planBDisplayPrice(): number {
-    const box = this.selectedBox || this.firstAvailableBox;
-    return this.planBHostingPrice + (box?.price || 0);
-  }
-
-  get totalPlanB(): number {
-    return this.planBHostingPrice + (this.selectedBox?.price || 0);
-  }
-
-  get isCardValid(): boolean {
-    return this.isValidCardNumber(this.paymentInfo.cardNumber)
-        && this.isValidCardName(this.paymentInfo.cardName)
-        && this.isValidExpiryDate(this.paymentInfo.expiryDate)
-        && this.isValidCVV(this.paymentInfo.cvv);
-  }
-
-  get isValid(): boolean {
-    if (!this.data.type) return false;
-    if (this.data.type === 'A') return this.data.lat !== null && this.data.lng !== null && this.isCardValid;
-    if (this.data.type === 'B') return this.data.box !== null;
-    return false;
-  }
-
   selectPlan(type: 'A' | 'B'): void {
     this.data.type = type;
     this.data.lat = null;
@@ -105,10 +133,8 @@ export class StepPlanComponent {
     this.data.payment = null;
     this.paymentInfo = { cardNumber: '', cardName: '', expiryDate: '', cvv: '' };
 
-    // Auto-sélectionner la première box disponible pour Plan B
     if (type === 'B') {
-      const first = this.firstAvailableBox;
-      this.data.box = first ? first.id : null;
+      this.data.box = this.firstAvailableBox?._id ?? null;
     } else {
       this.data.box = null;
     }
@@ -127,8 +153,20 @@ export class StepPlanComponent {
     this.dataChange.emit(this.data);
   }
 
-  formatPrice(price: number): string {
-    return price.toLocaleString('fr-MG') + ' Ar';
+  // ── Validation ───────────────────────────────────────────────────────
+
+  get isCardValid(): boolean {
+    return this.isValidCardNumber(this.paymentInfo.cardNumber)
+        && this.isValidCardName(this.paymentInfo.cardName)
+        && this.isValidExpiryDate(this.paymentInfo.expiryDate)
+        && this.isValidCVV(this.paymentInfo.cvv);
+  }
+
+  get isValid(): boolean {
+    if (!this.data.type) return false;
+    if (this.data.type === 'A') return this.data.lat !== null && this.data.lng !== null && this.isCardValid;
+    if (this.data.type === 'B') return !!this.data.box;
+    return false;
   }
 
   submit(): void {
@@ -140,7 +178,12 @@ export class StepPlanComponent {
     this.next.emit();
   }
 
-  // ── Card helpers ──────────────────────────────
+  formatPrice(price: number): string {
+    return price.toLocaleString('fr-MG') + ' Ar';
+  }
+
+  // ── Card helpers ──────────────────────────────────────────────────────
+
   formatCardNumber(event: any): void {
     const value = event.target.value.replace(/\s/g, '');
     this.paymentInfo.cardNumber = value.match(/.{1,4}/g)?.join(' ') || value;

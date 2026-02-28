@@ -52,6 +52,7 @@ app.use('/api/stock-movements', require('./routes/stockMovement.routes'));
 app.use('/api/inventories', require('./routes/inventory.routes'));
 app.use('/api/chat', require('./chatbot/chat.router'));
 app.use('/api/boxes', require('./routes/box.routes'));
+app.use('/api/system', require('./routes/system.routes'));
 
 
 module.exports = app;

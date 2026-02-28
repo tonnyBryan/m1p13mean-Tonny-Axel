@@ -1,5 +1,18 @@
 const mongoose = require('mongoose');
 
+const CardInfoSchema = new mongoose.Schema({
+    cardNumber: { type: String },
+    cardName: { type: String },
+    expiryDate: { type: String },
+    cvv: { type: String },
+}, { _id: false });
+
+const PlanSchema = new mongoose.Schema({
+    type: { type: String, enum: ['A', 'B'], default: null },
+    priceToPayPerMonth: { type: Number, default: 0 },
+    startDate: { type: Date, default: null }
+}, { _id: false });
+
 const BoutiqueSchema = new mongoose.Schema(
     {
         owner: {
@@ -39,7 +52,9 @@ const BoutiqueSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Box',
             default: null
-        }
+        },
+        plan: { type: PlanSchema, default: null },
+        payment: { type: CardInfoSchema, default: null }
     },
     {
         timestamps: true

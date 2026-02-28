@@ -7,10 +7,6 @@ const BoxSchema = new mongoose.Schema(
             required: true,
             unique: true
         },
-        type: {
-            type: String,
-            required: true
-        },
         pricePerMonth: {
             type: Number,
             required: true

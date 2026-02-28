@@ -112,4 +112,14 @@ export class BoutiqueService {
 
         return this.api.patch<any>(`boutiques/${id}/status`, { isActive }, headers);
     }
+
+    validateBoutique(id: string): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        });
+
+        return this.api.patch<any>(`boutiques/${id}/validate`, {}, headers);
+    }
 }

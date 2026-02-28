@@ -92,7 +92,7 @@ export class UserDetailComponent implements OnInit {
         const confirmed = await this.toast.confirmAsync(
             currentStatus ? 'Deactivate Account' : 'Activate Account',
             `Are you sure you want to ${currentStatus ? 'deactivate' : 'activate'} this account?`,
-            { variant: currentStatus ? 'danger' : 'success' }
+            { variant: currentStatus ? 'danger' : 'success', backdrop: true }
         );
 
         if (confirmed) {

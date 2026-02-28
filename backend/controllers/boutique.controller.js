@@ -72,11 +72,22 @@ exports.createBoutiqueFull = async (req, res) => {
                 longitude: centre.location.coordinates.longitude || null
             } : { latitude: null, longitude: null };
 
-            // 4.5 Check for available box
-            const selectedBox = await Box.findOne({ isOccupied: false }).session(session);
-            if (!selectedBox) {
-                throw { status: 400, message: 'Tous les Box sont actuellement occupés. Impossible de créer une nouvelle boutique locale.' };
+            // 4.5 Check selected box
+            if (!boutiquePayload.boxId) {
+                throw { status: 400, message: 'Veuillez sélectionner un Box libre pour la boutique.' };
             }
+
+            const selectedBox = await Box.findById(boutiquePayload.boxId).session(session);
+            if (!selectedBox) {
+                throw { status: 404, message: 'Le Box sélectionné est introuvable.' };
+            }
+
+            if (selectedBox.isOccupied || selectedBox.boutiqueId) {
+                throw { status: 400, message: 'Le Box sélectionné est déjà occupé.' };
+            }
+
+            const planBBasePrice = centre ? (centre.planBPrice ?? 0) : 0;
+            const priceToPayPerMonth = planBBasePrice + (selectedBox.pricePerMonth || 0);
 
             // 5. Create Boutique with isLocal true and address from centre commercial
             const boutiqueDoc = await Boutique.create([{
@@ -88,7 +99,12 @@ exports.createBoutiqueFull = async (req, res) => {
                 isValidated: true,
                 isLocal: true,
                 address: addressObj,
-                boxId: selectedBox._id
+                boxId: selectedBox._id,
+                plan: {
+                    type: 'B',
+                    priceToPayPerMonth,
+                    startDate: Date.now()
+                }
             }], { session });
 
             const createdBoutique = Array.isArray(boutiqueDoc) ? boutiqueDoc[0] : boutiqueDoc;
@@ -231,6 +247,12 @@ exports.updateBoutiqueStatus = async (req, res) => {
 
         // Update the status
         boutique.isActive = isActive;
+        if (!isActive) {
+            boutique.isValidated = false;
+            if (boutique.plan) {
+                boutique.plan.startDate = null;
+            }
+        }
         await boutique.save();
 
         return successResponse(res, 200, 'Boutique status updated successfully.', boutique);
@@ -243,6 +265,40 @@ exports.updateBoutiqueStatus = async (req, res) => {
         }
 
         return errorResponse(res, 500, 'An unexpected server error occurred while updating the boutique status. Please try again later.');
+    }
+};
+
+/**
+ * PATCH /api/boutiques/:id/validate
+ * Validate a boutique (Admin only)
+ */
+exports.validateBoutique = async (req, res) => {
+    try {
+        const boutique = await Boutique.findById(req.params.id);
+
+        if (!boutique) {
+            return errorResponse(res, 404, 'The requested boutique was not found. Please check the identifier and try again.');
+        }
+
+        if (boutique.isValidated) {
+            return errorResponse(res, 400, 'This boutique is already validated.');
+        }
+
+        boutique.isValidated = true;
+        if (boutique.plan) {
+            boutique.plan.startDate = new Date();
+        } else {
+            boutique.plan = { type: null, priceToPayPerMonth: 0, startDate: new Date() };
+        }
+
+        await boutique.save();
+        return successResponse(res, 200, 'Boutique validated successfully.', boutique);
+    } catch (error) {
+        console.error('Error validating boutique:', error);
+        if (error.kind === 'ObjectId') {
+            return errorResponse(res, 400, 'The provided boutique identifier is invalid. Please check and try again.');
+        }
+        return errorResponse(res, 500, 'An unexpected server error occurred while validating the boutique. Please try again later.');
     }
 };
 
