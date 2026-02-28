@@ -4,7 +4,7 @@ export interface Boutique {
   name: string;
   logo: string; // URL
   description: string;
-  boxId?: string;
+  boxId?: any;
   plan?: {
     type: 'A' | 'B' | null;
     priceToPayPerMonth: number;

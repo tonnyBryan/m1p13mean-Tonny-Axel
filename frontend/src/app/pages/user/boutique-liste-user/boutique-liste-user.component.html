@@ -67,9 +67,9 @@
                 </div>
 
                 <!-- Box Number — seulement si isLocal -->
-                <div *ngIf="b.isLocal" class="absolute top-3 right-3">
+                <div *ngIf="b.isLocal && b.boxId" class="absolute top-3 right-3">
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-600/90 text-white backdrop-blur-sm shadow-sm">
-                        BOX01
+                        {{ 'BOX' }} {{ b.boxId.number }}
                     </span>
                 </div>
             </div>

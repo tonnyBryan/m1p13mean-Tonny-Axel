@@ -343,7 +343,7 @@ export class BoutiquesMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
         <!-- CTA row -->
         <div class="bm-gmap-actions">
-          <a href="/v1/stores/${boutique._id}" class="bm-gmap-btn-primary">
+         <a [routerLink]="['/v1/stores', boutique._id]" class="bm-gmap-btn-primary">
             <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
             </svg>

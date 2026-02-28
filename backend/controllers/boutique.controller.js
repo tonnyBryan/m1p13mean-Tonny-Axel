@@ -177,7 +177,7 @@ exports.getBoutiques = async (req, res) => {
 exports.getBoutiqueFull = async (req, res) => {
     try {
         // Populate owner basic info for convenience
-        const boutiqueDoc = await Boutique.findById(req.params.id).populate('owner', 'name email role');
+        const boutiqueDoc = await Boutique.findById(req.params.id).populate('owner', 'name email role').populate('boxId', 'number');
 
         if (!boutiqueDoc) {
             return errorResponse(res, 404, 'The requested boutique was not found. Please check the identifier and try again.');

@@ -46,6 +46,7 @@ export class BoutiqueListeUserComponent implements OnInit {
         if (res && res.success) {
           if (res.data && res.data.items) {
             this.boutiques = res.data.items;
+            console.log(this.boutiques);
           }
         } else {
           alert(res.msg);
