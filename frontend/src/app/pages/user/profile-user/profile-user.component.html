@@ -1,51 +1,47 @@
 <div class="mx-auto max-w-7xl">
-    <app-page-breadcrumb pageTitle="Profile" />
-    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+<div class="mb-4">
+        <app-page-breadcrumb pageTitle="Profile" />
+    </div>
 
-        <!-- Simple Skeleton Loading -->
-        <div *ngIf="isLoading" class="space-y-6">
-            <!-- Card 1 -->
-            <div class="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 animate-pulse">
-                <div class="flex flex-col lg:flex-row items-center gap-6">
-                    <div class="w-24 h-24 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full"></div>
-                    <div class="flex-1 space-y-3 w-full">
-                        <div class="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 max-w-xs mx-auto lg:mx-0"></div>
-                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 max-w-xs mx-auto lg:mx-0"></div>
-                    </div>
-                </div>
+    <!-- ══════ SKELETON ══════ -->
+    <div *ngIf="isLoading" class="animate-pulse">
+        <div class="h-44 sm:h-52 w-full rounded-2xl bg-gray-200 dark:bg-gray-800"></div>
+        <div class="bg-white dark:bg-gray-900 border border-t-0 border-gray-200 dark:border-white/[0.05] rounded-b-2xl px-6 py-6">
+            <div class="flex items-end justify-between -mt-12 mb-5">
+                <div class="w-24 h-24 rounded-2xl bg-gray-300 dark:bg-gray-700 ring-4 ring-white dark:ring-gray-900"></div>
+                <div class="h-9 w-28 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
             </div>
-
-            <!-- Card 2 -->
-            <div class="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 animate-pulse">
-                <div class="space-y-4">
-                    <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <div class="h-11 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                        <div class="h-11 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                        <div class="h-11 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                        <div class="h-11 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                    </div>
-                    <div class="h-24 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                </div>
+            <div class="h-7 w-48 rounded bg-gray-200 dark:bg-gray-700 mb-2"></div>
+            <div class="h-4 w-72 rounded bg-gray-200 dark:bg-gray-700"></div>
+        </div>
+        <div class="mt-4 grid gap-4 grid-cols-1 lg:grid-cols-3">
+            <div class="lg:col-span-2 rounded-2xl border border-gray-200 dark:border-white/[0.05] bg-white dark:bg-gray-900 p-6 space-y-4">
+                <div class="h-4 w-32 rounded bg-gray-200 dark:bg-gray-700"></div>
+                <div class="h-14 rounded-xl bg-gray-100 dark:bg-gray-800"></div>
+                <div class="h-14 rounded-xl bg-gray-100 dark:bg-gray-800"></div>
+                <div class="h-14 rounded-xl bg-gray-100 dark:bg-gray-800"></div>
             </div>
-
-            <!-- Card 3 -->
-            <div class="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 animate-pulse">
-                <div class="space-y-4">
-                    <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
-                    <div class="space-y-3">
-                        <div class="h-20 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                        <div class="h-20 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                    </div>
-                </div>
+            <div class="rounded-2xl border border-gray-200 dark:border-white/[0.05] bg-white dark:bg-gray-900 p-6 space-y-4">
+                <div class="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700"></div>
+                <div class="h-24 rounded-xl bg-gray-100 dark:bg-gray-800"></div>
+                <div class="h-20 rounded-xl bg-gray-100 dark:bg-gray-800"></div>
             </div>
         </div>
+    </div>
 
-        <!-- Actual Content -->
-        <div *ngIf="!isLoading" class="space-y-6">
-            <div><app-user-meta-card [profile]="profile || mockedUser"/></div>
-            <div><app-user-info-card [profile]="profile || mockedUser" (profileSaved)="onProfileSaved($event)"/></div>
-            <div><app-user-address-card [userExist]="profile != null" [addresses]="(profile?.addresses || mockedUser.addresses)" (addressAdded)="onAddressAdded($event)"/></div>
+    <!-- ══════ CONTENT ══════ -->
+    <div *ngIf="!isLoading" class="space-y-4">
+        <app-user-meta-card [profile]="profile || mockedUser"/>
+        <div class="grid gap-4 grid-cols-1 lg:grid-cols-3">
+            <div class="lg:col-span-2">
+                <app-user-info-card [profile]="profile || mockedUser" (profileSaved)="onProfileSaved($event)"/>
+            </div>
+            <div>
+                <app-user-address-card
+                        [userExist]="profile != null"
+                        [addresses]="(profile?.addresses || mockedUser.addresses)"
+                        (addressAdded)="onAddressAdded($event)"/>
+            </div>
         </div>
     </div>
 </div>

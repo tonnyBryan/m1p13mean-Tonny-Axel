@@ -54,11 +54,12 @@ export class StepRecapComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.generatedPassword = this.generatePassword();
     if (this.forceSuccess) {
+      this.generatedPassword = this.formData?.manager?.password || '';
       this.isSubmitted = true;
       return;
     }
+    this.generatedPassword = this.generatePassword();
     this.loadDynamicData();
   }
 
