@@ -74,7 +74,7 @@
                         class="absolute inset-0 w-full h-full object-cover" />
 
                     <!-- Discount Badge -->
-                    @if (discountPercent > 0) {
+                    @if (product.isSale && discountPercent > 0) {
                     <div class="absolute top-4 left-4">
                         <div class="rounded-full bg-gradient-to-br from-red-500 to-pink-600 px-3.5 py-1.5 shadow-lg">
                             <span class="text-sm font-bold text-white">-{{ discountPercent }}%</span>

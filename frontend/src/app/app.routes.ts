@@ -434,19 +434,19 @@ export const routes: Routes = [
         title: 'Inventory Counts | ' + appName
       },
       {
-        path: 'stock/inventaire/:id',
-        loadComponent: () => import('./pages/boutique/stock/inventory-detail/inventory-detail.component').then(m => m.InventoryDetailComponent),
-        canActivate: [AuthGuard, RoleGuard],
-        data: { roles: [environment.boutiqueRole] },
-        title: 'Inventory Detail | ' + appName
-      },
-      {
         path: 'stock/inventaire/add',
         loadComponent: () => import('./pages/boutique/stock/inventory-form/inventory-form.component').then(m => m.InventoryFormComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: [environment.boutiqueRole] },
         pathMatch: 'full',
         title: 'New Inventory Count | ' + appName
+      },
+      {
+        path: 'stock/inventaire/:id',
+        loadComponent: () => import('./pages/boutique/stock/inventory-detail/inventory-detail.component').then(m => m.InventoryDetailComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.boutiqueRole] },
+        title: 'Inventory Detail | ' + appName
       },
     ]
   },

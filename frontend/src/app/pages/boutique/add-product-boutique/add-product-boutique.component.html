@@ -90,7 +90,7 @@
                             <div>
                                 <app-label for="regular-price">Regular Price <span class="text-red-500">*</span></app-label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-500 dark:text-gray-400">$</span>
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-500 dark:text-gray-400">Ar</span>
                                     <input
                                             type="number"
                                             id="regular-price"
@@ -111,7 +111,7 @@
                             <div>
                                 <app-label for="sale-price">Sale Price <span class="text-xs font-normal text-gray-400">(optional)</span></app-label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-500 dark:text-gray-400">$</span>
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-500 dark:text-gray-400">Ar</span>
                                     <input
                                             type="number"
                                             id="sale-price"
@@ -404,12 +404,12 @@
 
                         <div class="flex items-center justify-between">
                             <span class="text-gray-500 dark:text-gray-400">Price</span>
-                            <span class="font-medium text-gray-800 dark:text-white">{{ regularPrice ? ('$' + regularPrice) : '—' }}</span>
+                            <span class="font-medium text-gray-800 dark:text-white">{{ regularPrice ? ('Ar' + regularPrice) : '—' }}</span>
                         </div>
                         @if (salePrice && regularPrice && salePrice < regularPrice) {
                             <div class="flex items-center justify-between">
                                 <span class="text-gray-500 dark:text-gray-400">Sale Price</span>
-                                <span class="font-semibold text-emerald-600 dark:text-emerald-400">${{ salePrice }}</span>
+                                <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ salePrice }} Ar</span>
                             </div>
                         }
                         <div class="flex items-center justify-between">
