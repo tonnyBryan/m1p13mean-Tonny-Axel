@@ -76,9 +76,15 @@
 
             <!-- Content -->
             <div class="p-6">
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                    {{ b.name }}
-                </h3>
+                <div class="flex items-center gap-2.5 mb-2">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        {{ b.name }}
+                    </h3>
+                    <span *ngIf="b.isValidated" title="Verified shop" class="flex-shrink-0 inline-flex">
+                        <img src="/images/error/success.svg" class="w-6 h-6 block dark:hidden" alt="Verified"/>
+                        <img src="/images/error/success-dark.svg" class="w-6 h-6 hidden dark:block" alt="Verified"/>
+                    </span>
+                </div>
 
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 min-h-[2.5rem]">
                     {{ truncate(b.description, 120) }}
