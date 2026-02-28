@@ -68,22 +68,28 @@ export class StoreRegisterService {
         const data = new FormData();
 
         data.append('code', code);
+
         data.append('manager', JSON.stringify({
             firstName: formData.manager.firstName,
             lastName: formData.manager.lastName,
             email: formData.manager.email,
             password: formData.manager.password
         }));
+
         data.append('boutique', JSON.stringify({
             name: formData.boutique.name,
             description: formData.boutique.description
         }));
+
         data.append('plan', JSON.stringify({
             type: formData.plan.type,
             box: formData.plan.box,
             lat: formData.plan.lat,
-            lng: formData.plan.lng
+            lng: formData.plan.lng,
+            // payment inclus uniquement pour Plan A (Plan B = paiement sur place)
+            payment: formData.plan.type === 'A' ? formData.plan.payment : null
         }));
+
         data.append('livraison', JSON.stringify({
             isDeliveryAvailable: formData.livraison.isDeliveryAvailable,
             minPrice: formData.livraison.minPrice,

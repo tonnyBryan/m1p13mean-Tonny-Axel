@@ -6,6 +6,9 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const Boutique = require('../models/Boutique');
 const LivraisonConfig = require('../models/LivraisonConfig');
+const Box = require('../models/Box');
+const CentreCommercial = require('../models/CentreCommercial');
+const { uploadImage, deleteImage } = require('../utils/cloudinary');
 
 const codeExpiresMinutes = parseInt(process.env.EMAIL_CODE_EXPIRES_MIN, 10) || 10;
 const resendDelay = parseInt(process.env.EMAIL_RESEND_DELAY, 10) || 60;
@@ -129,6 +132,7 @@ exports.submitRegister = async (req, res) => {
         let boutique;
         let plan;
         let livraison;
+        let uploadedPublicId = null;
 
         try {
             manager = typeof req.body.manager === 'string' ? JSON.parse(req.body.manager) : req.body.manager;
@@ -182,11 +186,31 @@ exports.submitRegister = async (req, res) => {
             return errorResponse(res, 409, 'An account with this email address already exists. If this is your email, please sign in or use a different email.');
         }
 
+        // Handle logo upload (required)
+        let logoUrl = '';
+        if (req.file) {
+            const uploaded = await uploadImage(req.file.buffer, 'boutiques');
+            logoUrl = uploaded.secure_url;
+            uploadedPublicId = uploaded.public_id || null;
+        }
+
+        if (!logoUrl) {
+            return errorResponse(res, 400, 'A boutique logo is required. Please upload a file.');
+        }
+
         // Transactional creation of User, Boutique and LivraisonConfig
         const session = await mongoose.startSession();
         session.startTransaction();
 
         try {
+            // Load centre commercial prices (single doc expected)
+            const centre = await CentreCommercial.findOne().session(session);
+            if (!centre) {
+                throw new Error('Centre commercial not found.');
+            }
+
+            console.log("Password = " + manager.password);
+
             // Create user (role boutique)
             const displayName = `${manager.firstName}_${manager.lastName}`;
             const salt = await bcrypt.genSalt(10);
@@ -207,18 +231,55 @@ exports.submitRegister = async (req, res) => {
             const isLocal = (plan && plan.type === 'B');
             const address = isLocal ? null : { latitude: plan?.lat ?? null, longitude: plan?.lng ?? null };
 
+            // Plan pricing
+            let priceToPayPerMonth = 0;
+            let selectedBox = null;
+            if (plan?.type === 'A') {
+                priceToPayPerMonth = centre.planAPrice ?? 0;
+            } else if (plan?.type === 'B') {
+                if (!plan.box || !mongoose.Types.ObjectId.isValid(plan.box)) {
+                    throw new Error('A valid box is required for Plan B.');
+                }
+
+                selectedBox = await Box.findById(plan.box).session(session);
+                if (!selectedBox) {
+                    throw new Error('Selected box not found.');
+                }
+                if (selectedBox.isOccupied || selectedBox.boutiqueId) {
+                    throw new Error('Selected box is already occupied.');
+                }
+
+                priceToPayPerMonth = (centre.planBPrice ?? 0) + (selectedBox.pricePerMonth || 0);
+            } else {
+                throw new Error('Invalid plan type.');
+            }
+
             const [createdBoutique] = await Boutique.create([
                 {
                     owner: createdUser._id,
                     name: boutique.name,
-                    logo: '/user.svg',
+                    logo: logoUrl,
                     description: boutique.description,
                     isActive: true,
                     isValidated: false,
                     isLocal: isLocal,
-                    address: address
+                    address: address,
+                    boxId: selectedBox ? selectedBox._id : null,
+                    plan: {
+                        type: plan.type,
+                        priceToPayPerMonth,
+                        startDate: null
+                    },
+                    payment: plan?.payment || null
                 }
             ], { session });
+
+            // Update selected box if any (Plan B)
+            if (selectedBox) {
+                selectedBox.isOccupied = true;
+                selectedBox.boutiqueId = createdBoutique._id;
+                await selectedBox.save({ session });
+            }
 
             // Create livraison config
             const livraisonPayload = {
@@ -257,7 +318,7 @@ exports.submitRegister = async (req, res) => {
                                     title: 'New Store Registration',
                                     message: `A new store (${createdBoutique.name}) has been registered and awaits review.`,
                                     payload: { boutiqueId: createdBoutique._id },
-                                    url: `/admin/stores/${createdBoutique._id}`,
+                                    url: `/admin/app/boutiques/${createdBoutique._id}`,
                                     severity: 'info'
                                 }).catch(err => console.error('Notification failed', err));
                             }
@@ -280,11 +341,42 @@ exports.submitRegister = async (req, res) => {
             await session.abortTransaction();
             session.endSession();
             console.error('Transaction error while creating store registration:', err);
-            return errorResponse(res, 500, 'An error occurred while creating your store. Please try again later.');
+            let status = 500;
+            let message = 'An error occurred while creating your store. Please try again later.';
+            if (err && err.message) {
+                if (err.message === 'A valid box is required for Plan B.') {
+                    status = 400;
+                    message = err.message;
+                } else if (err.message === 'Selected box not found.') {
+                    status = 404;
+                    message = err.message;
+                } else if (err.message === 'Selected box is already occupied.') {
+                    status = 400;
+                    message = err.message;
+                } else if (err.message === 'Invalid plan type.') {
+                    status = 400;
+                    message = err.message;
+                }
+            }
+            if (uploadedPublicId) {
+                try {
+                    await deleteImage(uploadedPublicId);
+                } catch (delErr) {
+                    console.error('Failed to cleanup uploaded image after transaction failure:', delErr);
+                }
+            }
+            return errorResponse(res, status, message);
         }
 
     } catch (error) {
         console.error('Error submitting store registration:', error);
+        if (uploadedPublicId) {
+            try {
+                await deleteImage(uploadedPublicId);
+            } catch (delErr) {
+                console.error('Failed to cleanup uploaded image after transaction failure:', delErr);
+            }
+        }
         return errorResponse(res, 500, 'An unexpected error occurred while submitting the registration.');
     }
 };

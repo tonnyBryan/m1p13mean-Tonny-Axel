@@ -8,7 +8,7 @@ import { LabelComponent } from '../../form/label/label.component';
 import { ModalComponent } from '../../ui/modal/modal.component';
 import { UserService } from '../../../services/user.service';
 import {ToastService} from "../../../services/toast.service";
-import {NgIf} from "@angular/common";
+import {NgClass, NgIf} from "@angular/common";
 import {AuthService} from "../../../services/auth.service";
 import {UserProfileService} from "../../../services/user-profile.service";
 
@@ -20,7 +20,8 @@ import {UserProfileService} from "../../../services/user-profile.service";
     LabelComponent,
     ModalComponent,
     FormsModule,
-    NgIf
+    NgIf,
+    NgClass
   ],
   templateUrl: './user-info-card.component.html',
   styles: ``

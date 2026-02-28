@@ -4,6 +4,7 @@ const userController = require('../controllers/user.controller');
 const advancedResults = require('../middlewares/advancedResults');
 const User = require('../models/User');
 const { protect, authorize } = require('../middlewares/auth.middleware');
+const upload = require('../middlewares/upload.middleware');
 
 
 
@@ -301,6 +302,7 @@ router.put(
     '/me/profile',
     protect,
     authorize('user', 'admin'),
+    upload.single('file'),
     userController.upsertMyProfile
 );
 

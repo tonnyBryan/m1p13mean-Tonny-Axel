@@ -4,8 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PageBreadcrumbComponent } from "../../../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
 import { Boutique } from "../../../../core/models/boutique.model";
 import { BoutiqueService } from '../../../../shared/services/boutique.service';
-import { ModalComponent } from "../../../../shared/components/ui/modal/modal.component";
 import { AlertComponent } from "../../../../shared/components/ui/alert/alert.component";
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
     selector: 'app-boutique-detail',
@@ -13,8 +13,8 @@ import { AlertComponent } from "../../../../shared/components/ui/alert/alert.com
     imports: [
         CommonModule,
         PageBreadcrumbComponent,
-        ModalComponent,
         AlertComponent
+        // ModalComponent retiré
     ],
     templateUrl: './boutique-detail.component.html',
     styleUrls: ['./boutique-detail.component.css']
@@ -24,11 +24,8 @@ export class BoutiqueDetailComponent implements OnInit {
     boutique: Boutique | null = null;
     isLoading = false;
     isUpdating = false;
+    isValidating = false;
     boutiqueId: string | null = null;
-
-    // Modal states
-    showConfirmModal = false;
-    confirmAction: 'activate' | 'deactivate' | null = null;
 
     // Alert states
     showSuccessAlert = false;
@@ -37,11 +34,11 @@ export class BoutiqueDetailComponent implements OnInit {
     isErrorFadingOut = false;
     alertMessage = '';
 
-
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private boutiqueService: BoutiqueService
+        private boutiqueService: BoutiqueService,
+        private toast: ToastService
     ) { }
 
     ngOnInit(): void {
@@ -56,21 +53,16 @@ export class BoutiqueDetailComponent implements OnInit {
 
     loadBoutique(): void {
         if (!this.boutiqueId) return;
-
         this.isLoading = true;
         this.boutiqueService.getBoutiqueById(this.boutiqueId).subscribe({
             next: (res: any) => {
                 this.isLoading = false;
-                if (res.success) {
-                    this.boutique = res.data;
-                }
+                if (res.success) this.boutique = res.data;
             },
             error: (err: any) => {
                 this.isLoading = false;
-                console.error('Error loading boutique:', err);
                 this.alertMessage = 'Error loading boutique details';
                 this.showErrorAlert = true;
-                this.isErrorFadingOut = false;
                 setTimeout(() => {
                     this.isErrorFadingOut = true;
                     setTimeout(() => {
@@ -86,54 +78,101 @@ export class BoutiqueDetailComponent implements OnInit {
     toggleActiveStatus(): void {
         if (!this.boutique || !this.boutiqueId || this.isUpdating) return;
 
-        this.confirmAction = this.boutique.isActive ? 'deactivate' : 'activate';
-        this.showConfirmModal = true;
+        const willActivate = !this.boutique.isActive;
+
+        this.toast.confirm(
+            willActivate ? 'Activate Shop' : 'Deactivate Shop',
+            willActivate
+                ? 'This shop will become visible and accessible to users.'
+                : 'This shop will no longer be visible to users.',
+            () => this.executeStatusChange(willActivate),
+            () => {},
+            {
+                confirmLabel: willActivate ? 'Activate' : 'Deactivate',
+                cancelLabel: 'Cancel',
+                variant: willActivate ? 'success' : 'danger',
+                position: 'top-center',
+                backdrop: true,
+            }
+        );
     }
 
-    confirmStatusChange(): void {
-        if (!this.boutique || !this.boutiqueId || !this.confirmAction) return;
-
-        const newStatus = this.confirmAction === 'activate';
-        this.showConfirmModal = false;
-
+    private executeStatusChange(newStatus: boolean): void {
+        if (!this.boutiqueId) return;
         this.isUpdating = true;
         this.boutiqueService.updateBoutiqueStatus(this.boutiqueId, newStatus).subscribe({
             next: (res: any) => {
                 this.isUpdating = false;
                 if (res.success) {
                     this.boutique = res.data;
-                    this.alertMessage = `Boutique ${newStatus ? 'activated' : 'deactivated'} successfully!`;
+                    this.alertMessage = `Shop ${newStatus ? 'activated' : 'deactivated'} successfully!`;
                     this.showSuccessAlert = true;
                     this.isSuccessFadingOut = false;
                     setTimeout(() => {
                         this.isSuccessFadingOut = true;
-                        setTimeout(() => {
-                            this.showSuccessAlert = false;
-                            this.isSuccessFadingOut = false;
-                        }, 300);
+                        setTimeout(() => { this.showSuccessAlert = false; this.isSuccessFadingOut = false; }, 300);
                     }, 5000);
                 }
             },
             error: (err: any) => {
                 this.isUpdating = false;
-                console.error('Error updating boutique status:', err);
-                this.alertMessage = 'Error updating boutique status. Please try again.';
+                this.alertMessage = 'Error updating shop status. Please try again.';
                 this.showErrorAlert = true;
                 this.isErrorFadingOut = false;
                 setTimeout(() => {
                     this.isErrorFadingOut = true;
-                    setTimeout(() => {
-                        this.showErrorAlert = false;
-                        this.isErrorFadingOut = false;
-                    }, 300);
+                    setTimeout(() => { this.showErrorAlert = false; this.isErrorFadingOut = false; }, 300);
                 }, 5000);
             }
         });
     }
 
-    cancelStatusChange(): void {
-        this.showConfirmModal = false;
-        this.confirmAction = null;
+    validateBoutique(): void {
+        if (!this.boutique || !this.boutiqueId || this.isValidating || this.boutique.isValidated) return;
+
+        this.toast.confirm(
+            'Validate Shop',
+            'This will validate the shop and start its plan billing immediately.',
+            () => this.executeValidation(),
+            () => {},
+            {
+                confirmLabel: 'Validate',
+                cancelLabel: 'Cancel',
+                variant: 'success',
+                position: 'top-center',
+                backdrop: true,
+            }
+        );
+    }
+
+    private executeValidation(): void {
+        if (!this.boutiqueId) return;
+        this.isValidating = true;
+        this.boutiqueService.validateBoutique(this.boutiqueId).subscribe({
+            next: (res: any) => {
+                this.isValidating = false;
+                if (res.success) {
+                    this.boutique = res.data;
+                    this.alertMessage = 'Shop validated successfully!';
+                    this.showSuccessAlert = true;
+                    this.isSuccessFadingOut = false;
+                    setTimeout(() => {
+                        this.isSuccessFadingOut = true;
+                        setTimeout(() => { this.showSuccessAlert = false; this.isSuccessFadingOut = false; }, 300);
+                    }, 5000);
+                }
+            },
+            error: () => {
+                this.isValidating = false;
+                this.alertMessage = 'Error validating shop. Please try again.';
+                this.showErrorAlert = true;
+                this.isErrorFadingOut = false;
+                setTimeout(() => {
+                    this.isErrorFadingOut = true;
+                    setTimeout(() => { this.showErrorAlert = false; this.isErrorFadingOut = false; }, 300);
+                }, 5000);
+            }
+        });
     }
 
     goBack(): void {
@@ -141,13 +180,9 @@ export class BoutiqueDetailComponent implements OnInit {
     }
 
     formatDate(date: Date | string): string {
-        const d = new Date(date);
-        return d.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+        return new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
         });
     }
 

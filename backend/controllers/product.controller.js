@@ -4,6 +4,7 @@ const Boutique = require('../models/Boutique');
 const Wishlist = require('../models/Wishlist');
 const { generateSku } = require('../utils/product.util');
 const { sendNotification } = require('../services/notification.service');
+const { uploadImage } = require('../utils/cloudinary');
 const mongoose = require('mongoose');
 const UserProfile = require('../models/UserProfile');
 
@@ -93,12 +94,11 @@ exports.createProduct = async (req, res) => {
             return errorResponse(res, 400, 'At least one product image is required. Please upload or provide an image.');
         }
 
-        // const uploadedImages = await Promise.all(
-        //     req.files.map(file => uploadImage(file.buffer, 'products'))
-        // );
-        //
-        // const imageUrls = uploadedImages.map(img => img.secure_url);
-        // console.log(imageUrls)
+        const uploadedImages = await Promise.all(
+            req.files.map((file) => uploadImage(file.buffer, 'products'))
+        );
+
+        const imageUrls = uploadedImages.map((img) => img.secure_url);
 
         const boutique = await Boutique
             .findOne({ owner: req.user._id })
@@ -122,7 +122,7 @@ exports.createProduct = async (req, res) => {
             sku: generateSku(name),
             category,
             tags: parsedTags,
-            images: ['https://e7.pngegg.com/pngimages/199/143/png-clipart-black-controller-art-emoji-video-game-sms-game-game-multimedia-messaging-service-thumbnail.png'],
+            images: imageUrls,
             isActive: true
         });
 

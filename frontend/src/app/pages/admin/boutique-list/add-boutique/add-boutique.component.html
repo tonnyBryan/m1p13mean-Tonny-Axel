@@ -16,8 +16,8 @@
         <!-- Steps Indicator -->
         <div class="border-b border-gray-200 dark:border-white/[0.05] px-6 py-8">
           <div class="flex items-center justify-between gap-4">
-            @for (step of [1, 2, 3]; track step) {
-            <div class="flex items-center gap-3" [ngClass]="step !== 3 ? 'flex-1' : ''">
+            @for (step of [1, 2, 3, 4]; track step) {
+            <div class="flex items-center gap-3" [ngClass]="step !== 4 ? 'flex-1' : ''">
               <!-- Step Circle -->
               <div [ngClass]="{
                     'bg-blue-600 text-white': getStepStatus(step) === 'active' || getStepStatus(step) === 'completed',
@@ -39,14 +39,15 @@
                   [ngClass]="getStepStatus(step) !== 'inactive' ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'">
                   @switch (step) {
                   @case (1) { Owner Info }
-                  @case (2) { Store Details }
-                  @case (3) { Delivery Config }
+                  @case (2) { Box Selection }
+                  @case (3) { Store Details }
+                  @case (4) { Delivery Config }
                   }
                 </p>
               </div>
 
               <!-- Connector Line -->
-              @if (step !== 3) {
+              @if (step !== 4) {
               <div [ngClass]="step < currentStep ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'"
                 class="hidden sm:block h-1 flex-1 rounded-full transition-all"></div>
               }
@@ -97,8 +98,142 @@
           </div>
           }
 
-          <!-- Step 2: Shop Information -->
-          @if (currentStep === 2) {
+            <!-- Step 2: Box Selection -->
+            @if (currentStep === 2) {
+                <div class="space-y-6 animate-fadeIn">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Box Selection</h2>
+                        <p class="text-gray-600 dark:text-gray-400">Select an available box for the store</p>
+                    </div>
+
+                    <!-- Loading -->
+                    @if (isBoxesLoading) {
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            @for (i of [1,2,3,4,5,6]; track i) {
+                                <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden animate-pulse">
+                                    <div class="h-1 w-full bg-gray-200 dark:bg-gray-700"></div>
+                                    <div class="p-5 space-y-3">
+                                        <div class="flex items-start justify-between">
+                                            <div class="space-y-1.5">
+                                                <div class="h-3 w-8 bg-gray-200 dark:bg-white/10 rounded"></div>
+                                                <div class="h-7 w-14 bg-gray-200 dark:bg-white/10 rounded"></div>
+                                            </div>
+                                            <div class="h-6 w-20 bg-gray-200 dark:bg-white/10 rounded-full"></div>
+                                        </div>
+                                        <div class="h-4 w-28 bg-gray-200 dark:bg-white/10 rounded"></div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <!-- No boxes at all -->
+                    @if (!isBoxesLoading && boxes.length === 0) {
+                        <div class="flex flex-col items-center justify-center py-12 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/[0.02]">
+                            <div class="rounded-2xl bg-gray-100 dark:bg-white/[0.05] p-5 mb-3">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gray-300 dark:text-gray-600">
+                                    <rect x="2" y="3" width="20" height="14" rx="2"/>
+                                    <path d="M8 21h8M12 17v4"/>
+                                </svg>
+                            </div>
+                            <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">No boxes found</p>
+                        </div>
+                    }
+
+                    <!-- Grid -->
+                    @if (!isBoxesLoading && boxes.length > 0) {
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            @for (box of boxes; track box._id) {
+                                <div (click)="!box.isOccupied && selectBox(box)"
+                                     class="relative rounded-xl border overflow-hidden transition-all"
+                                     [ngClass]="{
+                  'cursor-not-allowed opacity-60 bg-gray-50 dark:bg-white/[0.01] border-gray-200 dark:border-gray-800': box.isOccupied,
+                  'cursor-pointer bg-white dark:bg-white/[0.03] border-blue-500 ring-2 ring-blue-500/30 shadow-md shadow-blue-500/10': isSelectedBox(box),
+                  'cursor-pointer bg-white dark:bg-white/[0.03] border-gray-200 dark:border-gray-800 hover:border-blue-300 dark:hover:border-blue-500/40 hover:shadow-md': !box.isOccupied && !isSelectedBox(box)
+                }">
+
+                                    <!-- Status strip -->
+                                    <div class="h-1 w-full"
+                                         [ngClass]="{
+                    'bg-emerald-400 dark:bg-emerald-500': box.isOccupied,
+                    'bg-blue-500': isSelectedBox(box),
+                    'bg-gray-200 dark:bg-gray-700': !box.isOccupied && !isSelectedBox(box)
+                  }">
+                                    </div>
+
+                                    <div class="p-5">
+                                        <!-- Number + Badge -->
+                                        <div class="flex items-start justify-between mb-3">
+                                            <div>
+                                                <p class="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-0.5">Box</p>
+                                                <h3 class="text-2xl font-black leading-none"
+                                                    [ngClass]="{
+                          'text-blue-600 dark:text-blue-400': isSelectedBox(box),
+                          'text-gray-900 dark:text-white': !isSelectedBox(box)
+                        }">
+                                                    #{{ box.number }}
+                                                </h3>
+                                            </div>
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                                                  [ngClass]="{
+                        'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400': box.isOccupied,
+                        'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400': isSelectedBox(box),
+                        'bg-gray-100 text-gray-600 dark:bg-white/5 dark:text-gray-400': !box.isOccupied && !isSelectedBox(box)
+                      }">
+                      <span class="w-1.5 h-1.5 rounded-full"
+                            [ngClass]="{
+                          'bg-emerald-500': box.isOccupied,
+                          'bg-blue-500': isSelectedBox(box),
+                          'bg-gray-400': !box.isOccupied && !isSelectedBox(box)
+                        }">
+                      </span>
+                                                {{ box.isOccupied ? 'Occupied' : isSelectedBox(box) ? 'Selected' : 'Available' }}
+                    </span>
+                                        </div>
+
+                                        <!-- Price -->
+                                        <div class="flex items-center gap-1.5">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400 shrink-0">
+                                                <circle cx="12" cy="12" r="10"/>
+                                                <path d="M12 6v6l4 2"/>
+                                            </svg>
+                                            <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      {{ box.pricePerMonth.toLocaleString() }} Ar
+                      <span class="text-xs font-normal text-gray-400">/ month</span>
+                    </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Selected checkmark -->
+                                    @if (isSelectedBox(box)) {
+                                        <div class="absolute top-3 right-3 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <!-- No free boxes warning -->
+                    @if (!isBoxesLoading && !hasFreeBoxes) {
+                        <div class="flex items-start gap-3 rounded-xl border border-amber-200 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-500/10 px-4 py-3.5">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                            </svg>
+                            <p class="text-sm font-medium text-amber-700 dark:text-amber-300">
+                                All boxes are currently occupied. Free up a box before continuing.
+                            </p>
+                        </div>
+                    }
+
+                </div>
+            }
+
+          <!-- Step 3: Shop Information -->
+          @if (currentStep === 3) {
           <div class="space-y-6 animate-fadeIn">
             <div>
               <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Shop Details</h2>
@@ -186,8 +321,8 @@
           </div>
           }
 
-          <!-- Step 3: LivraisonConfig -->
-          @if (currentStep === 3) {
+          <!-- Step 4: LivraisonConfig -->
+          @if (currentStep === 4) {
           <div class="space-y-8 animate-fadeIn">
             <div>
               <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Delivery Configuration</h2>

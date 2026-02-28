@@ -1,45 +1,36 @@
 <div class="min-h-screen xl:flex">
-  <div>
-    <app-sidebar></app-sidebar>
-    <app-backdrop></app-backdrop>
-  </div>
-  <div
-      class="flex-1 transition-all duration-300 ease-in-out"
-      [ngClass]="{
+    <div>
+        <app-sidebar></app-sidebar>
+        <app-backdrop></app-backdrop>
+    </div>
+    <div
+            class="flex-1 transition-all duration-300 ease-in-out"
+            [ngClass]="{
         'xl:ml-[290px]': (isExpanded$ | async) || (isHovered$ | async),
         'xl:ml-[90px]': !(isExpanded$ | async) && !(isHovered$ | async),
         'ml-0': (isMobileOpen$ | async)
       }"
-  >
-    <!-- app header start -->
-      <!-- app header start -->
-      <ng-container *ngIf="userToken$ | async as user; else noUser">
-          <ng-container [ngSwitch]="user?.role">
+    >
+        <ng-container *ngIf="userToken$ | async as user; else noUser">
+            <ng-container [ngSwitch]="user?.role">
+                <app-header-user      *ngSwitchCase="'user'"></app-header-user>
+                <app-header-boutique  *ngSwitchCase="'boutique'"></app-header-boutique>
+                <app-header-admin     *ngSwitchCase="'admin'"></app-header-admin>
+            </ng-container>
+        </ng-container>
+        <ng-template #noUser>
+            <app-header></app-header>
+        </ng-template>
 
-              <app-header-user
-                      *ngSwitchCase="'user'">
-              </app-header-user>
-
-              <app-header-boutique
-                      *ngSwitchCase="'boutique'">
-              </app-header-boutique>
-
-              <app-header-admin
-                      *ngSwitchCase="'admin'">
-              </app-header-admin>
-          </ng-container>
-      </ng-container>
-
-      <ng-template #noUser>
-          <app-header></app-header>
-      </ng-template>
-      <!-- app header end -->
-
-      <!-- app header end -->
-    <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
-        <div class="container mx-auto px-4 py-8">
-            <router-outlet></router-outlet>
+        <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+            <div class="container mx-auto px-4 py-8">
+                <router-outlet></router-outlet>
+            </div>
         </div>
     </div>
-  </div>
 </div>
+
+<!-- AI Chat Widget — visible only for boutique role, hidden on /store/app/chat -->
+<ng-container *ngIf="(userToken$ | async)?.role === 'boutique'">
+    <app-chat-widget></app-chat-widget>
+</ng-container>

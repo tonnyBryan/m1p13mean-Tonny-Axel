@@ -38,6 +38,8 @@ const CentreCommercialSchema = new Schema({
   coverImage: MediaSchema,
   contact: ContactSchema,
   location: LocationSchema,
+  planAPrice: { type: Number, default: 0 },
+  planBPrice: { type: Number, default: 0 },
   openingHours: [OpeningHoursSchema],
   services: [String]
 }, { timestamps: true });

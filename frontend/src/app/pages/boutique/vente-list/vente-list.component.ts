@@ -92,20 +92,23 @@ export class VenteListComponent implements OnInit {
     };
 
     loadStats(): void {
+        this.isSkeletonLoading = true;
         this.venteService.getVenteStats().subscribe({
             next: (res: any) => {
                 if (res.success) {
                     this.stats = res.data;
                 }
+                this.isSkeletonLoading = false;
             },
-            error: (err: any) => console.error(err)
+            error: (err: any) => {
+                console.error(err);
+                this.isSkeletonLoading = false;
+            }
         });
     }
 
     loadVentes(): void {
-        // FIX #4: Show skeleton on every filter change
         this.isLoading = true;
-        this.isSkeletonLoading = true;
 
         const params: any = {
             page: this.pagination.page,
@@ -134,12 +137,10 @@ export class VenteListComponent implements OnInit {
                 this.ventes = res.data.items;
                 this.pagination = res.data.pagination;
                 this.isLoading = false;
-                this.isSkeletonLoading = false;
             },
             error: (err) => {
                 console.error(err);
                 this.isLoading = false;
-                this.isSkeletonLoading = false;
             }
         });
     }

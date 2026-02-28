@@ -4,11 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { BoutiqueService } from '../../../shared/services/boutique.service';
 import { LabelComponent } from '../../../shared/components/form/label/label.component';
 import { InputFieldComponent } from '../../../shared/components/form/input/input-field.component';
-import {ButtonComponent} from "../../../shared/components/ui/button/button.component";
-import {AuthService} from "../../../shared/services/auth.service";
-import {ActivatedRoute, Router} from "@angular/router";
-import {FicheBoutiqueSkeletonComponent} from "./fiche-boutique-skeleton/fiche-boutique-skeleton.component";
-import {BoutiqueCategoriesComponent} from "./boutique-categories/boutique-categories.component";
+import { ButtonComponent } from "../../../shared/components/ui/button/button.component";
+import { AuthService } from "../../../shared/services/auth.service";
+import { ActivatedRoute, Router } from "@angular/router";
+import { FicheBoutiqueSkeletonComponent } from "./fiche-boutique-skeleton/fiche-boutique-skeleton.component";
+import { BoutiqueCategoriesComponent } from "./boutique-categories/boutique-categories.component";
 
 @Component({
     selector: 'app-fiche-boutique',
@@ -30,6 +30,7 @@ export class FicheBoutiqueComponent implements OnInit {
     editName: string = '';
     editDescription: string = '';
     editLogo: string = '';
+    selectedLogoFile: File | null = null;
 
     DEFAULT_DELIVERY_DAYS = [
         { _id: 1, day: 1, isActive: true },
@@ -62,14 +63,14 @@ export class FicheBoutiqueComponent implements OnInit {
         private boutiqueService: BoutiqueService,
         private authService: AuthService,
         private router: Router,
-    ) {}
+    ) { }
 
     ngOnInit(): void {
         this.loadBoutique();
     }
 
     loadBoutique(): void {
-        const boutiqueId   = this.authService.userHash?.boutiqueId;
+        const boutiqueId = this.authService.userHash?.boutiqueId;
         if (boutiqueId === undefined) {
             this.authService.logout();
             this.router.navigate(['/store/signin']);
@@ -117,6 +118,27 @@ export class FicheBoutiqueComponent implements OnInit {
     //  GENERAL INFO FUNCTIONS
     // ════════════════════════════════════════════
 
+    onLogoSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            // Optionnel: valider la taille / type
+            if (file.size > 5 * 1024 * 1024) {
+                alert("L'image est trop grande (max 5MB).");
+                input.value = '';
+                return;
+            }
+            this.selectedLogoFile = file;
+
+            // Preview local
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.editLogo = e.target?.result as string;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
     private normalizeString(s?: string): string {
         return (s || '').trim().replace(/\s+/g, ' ');
     }
@@ -124,8 +146,7 @@ export class FicheBoutiqueComponent implements OnInit {
     isNameValid(): boolean {
         const name = this.normalizeString(this.editName);
         if (!name) return false;
-        const words = name.split(' ').filter(w => w.length > 0);
-        return words.length >= 3;
+        return name.length >= 2;
     }
 
     isDeliveryRulesValid(): boolean {
@@ -158,7 +179,7 @@ export class FicheBoutiqueComponent implements OnInit {
         if (!this.boutique) return false;
         const nameChanged = this.normalizeString(this.boutique.name) !== this.normalizeString(this.editName);
         const descChanged = (this.boutique.description || '') !== (this.editDescription || '');
-        const logoChanged = (this.boutique.logo || '') !== (this.editLogo || '');
+        const logoChanged = this.selectedLogoFile !== null;
         return nameChanged || descChanged || logoChanged;
     }
 
@@ -179,52 +200,48 @@ export class FicheBoutiqueComponent implements OnInit {
     saveGeneralInfo(): void {
         if (this.isSaveGeneralDisabled) {
             if (!this.isNameValid()) {
-                alert('Shop name must be at least 3 words.');
+                alert('Shop name must be at least 2 characters.');
             }
             return;
         }
 
-        const payload = {
-            name: this.editName,
-            description: this.editDescription,
-            logo: this.editLogo
-        };
+        let payload: any;
 
-        // Update local state optimistically
-        const previous = { name: this.boutique.name, description: this.boutique.description, logo: this.boutique.logo };
-        this.boutique.name = this.editName;
-        this.boutique.description = this.editDescription;
-        this.boutique.logo = this.editLogo;
+        if (this.selectedLogoFile) {
+            payload = new FormData();
+            payload.append('name', this.editName);
+            payload.append('description', this.editDescription);
+            payload.append('file', this.selectedLogoFile);
+        } else {
+            payload = {
+                name: this.editName,
+                description: this.editDescription
+                // We don't need to send the logo if it hasn't changed. The backend keeps it.
+            };
+        }
 
-        this.isGeneralLoading = true
         // Call API
+        this.isGeneralLoading = true;
         this.boutiqueService.updateBoutique(this.boutique._id, payload).subscribe({
             next: (res: any) => {
                 if (res?.success && res?.data) {
                     // backend returns the updated boutique as data
                     this.boutique = res.data;
+                    this.selectedLogoFile = null;
                     this.initializeEditFields();
                 } else {
-                    // revert optimistic update
-                    this.boutique.name = previous.name;
-                    this.boutique.description = previous.description;
-                    this.boutique.logo = previous.logo;
                     const msg = res?.message || 'Failed to update boutique';
                     console.error(msg);
                     alert(msg);
                 }
-                this.isGeneralLoading = false
+                this.isGeneralLoading = false;
             },
             error: (err) => {
-                // revert optimistic update
-                this.boutique.name = previous.name;
-                this.boutique.description = previous.description;
-                this.boutique.logo = previous.logo;
                 this.initializeEditFields();
                 const msg = err?.error?.message || 'Error updating boutique';
                 console.error(msg, err);
                 alert(msg);
-                this.isGeneralLoading = false
+                this.isGeneralLoading = false;
             }
         });
     }

@@ -4,6 +4,7 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const Boutique = require('../models/Boutique');
+const { uploadImage } = require('../utils/cloudinary');
 
 
 
@@ -222,6 +223,18 @@ exports.upsertMyProfile = async (req, res) => {
         // Ensure the user field is set and cannot be changed by payload
         payload.user = userId;
 
+        // Handle profile picture
+        let photoUrl = payload.photo || '';
+
+        if (req.file) {
+            const uploaded = await uploadImage(req.file.buffer, 'users');
+            photoUrl = uploaded.secure_url;
+        }
+
+        if (photoUrl) {
+            payload.photo = photoUrl;
+        }
+
         const profile = await UserProfile.findOneAndUpdate(
             { user: userId },
             { $set: payload },
@@ -311,6 +324,7 @@ exports.deleteAddress = async (req, res) => {
  */
 exports.getUserProfileById = async (req, res) => {
     try {
+        console.log("id = " + req.params.id);
         // The ID in params is the User ID, not the Profile ID
         let profile = await UserProfile.findOne({ user: req.params.id }).populate('user', 'name email role isActive');
 

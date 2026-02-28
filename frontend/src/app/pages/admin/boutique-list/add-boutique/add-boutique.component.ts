@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -8,6 +8,8 @@ import { Boutique } from '../../../../core/models/boutique.model';
 import { LivraisonConfig, DeliveryDay } from '../../../../core/models/livraison-config.model';
 import { BoutiqueService } from '../../../../shared/services/boutique.service';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
+import { BoxService } from '../../../../shared/services/box.service';
+import { Box } from '../../../../core/models/box.model';
 
 @Component({
   selector: 'app-add-boutique',
@@ -21,10 +23,10 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
   templateUrl: './add-boutique.component.html',
   styleUrls: ['./add-boutique.component.css']
 })
-export class AddBoutiqueComponent {
+export class AddBoutiqueComponent implements OnInit {
   pageTitle = 'Add New Shop';
   currentStep = 1;
-  totalSteps = 3;
+  totalSteps = 4;
 
   // Data Models
   // Using Partial because we are building the object step-by-step and standard User model requires id/role which we don't have yet.
@@ -38,6 +40,11 @@ export class AddBoutiqueComponent {
     logo: '',
     description: ''
   };
+
+  boxes: Box[] = [];
+  selectedBoxId: string | null = null;
+  isBoxesLoading = false;
+  hasFreeBoxes = true;
 
   livraisonData: Partial<LivraisonConfig> = {
     isDeliveryAvailable: true,
@@ -83,8 +90,34 @@ export class AddBoutiqueComponent {
 
   constructor(
     private router: Router,
-    private boutiqueService: BoutiqueService
+    private boutiqueService: BoutiqueService,
+    private boxService: BoxService
   ) { }
+
+  ngOnInit(): void {
+    this.loadBoxes();
+  }
+
+  loadBoxes(): void {
+    this.isBoxesLoading = true;
+    this.boxService.getBoxes('all').subscribe({
+      next: (res) => {
+        this.isBoxesLoading = false;
+        if (res && res.success) {
+          this.boxes = res.data || [];
+          this.hasFreeBoxes = this.boxes.some(b => !b.isOccupied);
+        } else {
+          this.boxes = [];
+          this.hasFreeBoxes = false;
+        }
+      },
+      error: () => {
+        this.isBoxesLoading = false;
+        this.boxes = [];
+        this.hasFreeBoxes = false;
+      }
+    });
+  }
 
   nextStep(): void {
     if (this.validateStep(this.currentStep)) {
@@ -108,11 +141,13 @@ export class AddBoutiqueComponent {
         return (this.userData.name?.trim().length ?? 0) > 0 &&
           (this.userData.email?.trim().length ?? 0) > 0 &&
           (this.userData.email?.includes('@') ?? false);
-      case 2: // Boutique
+      case 2: // Box
+        return this.hasFreeBoxes && !!this.selectedBoxId;
+      case 3: // Boutique
         return (this.boutiqueData.name?.trim().length ?? 0) > 0 &&
           ((this.boutiqueData.logo?.trim().length ?? 0) > 0 || !!this.selectedLogoFile) &&
           (this.boutiqueData.description?.trim().length ?? 0) > 0;
-      case 3: // Livraison
+      case 4: // Livraison
         if (!this.livraisonData.isDeliveryAvailable) return true;
         const rules = this.livraisonData.deliveryRules;
         if (!rules) return false;
@@ -174,7 +209,11 @@ export class AddBoutiqueComponent {
     formData.append('user', JSON.stringify(this.userData));
 
     // 2. Boutique Data (excluding logo file content, but including other fields)
-    formData.append('boutique', JSON.stringify(this.boutiqueData));
+    const boutiquePayload = {
+      ...this.boutiqueData,
+      boxId: this.selectedBoxId
+    };
+    formData.append('boutique', JSON.stringify(boutiquePayload));
 
     // 3. Livraison Config
     formData.append('livraisonConfig', JSON.stringify(this.livraisonData));
@@ -214,6 +253,15 @@ export class AddBoutiqueComponent {
     if (step < this.currentStep) return 'completed';
     if (step === this.currentStep) return 'active';
     return 'inactive';
+  }
+
+  selectBox(box: Box): void {
+    if (box.isOccupied) return;
+    this.selectedBoxId = box._id;
+  }
+
+  isSelectedBox(box: Box): boolean {
+    return this.selectedBoxId === box._id;
   }
 
   copyPassword(): void {

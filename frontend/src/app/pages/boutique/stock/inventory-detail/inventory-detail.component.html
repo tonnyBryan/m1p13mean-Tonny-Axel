@@ -1,0 +1,190 @@
+<!-- inventory-detail/inventory-detail.component.html -->
+<div class="mx-auto max-w-7xl">
+    <app-page-breadcrumb pageTitle="Inventory Detail" [breadcrumbs]="[
+        { label: 'Store', link: '/store/app' },
+        { label: 'Stock', link: '/store/app/stock/mouvements' },
+        { label: 'Inventory', link: '/store/app/stock/inventaire' },
+        { label: 'Detail' }
+    ]"></app-page-breadcrumb>
+
+    <!-- ── Error ── -->
+    <div *ngIf="error" class="rounded-xl border border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-500/10 px-5 py-4 text-sm text-red-600 dark:text-red-400">
+        {{ error }}
+    </div>
+
+    <!-- ── Skeleton ── -->
+    <ng-container *ngIf="isLoading && !error">
+        <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-lg overflow-hidden animate-pulse">
+            <div class="px-5 py-5 border-b border-gray-100 dark:border-gray-800 flex justify-between">
+                <div class="space-y-2">
+                    <div class="h-5 w-48 bg-gray-200 dark:bg-white/10 rounded"></div>
+                    <div class="h-4 w-32 bg-gray-200 dark:bg-white/10 rounded"></div>
+                </div>
+                <div class="h-9 w-28 bg-gray-200 dark:bg-white/10 rounded-lg"></div>
+            </div>
+            <div class="grid grid-cols-3 gap-px bg-gray-100 dark:bg-gray-800">
+                <div *ngFor="let i of [1,2,3]" class="bg-white dark:bg-gray-900 px-5 py-5 space-y-2">
+                    <div class="h-3 w-20 bg-gray-200 dark:bg-white/10 rounded"></div>
+                    <div class="h-7 w-10 bg-gray-200 dark:bg-white/10 rounded"></div>
+                </div>
+            </div>
+            <div class="p-5 space-y-3">
+                <div *ngFor="let i of [1,2,3,4,5]" class="h-14 w-full bg-gray-100 dark:bg-white/5 rounded-lg"></div>
+            </div>
+        </div>
+    </ng-container>
+
+    <!-- ── Content ── -->
+    <ng-container *ngIf="!isLoading && inventory">
+        <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-lg overflow-hidden">
+
+            <!-- Header -->
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between px-5 py-5 border-b border-gray-100 dark:border-gray-800">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        {{ inventory.note || 'Inventory count' }}
+                    </h2>
+                    <div class="flex flex-wrap items-center gap-3 mt-1.5">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">
+                            {{ inventory.createdAt | date:'MMMM d, y · h:mm a' }}
+                        </span>
+                        <span class="text-gray-300 dark:text-gray-700">·</span>
+                        <div class="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                            <div class="h-5 w-5 rounded-full bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-600 dark:text-brand-400 font-bold text-[10px]">
+                                {{ inventory.createdBy?.name?.charAt(0) }}
+                            </div>
+                            {{ inventory.createdBy?.name }}
+                        </div>
+                    </div>
+                </div>
+                <a routerLink="/store/app/stock/inventaire"
+                   class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors whitespace-nowrap">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Back to list
+                </a>
+            </div>
+
+            <!-- KPI Summary -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 dark:divide-gray-800 border-b border-gray-100 dark:border-gray-800">
+
+                <div class="px-5 py-4">
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Total products</p>
+                    <p class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{{ totalLines }}</p>
+                </div>
+
+                <div class="px-5 py-4">
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400">With discrepancy</p>
+                    <p class="mt-1 text-2xl font-bold"
+                       [ngClass]="linesWithDiscrepancy > 0 ? 'text-amber-500' : 'text-gray-900 dark:text-white'">
+                        {{ linesWithDiscrepancy }}
+                    </p>
+                </div>
+
+                <div class="px-5 py-4">
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400">Stock adjusted</p>
+                    <p class="mt-1 text-2xl font-bold"
+                       [ngClass]="adjustedLines > 0 ? 'text-green-500' : 'text-gray-400 dark:text-gray-600'">
+                        {{ adjustedLines }}
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                    <tr class="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01]">
+                        <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400">Product</th>
+                        <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 text-right">Stock before</th>
+                        <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 text-right">Counted</th>
+                        <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 text-right">Difference</th>
+                        <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 text-center">Adjustment</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    <tr *ngFor="let line of inventory.lines"
+                        class="transition hover:bg-gray-50/60 dark:hover:bg-white/[0.02]">
+
+                        <!-- Product -->
+                        <td class="px-5 py-3.5">
+                            <div class="flex items-center gap-3">
+                                <img *ngIf="line.product?.images?.[0]"
+                                     [src]="line.product.images[0]"
+                                     class="h-9 w-9 rounded-lg object-cover border border-gray-100 dark:border-gray-700 flex-shrink-0" />
+                                <div *ngIf="!line.product?.images?.[0]"
+                                     class="h-9 w-9 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-300 dark:text-gray-600 flex-shrink-0">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                        <polyline points="21 15 16 10 5 21"></polyline>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ line.product?.name || '—' }}</p>
+                                    <p class="text-xs font-mono text-gray-400">{{ line.product?.sku }}</p>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Stock before -->
+                        <td class="px-5 py-3.5 text-right text-sm text-gray-500 dark:text-gray-400">
+                            {{ line.stockBefore }}
+                        </td>
+
+                        <!-- Counted -->
+                        <td class="px-5 py-3.5 text-right text-sm font-semibold text-gray-900 dark:text-white">
+                            {{ line.countedQuantity }}
+                        </td>
+
+                        <!-- Difference -->
+                        <td class="px-5 py-3.5 text-right">
+                                <span class="text-sm font-bold"
+                                      [ngClass]="{
+                                          'text-green-600 dark:text-green-400': getDiff(line) > 0,
+                                          'text-red-600 dark:text-red-400':    getDiff(line) < 0,
+                                          'text-gray-400 dark:text-gray-600':  getDiff(line) === 0
+                                      }">
+                                    {{ getDiff(line) > 0 ? '+' : '' }}{{ getDiff(line) }}
+                                </span>
+                        </td>
+
+                        <!-- Adjustment badge -->
+                        <td class="px-5 py-3.5 text-center">
+                            <!-- Movement created -->
+                            <ng-container *ngIf="line.movementCreated">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border"
+                                          [ngClass]="getDiff(line) >= 0
+                                              ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20'
+                                              : 'bg-red-50 text-red-600 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20'">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        {{ getDiff(line) >= 0 ? 'IN' : 'OUT' }}
+                                    </span>
+                            </ng-container>
+                            <!-- No adjustment -->
+                            <ng-container *ngIf="!line.movementCreated">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-50 text-gray-400 border border-gray-200 dark:bg-gray-800 dark:text-gray-600 dark:border-gray-700">
+                                        —
+                                    </span>
+                            </ng-container>
+                        </td>
+                    </tr>
+
+                    <!-- Empty lines -->
+                    <tr *ngIf="inventory.lines?.length === 0">
+                        <td colspan="5" class="py-16 text-center">
+                            <p class="text-sm text-gray-400 dark:text-gray-600">No products in this inventory count.</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </ng-container>
+
+</div>

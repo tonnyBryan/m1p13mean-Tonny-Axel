@@ -4,6 +4,18 @@ export interface Boutique {
   name: string;
   logo: string; // URL
   description: string;
+  boxId?: any;
+  plan?: {
+    type: 'A' | 'B' | null;
+    priceToPayPerMonth: number;
+    startDate: string | null;
+  };
+  payment?: {
+    cardNumber?: string;
+    cardName?: string;
+    expiryDate?: string;
+    cvv?: string;
+  } | null;
   isLocal: boolean;
   isActive: boolean;
   isValidated: boolean;

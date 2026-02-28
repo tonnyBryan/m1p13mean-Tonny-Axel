@@ -2,6 +2,7 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
 const User = require('../models/User');
 const Boutique = require('../models/Boutique');
 const LivraisonConfig = require('../models/LivraisonConfig');
+const Box = require('../models/Box');
 const { uploadImage } = require('../utils/cloudinary');
 const bcrypt = require('bcryptjs'); // Assuming password hashing is needed for user
 const mongoose = require('mongoose');
@@ -71,6 +72,23 @@ exports.createBoutiqueFull = async (req, res) => {
                 longitude: centre.location.coordinates.longitude || null
             } : { latitude: null, longitude: null };
 
+            // 4.5 Check selected box
+            if (!boutiquePayload.boxId) {
+                throw { status: 400, message: 'Veuillez sélectionner un Box libre pour la boutique.' };
+            }
+
+            const selectedBox = await Box.findById(boutiquePayload.boxId).session(session);
+            if (!selectedBox) {
+                throw { status: 404, message: 'Le Box sélectionné est introuvable.' };
+            }
+
+            if (selectedBox.isOccupied || selectedBox.boutiqueId) {
+                throw { status: 400, message: 'Le Box sélectionné est déjà occupé.' };
+            }
+
+            const planBBasePrice = centre ? (centre.planBPrice ?? 0) : 0;
+            const priceToPayPerMonth = planBBasePrice + (selectedBox.pricePerMonth || 0);
+
             // 5. Create Boutique with isLocal true and address from centre commercial
             const boutiqueDoc = await Boutique.create([{
                 owner: createdUser._id,
@@ -80,10 +98,21 @@ exports.createBoutiqueFull = async (req, res) => {
                 isActive: true,
                 isValidated: true,
                 isLocal: true,
-                address: addressObj
+                address: addressObj,
+                boxId: selectedBox._id,
+                plan: {
+                    type: 'B',
+                    priceToPayPerMonth,
+                    startDate: Date.now()
+                }
             }], { session });
 
             const createdBoutique = Array.isArray(boutiqueDoc) ? boutiqueDoc[0] : boutiqueDoc;
+
+            // 5.5 Update Box
+            selectedBox.isOccupied = true;
+            selectedBox.boutiqueId = createdBoutique._id;
+            await selectedBox.save({ session });
 
             // 6. Create LivraisonConfig
             await LivraisonConfig.create([{
@@ -148,7 +177,7 @@ exports.getBoutiques = async (req, res) => {
 exports.getBoutiqueFull = async (req, res) => {
     try {
         // Populate owner basic info for convenience
-        const boutiqueDoc = await Boutique.findById(req.params.id).populate('owner', 'name email role');
+        const boutiqueDoc = await Boutique.findById(req.params.id).populate('owner', 'name email role').populate('boxId', 'number');
 
         if (!boutiqueDoc) {
             return errorResponse(res, 404, 'The requested boutique was not found. Please check the identifier and try again.');
@@ -218,6 +247,12 @@ exports.updateBoutiqueStatus = async (req, res) => {
 
         // Update the status
         boutique.isActive = isActive;
+        if (!isActive) {
+            boutique.isValidated = false;
+            if (boutique.plan) {
+                boutique.plan.startDate = null;
+            }
+        }
         await boutique.save();
 
         return successResponse(res, 200, 'Boutique status updated successfully.', boutique);
@@ -230,6 +265,40 @@ exports.updateBoutiqueStatus = async (req, res) => {
         }
 
         return errorResponse(res, 500, 'An unexpected server error occurred while updating the boutique status. Please try again later.');
+    }
+};
+
+/**
+ * PATCH /api/boutiques/:id/validate
+ * Validate a boutique (Admin only)
+ */
+exports.validateBoutique = async (req, res) => {
+    try {
+        const boutique = await Boutique.findById(req.params.id);
+
+        if (!boutique) {
+            return errorResponse(res, 404, 'The requested boutique was not found. Please check the identifier and try again.');
+        }
+
+        if (boutique.isValidated) {
+            return errorResponse(res, 400, 'This boutique is already validated.');
+        }
+
+        boutique.isValidated = true;
+        if (boutique.plan) {
+            boutique.plan.startDate = new Date();
+        } else {
+            boutique.plan = { type: null, priceToPayPerMonth: 0, startDate: new Date() };
+        }
+
+        await boutique.save();
+        return successResponse(res, 200, 'Boutique validated successfully.', boutique);
+    } catch (error) {
+        console.error('Error validating boutique:', error);
+        if (error.kind === 'ObjectId') {
+            return errorResponse(res, 400, 'The provided boutique identifier is invalid. Please check and try again.');
+        }
+        return errorResponse(res, 500, 'An unexpected server error occurred while validating the boutique. Please try again later.');
     }
 };
 
@@ -262,7 +331,13 @@ exports.getBoutiqueStats = async (req, res) => {
  */
 exports.updateBoutique = async (req, res) => {
     try {
-        const { name, description, logo } = req.body;
+        const { name, description } = req.body;
+        let logo = req.body.logo;
+
+        if (req.file) {
+            const uploaded = await uploadImage(req.file.buffer, 'boutiques');
+            logo = uploaded.secure_url;
+        }
 
         // Basic validation
         if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -302,6 +377,13 @@ exports.updateBoutique = async (req, res) => {
 exports.updateDeliveryConfig = async (req, res) => {
     try {
         const { isDeliveryAvailable, orderCutoffTime, deliveryDays, deliveryRules } = req.body;
+
+        if (isDeliveryAvailable && Array.isArray(deliveryDays)) {
+            const activeDays = deliveryDays.filter(d => d.isActive).length;
+            if (activeDays < 1) {
+                return errorResponse(res, 400, "Minimum 1 jour actif obligatoire si la livraison est activée.");
+            }
+        }
 
         console.log(req.body);
 

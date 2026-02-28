@@ -63,7 +63,7 @@ router.get(
     '/',
     protect,
     authorize('user', 'admin'),
-    advancedResults(Boutique),
+    advancedResults(Boutique, { path: 'boxId', select: 'number' }),
     boutiqueController.getBoutiques
 );
 
@@ -195,11 +195,20 @@ router.patch(
     boutiqueController.updateBoutiqueStatus
 );
 
+// PATCH /api/boutiques/:id/validate - Validate boutique (Admin only)
+router.patch(
+    '/:id/validate',
+    protect,
+    authorize('admin'),
+    boutiqueController.validateBoutique
+);
+
 // PATCH /api/boutiques/:id - Update boutique general info
 router.patch(
     '/:id',
     protect,
     authorize('boutique', 'admin'),
+    upload.single('file'),
     boutiqueController.updateBoutique
 );
 
