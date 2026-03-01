@@ -482,7 +482,7 @@ exports.refreshToken = async (req, res) => {
         });
 
         if (!storedToken || storedToken.isRevoked) {
-            return errorResponse(res, 450, 'The provided refresh token is invalid. Please login again.');
+            return errorResponse(res, 450, 'The provided refresh token is invalid bro. Please login again.', tokenHash);
         }
 
         // 3️⃣ Recharger l’utilisateur
