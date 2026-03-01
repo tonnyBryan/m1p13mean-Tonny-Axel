@@ -191,6 +191,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/auth-pages/sign-up/sign-up.component').then(m => m.SignUpComponent),
     title: 'Sign Up | ' + appName
   },
+  {
+    path: 'oauth/callback',
+    loadComponent: () => import('./pages/auth-pages/oauth-callback/oauth-callback.component').then(m => m.OauthCallbackComponent),
+    title: 'Signing In | ' + appName
+  },
 
   // ─── ADMIN ────────────────────────────────────────────────────────────────────
   {
