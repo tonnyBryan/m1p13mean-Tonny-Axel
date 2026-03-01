@@ -94,7 +94,6 @@ export class CheckoutUserComponent implements OnInit {
       next: (res: any) => {
         if (res?.success && res?.data) {
           this.cart = res.data;
-          console.log(this.cart);
           this.checkLoadingComplete();
         } else {
           this.router.navigate(['/v1/cart']);
@@ -118,8 +117,6 @@ export class CheckoutUserComponent implements OnInit {
       next: (res) => {
         if (res.success && res.data) {
           this.profile = res.data;
-          console.log("atoo");
-          console.log(this.profile);
 
           const defaultAddr = this.profile.addresses?.find((a: any) => a.isDefault);
           if (defaultAddr) {
@@ -340,7 +337,6 @@ export class CheckoutUserComponent implements OnInit {
         );
 
         if (!confirmed) {
-          console.log('Payment cancelled by user');
           this.isProcessing = false;
           return;
         }
@@ -419,7 +415,6 @@ export class CheckoutUserComponent implements OnInit {
       next: (res: any) => {
         this.isProcessing = false;
         if (res?.success) {
-          console.log('Payment successful:', res.data);
           this.completedOrder = res.data;
           this.paymentSuccess = true;
           this.commandeService.adjustCartCount(-this.commandeService.cartCountSubject.value);
@@ -682,6 +677,5 @@ export class CheckoutUserComponent implements OnInit {
     if (!this.newAddress.description) this.newAddress.description = '';
 
     // trigger change detection if needed (Angular will handle since we're in zone)
-    console.log('Map click captured, coords:', e);
   }
 }

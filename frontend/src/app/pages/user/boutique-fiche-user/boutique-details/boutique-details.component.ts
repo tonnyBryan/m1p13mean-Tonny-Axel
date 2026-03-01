@@ -13,6 +13,13 @@ import {RouterLink} from "@angular/router";
 export class BoutiqueDetailsComponent {
     @Input() boutique: any = null;
 
+    onDeliveryToggle(event: Event): void {
+        if (!this.boutique?.livraisonConfig?.isDeliveryAvailable) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    }
+
     getDayName(dayNumber: number): string {
         const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         return days[dayNumber] || '';

@@ -92,7 +92,6 @@ export class OrdersUserComponent implements OnInit {
         this.loading = false;
         if (res?.success) {
           this.orders = res.data.items || [];
-          console.log(this.orders);
           const pagination = res.data.pagination || { page: 1, totalDocs: 0, totalPages: 0 };
           this.currentPage = pagination.page || 1;
           this.totalDocs = pagination.totalDocs || 0;

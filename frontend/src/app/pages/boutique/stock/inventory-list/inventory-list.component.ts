@@ -64,7 +64,6 @@ export class InventoryListComponent implements OnInit {
         this.inventoryService.getInventoryList(params).subscribe({
             next: (res) => {
                 this.inventories = res.data.items;
-                console.log(this.inventories);
                 this.pagination = res.data.pagination;
                 this.isLoading = false;
                 this.isSkeletonLoading = false;

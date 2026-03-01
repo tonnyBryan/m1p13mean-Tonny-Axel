@@ -1,5 +1,7 @@
 const Vente = require('../models/Vente');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
+const mongoose = require('mongoose');
+
 
 // Create a new direct sale
 exports.createVente = async (req, res) => {

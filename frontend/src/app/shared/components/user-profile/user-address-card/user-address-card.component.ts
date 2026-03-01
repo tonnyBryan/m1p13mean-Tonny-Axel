@@ -207,7 +207,6 @@ export class UserAddressCardComponent implements OnInit {
     if (addr._id) {
       this.userService.removeAddress(addr._id).subscribe({
         next: (res) => {
-          console.log('Address removed', res);
           if (res && res.data && res.data.addresses) {
             this.addresses = res.data.addresses;
           } else {

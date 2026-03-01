@@ -143,8 +143,8 @@ export class CommandeService {
         return this.api.patch(`commandes/${orderId}/accept`, {});
     }
 
-    cancelOrder(orderId: string): Observable<any> {
-        return this.api.patch(`commandes/${orderId}/cancel`, {});
+    cancelOrder(orderId: string, reasonCancellation: string | null = null): Observable<any> {
+        return this.api.patch(`commandes/${orderId}/cancel`, { reasonCancellation });
     }
 
     startDelivery(orderId: string): Observable<any> {

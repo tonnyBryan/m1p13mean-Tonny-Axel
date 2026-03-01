@@ -319,7 +319,6 @@ export class ProductFicheUserComponent implements OnInit {
                         this.addedToCartSuccess = false;
                     }, 3000);
 
-                    console.log('Added to cart', res.data);
                 } else {
                     const msg = res?.message || 'Unable to add to cart';
                     this.addToCartErrorMessage = msg;

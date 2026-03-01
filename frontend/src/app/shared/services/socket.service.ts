@@ -20,12 +20,10 @@ export class SocketService {
         this.socket = io(environment.baseUrl);
 
         this.socket.on('connect', () => {
-            console.log('Socket connected');
             this.socket.emit('join', { userId });
         });
 
         this.socket.on('disconnect', () => {
-            console.log('Socket disconnected');
         });
 
         this.socket.on('notification', (data) => {

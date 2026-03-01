@@ -61,7 +61,6 @@ export class ProductNoteUserComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['product'] && this.product && this.product._id) {
-      console.log("id = " + this.product._id);
       this.currentUserId = this.authService.userHash?.id || null;
       this.resetAndLoad();
     }
@@ -76,7 +75,6 @@ export class ProductNoteUserComponent implements OnChanges {
   loadProductRatings(): void {
     if (!this.product || !this.product._id) return;
 
-    console.log("id lasa = " + this.product._id);
 
     this.isLoading = true;
     this.productService.getRatingsByProduct(this.product._id, { page: this.page, limit: this.limit })
@@ -191,7 +189,6 @@ export class ProductNoteUserComponent implements OnChanges {
           this.deleteReview(rating);
         },
         () => {
-          console.log('Deletion cancelled');
         },
         {
           confirmLabel: 'Delete',
@@ -214,7 +211,6 @@ export class ProductNoteUserComponent implements OnChanges {
             this.deletingRatingId = null;
             if (res.success) {
               // Update avgRating and totalRatings if provided
-              console.log(res.data);
               if (this.product && res.data) {
                 this.product.avgRating = res.data.avgRating ?? this.product.avgRating;
                 this.product.totalRatings = res.data.totalRatings ?? this.product.totalRatings;

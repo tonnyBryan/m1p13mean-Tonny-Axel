@@ -53,7 +53,6 @@ export class BoutiqueFicheUserComponent implements OnInit {
                 if (res && res.success && res.data) {
                     this.boutique = res.data;
                     this.boutiqueName = this.boutique.name || 'Shop';
-                    console.log(this.boutique);
                 }
             },
             error: (err) => {

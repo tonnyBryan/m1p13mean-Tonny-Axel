@@ -296,7 +296,6 @@ export class ProductFicheBoutiqueComponent implements OnInit {
                 this.executeToggle();
             },
             () => {
-                console.log('Toggle cancelled');
             },
             {
                 confirmLabel: activating ? 'Activate' : 'Deactivate',

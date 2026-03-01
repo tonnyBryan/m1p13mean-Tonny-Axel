@@ -188,12 +188,10 @@ export class ProductListBoutiqueComponent implements OnInit {
     }
 
     editProduct(product: any): void {
-        console.log('Edit product', product._id);
     }
 
     deleteProduct(product: any): void {
         if (confirm('Are you sure you want to delete this product?')) {
-            console.log('Delete product', product._id);
         }
     }
 
