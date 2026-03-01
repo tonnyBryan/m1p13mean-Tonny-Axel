@@ -48,6 +48,7 @@ router.post('/signup', authController.signupUser);
 // Google OAuth (user role only)
 router.get('/google', authController.googleAuthRedirect);
 router.get('/google/callback', authController.googleAuthCallback);
+router.post('/google/exchange', authController.googleExchange);
 
 
 /**
