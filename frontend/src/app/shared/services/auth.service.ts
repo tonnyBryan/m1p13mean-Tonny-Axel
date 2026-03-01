@@ -77,6 +77,13 @@ export class AuthService {
             'auth/refresh-token',
             {},
             undefined
+        ).pipe(
+            tap(res => {
+                if (res.success && res.data?.accessToken) {
+                    localStorage.setItem('token', res.data.accessToken);
+                    this.loadUserFromToken();
+                }
+            })
         );
     }
 

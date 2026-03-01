@@ -10,6 +10,7 @@ const PasswordResetToken = require('../models/PasswordResetToken');
 const {sendPasswordResetEmail} = require("../mail/mail.service");
 const {sendNewDeviceEmail} = require('../mail/mail.service');
 const {buildSessionInfo} = require("../utils/session.utils");
+const axios = require('axios');
 
 
 function parseExpireEnv(expireStr) {
@@ -34,6 +35,10 @@ exports.login = async (req, res) => {
 
         if (!user.isActive) {
             return errorResponse(res, 401, 'Your account has been deactivated. Please contact support for assistance.');
+        }
+
+        if (user.authProvider && user.authProvider !== 'local') {
+            return errorResponse(res, 401, 'This account uses Google sign-in. Please continue with Google.');
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -132,6 +137,11 @@ exports.login = async (req, res) => {
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
         });
 
+        const frontendUrl = process.env.FRONTEND_URL;
+        if (frontendUrl) {
+            return res.redirect(`${frontendUrl}/oauth/callback`);
+        }
+
         return successResponse(res, 200, 'Authentication successful', {
             accessToken,
             user: {
@@ -144,6 +154,187 @@ exports.login = async (req, res) => {
 
     } catch (error) {
         return errorResponse(res, 500, 'An unexpected error occurred during login. Please try again later.');
+    }
+};
+
+const buildGoogleAuthUrl = (state) => {
+    const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
+    const params = new URLSearchParams({
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+        response_type: 'code',
+        scope: 'openid email profile',
+        access_type: 'online',
+        prompt: 'select_account',
+        state
+    });
+    return `${baseUrl}?${params.toString()}`;
+};
+
+exports.googleAuthRedirect = (req, res) => {
+    try {
+        if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_REDIRECT_URI) {
+            return errorResponse(res, 500, 'Google OAuth is not configured.');
+        }
+
+        const state = crypto.randomBytes(16).toString('hex');
+        res.cookie('oauth_state', state, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge: 10 * 60 * 1000
+        });
+
+        return res.redirect(buildGoogleAuthUrl(state));
+    } catch (error) {
+        return errorResponse(res, 500, 'An unexpected error occurred during Google OAuth redirect.');
+    }
+};
+
+exports.googleAuthCallback = async (req, res) => {
+    const frontendUrl = process.env.FRONTEND_URL;
+    const redirectWithError = (message, status = 400) => {
+        if (frontendUrl) {
+            const encoded = encodeURIComponent(message || 'Google sign-in failed.');
+            return res.redirect(`${frontendUrl}/oauth/callback?error=${encoded}`);
+        }
+        return errorResponse(res, status, message);
+    };
+
+    try {
+        const { code, state } = req.query;
+        const stateCookie = req.cookies?.oauth_state;
+
+        if (!code) {
+            return redirectWithError('Authorization code is missing.');
+        }
+
+        if (!state || !stateCookie || state !== stateCookie) {
+            return redirectWithError('Invalid OAuth state. Please try again.');
+        }
+
+        if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_REDIRECT_URI) {
+            return redirectWithError('Google OAuth is not configured.', 500);
+        }
+
+        res.clearCookie('oauth_state');
+
+        const tokenRes = await axios.post('https://oauth2.googleapis.com/token', {
+            code,
+            client_id: process.env.GOOGLE_CLIENT_ID,
+            client_secret: process.env.GOOGLE_CLIENT_SECRET,
+            redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+            grant_type: 'authorization_code'
+        }, {
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const { id_token } = tokenRes.data || {};
+        if (!id_token) {
+            return redirectWithError('Google token is missing.');
+        }
+
+        const tokenInfoRes = await axios.get('https://oauth2.googleapis.com/tokeninfo', {
+            params: { id_token }
+        });
+
+        const {
+            sub: googleId,
+            email,
+            email_verified: emailVerified,
+            name
+        } = tokenInfoRes.data || {};
+
+        if (!googleId || !email) {
+            return redirectWithError('Google account information is incomplete.');
+        }
+
+        if (String(emailVerified).toLowerCase() !== 'true') {
+            return redirectWithError('Google email is not verified.');
+        }
+
+        // Only allow role 'user' for Google auth
+        const role = 'user';
+
+        let user = await User.findOne({ email });
+
+        if (user) {
+            if (user.authProvider === 'google' && user.googleId === googleId && user.role === role) {
+                // proceed
+            } else {
+                return redirectWithError('An account with this email already exists.', 409);
+            }
+        } else {
+            user = await User.create({
+                name: name || email.split('@')[0],
+                email,
+                role,
+                authProvider: 'google',
+                googleId,
+                isEmailVerified: true
+            });
+        }
+
+        if (!user.isActive) {
+            return redirectWithError('Your account has been deactivated. Please contact support for assistance.', 401);
+        }
+
+        const refreshToken = jwt.sign(
+            { id: user._id },
+            process.env.JWT_REFRESH_SECRET,
+            { expiresIn: process.env.JWT_REFRESH_EXPIRE }
+        );
+
+        const refreshTokenHash = crypto
+            .createHash('sha256')
+            .update(refreshToken)
+            .digest('hex');
+
+        const sessionInfo = await buildSessionInfo(req);
+
+        await RefreshToken.deleteMany({
+            user: user._id,
+            expiresAt: { $lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+        });
+
+        await RefreshToken.findOneAndUpdate(
+            {
+                user: user._id,
+                ipAddress: sessionInfo.ipAddress,
+                userAgent: sessionInfo.userAgent,
+                isRevoked: false,
+                expiresAt: { $gt: new Date() }
+            },
+            { isRevoked: true }
+        );
+
+        await RefreshToken.create({
+            user: user._id,
+            token: refreshTokenHash,
+            expiresAt: new Date(Date.now() + parseExpireEnv(process.env.JWT_REFRESH_EXPIRE)),
+            ...sessionInfo
+        });
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
+        });
+
+        if (frontendUrl) {
+            return res.redirect(`${frontendUrl}/oauth/callback`);
+        }
+
+        return successResponse(res, 200, 'Authentication successful', {
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        });
+    } catch (error) {
+        return redirectWithError('An unexpected error occurred during Google authentication.', 500);
     }
 };
 
