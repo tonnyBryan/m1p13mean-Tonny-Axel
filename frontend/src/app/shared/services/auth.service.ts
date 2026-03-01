@@ -165,4 +165,8 @@ export class AuthService {
         const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
         return this.api.post<any>(`auth/toggle-new-device-alert`, headers);
     }
+
+    exchangeOAuthCode(code: string): Observable<any> {
+        return this.api.post('auth/google/exchange', { code });
+    }
 }

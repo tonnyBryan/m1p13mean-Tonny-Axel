@@ -11,6 +11,7 @@ const {sendPasswordResetEmail} = require("../mail/mail.service");
 const {sendNewDeviceEmail} = require('../mail/mail.service');
 const {buildSessionInfo} = require("../utils/session.utils");
 const axios = require('axios');
+const OAuthExchange = require('../models/OAuthExchange');
 
 
 function parseExpireEnv(expireStr) {
@@ -152,6 +153,37 @@ exports.login = async (req, res) => {
     }
 };
 
+exports.googleExchange = async (req, res) => {
+    try {
+        const { code } = req.body;
+
+        if (!code) {
+            return errorResponse(res, 400, 'Exchange code is required.');
+        }
+
+        const exchange = await OAuthExchange.findOneAndDelete({
+            code,
+            expiresAt: { $gt: new Date() }
+        });
+
+        if (!exchange) {
+            return errorResponse(res, 400, 'Invalid or expired exchange code. Please sign in again.');
+        }
+
+        // Cookie posé ici → requête AJAX initiée par le frontend = same-site context
+        // Le browser l'accepte et le renvoie correctement sur les prochaines requêtes
+        res.cookie('refreshToken', exchange.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
+        });
+
+        return successResponse(res, 200, 'Exchange successful');
+    } catch (error) {
+        return errorResponse(res, 500, 'An unexpected error occurred during token exchange.');
+    }
+};
+
 const buildGoogleAuthUrl = (state) => {
     const baseUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
     const params = new URLSearchParams({
@@ -248,7 +280,6 @@ exports.googleAuthCallback = async (req, res) => {
             return redirectWithError('Google email is not verified.');
         }
 
-        // Only allow role 'user' for Google auth
         const role = 'user';
 
         let user = await User.findOne({ email });
@@ -310,24 +341,21 @@ exports.googleAuthCallback = async (req, res) => {
             ...sessionInfo
         });
 
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
+        // ── EXCHANGE PATTERN ──────────────────────────────────────────
+        // On ne pose plus le cookie ici (contexte cross-site Google → backend).
+        // On génère un code éphémère (60s) que le frontend échangera via
+        // POST /api/auth/google/exchange → le cookie sera posé sur cette
+        // requête AJAX same-site, ce qui garantit sa réception par le browser.
+        const exchangeCode = crypto.randomBytes(32).toString('hex');
+
+        await OAuthExchange.create({
+            code: exchangeCode,
+            refreshToken,
+            expiresAt: new Date(Date.now() + 60 * 1000) // 60 secondes
         });
 
-        if (frontendUrl) {
-            return res.redirect(`${frontendUrl}/oauth/callback`);
-        }
+        return res.redirect(`${frontendUrl}/oauth/callback?code=${exchangeCode}`);
 
-        return successResponse(res, 200, 'Authentication successful', {
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            }
-        });
     } catch (error) {
         return redirectWithError('An unexpected error occurred during Google authentication.', 500);
     }

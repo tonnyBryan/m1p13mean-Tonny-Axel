@@ -37,18 +37,34 @@ export class OauthCallbackComponent implements OnInit {
       return;
     }
 
+    const code = this.route.snapshot.queryParamMap.get('code');
+    console.log("code = " + code)
+    if (code) {
+      this.authService.exchangeOAuthCode(code).subscribe({
+        next: () => this.doRefresh(),
+        error: () => {
+          this.isLoading = false;
+          this.errorMessage = 'Google sign-in failed. Please try again.';
+        }
+      });
+    } else {
+      this.doRefresh();
+    }
+  }
+
+  private doRefresh(): void {
     this.authService.refreshToken().subscribe({
       next: (res) => {
         this.isLoading = false;
         if (res?.success && res?.data?.accessToken) {
           this.router.navigate(['/v1/stores']);
         } else {
-          this.errorMessage = res?.message || 'Google sign-in failed. Please try again.';
+          this.errorMessage = res?.message || 'Google sign-in failed.';
         }
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err?.error?.message || 'Google sign-in failed. Please try again.';
+        this.errorMessage = err?.error?.message || 'Google sign-in failed.';
       }
     });
   }
