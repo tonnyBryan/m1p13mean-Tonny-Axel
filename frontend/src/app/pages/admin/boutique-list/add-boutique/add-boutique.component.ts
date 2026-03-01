@@ -223,8 +223,6 @@ export class AddBoutiqueComponent implements OnInit {
       formData.append('file', this.selectedLogoFile);
     }
 
-    console.log('Submitting FormData...');
-
     this.boutiqueService.createBoutique(formData).subscribe({
       next: (res) => {
         this.isLoading = false;

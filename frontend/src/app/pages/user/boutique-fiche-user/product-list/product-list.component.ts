@@ -102,7 +102,6 @@ export class ProductListComponent implements OnInit {
                 this.isLoading = false;
                 if (res?.success && res?.data) {
                     this.products = res.data.items || [];
-                    console.log(this.products);
                     const pagination = res.data.pagination || {};
                     this.currentPage = pagination.page || 1;
                     this.totalDocs = pagination.totalDocs || 0;

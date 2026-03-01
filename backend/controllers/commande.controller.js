@@ -664,7 +664,6 @@ exports.acceptOrder = async (req, res) => {
         await removeFromStock(commande, sellerId, session);
         await removeEngagement(commande, session);
 
-        // TODO:  sortie de stock (business logic to be added later)
 
         commande.status = 'accepted';
         await commande.save({ session });
@@ -693,7 +692,7 @@ exports.acceptOrder = async (req, res) => {
         if (session) {
             try { await session.abortTransaction(); } catch (e) { console.error('Failed to abort transaction', e); }
         }
-        return errorResponse(res, 500, 'An unexpected server error occurred while processing your request. Please try again later.');
+        return errorResponse(res, 500, err.message);
     } finally {
         if (session) session.endSession();
     }
@@ -723,9 +722,20 @@ exports.cancelOrder = async (req, res) => {
             return errorResponse(res, 404, 'No order matching the provided identifier was found for your store. Please verify the identifier and try again.');
         }
 
+        const reasonCancellation = typeof req.body?.reasonCancellation === 'string'
+            ? req.body.reasonCancellation.trim()
+            : null;
+        if (reasonCancellation && commande.reasonCancellation) {
+            await session.abortTransaction();
+            return errorResponse(res, 409, 'Cancellation reason already submitted and cannot be modified.');
+        }
+
         await removeEngagement(commande, session);
 
         commande.status = 'canceled';
+        if (reasonCancellation && !commande.reasonCancellation) {
+            commande.reasonCancellation = reasonCancellation;
+        }
         await commande.save({ session });
 
         await session.commitTransaction();

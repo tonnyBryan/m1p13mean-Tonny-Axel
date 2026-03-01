@@ -2,62 +2,74 @@
     display: block;
 }
 
-/* Animations */
+/* ─── Animations ─── */
 @keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
-
-.animate-fade-in-down {
-    animation: fadeInDown 0.2s ease-out;
-}
-
-.animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
-}
-
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0)   scale(1); }
 }
 
-/* Custom Scrollbar for search results */
-.max-h-80::-webkit-scrollbar {
+/* Button shimmer while saving */
+@keyframes shimmer {
+    0%   { transform: translateX(-100%) skewX(-12deg); }
+    100% { transform: translateX(250%)  skewX(-12deg); }
+}
+
+.animate-fade-in-down { animation: fadeInDown 0.2s ease-out; }
+.animate-fade-in      { animation: fadeIn    0.3s ease-out; }
+.animate-slide-down   { animation: slideDown 0.25s ease-out; }
+.animate-slide-up     { animation: slideUp   0.25s ease-out; }
+
+/* ─── Create Sale button loading shimmer ─── */
+.create-sale-btn .btn-shimmer {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.18) 50%,
+            transparent 100%
+    );
+    animation: shimmer 1.4s infinite;
+    pointer-events: none;
+}
+
+/* ─── Custom Scrollbar ─── */
+.max-h-80::-webkit-scrollbar,
+.custom-scrollbar::-webkit-scrollbar {
     width: 6px;
 }
-
-.max-h-80::-webkit-scrollbar-track {
+.max-h-80::-webkit-scrollbar-track,
+.custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
 }
-
-.max-h-80::-webkit-scrollbar-thumb {
+.max-h-80::-webkit-scrollbar-thumb,
+.custom-scrollbar::-webkit-scrollbar-thumb {
     background: #e2e8f0;
     border-radius: 10px;
 }
-
-.dark .max-h-80::-webkit-scrollbar-thumb {
+.dark .max-h-80::-webkit-scrollbar-thumb,
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #334155;
 }
 
-/* Hide spin buttons */
+/* ─── Hide number input spin buttons ─── */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
-
 input[type=number] {
     -moz-appearance: textfield;
     appearance: textfield;

@@ -29,7 +29,6 @@ export class WishlistService {
 
     // Vérifier si un produit est dans la wishlist
     isWishlisted(productId: string): boolean {
-        console.log("oke = " + this.wishlistSubject.value);
         return this.wishlistSubject.value.some(item => item.product._id === productId);
     }
 
@@ -71,8 +70,6 @@ export class WishlistService {
         if (this.wishlistLoaded) {
             return of(null);
         }
-
-        console.log("Vo antsoooooooooooooo")
 
         return this.api.get<any>('wishlist/me', this.getHeaders()).pipe(
             tap(res => {

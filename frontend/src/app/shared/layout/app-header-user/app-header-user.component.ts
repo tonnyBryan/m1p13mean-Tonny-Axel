@@ -80,7 +80,6 @@ export class AppHeaderUserComponent implements OnInit, OnDestroy {
         )
         .subscribe(user => {
             this.user = user;
-            console.log(this.user);
 
             if (user && user.role === 'user' && !user.isEmailVerified) {
                 this.toast.show(
@@ -212,7 +211,6 @@ export class AppHeaderUserComponent implements OnInit, OnDestroy {
 
         this.searchService.globalSearch(query).subscribe({
             next: (res) => {
-                console.log('Global search results:', res);
                 this.isSearching = false;
                 if (res.success) {
                     this.searchResults = res.data;

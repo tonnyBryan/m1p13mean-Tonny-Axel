@@ -8,7 +8,7 @@ import { AuthService } from '../../../../shared/services/auth.service';
 import { PageBreadcrumbComponent } from '../../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { Product } from '../../../../core/models/product.model';
-import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
@@ -25,6 +25,7 @@ export class InventoryFormComponent implements OnInit {
     searchSubject = new Subject<string>();
     searchResults: Product[] = [];
     showResults = false;
+    isSearching = false;
 
     isSaving = false;
     errorMessage = '';
@@ -50,8 +51,11 @@ export class InventoryFormComponent implements OnInit {
                 if (term.length < 2) {
                     this.searchResults = [];
                     this.showResults = false;
-                    return [];
+                    this.isSearching = false;
+                    return of({ data: { items: [] } });
                 }
+                this.isSearching = true;
+                this.showResults = false;
                 return this.productService.getProducts({
                     'name[regex]': term,
                     'name[options]': 'i',
@@ -60,6 +64,7 @@ export class InventoryFormComponent implements OnInit {
                 });
             })
         ).subscribe((res: any) => {
+            this.isSearching = false;
             this.searchResults = res?.data?.items || [];
             this.showResults = this.searchResults.length > 0;
         });
@@ -73,7 +78,7 @@ export class InventoryFormComponent implements OnInit {
         // Avoid duplicates in the same inventory session
         const exists = this.items.find(item => item.product === product._id);
         if (exists) {
-            this.toastService.warning('Attention', `${product.name} est déjà dans la liste.`);
+            this.toastService.warning('Warning', `${product.name} is already in the list.`);
         } else {
             this.items.push({
                 product: product._id as string,
@@ -95,7 +100,7 @@ export class InventoryFormComponent implements OnInit {
 
     submitInventory(): void {
         if (this.items.length === 0) {
-            this.errorMessage = 'Veuillez ajouter au moins un produit.';
+            this.errorMessage = 'Please add at least one product.';
             return;
         }
 
@@ -111,13 +116,13 @@ export class InventoryFormComponent implements OnInit {
         this.inventoryService.createInventory(this.boutiqueId, this.note, payload).subscribe({
             next: (res) => {
                 this.isSaving = false;
-                this.toastService.success('Succès', 'Inventaire enregistré avec succès');
+                this.toastService.success('Success', 'Inventory saved successfully');
                 this.router.navigate(['/store/app/stock/inventaire']);
             },
             error: (err) => {
                 this.isSaving = false;
-                this.errorMessage = err.error?.message || 'Erreur lors de l\'enregistrement de l\'inventaire.';
-                this.toastService.error('Erreur', this.errorMessage);
+                this.errorMessage = err.error?.message || 'An error occurred while saving the inventory.';
+                this.toastService.error('Error', this.errorMessage);
             }
         });
     }

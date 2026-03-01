@@ -258,7 +258,6 @@ export class AddProductBoutiqueComponent implements OnInit  {
             next: res => {
                 this.isLoading = false;
 
-                console.log(res.data);
                 if (res.success) {
                     this.router.navigate(['/store/app/products/' + res.data._id]);
                 } else {

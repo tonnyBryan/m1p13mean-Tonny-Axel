@@ -26,6 +26,7 @@ export class OrderDetailBoutiqueComponent implements OnInit {
 
   // Canceled reason
   cancelReason: string = '';
+  showCancelReasonForm = false;
 
   saleId: string | null = null;
 
@@ -58,7 +59,6 @@ export class OrderDetailBoutiqueComponent implements OnInit {
       next: (res: any) => {
         if (res?.success && res?.data) {
           this.centre = res.data;
-          console.log(this.centre);
         } else {
           this.centre = null;
         }
@@ -80,7 +80,8 @@ export class OrderDetailBoutiqueComponent implements OnInit {
         if (res?.success) {
           this.order = res.data || res;
           this.saleId = this.order.saleId;
-          console.log('Order:', this.order);
+          this.cancelReason = this.order?.reasonCancellation || '';
+          this.showCancelReasonForm = false;
         }
       },
       error: (err) => {
@@ -119,6 +120,10 @@ export class OrderDetailBoutiqueComponent implements OnInit {
           } else {
             this.order = res.data || res;
           }
+          if (key === 'cancel' && this.order?.reasonCancellation) {
+            this.cancelReason = this.order.reasonCancellation;
+            this.showCancelReasonForm = false;
+          }
           this.toast.success('Success', successMsg);
         } else {
           const msg = res?.message || 'Failed to update order status';
@@ -143,7 +148,31 @@ export class OrderDetailBoutiqueComponent implements OnInit {
   // paid → canceled (refund)
   cancelOrder(): void {
     if (!this.order || !this.order._id) return;
-    this.performStatusChange(this.commandeService.cancelOrder(this.order._id), 'cancel', `Order canceled. Customer refunded ${this.order.totalAmount?.toLocaleString() || 0} Ar`);
+    this.showCancelReasonForm = true;
+  }
+
+  submitCancelReason(): void {
+    if (!this.order || !this.order._id) return;
+    this.toast.confirm(
+        'Confirm Cancellation',
+        `This will cancel the order and refund the customer ${this.order.totalAmount?.toLocaleString() || 0} Ar. Continue?`,
+        () => {
+          const reason = this.cancelReason?.trim();
+          this.performStatusChange(
+              this.commandeService.cancelOrder(this.order._id, reason || null),
+              'cancel',
+              `Order canceled. Customer refunded ${this.order.totalAmount?.toLocaleString() || 0} Ar`
+          );
+        },
+        () => {},
+        {
+          confirmLabel: 'Yes, cancel order',
+          cancelLabel: 'Keep order',
+          variant: 'danger',
+          position: 'top-center',
+          backdrop: true,
+        }
+    );
   }
 
   // accepted → delivering
@@ -211,6 +240,16 @@ export class OrderDetailBoutiqueComponent implements OnInit {
 
   isActionLoading(key: string): boolean {
     return this.actionLoading[key] === true;
+  }
+
+  hasInsufficientStock(item: any): boolean {
+    const stock = Number(item?.product?.stock ?? 0);
+    const qty = Number(item?.quantity ?? 0);
+    return stock < qty;
+  }
+
+  get hasAnyInsufficientStock(): boolean {
+    return Array.isArray(this.order?.products) && this.order.products.some((item: any) => this.hasInsufficientStock(item));
   }
 
   get anyActionLoading(): boolean {

@@ -1,9 +1,9 @@
 <div class="mx-auto max-w-7xl">
-    <app-page-breadcrumb pageTitle="Saisie Inventaire" [breadcrumbs]="[
+    <app-page-breadcrumb pageTitle="Inventory Entry" [breadcrumbs]="[
         { label: 'Store', link: '/store/app' },
         { label: 'Stock', link: '/store/app/stock/mouvements' },
-        { label: 'Inventaire', link: '/store/app/stock/inventaire' },
-        { label: 'Saisie' }
+        { label: 'Inventory', link: '/store/app/stock/inventaire' },
+        { label: 'Entry' }
     ]"></app-page-breadcrumb>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -11,15 +11,30 @@
         <div class="lg:col-span-1">
             <div
                 class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
-                <h3 class="mb-4 text-lg font-bold text-gray-900 dark:text-white">Détails de l'inventaire</h3>
+                <h3 class="mb-4 text-lg font-bold text-gray-900 dark:text-white">Inventory Details</h3>
 
                 <div class="mb-6">
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Rechercher des
-                        produits</label>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Search Products</label>
                     <div class="relative">
-                        <input id="productSearch" type="text" placeholder="Nom ou SKU du produit..."
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </span>
+                        <input id="productSearch" type="text" placeholder="Search by product name or SKU..."
                             (input)="onProductSearch($event)"
-                            class="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-2.5 text-sm outline-hidden focus:border-brand-500 dark:border-gray-800 dark:text-white" />
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-11 pr-4 text-sm font-medium text-gray-900 outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white dark:focus:border-brand-500" />
+
+                        <!-- Loading state -->
+                        <div *ngIf="isSearching"
+                            class="absolute left-0 mt-2 w-full z-50 rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl dark:border-white/[0.05] dark:bg-gray-900 flex items-center gap-3">
+                            <svg class="animate-spin h-4 w-4 text-brand-500 flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Searching products...</span>
+                        </div>
 
                         <!-- Search Results Dropdown -->
                         <div *ngIf="showResults"
@@ -32,7 +47,7 @@
                                     <div class="flex-1 overflow-hidden">
                                         <div class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{
                                             product.name }}</div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">Stock actuel: {{
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Current stock: {{
                                             product.stock }} | SKU: {{ product.sku }}</div>
                                     </div>
                                 </li>
@@ -42,19 +57,19 @@
                 </div>
 
                 <div class="mb-6">
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Note / Motif</label>
-                    <textarea [(ngModel)]="note" rows="4" placeholder="Ex: Inventaire mensuel Février 2026"
-                        class="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-2.5 text-sm outline-hidden focus:border-brand-500 dark:border-gray-800 dark:text-white"></textarea>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Note / Reason</label>
+                    <textarea [(ngModel)]="note" rows="4" placeholder="Example: Monthly inventory Feb 2026"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white"></textarea>
                 </div>
 
                 <div class="flex flex-col gap-3">
                     <app-button [disabled]="isSaving || items.length === 0" (click)="submitInventory()" class="w-full"
                         variant="primary">
-                        {{ isSaving ? 'Enregistrement...' : 'Valider l\'inventaire' }}
+                        {{ isSaving ? 'Saving...' : 'Save Inventory' }}
                     </app-button>
                     <button routerLink="/store/app/stock/inventaire"
                         class="w-full rounded-lg border border-gray-200 px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/5 transition-all">
-                        Annuler
+                        Cancel
                     </button>
                 </div>
 
@@ -70,10 +85,10 @@
             <div
                 class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03] shadow-sm">
                 <div class="mb-6 flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Tableau de comptage</h3>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Counting Table</h3>
                     <span
                         class="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-600 dark:bg-brand-500/10 dark:text-brand-400">
-                        {{ items.length }} produit(s)
+                        {{ items.length }} item(s)
                     </span>
                 </div>
 
@@ -81,17 +96,17 @@
                     <table class="w-full text-left">
                         <thead>
                             <tr class="border-b border-gray-100 dark:border-gray-800">
-                                <th class="pb-3 text-sm font-semibold text-gray-500 uppercase tracking-wider">Produit
+                                <th class="pb-3 text-sm font-semibold text-gray-500 uppercase tracking-wider">Product
                                 </th>
                                 <th
                                     class="pb-3 text-sm font-semibold text-gray-500 uppercase tracking-wider text-center">
-                                    Stock Théo.</th>
+                                    Expected Stock</th>
                                 <th
                                     class="pb-3 text-sm font-semibold text-gray-500 uppercase tracking-wider text-center w-32">
-                                    Pysique (Compté)</th>
+                                    Counted</th>
                                 <th
                                     class="pb-3 text-sm font-semibold text-gray-500 uppercase tracking-wider text-center">
-                                    Ecart</th>
+                                    Difference</th>
                                 <th
                                     class="pb-3 text-sm font-semibold text-gray-500 uppercase tracking-wider text-right">
                                     Action</th>
@@ -118,7 +133,7 @@
                                 </td>
                                 <td class="py-4 text-center">
                                     <input type="number" [(ngModel)]="item.countedQuantity"
-                                        class="w-full rounded-lg border border-gray-200 bg-transparent px-3 py-1.5 text-center text-sm outline-hidden focus:border-brand-500 dark:border-gray-800 dark:text-white"
+                                        class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-center text-sm font-medium text-gray-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 dark:border-white/[0.1] dark:bg-white/[0.05] dark:text-white"
                                         min="0" />
                                 </td>
                                 <td class="py-4 text-center">
@@ -146,8 +161,7 @@
                             </tr>
                             <tr *ngIf="items.length === 0">
                                 <td colspan="5" class="py-12 text-center text-sm text-gray-500 dark:text-gray-400">
-                                    Aucun produit sélectionné. Utilisez la barre de recherche pour ajouter des produits
-                                    au tableau de comptage.
+                                    No products selected. Use the search bar to add products to the counting table.
                                 </td>
                             </tr>
                         </tbody>

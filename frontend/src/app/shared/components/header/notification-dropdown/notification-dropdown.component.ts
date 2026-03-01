@@ -93,7 +93,6 @@ export class NotificationDropdownComponent implements OnInit, OnDestroy {
         if (res?.success) {
           if (res.data?.advanced.items) {
             this.notifications = res.data.advanced.items;
-            console.log(this.notifications);
             this.totalDocs = res.data.advanced.pagination?.totalDocs || 0;
 
             // NEW: Use totalUnread from API response

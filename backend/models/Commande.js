@@ -31,6 +31,7 @@ const CommandeSchema = new Schema({
         enum: ['draft','paid','accepted','delivering','success','canceled','expired'],
         default: 'draft'
     },
+    reasonCancellation: { type: String, default: null, trim: true },
     totalAmount: { type: Number, default: 0 },
     expiredAt: { type: Date, default: null }
 }, { timestamps: true });

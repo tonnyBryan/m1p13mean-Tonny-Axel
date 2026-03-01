@@ -64,14 +64,11 @@ export class CartUserComponent implements OnInit, OnDestroy {
     this.commandeService.getDraftFull().subscribe({
       next: (res: any) => {
         this.isLoading = false;
-        console.log('Draft full response:', res);
         if (res?.success && res?.data) {
           this.cart = res.data;
           this.startTimer();
-          console.log('Commande full data:', res.data);
         } else {
           this.cart = null;
-          console.log('No draft or empty result');
         }
       },
       error: (err: any) => {
@@ -188,7 +185,6 @@ export class CartUserComponent implements OnInit, OnDestroy {
           this.setItemLoading(item.product._id, false);
           if (res?.success && res?.data) {
             // backend success, but we DO NOT replace local cart with res.data (as requested)
-            console.log('Increment quantity confirmed by server');
           } else {
             // rollback
             this.cart = snapshot;
@@ -233,7 +229,6 @@ export class CartUserComponent implements OnInit, OnDestroy {
         next: (res: any) => {
           this.setItemLoading(item.product._id, false);
           if (res?.success && res?.data) {
-            console.log('Decrement quantity confirmed by server');
           } else {
             // rollback
             this.cart = snapshot;
@@ -275,7 +270,6 @@ export class CartUserComponent implements OnInit, OnDestroy {
           this.performRemoveItem(item);
         },
         () => {
-          console.log('Removal cancelled');
         },
         {
           confirmLabel: 'Remove',
@@ -399,7 +393,6 @@ export class CartUserComponent implements OnInit, OnDestroy {
 
   proceedToCheckout(): void {
     // TODO: Navigate to checkout
-    console.log('Proceed to checkout');
     this.router.navigate(['/v1/cart/checkout']);
   }
 

@@ -167,7 +167,6 @@ export class BoutiqueListComponent implements OnInit {
 
     if (confirmed) {
       // TODO: Implement delete service
-      console.log('Delete boutique:', boutique._id);
       this.toast.info('Feature Coming Soon', 'Delete functionality is not yet implemented.');
     }
   }

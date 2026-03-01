@@ -28,7 +28,6 @@ async function sendEmail({ to, subject, html, text }) {
     sendSmtpEmail.textContent = text;
 
     const result = await transactionalEmailsApi.sendTransacEmail(sendSmtpEmail);
-    console.log("Email sent:", result.messageId);
     return { success: true, messageId: result.messageId };
 }
 

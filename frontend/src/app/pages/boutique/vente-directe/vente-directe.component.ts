@@ -44,6 +44,20 @@ export class VenteDirecteComponent implements OnInit {
     successMessage = '';
     errorMessage = '';
 
+    // ── Client field touch tracking (lazy validation)
+    nameTouched = false;
+    phoneTouched = false;
+
+    // ── Validation rules
+    private readonly NAME_MAX = 60;
+    // Forbidden chars in names: digits + special symbols (allow letters, spaces, hyphens, apostrophes, dots)
+    private readonly NAME_FORBIDDEN = /[0-9$"#@!%^&*()_+=\[\]{};:<>?/\\|`~]/;
+    // Madagascar: +261 XX XX XXX XX  (total digits after +261: 9)
+    //   Accepts: +261 XX XX XXX XX, 0XX XX XXX XX, or international formats
+    //   Generic fallback: any phone with 7-15 digits and optional +, spaces, hyphens
+    private readonly PHONE_MG = /^(\+261|0)(\s?\d){9}$/;
+    private readonly PHONE_INTL = /^\+?[0-9][\s\-0-9]{6,18}$/;
+
     // Client Search Logic
     showClientModal = false;
     clientSearchTerm = '';
@@ -67,10 +81,8 @@ export class VenteDirecteComponent implements OnInit {
             this.vente.seller = userHash.id || '';
         }
 
-        // Check for ID in path params or query params
         const saleId = this.route.snapshot.paramMap.get('id') || this.route.snapshot.queryParamMap.get('id');
 
-        // Also subscribe to query params changes in case of navigation within same component
         this.route.queryParams.subscribe(params => {
             const id = params['id'];
             if (id && id !== this.vente._id) {
@@ -133,10 +145,7 @@ export class VenteDirecteComponent implements OnInit {
                     this.isSearchingClients = false;
                     return;
                 }
-
-                // The API returns { data: { items: [...], pagination: ... } }
                 this.clientSearchResults = res?.data?.items || res?.data || [];
-                // If it's still not an array (e.g. just one object), make it an array
                 if (!Array.isArray(this.clientSearchResults)) {
                     this.clientSearchResults = [];
                 }
@@ -154,24 +163,20 @@ export class VenteDirecteComponent implements OnInit {
         this.venteService.getVenteById(id).subscribe({
             next: (res) => {
                 const sale = res.data;
-                console.log('Loaded sale:', sale);
                 if (sale.status !== 'draft') {
-                    // If not draft, redirect to detail page
                     this.router.navigate(['/store/app/vente-liste', id]);
                     return;
                 }
 
-                // Map items to ensure productDetails is populated for display
-                // Backend populate('items.product') means item.product is an object
                 if (sale.items) {
                     sale.items = sale.items.map((item: any) => {
-                        // If product is populated, it's an object. 
-                        // We need to keep product ID in 'product' for logic, and details in 'productDetails' for UI
                         if (typeof item.product === 'object' && item.product !== null) {
                             return {
                                 ...item,
                                 productDetails: item.product,
-                                product: item.product._id // Set product to ID string for consistency
+                                // Preserve stockReal from populated product
+                                stockReal: item.product.stockReal ?? item.product.stock ?? 9999,
+                                product: item.product._id
                             };
                         }
                         return item;
@@ -182,13 +187,12 @@ export class VenteDirecteComponent implements OnInit {
                 this.isEditMode = true;
                 this.isLoading = false;
 
-                // Format date for input[type=date]
                 if (this.vente.saleDate) {
                     this.vente.saleDate = new Date(this.vente.saleDate).toISOString().split('T')[0];
                 }
             },
             error: (err) => {
-                this.errorMessage = "Error loading sale";
+                this.errorMessage = 'Error loading sale';
                 this.isLoading = false;
             }
         });
@@ -199,26 +203,43 @@ export class VenteDirecteComponent implements OnInit {
     }
 
     selectProduct(product: Product): void {
+        const productId = product._id as string;
+        // stockReal = available stock (stock - stockEngaged), fallback to stock
+        const stockReal = (product as any).stockReal ?? (product as any).stock ?? 9999;
         const existingIndex = this.vente.items?.findIndex(item =>
-            (typeof item.product === 'string' ? item.product : (item.product as any)._id) === product._id
+            (typeof item.product === 'string' ? item.product : (item.product as any)._id) === productId
         );
 
         const price = product.isSale && product.salePrice ? product.salePrice : product.regularPrice;
 
         if (existingIndex !== undefined && existingIndex >= 0) {
             if (this.vente.items) {
-                this.vente.items[existingIndex].quantity += 1;
-                this.vente.items[existingIndex].totalPrice = this.vente.items[existingIndex].quantity * this.vente.items[existingIndex].unitPrice;
+                const item = this.vente.items[existingIndex];
+                // Cap at stockReal
+                const newQty = Math.min(item.quantity + 1, stockReal);
+                item.quantity = newQty;
+                item.totalPrice = newQty * item.unitPrice;
             }
         } else {
+            // Only add if stock available
+            if (stockReal <= 0) {
+                this.errorMessage = `"${product.name}" is out of stock.`;
+                setTimeout(() => this.errorMessage = '', 3000);
+                this.showResults = false;
+                this.searchResults = [];
+                (document.getElementById('productSearch') as HTMLInputElement).value = '';
+                return;
+            }
             const newItem: VenteItem = {
-                product: product._id as string,
+                product: productId,
                 quantity: 1,
                 unitPrice: price,
                 totalPrice: price,
                 isSale: !!product.isSale,
-                productDetails: product
-            };
+                productDetails: product,
+                // Store stockReal on the item for UI enforcement
+                stockReal: stockReal
+            } as any;
             this.vente.items?.push(newItem);
         }
 
@@ -235,9 +256,12 @@ export class VenteDirecteComponent implements OnInit {
 
     updateQuantity(index: number, qty: number): void {
         if (this.vente.items && this.vente.items[index]) {
-            const newQty = qty < 1 ? 1 : qty;
-            this.vente.items[index].quantity = newQty;
-            this.vente.items[index].totalPrice = newQty * this.vente.items[index].unitPrice;
+            const item = this.vente.items[index] as any;
+            const maxQty: number = item.stockReal ?? 9999;
+            // Clamp: min 1, max stockReal
+            const newQty = Math.max(1, Math.min(qty, maxQty));
+            item.quantity = newQty;
+            item.totalPrice = newQty * item.unitPrice;
             this.calculateTotal();
         }
     }
@@ -254,11 +278,55 @@ export class VenteDirecteComponent implements OnInit {
         this.vente.totalAmount = this.vente.items?.reduce((sum, item) => sum + item.totalPrice, 0) || 0;
     }
 
-    // Removed dead code: saveVente, payVente, cancelVente
+    /** Returns true if + button should be disabled for this item */
+    isAtMaxStock(item: any): boolean {
+        const max = item.stockReal ?? 9999;
+        return item.quantity >= max;
+    }
+
+    /** Returns remaining stock available for an item */
+    remainingStock(item: any): number {
+        const max = item.stockReal ?? 9999;
+        return Math.max(0, max - item.quantity);
+    }
+
+    // ════════════════════════════
+    //  VALIDATION
+    // ════════════════════════════
+
+    get nameError(): string | null {
+        const name = (this.vente.client?.name || '').trim();
+        if (!name) return 'Full name is required';
+        if (this.NAME_FORBIDDEN.test(name)) return 'Name contains invalid characters ($, #, @, digits…)';
+        if (name.length < 2) return 'Name must be at least 2 characters';
+        if (name.length > this.NAME_MAX) return `Name must be ${this.NAME_MAX} characters or fewer`;
+        return null;
+    }
+
+    get phoneError(): string | null {
+        const phone = (this.vente.client?.phoneNumber || '').trim();
+        if (!phone) return 'Phone number is required';
+        // Strip spaces and hyphens for length check
+        const stripped = phone.replace(/[\s\-]/g, '');
+        if (this.PHONE_MG.test(stripped) || this.PHONE_INTL.test(stripped)) return null;
+        return 'Invalid format — e.g. +261 34 12 345 67 or 034 12 345 67';
+    }
+
+    get isClientValid(): boolean {
+        return this.nameError === null && this.phoneError === null;
+    }
+
+    get isFormReadyToSubmit(): boolean {
+        return this.isClientValid && (this.vente.items?.length || 0) > 0;
+    }
 
     createSale(): void {
-        if (!this.vente.client?.name) {
-            this.errorMessage = 'Client name is required';
+        // Mark all fields as touched to show errors
+        this.nameTouched = true;
+        this.phoneTouched = true;
+
+        if (!this.isClientValid) {
+            this.errorMessage = this.nameError || this.phoneError || 'Invalid client information';
             return;
         }
         if (!this.vente.items || this.vente.items.length === 0) {
@@ -269,17 +337,16 @@ export class VenteDirecteComponent implements OnInit {
         this.isSaving = true;
         this.errorMessage = '';
 
-        // Prepare payload (removing helper properties)
+        // Prepare payload (strip UI-only properties)
         const payload = { ...this.vente };
-        payload.items = payload.items?.map(item => {
-            const { productDetails, ...rest } = item;
+        payload.items = payload.items?.map((item: any) => {
+            const { productDetails, stockReal, ...rest } = item;
             return rest;
         });
 
         const successCallback = (res: any) => {
             this.isSaving = false;
             if (res.success) {
-                // Redirect to detail page
                 this.router.navigate(['/store/app/vente-liste', res.data._id]);
             }
         };
@@ -295,13 +362,11 @@ export class VenteDirecteComponent implements OnInit {
                 error: errorCallback
             });
         } else {
-            // Pass boutiqueId and sellerId explicitly
             const finalPayload = {
                 ...payload,
                 boutiqueId: this.vente.boutique,
                 sellerId: this.vente.seller
             };
-
             this.venteService.createVente(finalPayload).subscribe({
                 next: successCallback,
                 error: errorCallback
@@ -330,10 +395,11 @@ export class VenteDirecteComponent implements OnInit {
         }
         this.successMessage = '';
         this.errorMessage = '';
+        this.nameTouched = false;
+        this.phoneTouched = false;
         this.router.navigate(['/store/app/vente-liste/add']);
     }
 
-    // Client modal methods
     openClientModal(): void {
         this.showClientModal = true;
         this.clientSearchTerm = '';
@@ -350,14 +416,15 @@ export class VenteDirecteComponent implements OnInit {
     }
 
     selectClient(client: any): void {
-        console.log('Selected client', client);
         this.vente.client = {
             _id: client.id || client._id,
             name: client.name,
             email: client.email || '',
             phoneNumber: client.profile?.phoneNumber || client.phoneNumber || ''
         };
-        // Reset manual input trigger if needed? No, ngModel handles it.
+        // Reset touch state so re-populated fields don't show errors immediately
+        this.nameTouched = false;
+        this.phoneTouched = false;
         this.closeClientModal();
     }
 }

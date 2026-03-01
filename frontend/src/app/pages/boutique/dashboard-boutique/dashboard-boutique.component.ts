@@ -33,7 +33,6 @@ export class DashboardBoutiqueComponent {
       next: (res) => {
         if (res.success) {
           this.realtimeData = res.data;
-          console.log(this.realtimeData);
         } else {
           this.toast.error('Error', res.message ?? 'Failed to load dashboard.', 0);
         }

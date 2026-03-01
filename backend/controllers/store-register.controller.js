@@ -209,8 +209,6 @@ exports.submitRegister = async (req, res) => {
                 throw new Error('Centre commercial not found.');
             }
 
-            console.log("Password = " + manager.password);
-
             // Create user (role boutique)
             const displayName = `${manager.firstName}_${manager.lastName}`;
             const salt = await bcrypt.genSalt(10);
@@ -229,7 +227,13 @@ exports.submitRegister = async (req, res) => {
 
             // Determine boutique fields
             const isLocal = (plan && plan.type === 'B');
-            const address = isLocal ? null : { latitude: plan?.lat ?? null, longitude: plan?.lng ?? null };
+            const centreCoordinates = centre?.location?.coordinates || null;
+            if (isLocal && (!centreCoordinates || centreCoordinates.latitude == null || centreCoordinates.longitude == null)) {
+                throw new Error('Centre commercial address coordinates are missing.');
+            }
+            const address = isLocal
+                ? { latitude: centreCoordinates.latitude, longitude: centreCoordinates.longitude }
+                : { latitude: plan?.lat ?? null, longitude: plan?.lng ?? null };
 
             // Plan pricing
             let priceToPayPerMonth = 0;
@@ -356,6 +360,9 @@ exports.submitRegister = async (req, res) => {
                 } else if (err.message === 'Invalid plan type.') {
                     status = 400;
                     message = err.message;
+                } else if (err.message === 'Centre commercial address coordinates are missing.') {
+                    status = 500;
+                    message = 'Centre commercial address is not configured.';
                 }
             }
             if (uploadedPublicId) {

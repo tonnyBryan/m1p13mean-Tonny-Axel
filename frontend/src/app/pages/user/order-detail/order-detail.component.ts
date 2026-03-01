@@ -48,7 +48,6 @@ export class OrderDetailComponent implements OnInit {
         this.loading = false;
         if (res?.success) {
           this.order = res.data || res;
-          console.log('Order:', this.order);
         }
       },
       error: (err) => {

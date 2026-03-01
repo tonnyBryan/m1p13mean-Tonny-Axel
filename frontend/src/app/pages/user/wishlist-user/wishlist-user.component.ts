@@ -58,7 +58,6 @@ export class WishlistUserComponent implements OnInit {
           this.removeFromWishlist(item.product._id);
         },
         () => {
-          console.log('Removal cancelled');
         },
         {
           confirmLabel: 'Remove',

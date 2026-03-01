@@ -8,6 +8,7 @@ export interface VenteItem {
     quantity: number;
     unitPrice: number;
     totalPrice: number;
+    stockReal: number;
     isSale: boolean;
 }
 
