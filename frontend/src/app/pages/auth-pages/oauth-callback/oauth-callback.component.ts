@@ -38,7 +38,6 @@ export class OauthCallbackComponent implements OnInit {
     }
 
     const code = this.route.snapshot.queryParamMap.get('code');
-    console.log("code = " + code)
     if (code) {
       this.authService.exchangeOAuthCode(code).subscribe({
         next: () => this.doRefresh(),

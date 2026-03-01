@@ -64,6 +64,7 @@ app.use('/api/inventories', require('./routes/inventory.routes'));
 app.use('/api/chat', require('./chatbot/chat.router'));
 app.use('/api/boxes', require('./routes/box.routes'));
 app.use('/api/system', require('./routes/system.routes'));
+app.use('/api/public', require('./routes/public.routes'));
 
 
 module.exports = app;

@@ -48,6 +48,12 @@ export const routes: Routes = [
         data: { animation: 'terms' }
       },
       {
+        path: 'discover',
+        loadComponent: () => import('./pages/public/discover-page/discover-page.component').then(m => m.DiscoverPageComponent),
+        title: 'Explore Stores | ' + appName,
+        data: { animation: 'discover' }
+      },
+      {
         path: 'forgot-password',
         loadComponent: () => import('./pages/auth-pages/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
         title: 'Forgot Password | ' + appName,

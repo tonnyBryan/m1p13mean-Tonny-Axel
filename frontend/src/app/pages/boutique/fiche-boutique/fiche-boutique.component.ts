@@ -95,7 +95,6 @@ export class FicheBoutiqueComponent implements OnInit {
             next: (res) => {
                 if (res?.data) {
                     this.boutique = res.data;
-                    console.log(this.boutique);
                     this.initializeEditFields();
                 }
                 this.isLoading = false;

@@ -12,7 +12,7 @@ export interface CurrentUser {
     providedIn: 'root'
 })
 export class UserStateService {
-    private currentUser = new BehaviorSubject<CurrentUser | null>(null);
+    currentUser = new BehaviorSubject<CurrentUser | null>(null);
     private isLoading = new BehaviorSubject<boolean>(true); // true par défaut !
 
     currentUser$ = this.currentUser.asObservable();
@@ -32,5 +32,13 @@ export class UserStateService {
 
     clear(): void {
         this.currentUser.next(null);
+    }
+
+    isLoadingNow(): boolean {
+        return this.isLoading.value;
+    }
+
+    isLoggedIn(): boolean {
+        return this.currentUser.value !== null;
     }
 }

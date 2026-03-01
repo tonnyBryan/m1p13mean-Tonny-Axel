@@ -1,11 +1,11 @@
-
 import { Component } from '@angular/core';
-import {Router, RouterModule} from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import {environment} from "../../../../../environments/environment";
-import {ERROR_MESSAGES} from "../../../../core/constants/error-messages";
-import {AuthService} from "../../../services/auth.service";
-import {NgIf} from "@angular/common";
+import { environment } from '../../../../../environments/environment';
+import { ERROR_MESSAGES } from '../../../../core/constants/error-messages';
+import { AuthService } from "../../../services/auth.service";
+import { NgIf } from "@angular/common";
+import { RedirectIntentService } from '../../../../shared/services/redirect-intent.service';
 
 
 @Component({
@@ -20,7 +20,11 @@ import {NgIf} from "@angular/common";
 })
 export class SignupFormComponent {
 
-  constructor(private router: Router, private authService: AuthService) { }
+  constructor(
+      private router: Router,
+      private authService: AuthService,
+      private redirectIntent: RedirectIntentService,
+  ) {}
 
   showPassword = false;
   isChecked = false;
@@ -42,7 +46,13 @@ export class SignupFormComponent {
       next: res => {
         this.isLoading = false;
         if (res.success) {
-          this.router.navigate(['/v1/verify-email']);
+          // Vérifier si un intent de redirection existe (venant de /discover)
+          const intent = this.redirectIntent.consume();
+          if (intent) {
+            this.router.navigateByUrl(intent);
+          } else {
+            this.router.navigate(['/v1/verify-email']);
+          }
         } else {
           this.errorMessage = res.message || ERROR_MESSAGES.UNKNOWN;
         }
@@ -59,6 +69,7 @@ export class SignupFormComponent {
   }
 
   onGoogleSignIn(): void {
+    // L'intent reste en place — le callback Google devra aussi le consommer
     window.location.href = `${environment.apiBaseUrl}/auth/google`;
   }
 }
