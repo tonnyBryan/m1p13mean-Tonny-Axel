@@ -63,7 +63,10 @@ router.get(
     '/',
     protect,
     authorize('user', 'admin'),
-    advancedResults(Boutique, { path: 'boxId', select: 'number' }),
+    advancedResults(Boutique, [
+        { path: 'boxId', select: 'number' },
+        { path: 'owner', select: 'name email' }
+    ]),
     boutiqueController.getBoutiques
 );
 

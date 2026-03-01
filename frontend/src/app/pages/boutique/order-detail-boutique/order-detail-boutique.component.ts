@@ -115,10 +115,10 @@ export class OrderDetailBoutiqueComponent implements OnInit {
         this.actionLoading[key] = false;
         if (res?.success) {
           if (key === 'accept') {
-            this.order = res.data.order;
+            this.order.status = res.data.order.status;
             this.saleId = res.data.saleId;
           } else {
-            this.order = res.data || res;
+            this.order.status = res.data.status;
           }
           if (key === 'cancel' && this.order?.reasonCancellation) {
             this.cancelReason = this.order.reasonCancellation;

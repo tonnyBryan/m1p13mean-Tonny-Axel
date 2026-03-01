@@ -57,4 +57,8 @@ export class SigninFormComponent {
       }
     });
   }
+
+  onGoogleSignIn(): void {
+    window.location.href = `${environment.apiBaseUrl}/auth/google`;
+  }
 }

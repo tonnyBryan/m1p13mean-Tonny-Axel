@@ -31,11 +31,16 @@ exports.globalSearch = async (req, res) => {
                 { sku: regex }
             ]
         })
-            .populate('boutique', 'logo')
+            .populate({
+                path: 'boutique',
+                select: 'logo isActive isValidated',
+                match: { isActive: true, isValidated: true }
+            })
             .lean();
 
         const boutiques = await Boutique.find({
             isActive: true,
+            isValidated: true,
             $or: [
                 { name: regex },
                 { description: regex }
@@ -44,16 +49,18 @@ exports.globalSearch = async (req, res) => {
 
         const results = [];
 
-        products.forEach(p => {
-            results.push(new ResultSearch({
-                type: 'product',
-                id: p._id.toString(),
-                name: p.name,
-                description: p.description,
-                image: p.images[0] || p.boutique?.logo || null,
-                link: `/v1/stores/${p.boutique?._id}/products/${p._id}`
-            }));
-        });
+        products
+            .filter(p => p.boutique)
+            .forEach(p => {
+                results.push(new ResultSearch({
+                    type: 'product',
+                    id: p._id.toString(),
+                    name: p.name,
+                    description: p.description,
+                    image: p.images[0] || p.boutique?.logo || null,
+                    link: `/v1/stores/${p.boutique?._id}/products/${p._id}`
+                }));
+            });
 
         boutiques.forEach(b => {
             results.push(new ResultSearch({

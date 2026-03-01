@@ -33,15 +33,15 @@ export class BoutiqueListComponent implements OnInit {
   // Stats
   stats = {
     total: 0,
-    active: 0,
-    inactive: 0,
+    running: 0,
+    notRunning: 0,
     pending: 0
   };
 
 
   // Filters
   searchTerm = '';
-  statusFilter = 'all'; // all, active, inactive, validated, pending
+  statusFilter = 'all'; // all, active, inactive, validated, pending, running
 
   constructor(
     private router: Router,
@@ -88,7 +88,6 @@ export class BoutiqueListComponent implements OnInit {
     if (this.statusFilter !== 'all') {
       if (this.statusFilter === 'active') {
         params.isActive = true;
-        params.isValidated = true;
       } else if (this.statusFilter === 'inactive') {
         params.isActive = false;
       } else if (this.statusFilter === 'validated') {
@@ -96,6 +95,9 @@ export class BoutiqueListComponent implements OnInit {
       } else if (this.statusFilter === 'pending') {
         params.isValidated = false;
         // params.isActive = true; // Optional context
+      } else if (this.statusFilter === 'running') {
+        params.isActive = true;
+        params.isValidated = true;
       }
     }
 
@@ -189,12 +191,22 @@ export class BoutiqueListComponent implements OnInit {
     return 'Active';
   }
 
+  isRunning(boutique: Boutique): boolean {
+    return !!(boutique?.isActive && boutique?.isValidated);
+  }
+
+  getRunningBgColor(isRunning: boolean): string {
+    return isRunning
+      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
+      : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+  }
+
   formatDate(date: Date | string): string {
     const d = new Date(date);
     return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
-  get totalActiveBoutiques(): number { return this.stats.active; }
-  get totalInactiveBoutiques(): number { return this.stats.inactive; }
+  get totalRunningBoutiques(): number { return this.stats.running; }
+  get totalNotRunningBoutiques(): number { return this.stats.notRunning; }
   get totalPendingBoutiques(): number { return this.stats.pending; }
 }
