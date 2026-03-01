@@ -58,7 +58,6 @@ export class BoutiqueDetailComponent implements OnInit {
             next: (res: any) => {
                 this.isLoading = false;
                 if (res.success) this.boutique = res.data;
-                console.log(this.boutique);
             },
             error: (err: any) => {
                 this.isLoading = false;
