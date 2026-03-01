@@ -207,7 +207,7 @@ exports.getBoutiqueFull = async (req, res) => {
  */
 exports.getBoutiqueById = async (req, res) => {
     try {
-        const boutique = await Boutique.findById(req.params.id);
+        const boutique = await Boutique.findById(req.params.id).populate('boxId', 'number');
 
         if (!boutique) {
             return errorResponse(res, 404, 'The requested boutique was not found. Please check the identifier and try again.');
@@ -304,19 +304,24 @@ exports.validateBoutique = async (req, res) => {
 
 /**
  * GET /api/boutiques/stats
- * Get boutique statistics (Total, Active, Validated, Pending)
+ * Get boutique statistics (Total, Running, Not Running, Pending)
  */
 exports.getBoutiqueStats = async (req, res) => {
     try {
         const total = await Boutique.countDocuments();
-        const active = await Boutique.countDocuments({ isActive: true, isValidated: true });
-        const inactive = await Boutique.countDocuments({ isActive: false });
+        const running = await Boutique.countDocuments({ isActive: true, isValidated: true });
+        const notRunning = await Boutique.countDocuments({
+            $or: [
+                { isActive: false },
+                { isValidated: false }
+            ]
+        });
         const pending = await Boutique.countDocuments({ isValidated: false });
 
         return successResponse(res, 200, 'Boutique statistics retrieved successfully.', {
             total,
-            active,
-            inactive,
+            running,
+            notRunning,
             pending
         });
     } catch (error) {

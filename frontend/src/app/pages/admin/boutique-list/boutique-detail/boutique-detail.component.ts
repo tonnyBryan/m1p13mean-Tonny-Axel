@@ -58,6 +58,7 @@ export class BoutiqueDetailComponent implements OnInit {
             next: (res: any) => {
                 this.isLoading = false;
                 if (res.success) this.boutique = res.data;
+                console.log(this.boutique);
             },
             error: (err: any) => {
                 this.isLoading = false;
@@ -196,5 +197,34 @@ export class BoutiqueDetailComponent implements OnInit {
         if (!isActive) return 'Inactive';
         if (!isValidated) return 'Pending Validation';
         return 'Active';
+    }
+
+    isRunning(): boolean {
+        return !!(this.boutique?.isActive && this.boutique?.isValidated);
+    }
+
+    getBillingDay(startDate?: string | null): number {
+        if (!startDate) return 0;
+        return new Date(startDate).getDate();
+    }
+
+    getBillingDaySuffix(startDate?: string | null): string {
+        const day = this.getBillingDay(startDate || null);
+        if (day >= 11 && day <= 13) return 'th';
+        switch (day % 10) {
+            case 1: return 'st';
+            case 2: return 'nd';
+            case 3: return 'rd';
+            default: return 'th';
+        }
+    }
+
+    maskCardNumber(cardNumber?: string | null): string {
+        if (!cardNumber) return '•••• •••• •••• ••••';
+        const cleaned = cardNumber.replace(/\s/g, '');
+        const last4 = cleaned.slice(-4);
+        const masked = cleaned.slice(0, -4).replace(/\d/g, '•');
+        const full = masked + last4;
+        return full.match(/.{1,4}/g)?.join(' ') || full;
     }
 }

@@ -68,6 +68,13 @@ export class VenteDetailComponent implements OnInit {
         return `/store/app/orders/${orderId}`;
     }
 
+    getProductsTotal(): number {
+        if (!this.vente) return 0;
+        const delivery = Number(this.vente.deliveryPrice || 0);
+        const total = Number(this.vente.totalAmount || 0);
+        return Math.max(0, total - delivery);
+    }
+
     // Returns CSS classes for the status badge
     statusBadgeClass(status: string): string {
         switch (status) {
