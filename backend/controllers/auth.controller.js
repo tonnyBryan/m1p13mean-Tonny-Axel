@@ -137,11 +137,6 @@ exports.login = async (req, res) => {
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
         });
 
-        const frontendUrl = process.env.FRONTEND_URL;
-        if (frontendUrl) {
-            return res.redirect(`${frontendUrl}/oauth/callback`);
-        }
-
         return successResponse(res, 200, 'Authentication successful', {
             accessToken,
             user: {
