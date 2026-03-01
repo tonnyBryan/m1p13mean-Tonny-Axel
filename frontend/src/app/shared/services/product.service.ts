@@ -98,4 +98,8 @@ export class ProductService {
 
         return this.api.post<any>('products/share', payload, headers);
     }
+
+    getHeroProducts(): Observable<any> {
+        return this.api.get<any>('public/hero-products');
+    }
 }

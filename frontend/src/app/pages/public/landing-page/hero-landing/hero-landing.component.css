@@ -1,0 +1,39 @@
+@keyframes shimmer {
+    100% { transform: translateX(100%); }
+}
+
+/* Badge slide — exit : sort vers le haut */
+@keyframes badgeExitUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+/* Badge slide — enter : entre par le bas */
+@keyframes badgeEnterUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.badge-text-idle {
+    animation: none;
+}
+
+.badge-text-exit {
+    animation: badgeExitUp 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.badge-text-enter {
+    animation: badgeEnterUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}

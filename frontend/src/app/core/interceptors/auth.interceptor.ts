@@ -66,6 +66,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
     function forceLogout(authService: AuthService, router: Router) {
         authService.logout();
-        router.navigate(['/signin']);
+        router.navigate(['/']);
     }
 };

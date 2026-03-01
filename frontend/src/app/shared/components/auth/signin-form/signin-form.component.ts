@@ -1,27 +1,30 @@
-
 import { Component } from '@angular/core';
-import {Router, RouterModule} from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import {AuthService} from "../../../services/auth.service";
-import {CommonModule} from "@angular/common";
+import { AuthService } from "../../../services/auth.service";
+import { CommonModule } from "@angular/common";
 import { environment } from '../../../../../environments/environment';
 import { ERROR_MESSAGES } from '../../../../core/constants/error-messages';
+import {RedirectIntentService} from "../../../services/redirect-intent.service";
 
 
 @Component({
   selector: 'app-signin-form',
   imports: [
-    CommonModule, // ← ici pour *ngIf et autres directives
-    FormsModule,  // pour [(ngModel)]
-    RouterModule,
+    CommonModule,
     FormsModule,
+    RouterModule,
   ],
   templateUrl: './signin-form.component.html',
   styles: ``
 })
 export class SigninFormComponent {
 
-  constructor(private router: Router, private authService: AuthService) { }
+  constructor(
+      private router: Router,
+      private authService: AuthService,
+      private redirectIntent: RedirectIntentService,
+  ) {}
 
   showPassword = false;
   isChecked = false;
@@ -42,7 +45,13 @@ export class SigninFormComponent {
       next: res => {
         this.isLoading = false;
         if (res.success) {
-          this.router.navigate(['/v1/stores']);
+          // Vérifier si un intent de redirection existe (venant de /discover)
+          const intent = this.redirectIntent.consume();
+          if (intent) {
+            this.router.navigateByUrl(intent);
+          } else {
+            this.router.navigate(['/v1/stores']);
+          }
         } else {
           this.errorMessage = res.message || ERROR_MESSAGES.UNKNOWN;
         }
