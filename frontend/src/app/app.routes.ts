@@ -54,6 +54,12 @@ export const routes: Routes = [
         data: { animation: 'discover' }
       },
       {
+        path: 'docs',
+        loadComponent: () => import('./pages/public/docs-page/docs-page.component').then(m => m.DocsPageComponent),
+        title: 'Documentation | ' + appName,
+        data: { animation: 'discover' }
+      },
+      {
         path: 'forgot-password',
         loadComponent: () => import('./pages/auth-pages/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
         title: 'Forgot Password | ' + appName,

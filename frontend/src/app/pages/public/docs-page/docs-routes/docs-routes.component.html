@@ -1,0 +1,130 @@
+<div class="space-y-10">
+
+    <!-- ── En-tête section ──────────────────── -->
+    <div>
+        <div class="flex items-center gap-3 mb-3">
+            <span class="text-2xl">🛣️</span>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Routes Angular</h2>
+        </div>
+        <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-2xl">
+            Toutes les routes sont organisées en 4 espaces distincts avec lazy loading.
+            Les routes protégées utilisent
+            <code class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono text-brand-600 dark:text-brand-400">AuthGuard</code> +
+            <code class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono text-brand-600 dark:text-brand-400">RoleGuard</code>
+            avec le rôle requis en <code class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono text-brand-600 dark:text-brand-400">data.roles</code>.
+        </p>
+    </div>
+
+    <!-- ── Sélecteur espace ──────────────────── -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <button *ngFor="let group of groups"
+                type="button"
+                (click)="selectGroup(group.id)"
+                class="flex flex-col items-center gap-2 p-4 rounded-2xl border-2 text-center transition-all duration-200 cursor-pointer"
+                [ngClass]="activeGroup === group.id
+                    ? group.bgCls + ' ' + group.borderCls
+                    : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'">
+            <span class="text-2xl">{{ group.icon }}</span>
+            <div>
+                <p class="text-sm font-bold"
+                   [ngClass]="activeGroup === group.id ? group.textCls : 'text-gray-900 dark:text-white'">
+                    {{ group.name }}
+                </p>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                    {{ group.routes.length }} routes
+                </p>
+            </div>
+        </button>
+    </div>
+
+    <!-- ── Tableau des routes ────────────────── -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+
+        <!-- Header groupe -->
+        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between"
+             [ngClass]="activeGroupData.bgCls">
+            <div class="flex items-center gap-3">
+                <span class="text-xl">{{ activeGroupData.icon }}</span>
+                <div>
+                    <p class="font-bold text-gray-900 dark:text-white">{{ activeGroupData.name }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ activeGroupData.desc }}</p>
+                </div>
+            </div>
+            <span class="text-sm font-bold px-3 py-1 rounded-full"
+                  [ngClass]="activeGroupData.badgeCls">
+                {{ activeGroupData.routes.length }} routes
+            </span>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700">
+                    <th class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-8">#</th>
+                    <th class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Path</th>
+                    <th class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">Titre</th>
+                    <th class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Guard</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let route of activeGroupData.routes; let i = index; let odd = odd"
+                    class="border-b border-gray-100 dark:border-gray-800 last:border-0 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/40"
+                    [ngClass]="odd ? 'bg-gray-50/30 dark:bg-gray-800/10' : 'bg-white dark:bg-gray-900'">
+
+                    <!-- Numéro -->
+                    <td class="px-4 py-3">
+                        <span class="text-xs text-gray-300 dark:text-gray-600 font-mono">{{ i + 1 }}</span>
+                    </td>
+
+                    <!-- Path -->
+                    <td class="px-4 py-3">
+                        <code class="text-xs font-mono text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                            {{ route.path }}
+                        </code>
+                    </td>
+
+                    <!-- Titre -->
+                    <td class="px-4 py-3 hidden sm:table-cell">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">{{ route.title }}</span>
+                    </td>
+
+                    <!-- Guard -->
+                    <td class="px-4 py-3">
+                            <span class="text-xs font-semibold px-2 py-1 rounded-lg whitespace-nowrap"
+                                  [ngClass]="route.guardCls">
+                                {{ route.guard }}
+                            </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── Légende guards ────────────────────── -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="flex items-start gap-3 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+            <div class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 text-sm">🔓</div>
+            <div>
+                <p class="text-sm font-bold text-gray-900 dark:text-white">Aucun guard</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Route publique — accessible sans connexion</p>
+            </div>
+        </div>
+        <div class="flex items-start gap-3 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+            <div class="w-8 h-8 rounded-lg bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center flex-shrink-0 text-sm">🔐</div>
+            <div>
+                <p class="text-sm font-bold text-gray-900 dark:text-white">AuthGuard</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Vérifie la présence d'un token valide</p>
+            </div>
+        </div>
+        <div class="flex items-start gap-3 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center flex-shrink-0 text-sm">👮</div>
+            <div>
+                <p class="text-sm font-bold text-gray-900 dark:text-white">RoleGuard</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Vérifie le rôle via <code class="font-mono text-xs">data.roles[]</code></p>
+            </div>
+        </div>
+    </div>
+
+</div>
