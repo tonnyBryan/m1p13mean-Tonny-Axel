@@ -1,0 +1,208 @@
+<!-- ═══════════════════════════════════════════
+     SECTION OVERVIEW
+═══════════════════════════════════════════ -->
+<div class="space-y-10">
+
+    <!-- ── En-tête section ──────────────────── -->
+    <div>
+        <div class="flex items-center gap-3 mb-3">
+            <span class="text-2xl">⚡</span>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Vue globale</h2>
+        </div>
+        <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-2xl">
+            Présentation du projet, stack technique et architecture générale.
+        </p>
+    </div>
+
+    <!-- ── Présentation ─────────────────────── -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 sm:p-8">
+        <div class="flex items-start gap-4 mb-6">
+            <div class="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center flex-shrink-0">
+                <img src="/logo.svg" alt="Shopticus" class="w-7 h-7"/>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Shopticus</h3>
+                <p class="text-xs text-brand-600 dark:text-brand-400 font-semibold">Plateforme e-commerce multi-boutiques</p>
+            </div>
+        </div>
+        <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
+            Shopticus est une plateforme complète qui connecte un centre commercial physique avec le digital.
+            Elle permet aux boutiques locales et externes de gérer leur catalogue, leurs commandes et leurs ventes
+            directes, pendant que les clients peuvent découvrir, commander et suivre leurs achats en ligne.
+        </p>
+        <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+            Le projet couvre l'ensemble du cycle commercial : de la découverte anonyme des stores via
+            <code class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono text-brand-600 dark:text-brand-400">/discover</code>
+            jusqu'à la gestion avancée du stock, des inventaires et des ventes directes côté boutique.
+        </p>
+
+        <!-- Développeurs -->
+        <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
+            <p class="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-3">Développeurs</p>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <div *ngFor="let dev of developers"
+                     class="flex items-center gap-3 px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-purple-500 flex items-center justify-center flex-shrink-0">
+                        <span class="text-xs font-bold text-white">{{ dev.initials }}</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ dev.name }}</p>
+                        <p class="text-xs text-brand-600 dark:text-brand-400 font-mono">{{ dev.num }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Stack technique ──────────────────── -->
+    <div>
+        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <span class="w-1 h-5 bg-gradient-to-b from-brand-400 to-brand-600 rounded-full"></span>
+            Stack technique
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div *ngFor="let item of stack"
+                 class="flex items-center gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-colors">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-xl"
+                     [style.background]="item.bg">
+                    {{ item.icon }}
+                </div>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ item.name }}</p>
+                        <span class="text-xs px-1.5 py-0.5 rounded-md font-mono font-semibold"
+                              [style.background]="item.bg"
+                              [style.color]="item.color">
+                            {{ item.version }}
+                        </span>
+                    </div>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ item.desc }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Architecture ─────────────────────── -->
+    <div>
+        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <span class="w-1 h-5 bg-gradient-to-b from-brand-400 to-brand-600 rounded-full"></span>
+            Architecture générale
+        </h3>
+
+        <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 sm:p-8 overflow-x-auto">
+            <div class="flex flex-col items-center gap-0 min-w-[420px]">
+
+                <!-- Couche Client -->
+                <div class="w-full">
+                    <p class="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest text-center mb-3">Client</p>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div *ngFor="let client of clients"
+                             class="flex flex-col items-center gap-2 p-3 rounded-xl border-2 text-center"
+                             [ngClass]="client.cls">
+                            <span class="text-lg">{{ client.icon }}</span>
+                            <div>
+                                <p class="text-xs font-bold">{{ client.name }}</p>
+                                <p class="text-xs opacity-70">{{ client.sub }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flèche vers bas -->
+                <div class="flex flex-col items-center py-2">
+                    <div class="w-px h-6 bg-gray-300 dark:bg-gray-700"></div>
+                    <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 14l-5-5h10l-5 5z"/>
+                    </svg>
+                    <p class="text-xs text-gray-400 font-mono mt-1">HTTPS · JWT</p>
+                    <svg class="w-3 h-3 text-gray-400 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 14l-5-5h10l-5 5z"/>
+                    </svg>
+                    <div class="w-px h-6 bg-gray-300 dark:bg-gray-700"></div>
+                </div>
+
+                <!-- Couche API -->
+                <div class="w-full">
+                    <p class="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest text-center mb-3">Backend — Render</p>
+                    <div class="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-800 rounded-xl justify-center">
+                        <span class="text-2xl">🟢</span>
+                        <div class="text-center">
+                            <p class="text-sm font-bold text-emerald-800 dark:text-emerald-300">Node.js v21 + Express</p>
+                            <p class="text-xs text-emerald-600 dark:text-emerald-500">REST API · Auth · Guards · Interceptors</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flèches vers services -->
+                <div class="w-full grid grid-cols-4 gap-3 py-3">
+                    <div *ngFor="let arr of [1,2,3,4]" class="flex flex-col items-center">
+                        <div class="w-px h-5 bg-gray-300 dark:bg-gray-700"></div>
+                        <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 14l-5-5h10l-5 5z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Services externes -->
+                <div class="w-full">
+                    <p class="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest text-center mb-3">Services externes</p>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div *ngFor="let svc of services"
+                             class="flex flex-col items-center gap-2 p-3 rounded-xl border text-center"
+                             [ngClass]="svc.cls">
+                            <span class="text-xl">{{ svc.icon }}</span>
+                            <div>
+                                <p class="text-xs font-bold">{{ svc.name }}</p>
+                                <p class="text-xs opacity-70">{{ svc.sub }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── 4 Espaces ─────────────────────────── -->
+    <div>
+        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <span class="w-1 h-5 bg-gradient-to-b from-brand-400 to-brand-600 rounded-full"></span>
+            Les 4 espaces de l'application
+        </h3>
+        <div class="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800">
+            <table class="w-full text-sm">
+                <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700">
+                    <th class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Espace</th>
+                    <th class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">URL de base</th>
+                    <th class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">Accès</th>
+                    <th class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">Déploiement</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let space of spaces; let odd = odd"
+                    class="border-b border-gray-100 dark:border-gray-800 last:border-0"
+                    [ngClass]="odd ? 'bg-gray-50/50 dark:bg-gray-800/20' : 'bg-white dark:bg-gray-900'">
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">{{ space.icon }}</span>
+                            <span class="font-semibold text-gray-900 dark:text-white">{{ space.name }}</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <code class="text-xs font-mono px-2 py-1 rounded-lg"
+                              [ngClass]="space.codeCls">{{ space.url }}</code>
+                    </td>
+                    <td class="px-4 py-3 hidden sm:table-cell">
+                            <span class="text-xs px-2 py-1 rounded-full font-semibold"
+                                  [ngClass]="space.badgeCls">{{ space.access }}</span>
+                    </td>
+                    <td class="px-4 py-3 hidden md:table-cell text-xs text-gray-500 dark:text-gray-400">
+                        {{ space.deploy }}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

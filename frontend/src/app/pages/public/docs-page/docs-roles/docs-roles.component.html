@@ -1,0 +1,153 @@
+<div class="space-y-10">
+
+    <!-- ── En-tête section ──────────────────── -->
+    <div>
+        <div class="flex items-center gap-3 mb-3">
+            <span class="text-2xl">👥</span>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Rôles & Accès</h2>
+        </div>
+        <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-2xl">
+            Shopticus repose sur 4 profils utilisateurs distincts avec des espaces et des fonctionnalités cloisonnés.
+            L'accès est contrôlé par <code class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono text-brand-600 dark:text-brand-400">AuthGuard</code>
+            et <code class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono text-brand-600 dark:text-brand-400">RoleGuard</code> sur chaque route protégée.
+        </p>
+    </div>
+
+    <!-- ── Sélecteur de rôle ─────────────────── -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <button *ngFor="let role of roles"
+                type="button"
+                (click)="selectRole(role.id)"
+                class="flex flex-col items-center gap-2 p-4 rounded-2xl border-2 text-center transition-all duration-200 cursor-pointer"
+                [ngClass]="activeRole === role.id
+                    ? role.bgCls + ' ' + role.borderCls
+                    : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'">
+            <span class="text-2xl">{{ role.icon }}</span>
+            <div>
+                <p class="text-sm font-bold"
+                   [ngClass]="activeRole === role.id ? role.textCls : 'text-gray-900 dark:text-white'">
+                    {{ role.name }}
+                </p>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ role.desc }}</p>
+            </div>
+            <!-- Indicateur actif -->
+            <div class="w-1.5 h-1.5 rounded-full transition-all duration-200"
+                 [ngClass]="activeRole === role.id ? role.textCls.replace('text-', 'bg-') : 'bg-transparent'">
+            </div>
+        </button>
+    </div>
+
+    <!-- ── Détail du rôle actif ──────────────── -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+
+        <!-- Header rôle -->
+        <div class="p-6 border-b border-gray-100 dark:border-gray-800"
+             [ngClass]="activeRoleData.bgCls">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <span class="text-3xl">{{ activeRoleData.icon }}</span>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                                {{ activeRoleData.name }}
+                            </h3>
+                            <span class="text-xs px-2 py-0.5 rounded-full font-semibold"
+                                  [ngClass]="activeRoleData.badgeCls">
+                                {{ activeRoleData.desc }}
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-mono">
+                            {{ activeRoleData.access }}
+                        </p>
+                    </div>
+                </div>
+                <!-- Nombre de fonctionnalités -->
+                <div class="flex-shrink-0 text-center px-4 py-2 bg-white/60 dark:bg-gray-900/60 rounded-xl border border-white/40 dark:border-gray-700/40">
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ activeRoleData.features.length }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">fonctionnalités</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inscription -->
+        <div class="px-6 py-4 bg-gray-50 dark:bg-gray-800/40 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+            <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-xs text-gray-600 dark:text-gray-400">
+                <span class="font-semibold text-gray-700 dark:text-gray-300">Accès : </span>
+                {{ activeRoleData.inscription }}
+            </p>
+        </div>
+
+        <!-- Liste des fonctionnalités -->
+        <div class="p-6">
+            <p class="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-4">
+                Fonctionnalités
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div *ngFor="let feat of activeRoleData.features"
+                     class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700/60 hover:border-gray-200 dark:hover:border-gray-600 transition-colors">
+                    <span class="text-base flex-shrink-0">{{ feat.icon }}</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ feat.label }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Tableau récapitulatif ──────────────── -->
+    <div>
+        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <span class="w-1 h-5 bg-gradient-to-b from-brand-400 to-brand-600 rounded-full"></span>
+            Récapitulatif des accès
+        </h3>
+        <div class="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800">
+            <table class="w-full text-sm">
+                <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700">
+                    <th class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rôle</th>
+                    <th class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">Espace</th>
+                    <th class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Guard</th>
+                    <th class="text-right px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fonctionnalités</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let role of roles; let odd = odd"
+                    (click)="selectRole(role.id)"
+                    class="border-b border-gray-100 dark:border-gray-800 last:border-0 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/40"
+                    [ngClass]="odd ? 'bg-gray-50/30 dark:bg-gray-800/10' : 'bg-white dark:bg-gray-900'">
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-2">
+                            <span>{{ role.icon }}</span>
+                            <span class="font-semibold text-gray-900 dark:text-white">{{ role.name }}</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 hidden sm:table-cell">
+                        <code class="text-xs font-mono px-2 py-0.5 rounded-lg"
+                              [ngClass]="role.badgeCls">
+                            {{ role.id === 'guest' ? '/ · /discover' :
+                            role.id === 'user' ? '/v1/...' :
+                                role.id === 'boutique' ? '/store/app/...' : '/admin/app/...' }}
+                        </code>
+                    </td>
+                    <td class="px-4 py-3">
+                            <span *ngIf="role.id === 'guest'"
+                                  class="text-xs text-gray-400 dark:text-gray-500 italic">Aucun</span>
+                        <span *ngIf="role.id !== 'guest'"
+                              class="text-xs font-mono px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg">
+                                AuthGuard · RoleGuard
+                            </span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold"
+                                  [ngClass]="role.badgeCls">
+                                {{ role.features.length }}
+                            </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

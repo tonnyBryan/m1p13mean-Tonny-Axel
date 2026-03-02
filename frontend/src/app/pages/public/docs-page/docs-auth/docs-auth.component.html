@@ -1,0 +1,143 @@
+<div class="space-y-10">
+
+    <!-- ── En-tête ──────────────────────────── -->
+    <div>
+        <div class="flex items-center gap-3 mb-3">
+            <span class="text-2xl">🔐</span>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Flux d'authentification</h2>
+        </div>
+        <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-2xl">
+            Shopticus utilise un système JWT avec Access Token court (15min) + Refresh Token long (1 jour),
+            complété par Google OAuth et un interceptor Angular pour le renouvellement transparent des tokens.
+        </p>
+    </div>
+
+    <!-- ── Sélecteur de flux ─────────────────── -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <button *ngFor="let flow of flows"
+                type="button"
+                (click)="selectFlow(flow.id)"
+                class="flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-left transition-all duration-150"
+                [ngClass]="activeFlow === flow.id
+                    ? flow.bgCls + ' ' + flow.borderCls
+                    : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'">
+            <span class="text-lg flex-shrink-0">{{ flow.icon }}</span>
+            <div class="min-w-0">
+                <p class="text-xs font-bold truncate"
+                   [ngClass]="activeFlow === flow.id ? flow.textCls : 'text-gray-900 dark:text-white'">
+                    {{ flow.title }}
+                </p>
+                <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ flow.desc }}</p>
+            </div>
+        </button>
+    </div>
+
+    <!-- ── Détail flux actif ──────────────────── -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between flex-wrap gap-3"
+             [ngClass]="activeFlowData.bgCls">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">{{ activeFlowData.icon }}</span>
+                <div>
+                    <h3 class="font-bold text-gray-900 dark:text-white">{{ activeFlowData.title }}</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ activeFlowData.desc }}</p>
+                </div>
+            </div>
+            <span class="text-xs font-semibold px-3 py-1 rounded-full"
+                  [ngClass]="activeFlowData.bgCls + ' ' + activeFlowData.textCls">
+                {{ activeFlowData.steps.length }} étapes
+            </span>
+        </div>
+
+        <!-- Timeline verticale -->
+        <div class="p-6">
+            <div class="relative">
+
+                <!-- Ligne verticale -->
+                <div class="absolute left-5 top-0 bottom-0 w-px bg-gray-100 dark:bg-gray-800"></div>
+
+                <div class="space-y-3">
+                    <div *ngFor="let step of activeFlowData.steps; let i = index; let last = last"
+                         class="relative flex items-start gap-4">
+
+                        <!-- Numéro + icône -->
+                        <div class="relative z-10 flex-shrink-0 w-10 h-10 rounded-xl border-2 flex items-center justify-center text-base"
+                             [ngClass]="stepColor(step.type)">
+                            {{ step.icon }}
+                        </div>
+
+                        <!-- Contenu -->
+                        <div class="flex-1 min-w-0 pt-1.5 pb-2">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                    {{ step.label }}
+                                </p>
+                                <!-- Badge type -->
+                                <span *ngIf="step.type"
+                                      class="text-xs px-2 py-0.5 rounded-full font-semibold"
+                                      [ngClass]="stepColor(step.type)">
+                                    {{ step.type }}
+                                </span>
+                            </div>
+                            <p *ngIf="step.note"
+                               class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 font-mono">
+                                {{ step.note }}
+                            </p>
+                        </div>
+
+                        <!-- Numéro d'étape -->
+                        <div class="flex-shrink-0 pt-2">
+                            <span class="text-xs text-gray-300 dark:text-gray-700 font-mono">{{ i + 1 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Résumé tokens ─────────────────────── -->
+    <div>
+        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <span class="w-1 h-5 bg-gradient-to-b from-brand-400 to-brand-600 rounded-full"></span>
+            Stratégie des tokens
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+            <div class="p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-lg">🎟️</span>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">Access Token</p>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                    TTL <span class="font-bold text-amber-600 dark:text-amber-400">15 minutes</span> —
+                    Stocké en mémoire. Envoyé dans chaque requête API via header Authorization.
+                </p>
+            </div>
+
+            <div class="p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-lg">🔄</span>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">Refresh Token</p>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                    TTL <span class="font-bold text-blue-600 dark:text-blue-400">1 jour</span> —
+                    Hashé en base (RefreshToken collection). Révocable à tout moment (logout, sécurité).
+                </p>
+            </div>
+
+            <div class="p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-lg">🛡️</span>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">Interceptor Angular</p>
+                </div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                    Intercepte les erreurs <span class="font-mono font-bold text-red-500">420</span> —
+                    Renouvelle le token automatiquement et rejoue la requête. Invisible pour l'utilisateur.
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,205 @@
+<div class="space-y-10">
+
+    <!-- ── En-tête ──────────────────────────── -->
+    <div>
+        <div class="flex items-center gap-3 mb-3">
+            <span class="text-2xl">🗄️</span>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Schéma MongoDB</h2>
+        </div>
+        <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-2xl">
+            20 collections MongoDB Atlas modélisées avec Mongoose ODM.
+            Les relations entre collections utilisent des
+            <code class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono text-orange-500">ObjectId</code>
+            comme références. Cliquez sur une collection pour voir son schéma complet.
+        </p>
+    </div>
+
+    <!-- ── Groupes + sélecteur ───────────────── -->
+    <div class="space-y-4">
+        <div *ngFor="let group of groups">
+            <div class="flex items-center gap-2 mb-2 px-1">
+                <div class="w-2 h-2 rounded-full" [style.background]="group.color"></div>
+                <p class="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-600">
+                    {{ group.label }}
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <button *ngFor="let name of group.collections"
+                        type="button"
+                        (click)="selectCollection(name)"
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold border-2 transition-all duration-150"
+                        [ngClass]="activeCollection === name
+                            ? group.bgCls + ' ' + group.borderCls + ' ' + group.textCls
+                            : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'">
+                    <span class="text-sm">{{ getIcon(name) }}</span>
+                    {{ name }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Fiche collection active ───────────── -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between flex-wrap gap-3"
+             [ngClass]="getGroupForActive().bgCls">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">{{ activeCol.icon }}</span>
+                <div>
+                    <h3 class="font-bold text-gray-900 dark:text-white text-lg">{{ activeCol.name }}</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ activeCol.desc }}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <!-- Relations -->
+                <ng-container *ngIf="activeCol.relations?.length">
+                    <span *ngFor="let rel of activeCol.relations"
+                          class="text-xs px-2 py-0.5 rounded-full font-mono font-semibold bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
+                        → {{ rel }}
+                    </span>
+                </ng-container>
+                <span class="text-xs px-2 py-1 rounded-full font-semibold"
+                      [ngClass]="getGroupForActive().bgCls + ' ' + getGroupForActive().textCls">
+                    {{ activeCol.fields.length }} champs
+                </span>
+            </div>
+        </div>
+
+        <!-- Bandeau PCI-DSS -->
+        <div *ngIf="activeCollection === 'UserProfile' || activeCollection === 'Boutique'"
+             class="mx-6 mt-4 flex items-start gap-3 px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+            <span class="text-base flex-shrink-0">⚠️</span>
+            <p class="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+                <span class="font-bold">Note PCI-DSS :</span>
+                Les champs carte (cardNumber, cardName, expiryDate) sont présents à titre de maquette fonctionnelle.
+                Dans un environnement de production, le stockage des données bancaires serait délégué à un prestataire
+                certifié PCI-DSS (ex: Stripe, PayDunya). Le CVV ne doit jamais être persisté en base de données.
+            </p>
+        </div>
+
+        <!-- JSON viewer -->
+        <div class="p-6 font-mono text-sm overflow-x-auto">
+            <div class="bg-gray-950 dark:bg-gray-950 rounded-xl border border-gray-800 p-5">
+
+                <!-- Opening brace -->
+                <div class="text-gray-400">&#123;</div>
+
+                <ng-container *ngFor="let field of activeCol.fields; let last = last">
+
+                    <!-- Champ simple -->
+                    <div *ngIf="!field.children" class="pl-5 flex items-start gap-2 flex-wrap leading-7">
+                        <!-- Clé -->
+                        <span [ngClass]="field.key.startsWith('virtual') ? 'text-gray-500 italic' : 'text-sky-400'">
+                            "{{ field.key }}"
+                        </span>
+                        <span class="text-gray-600">:</span>
+
+                        <!-- Type -->
+                        <span [ngClass]="typeColor(field.type)" class="font-semibold">
+                    {{ typeLabel(field.type) }}
+                    </span>
+
+                    <!-- Ref -->
+                    <span *ngIf="field.ref"
+                          class="text-orange-400 text-xs px-1.5 py-0.5 bg-orange-900/20 rounded border border-orange-800">
+                        → {{ field.ref }}
+                    </span>
+
+                    <!-- Enum values -->
+                    <span *ngIf="field.enumValues"
+                          class="text-purple-400 text-xs">
+                        [ {{ field.enumValues.join(' · ') }} ]
+                        </span>
+
+                        <!-- Badges -->
+                        <span *ngIf="field.required"
+                              class="text-xs px-1.5 py-0.5 rounded bg-red-900/20 text-red-400 border border-red-800">
+                            required
+                        </span>
+                        <span *ngIf="field.unique"
+                              class="text-xs px-1.5 py-0.5 rounded bg-yellow-900/20 text-yellow-400 border border-yellow-800">
+                            unique
+                        </span>
+                        <span *ngIf="field.default"
+                              class="text-xs text-gray-500">
+                            = {{ field.default }}
+                    </span>
+
+                    <!-- Note -->
+                    <span *ngIf="field.note"
+                          class="text-gray-600 text-xs italic">// {{ field.note }}</span>
+
+                        <span *ngIf="!last" class="text-gray-600">{{ ',' }}</span>
+                    </div>
+
+                    <!-- Champ avec enfants (object / array) -->
+                    <div *ngIf="field.children">
+                        <!-- Ligne clé + toggle -->
+                        <div class="pl-5 flex items-center gap-2 leading-7 cursor-pointer select-none group"
+                             (click)="toggleCollapse(field.key)">
+                            <span class="text-gray-600 text-xs group-hover:text-gray-400 transition-colors w-3">
+                    {{ isCollapsed(field.key) ? '▶' : '▼' }}
+                    </span>
+                    <span class="text-sky-400">"{{ field.key }}"</span>
+                            <span class="text-gray-600">:</span>
+                            <span [ngClass]="typeColor(field.type)" class="font-semibold">
+                    {{ typeLabel(field.type) }}
+                    </span>
+                    <span *ngIf="field.type === 'array'" class="text-yellow-600 text-xs">[ … ]</span>
+                    <span *ngIf="field.type === 'object'" class="text-gray-500 text-xs">&#123; … &#125;</span>
+                            <span *ngIf="field.note" class="text-gray-600 text-xs italic">// {{ field.note }}</span>
+                            <span *ngIf="!last" class="text-gray-600">{{ ',' }}</span>
+                        </div>
+
+                        <!-- Enfants -->
+                        <div *ngIf="!isCollapsed(field.key)" class="pl-10 border-l border-gray-800 ml-7 my-1">
+                            <div *ngFor="let child of field.children; let lastChild = last"
+                                 class="flex items-start gap-2 flex-wrap leading-7">
+                                <span class="text-sky-300">"{{ child.key }}"</span>
+                                <span class="text-gray-600">:</span>
+                                <span [ngClass]="typeColor(child.type)" class="font-semibold">
+                    {{ typeLabel(child.type) }}
+                    </span>
+                    <span *ngIf="child.ref"
+                          class="text-orange-400 text-xs px-1.5 py-0.5 bg-orange-900/20 rounded border border-orange-800">
+                        → {{ child.ref }}
+                    </span>
+                    <span *ngIf="child.enumValues" class="text-purple-400 text-xs">
+                        [ {{ child.enumValues.join(' · ') }} ]
+                                </span>
+                                <span *ngIf="child.required"
+                                      class="text-xs px-1.5 py-0.5 rounded bg-red-900/20 text-red-400 border border-red-800">
+                                    required
+                                </span>
+                                <span *ngIf="child.default" class="text-gray-500 text-xs">= {{ child.default }}</span>
+                                <span *ngIf="child.note" class="text-gray-600 text-xs italic">// {{ child.note }}</span>
+                                <span *ngIf="!lastChild" class="text-gray-600">{{ ',' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </ng-container>
+
+                <!-- Closing brace -->
+                <div class="text-gray-400">&#125;</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Légende types ─────────────────────── -->
+    <div>
+        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <span class="w-1 h-5 bg-gradient-to-b from-brand-400 to-brand-600 rounded-full"></span>
+            Légende des types
+        </h3>
+        <div class="flex flex-wrap gap-2">
+            <span *ngFor="let t of typeList"
+                  class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 text-xs font-mono font-semibold"
+                  [ngClass]="typeColor(t.type)">
+                {{ t.label }}
+            </span>
+        </div>
+    </div>
+
+</div>
