@@ -9,7 +9,7 @@ import {
   HostListener
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {ActivatedRoute, RouterModule} from '@angular/router';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import * as L from 'leaflet';
@@ -65,7 +65,8 @@ export class BoutiquesMapComponent implements OnInit, AfterViewInit, OnDestroy {
       private boutiqueService: BoutiqueService,
       private centreService: CentreService,
       private cdr: ChangeDetectorRef,
-      private route: ActivatedRoute
+      private route: ActivatedRoute,
+      private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -343,11 +344,11 @@ export class BoutiquesMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
         <!-- CTA row -->
         <div class="bm-gmap-actions">
-         <a [routerLink]="['/v1/stores', boutique._id]" class="bm-gmap-btn-primary">
+         <a href="/v1/stores/${boutique._id}" data-boutique-id="${boutique._id}" class="bm-gmap-btn-primary">
             <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
             </svg>
-            View Store
+            View Store bro
           </a>
           <a href="https://www.google.com/maps/dir/?api=1&destination=${boutique.address.latitude},${boutique.address.longitude}"
              target="_blank" rel="noopener" class="bm-gmap-btn-secondary" title="Get directions">
@@ -368,6 +369,14 @@ export class BoutiquesMapComponent implements OnInit, AfterViewInit, OnDestroy {
     el.querySelector('#bm-close-btn')?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.closeExternalPopup();
+    });
+
+    const viewBtn = el.querySelector('[data-boutique-id]') as HTMLAnchorElement | null;
+    viewBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.closeExternalPopup();
+      this.router.navigate(['/v1/stores', boutique._id]);
     });
 
     const cleanup = () => this.closeExternalPopup();

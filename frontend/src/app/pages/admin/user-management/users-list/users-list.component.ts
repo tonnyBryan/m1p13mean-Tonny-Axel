@@ -27,6 +27,7 @@ export class UsersListComponent implements OnInit {
     // Filters
     searchTerm = '';
     statusFilter = 'all'; // all, active, inactive
+    authProviderFilter = 'all'; // all, local, google
     startDate = '';
     endDate = '';
 
@@ -55,6 +56,10 @@ export class UsersListComponent implements OnInit {
 
         if (this.statusFilter !== 'all') {
             params.isActive = this.statusFilter === 'active';
+        }
+
+        if (this.authProviderFilter !== 'all') {
+            params.authProvider = this.authProviderFilter;
         }
 
         if (this.startDate) {
@@ -89,6 +94,12 @@ export class UsersListComponent implements OnInit {
 
     onFilterChange(filter: string): void {
         this.statusFilter = filter;
+        this.currentPage = 1;
+        this.loadProfiles();
+    }
+
+    onAuthProviderChange(provider: string): void {
+        this.authProviderFilter = provider;
         this.currentPage = 1;
         this.loadProfiles();
     }

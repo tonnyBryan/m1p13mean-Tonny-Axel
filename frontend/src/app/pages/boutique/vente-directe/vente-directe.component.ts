@@ -135,7 +135,10 @@ export class VenteDirecteComponent implements OnInit {
                 return this.userProfileService.getUserProfiles({
                     'name[regex]': term,
                     'name[options]': 'i',
-                    role: 'user'
+                    'email[regex]': term,
+                    'email[options]': 'i',
+                    role: 'user',
+                    isActive: true,
                 });
             })
         ).subscribe({
