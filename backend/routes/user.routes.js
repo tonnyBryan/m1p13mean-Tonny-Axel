@@ -140,6 +140,13 @@ router.get(
     authorize('admin', 'boutique'),
     (req, res, next) => {
         req.query.role = 'user';
+        if (req.query.authProvider === 'local') {
+            delete req.query.authProvider;
+            req.query.$or = [
+                { authProvider: 'local' },
+                { authProvider: { $exists: false } }
+            ];
+        }
         next();
     },
     advancedResults(User, 'profile'),

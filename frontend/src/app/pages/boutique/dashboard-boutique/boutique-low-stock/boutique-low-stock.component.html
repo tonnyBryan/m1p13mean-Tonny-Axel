@@ -71,7 +71,7 @@
                 Showing <span class="font-semibold text-gray-600 dark:text-gray-300">{{ items.items.length }}</span> of
                 <span class="font-semibold text-gray-600 dark:text-gray-300">{{ items.total }}</span> products
             </span>
-            <a routerLink="/v1/boutique/products" [queryParams]="{ lowStock: true }"
+            <a routerLink="/store/app/products" [queryParams]="{ stockFilter: 'low-stock' }"
                class="text-xs font-semibold text-rose-500 hover:text-rose-600 transition-colors">
                 See all →
             </a>
