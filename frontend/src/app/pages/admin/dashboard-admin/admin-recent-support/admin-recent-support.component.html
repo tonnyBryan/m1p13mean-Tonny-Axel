@@ -30,7 +30,7 @@
             </div>
             <div class="flex-1 overflow-hidden">
                 <div class="flex items-center justify-between mb-0.5">
-                    <p class="text-sm font-semibold text-gray-800 dark:text-white/90">{{ req.user?.name || 'Guest' }}
+                    <p class="text-sm font-semibold text-gray-800 dark:text-white/90">{{ req.fullName || 'Guest' }}
                     </p>
                     <span class="text-[10px] text-gray-400 dark:text-gray-500">{{ formatDate(req.createdAt) }}</span>
                 </div>
