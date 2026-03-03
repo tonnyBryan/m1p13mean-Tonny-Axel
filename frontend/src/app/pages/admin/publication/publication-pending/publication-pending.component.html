@@ -1,0 +1,254 @@
+<div class="space-y-6 px-4 py-8 max-w-4xl mx-auto">
+
+    <!-- ── Header ──────────────────────────────── -->
+    <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">Pending publications</h1>
+                <span *ngIf="publications.length > 0"
+                      class="flex items-center justify-center w-6 h-6 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-bold rounded-full">
+                    {{ publications.length }}
+                </span>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                Approve or reject publications submitted by boutiques
+            </p>
+        </div>
+        <button type="button" (click)="load()"
+                class="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors">
+            <svg class="w-4 h-4" [ngClass]="loading ? 'animate-spin' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Refresh
+        </button>
+    </div>
+
+    <!-- ── Erreur ───────────────────────────────── -->
+    <div *ngIf="error"
+         class="flex items-center gap-3 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-700 dark:text-red-300">
+        <span>⚠️</span> {{ error }}
+        <button type="button" (click)="load()" class="ml-auto text-xs underline">Retry</button>
+    </div>
+
+    <!-- ── Loading skeletons ────────────────────── -->
+    <div *ngIf="loading" class="space-y-4">
+        <div *ngFor="let i of [1,2]"
+             class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 animate-pulse">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+                <div class="space-y-1.5 flex-1">
+                    <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-40"></div>
+                    <div class="h-2.5 bg-gray-100 dark:bg-gray-800 rounded w-28"></div>
+                </div>
+            </div>
+            <div class="space-y-2 mb-4">
+                <div class="h-3 bg-gray-100 dark:bg-gray-800 rounded w-full"></div>
+                <div class="h-3 bg-gray-100 dark:bg-gray-800 rounded w-4/5"></div>
+                <div class="h-3 bg-gray-100 dark:bg-gray-800 rounded w-2/3"></div>
+            </div>
+            <div class="flex gap-2">
+                <div class="h-9 bg-gray-100 dark:bg-gray-800 rounded-xl flex-1"></div>
+                <div class="h-9 bg-gray-100 dark:bg-gray-800 rounded-xl flex-1"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Empty state ──────────────────────────── -->
+    <div *ngIf="!loading && publications.length === 0 && !error"
+         class="flex flex-col items-center justify-center py-20 text-center">
+        <div class="w-16 h-16 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-3xl mb-4">✅</div>
+        <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">All caught up</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+            There are no pending publications right now.
+        </p>
+    </div>
+
+    <!-- ── Liste ────────────────────────────────── -->
+    <div *ngIf="!loading && publications.length > 0" class="space-y-4">
+        <div *ngFor="let pub of publications"
+             class="bg-white dark:bg-gray-900 rounded-2xl border border-amber-200 dark:border-amber-800/50 overflow-hidden shadow-sm">
+
+            <!-- Pending banner -->
+            <div class="px-5 py-2 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-100 dark:border-amber-800/40 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                <p class="text-xs font-semibold text-amber-700 dark:text-amber-300">Pending approval</p>
+                <span class="ml-auto text-xs text-amber-600 dark:text-amber-400">{{ formatDate(pub.createdAt) }}</span>
+            </div>
+
+            <!-- Boutique info -->
+            <div class="px-5 pt-4 pb-3 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
+                    <img *ngIf="pub.boutique?.logo" [src]="pub.boutique!.logo" [alt]="pub.boutique!.name"
+                         class="w-full h-full object-cover"/>
+                    <div *ngIf="!pub.boutique?.logo"
+                         class="w-full h-full flex items-center justify-center text-xl">🏪</div>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-sm font-bold text-gray-900 dark:text-white truncate">
+                        {{ pub.boutique?.name ?? pub.author.name }}
+                    </p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ pub.author.email }}</p>
+                </div>
+                <span *ngIf="pub.type"
+                      class="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border flex-shrink-0"
+                      [ngClass]="typeConfig[pub.type].cls">
+                    {{ typeConfig[pub.type].icon }} {{ typeConfig[pub.type].label }}
+                </span>
+            </div>
+
+            <!-- Content -->
+            <div class="px-5 pb-4">
+                <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+                    {{ pub.content }}
+                </p>
+            </div>
+
+            <!-- Images -->
+            <div *ngIf="pub.images.length > 0" class="px-5 pb-4">
+                <div class="grid gap-1.5"
+                     [ngClass]="pub.images.length === 1 ? 'grid-cols-1' : pub.images.length === 2 ? 'grid-cols-2' : 'grid-cols-3'">
+                    <div *ngFor="let img of pub.images.slice(0, 3); let i = index"
+                         class="relative aspect-video rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 cursor-pointer group"
+                         (click)="openLightbox(pub.images, i)">
+                        <img [src]="img" [alt]="'Image ' + (i+1)"
+                             class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"/>
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
+                            </svg>
+                        </div>
+                        <div *ngIf="i === 2 && pub.images.length > 3"
+                             class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <span class="text-white font-bold text-xl">+{{ pub.images.length - 3 }}</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-400 dark:text-gray-600 mt-1.5">
+                    {{ pub.images.length }} image{{ pub.images.length > 1 ? 's' : '' }} — click to enlarge
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="px-5 py-4 border-t border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                <!-- Reject -->
+                <button type="button"
+                        (click)="openRejectModal(pub._id)"
+                        class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 text-sm font-bold rounded-xl transition-all duration-150">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Reject
+                </button>
+
+                <!-- Approve -->
+                <button type="button"
+                        (click)="approve(pub._id)"
+                        [disabled]="approveLoadingId === pub._id"
+                        class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-sm font-bold rounded-xl shadow-sm hover:shadow-md transition-all duration-150">
+                    <svg *ngIf="approveLoadingId !== pub._id" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <svg *ngIf="approveLoadingId === pub._id" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    {{ approveLoadingId === pub._id ? 'Approving...' : 'Approve' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Reject modal ─────────────────────────── -->
+    <div *ngIf="rejectModalId"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-2xl w-full max-w-md p-6 space-y-5">
+
+            <!-- Modal header -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-xl flex-shrink-0">❌</div>
+                <div>
+                    <p class="font-bold text-gray-900 dark:text-white">Reject publication</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">The boutique will be notified with the reason provided.</p>
+                </div>
+            </div>
+
+            <!-- Reason textarea -->
+            <div>
+                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wider">
+                    Rejection reason <span class="text-red-500">*</span>
+                </label>
+                <textarea
+                        [(ngModel)]="rejectReason"
+                        rows="3"
+                        placeholder="E.g., Inappropriate content, incorrect information..."
+                        class="w-full px-4 py-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 outline-none focus:border-red-400 dark:focus:border-red-600 transition-colors resize-none">
+                </textarea>
+                <div *ngIf="rejectError"
+                     class="mt-2 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                    <span>⚠️</span> {{ rejectError }}
+                </div>
+            </div>
+
+            <!-- Modal actions -->
+            <div class="flex gap-3">
+                <button type="button" (click)="closeRejectModal()"
+                        [disabled]="rejectLoading"
+                        class="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                    Cancel
+                </button>
+                <button type="button" (click)="submitReject()"
+                        [disabled]="rejectLoading || rejectReason.trim().length < 3"
+                        class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-xl transition-colors">
+                    <svg *ngIf="rejectLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    {{ rejectLoading ? 'Rejecting...' : 'Confirm rejection' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Lightbox images ──────────────────────── -->
+    <div *ngIf="lightboxOpen"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+         (click)="closeLightbox()">
+
+        <!-- Image -->
+        <img [src]="lightboxImages[lightboxIndex]"
+             alt="Enlarged image"
+             class="max-w-[90vw] max-h-[85vh] rounded-xl object-contain shadow-2xl"
+             (click)="$event.stopPropagation()"/>
+
+        <!-- Close -->
+        <button type="button" (click)="closeLightbox()"
+                class="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center text-white transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+
+        <!-- Navigation prev/next -->
+        <button *ngIf="lightboxImages.length > 1"
+                type="button" (click)="$event.stopPropagation(); prevImage()"
+                class="absolute left-4 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center text-white transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+            </svg>
+        </button>
+        <button *ngIf="lightboxImages.length > 1"
+                type="button" (click)="$event.stopPropagation(); nextImage()"
+                class="absolute right-4 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center text-white transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+        </button>
+
+        <!-- Compteur -->
+        <div *ngIf="lightboxImages.length > 1"
+             class="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-black/50 rounded-full text-white text-xs font-semibold">
+            {{ lightboxIndex + 1 }} / {{ lightboxImages.length }}
+        </div>
+    </div>
+
+</div>

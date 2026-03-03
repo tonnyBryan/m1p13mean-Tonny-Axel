@@ -261,7 +261,11 @@ exports.getInvoice = async (req, res) => {
         // Boutique Info
         doc.fontSize(12).text(`Boutique: ${vente.boutique?.name || 'Ma Boutique'}`, { align: 'right' });
         doc.text(`Date: ${new Date(vente.createdAt).toLocaleDateString()}`, { align: 'right' });
+        if (vente.saleType) {
+            doc.text(`Type: ${vente.saleType.charAt(0).toUpperCase() + vente.saleType.slice(1)}`, { align: 'right' });
+        }
         doc.moveDown();
+
 
         // Client Info
         doc.text(`Client: ${vente.client?.name || 'Client de passage'}`, { align: 'left' });

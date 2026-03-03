@@ -54,6 +54,12 @@ export const routes: Routes = [
         data: { animation: 'discover' }
       },
       {
+        path: 'news',
+        loadComponent: () => import('./pages/public/public-news/public-news.component').then(m => m.PublicNewsComponent),
+        title: 'News & Updates | ' + appName,
+        data: { animation: 'news' }
+      },
+      {
         path: 'docs',
         loadComponent: () => import('./pages/public/docs-page/docs-page.component').then(m => m.DocsPageComponent),
         title: 'Documentation | ' + appName,
@@ -261,6 +267,9 @@ export const routes: Routes = [
         pathMatch: 'full',
         title: 'Rent Payments List | ' + appName,
       },
+      // Dans /admin/app/...
+      { path: 'publications',     loadComponent: () => import('./pages/admin/publication/publication-admin/publication-admin.component').then(m => m.PublicationAdminComponent),   canActivate: [AuthGuard, RoleGuard], data: { roles: [environment.adminRole] }, title: 'Publications | ' + appName },
+      { path: 'publications/add', loadComponent: () => import('./pages/admin/publication/publication-create/publication-create.component').then(m => m.PublicationCreateComponent), canActivate: [AuthGuard, RoleGuard], data: { roles: [environment.adminRole] }, title: 'New Publication | ' + appName },
       {
         path: 'support-requests',
         loadComponent: () => import('./pages/admin/support-request/support-request.component').then(m => m.SupportRequestComponent),
@@ -370,6 +379,8 @@ export const routes: Routes = [
         pathMatch: 'full',
         title: 'Order Details | ' + appName
       },
+      { path: 'publications',     loadComponent: () => import('./pages/boutique/publication/publication-list-boutique/publication-list-boutique.component').then(m => m.PublicationListBoutiqueComponent),   canActivate: [AuthGuard, RoleGuard], data: { roles: [environment.boutiqueRole] }, title: 'Publications | ' + appName },
+      { path: 'publications/add', loadComponent: () => import('./pages/boutique/publication/publication-create-boutique/publication-create-boutique.component').then(m => m.PublicationCreateBoutiqueComponent), canActivate: [AuthGuard, RoleGuard], data: { roles: [environment.boutiqueRole] }, title: 'New Publication | ' + appName },
       {
         path: 'chat',
         loadComponent: () => import('./shared/components/chatbot/chat-page/chat-page.component').then(m => m.ChatPageComponent),

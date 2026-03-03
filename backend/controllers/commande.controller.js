@@ -5,7 +5,7 @@ const LivraisonConfig = require('../models/LivraisonConfig');
 const UserProfile = require('../models/UserProfile');
 const Boutique = require('../models/Boutique');
 const Vente = require('../models/Vente');
-const {removeEngagement, createVenteFromCommande, removeFromStock} = require("../services/commande.service");
+const { removeEngagement, createVenteFromCommande, removeFromStock } = require("../services/commande.service");
 const mongoose = require('mongoose');
 const { sendNotification } = require('../services/notification.service');
 
@@ -13,7 +13,7 @@ const { sendNotification } = require('../services/notification.service');
 async function findOpenDraft(userId) {
     // Find non-expired draft
     const now = new Date();
-    return await Commande.findOne({ user: userId, status: 'draft', $or: [ { expiredAt: { $exists: false } }, { expiredAt: { $gt: now } } ] });
+    return await Commande.findOne({ user: userId, status: 'draft', $or: [{ expiredAt: { $exists: false } }, { expiredAt: { $gt: now } }] });
 }
 
 // POST /api/commandes/add
@@ -241,7 +241,7 @@ exports.getDraftFull = async (req, res) => {
         if (!userId) return errorResponse(res, 401, 'You are not authorized to perform this action. Please authenticate and try again.');
 
         const now = new Date();
-        const commande = await Commande.findOne({ user: userId, status: 'draft', $or: [ { expiredAt: { $exists: false } }, { expiredAt: { $gt: now } } ] })
+        const commande = await Commande.findOne({ user: userId, status: 'draft', $or: [{ expiredAt: { $exists: false } }, { expiredAt: { $gt: now } }] })
             .populate('boutique')
             .populate({ path: 'products.product', model: 'Product' })
             .exec();
@@ -619,11 +619,24 @@ exports.getCommandById = async (req, res) => {
 exports.getAllCommands = async (req, res) => {
     try {
         const advanced = res.advancedResults || null;
-        if (req.user && req.user.role === 'user' && advanced && Array.isArray(advanced.items) && advanced.items.length) {
-            try {
-                advanced.items = await Commande.populate(advanced.items, { path: 'boutique', select: '_id name logo' });
-            } catch (popErr) {
-                console.error('Failed to populate boutique for commandes list (boutique role):', popErr);
+        if (req.user && advanced && Array.isArray(advanced.items) && advanced.items.length) {
+            if (req.user.role === 'user') {
+                try {
+                    advanced.items = await Commande.populate(advanced.items, { path: 'boutique', select: '_id name logo' });
+                } catch (popErr) {
+                    console.error('Failed to populate boutique for commandes list (user role):', popErr);
+                }
+            } else {
+                // For boutique owners and admins, show client details
+                try {
+                    advanced.items = await Commande.populate(advanced.items, {
+                        path: 'user',
+                        select: '_id name email profile',
+                        populate: { path: 'profile', select: 'firstName lastName photo' }
+                    });
+                } catch (popErr) {
+                    console.error('Failed to populate user for orders list (admin/boutique role):', popErr);
+                }
             }
         }
 
