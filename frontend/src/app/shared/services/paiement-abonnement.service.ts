@@ -31,6 +31,24 @@ export class PaiementAbonnementService {
     }
 
     /**
+     * Admin endpoint: list all payments with filters
+     * GET /api/paiement-abonnements
+     */
+    getPayments(params: any = {}): Observable<any> {
+        const token = this.auth.getToken();
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`
+        });
+
+        const queryString = Object.keys(params)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+            .join('&');
+
+        const suffix = queryString ? `?${queryString}` : '';
+        return this.api.get<any>(`${this.endpoint}${suffix}`, headers);
+    }
+
+    /**
      * Admin endpoint: register a subscription payment
      * POST /api/paiement-abonnements/pay
      */

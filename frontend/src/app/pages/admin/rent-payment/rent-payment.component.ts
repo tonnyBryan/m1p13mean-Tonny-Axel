@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { BoutiqueService } from '../../../shared/services/boutique.service';
 import { PaiementAbonnementService } from '../../../shared/services/paiement-abonnement.service';
@@ -9,7 +10,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 @Component({
     selector: 'app-rent-payment',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, RouterModule],
     templateUrl: './rent-payment.component.html',
     styleUrl: './rent-payment.component.css'
 })

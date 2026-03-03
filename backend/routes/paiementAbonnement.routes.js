@@ -8,6 +8,14 @@ const injectBoutiqueFilter = require('../middlewares/boutiqueFilter.middleware')
 
 router.use(protect);
 
+// Admin: list payments with filters (populate boutique)
+router.get(
+    '/',
+    authorize('admin'),
+    advancedResults(PaiementAbonnement, { path: 'boutique', select: 'name logo owner isActive isValidated plan' }),
+    paiementAbonnementController.getAllPayments
+);
+
 // Admin: list payments for a boutique
 router.get(
     '/boutique/:boutiqueId',

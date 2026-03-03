@@ -55,6 +55,16 @@ exports.getPaymentsByBoutique = async (req, res) => {
     }
 };
 
+// GET /api/paiement-abonnements
+exports.getAllPayments = async (req, res) => {
+    try {
+        return successResponse(res, 200, null, res.advancedResults);
+    } catch (err) {
+        console.error('getAllPayments error:', err);
+        return errorResponse(res, 500, 'An unexpected server error occurred. Please try again later.');
+    }
+};
+
 // POST /api/paiement-abonnements/pay
 exports.paySubscription = async (req, res) => {
     try {
