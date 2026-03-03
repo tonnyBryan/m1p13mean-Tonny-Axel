@@ -128,6 +128,8 @@ export class DocsRolesComponent {
         { icon: '👥', label: 'Gestion des utilisateurs — liste et détail' },
         { icon: '📧', label: 'Abonnements newsletter — liste des inscrits' },
         { icon: '🎫', label: 'Tickets support — lecture et réponse par email' },
+        { icon: '💳', label: 'Paiements loyer — suivi des abonnements des boutiques' },
+        { icon: '📊', label: 'Dashboard admin — vue globale de la plateforme' },
       ],
     },
   ];

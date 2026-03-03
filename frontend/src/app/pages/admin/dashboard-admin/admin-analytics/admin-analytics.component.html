@@ -1,0 +1,66 @@
+<div class="space-y-6">
+
+    <!-- Filters -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="flex items-center gap-0.5 rounded-lg bg-gray-100 dark:bg-gray-900 p-0.5 w-fit">
+            <button (click)="selectPeriod('7d')" class="px-3 py-2 font-medium rounded-md text-sm transition-all" [ngClass]="getPeriodClass('7d')">7 days</button>
+            <button (click)="selectPeriod('30d')" class="px-3 py-2 font-medium rounded-md text-sm transition-all" [ngClass]="getPeriodClass('30d')">30 days</button>
+            <button (click)="selectPeriod('6m')" class="px-3 py-2 font-medium rounded-md text-sm transition-all" [ngClass]="getPeriodClass('6m')">6 months</button>
+        </div>
+        <div class="relative w-fit">
+            <input #datepicker
+                   class="h-10 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2.5 pl-10 pr-4 text-sm font-medium text-gray-700 dark:text-gray-400 focus:outline-none"
+                   placeholder="Custom range"
+                   data-class="flatpickr-right"
+                   readonly/>
+            <div class="absolute inset-0 right-auto flex items-center pointer-events-none left-3">
+                <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Chart -->
+    <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] px-6 pt-6 pb-4">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+            <div>
+                <h3 class="text-base font-bold text-gray-800 dark:text-white/90">Sales Volume</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Direct vs order-based sales count</p>
+            </div>
+            <div class="flex items-start gap-5">
+                <!-- Direct -->
+                <div class="text-right">
+                    <div class="flex items-center gap-1.5 justify-end">
+                        <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Direct</span>
+                    </div>
+                    <p class="text-sm font-bold text-gray-800 dark:text-white/90 mt-0.5">{{ formatNumber(totalDirect) }}</p>
+                </div>
+                <!-- Orders -->
+                <div class="text-right">
+                    <div class="flex items-center gap-1.5 justify-end">
+                        <span class="w-3 h-3 rounded-full bg-blue-400"></span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Orders</span>
+                    </div>
+                    <p class="text-sm font-bold text-gray-800 dark:text-white/90 mt-0.5">{{ formatNumber(totalOrder) }}</p>
+                </div>
+                <!-- Total -->
+                <div class="text-right border-l border-gray-200 dark:border-gray-700 pl-5">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Total</p>
+                    <p class="text-sm font-bold text-gray-800 dark:text-white/90 mt-0.5">{{ formatNumber(totalSales) }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="isLoading" class="h-[280px] rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse"></div>
+        <div *ngIf="!isLoading" class="max-w-full overflow-x-auto">
+            <div class="min-w-[600px] xl:min-w-full">
+                <apx-chart [series]="salesSeries" [chart]="salesChart" [colors]="salesColors" [stroke]="salesStroke"
+                           [fill]="salesFill" [markers]="salesMarkers" [grid]="salesGrid" [dataLabels]="salesDataLabels"
+                           [tooltip]="salesTooltip" [xaxis]="salesXaxis" [yaxis]="salesYaxis" [legend]="salesLegend">
+                </apx-chart>
+            </div>
+        </div>
+    </div>
+</div>

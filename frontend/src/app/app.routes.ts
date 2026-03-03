@@ -226,8 +226,16 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'boutiques',
+        redirectTo: 'dashboard',
         pathMatch: 'full'
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./pages/admin/dashboard-admin/dashboard-admin.component').then(m => m.DashboardAdminComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole] },
+        pathMatch: 'full',
+        title: 'Admin Dashboard | ' + appName,
       },
       {
         path: 'subscriptions',
@@ -236,6 +244,22 @@ export const routes: Routes = [
         data: { roles: [environment.adminRole] },
         pathMatch: 'full',
         title: 'Subscriptions | ' + appName,
+      },
+      {
+        path: 'rent-payments',
+        loadComponent: () => import('./pages/admin/rent-payment/rent-payment.component').then(m => m.RentPaymentComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole] },
+        pathMatch: 'full',
+        title: 'Rent Payments | ' + appName,
+      },
+      {
+        path: 'rent-payments/list',
+        loadComponent: () => import('./pages/admin/rent-payments-list/rent-payments-list.component').then(m => m.RentPaymentsListComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole] },
+        pathMatch: 'full',
+        title: 'Rent Payments List | ' + appName,
       },
       {
         path: 'support-requests',

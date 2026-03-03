@@ -57,6 +57,7 @@ app.use('/api/subscriptions', require('./routes/subscription.routes'));
 app.use('/api/support-requests', require('./routes/supportRequest.routes'));
 app.use('/api/user-dashboard', require('./routes/user-dashboard.routes'));
 app.use('/api/boutique-dashboard', require('./routes/boutique-dashboard.routes'));
+app.use('/api/admin-dashboard', require('./routes/admin-dashboard.routes'));
 app.use('/api/categories', require('./routes/category.routes'));
 app.use('/api/store/register', require('./routes/store-register.routes'));
 app.use('/api/stock-movements', require('./routes/stockMovement.routes'));
@@ -65,6 +66,7 @@ app.use('/api/chat', require('./chatbot/chat.router'));
 app.use('/api/boxes', require('./routes/box.routes'));
 app.use('/api/system', require('./routes/system.routes'));
 app.use('/api/public', require('./routes/public.routes'));
+app.use('/api/paiement-abonnements', require('./routes/paiementAbonnement.routes'));
 
 
 module.exports = app;
