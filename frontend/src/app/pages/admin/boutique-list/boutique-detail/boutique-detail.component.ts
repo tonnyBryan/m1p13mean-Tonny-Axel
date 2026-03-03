@@ -6,6 +6,7 @@ import { Boutique } from "../../../../core/models/boutique.model";
 import { BoutiqueService } from '../../../../shared/services/boutique.service';
 import { AlertComponent } from "../../../../shared/components/ui/alert/alert.component";
 import { ToastService } from '../../../../shared/services/toast.service';
+import { PaiementAbonnementService } from '../../../../shared/services/paiement-abonnement.service';
 
 @Component({
     selector: 'app-boutique-detail',
@@ -26,6 +27,8 @@ export class BoutiqueDetailComponent implements OnInit {
     isUpdating = false;
     isValidating = false;
     boutiqueId: string | null = null;
+    payments: any[] = [];
+    paymentsLoading = false;
 
     // Alert states
     showSuccessAlert = false;
@@ -38,7 +41,8 @@ export class BoutiqueDetailComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private boutiqueService: BoutiqueService,
-        private toast: ToastService
+        private toast: ToastService,
+        private paiementService: PaiementAbonnementService
     ) { }
 
     ngOnInit(): void {
@@ -57,7 +61,10 @@ export class BoutiqueDetailComponent implements OnInit {
         this.boutiqueService.getBoutiqueById(this.boutiqueId).subscribe({
             next: (res: any) => {
                 this.isLoading = false;
-                if (res.success) this.boutique = res.data;
+                if (res.success) {
+                    this.boutique = res.data;
+                    this.loadPayments();
+                }
             },
             error: (err: any) => {
                 this.isLoading = false;
@@ -186,6 +193,14 @@ export class BoutiqueDetailComponent implements OnInit {
         });
     }
 
+    formatShortDate(date: Date | string): string {
+        return new Intl.DateTimeFormat('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        }).format(new Date(date));
+    }
+
     getStatusBgColor(isActive: boolean, isValidated: boolean): string {
         if (!isActive) return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
         if (!isValidated) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
@@ -200,6 +215,99 @@ export class BoutiqueDetailComponent implements OnInit {
 
     isRunning(): boolean {
         return !!(this.boutique?.isActive && this.boutique?.isValidated);
+    }
+
+    private daysInMonth(year: number, monthIndex: number): number {
+        return new Date(year, monthIndex + 1, 0).getDate();
+    }
+
+    private withAnchorDay(year: number, monthIndex: number, anchorDay: number, timeRef: Date): Date {
+        const day = Math.min(anchorDay, this.daysInMonth(year, monthIndex));
+        const d = new Date(year, monthIndex, day);
+        d.setHours(timeRef.getHours(), timeRef.getMinutes(), timeRef.getSeconds(), timeRef.getMilliseconds());
+        return d;
+    }
+
+    private addMonthsWithAnchor(date: Date, monthsToAdd: number, anchorDay: number, timeRef: Date): Date {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        return this.withAnchorDay(year, month + monthsToAdd, anchorDay, timeRef);
+    }
+
+    private getCurrentPeriod(startDate: Date, refDate: Date): { periodStart: Date; periodEnd: Date } | null {
+        if (!startDate || refDate < startDate) return null;
+
+        const anchorDay = startDate.getDate();
+        const monthsDiff =
+            (refDate.getFullYear() - startDate.getFullYear()) * 12 +
+            (refDate.getMonth() - startDate.getMonth());
+
+        let periodStart = this.withAnchorDay(
+            startDate.getFullYear(),
+            startDate.getMonth() + monthsDiff,
+            anchorDay,
+            startDate
+        );
+
+        if (refDate < periodStart) {
+            periodStart = this.withAnchorDay(
+                startDate.getFullYear(),
+                startDate.getMonth() + monthsDiff - 1,
+                anchorDay,
+                startDate
+            );
+        }
+
+        const periodEnd = this.addMonthsWithAnchor(periodStart, 1, anchorDay, startDate);
+        return { periodStart, periodEnd };
+    }
+
+    getCurrentPeriodLabel(): string {
+        const startDateRaw = this.boutique?.plan?.startDate;
+        if (!startDateRaw) return '';
+        const startDate = new Date(startDateRaw);
+        const now = new Date();
+        const period = this.getCurrentPeriod(startDate, now);
+        if (!period) return '';
+        return `${this.formatShortDate(period.periodStart)} — ${this.formatShortDate(period.periodEnd)}`;
+    }
+
+    isCurrentPeriodPaid(): boolean {
+        const startDateRaw = this.boutique?.plan?.startDate;
+        if (!startDateRaw) return true;
+        const startDate = new Date(startDateRaw);
+        const now = new Date();
+        const period = this.getCurrentPeriod(startDate, now);
+        if (!period) return true;
+
+        return this.payments.some(p => {
+            const pStart = new Date(p.periodStart);
+            const pEnd = new Date(p.periodEnd);
+            return pStart <= period.periodStart && pEnd >= period.periodEnd;
+        });
+    }
+
+    loadPayments(): void {
+        if (!this.boutiqueId) return;
+        this.paymentsLoading = true;
+        this.paiementService.getPaymentsByBoutique(this.boutiqueId, {
+            sort: '-periodStart,-paidAt',
+            limit: 20
+        }).subscribe({
+            next: (res: any) => {
+                const items = res?.data?.items || res?.data || [];
+                this.payments = Array.isArray(items) ? items : [];
+                this.paymentsLoading = false;
+            },
+            error: () => {
+                this.payments = [];
+                this.paymentsLoading = false;
+            }
+        });
+    }
+
+    get totalPaid(): number {
+        return this.payments.reduce((sum, p) => sum + (Number(p?.amount) || 0), 0);
     }
 
     getBillingDay(startDate?: string | null): number {
