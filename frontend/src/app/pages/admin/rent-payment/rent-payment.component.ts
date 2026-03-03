@@ -31,6 +31,8 @@ export class RentPaymentComponent implements OnInit {
     isSaving = false;
     payments: any[] = [];
     paymentsLoading = false;
+    currentPeriodLabel = '';
+    isCurrentPaid = false;
 
     constructor(
         private boutiqueService: BoutiqueService,
@@ -105,6 +107,8 @@ export class RentPaymentComponent implements OnInit {
         this.amount = null;
         this.method = '';
         this.payments = [];
+        this.currentPeriodLabel = '';
+        this.isCurrentPaid = false;
     }
 
     pay(): void {
@@ -155,10 +159,13 @@ export class RentPaymentComponent implements OnInit {
             next: (res) => {
                 const items = res?.data?.items || res?.data || [];
                 this.payments = Array.isArray(items) ? items : [];
+                this.computeCurrentPeriodStatus();
                 this.paymentsLoading = false;
             },
             error: () => {
                 this.payments = [];
+                this.currentPeriodLabel = '';
+                this.isCurrentPaid = false;
                 this.paymentsLoading = false;
             }
         });
@@ -182,6 +189,75 @@ export class RentPaymentComponent implements OnInit {
         }).format(new Date(date));
     }
 
+    private daysInMonth(year: number, monthIndex: number): number {
+        return new Date(year, monthIndex + 1, 0).getDate();
+    }
+
+    private withAnchorDay(year: number, monthIndex: number, anchorDay: number, timeRef: Date): Date {
+        const day = Math.min(anchorDay, this.daysInMonth(year, monthIndex));
+        const d = new Date(year, monthIndex, day);
+        d.setHours(timeRef.getHours(), timeRef.getMinutes(), timeRef.getSeconds(), timeRef.getMilliseconds());
+        return d;
+    }
+
+    private addMonthsWithAnchor(date: Date, monthsToAdd: number, anchorDay: number, timeRef: Date): Date {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        return this.withAnchorDay(year, month + monthsToAdd, anchorDay, timeRef);
+    }
+
+    private getCurrentPeriod(startDate: Date, refDate: Date): { periodStart: Date; periodEnd: Date } | null {
+        if (!startDate || refDate < startDate) return null;
+
+        const anchorDay = startDate.getDate();
+        const monthsDiff =
+            (refDate.getFullYear() - startDate.getFullYear()) * 12 +
+            (refDate.getMonth() - startDate.getMonth());
+
+        let periodStart = this.withAnchorDay(
+            startDate.getFullYear(),
+            startDate.getMonth() + monthsDiff,
+            anchorDay,
+            startDate
+        );
+
+        if (refDate < periodStart) {
+            periodStart = this.withAnchorDay(
+                startDate.getFullYear(),
+                startDate.getMonth() + monthsDiff - 1,
+                anchorDay,
+                startDate
+            );
+        }
+
+        const periodEnd = this.addMonthsWithAnchor(periodStart, 1, anchorDay, startDate);
+        return { periodStart, periodEnd };
+    }
+
+    private computeCurrentPeriodStatus(): void {
+        const startDateRaw = this.selectedBoutique?.plan?.startDate;
+        if (!startDateRaw) {
+            this.currentPeriodLabel = '';
+            this.isCurrentPaid = false;
+            return;
+        }
+        const startDate = new Date(startDateRaw);
+        const now = new Date();
+        const period = this.getCurrentPeriod(startDate, now);
+        if (!period) {
+            this.currentPeriodLabel = '';
+            this.isCurrentPaid = false;
+            return;
+        }
+
+        this.currentPeriodLabel = `${this.formatDate(period.periodStart)} — ${this.formatDate(period.periodEnd)}`;
+        this.isCurrentPaid = this.payments.some(p => {
+            const pStart = new Date(p.periodStart);
+            const pEnd = new Date(p.periodEnd);
+            return pStart <= period.periodStart && pEnd >= period.periodEnd;
+        });
+    }
+
     get isFormValid(): boolean {
         const amountValue = Number(this.amount);
         return !!(
@@ -190,7 +266,8 @@ export class RentPaymentComponent implements OnInit {
             Number.isFinite(amountValue) &&
             amountValue > 0 &&
             this.method &&
-            this.paidAt
+            this.paidAt &&
+            !this.isCurrentPaid
         );
     }
 }

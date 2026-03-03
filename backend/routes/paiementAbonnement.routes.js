@@ -4,15 +4,19 @@ const paiementAbonnementController = require('../controllers/paiementAbonnement.
 const { protect, authorize } = require('../middlewares/auth.middleware');
 const advancedResults = require('../middlewares/advancedResults');
 const PaiementAbonnement = require('../models/PaiementAbonnement');
+const injectBoutiqueFilter = require('../middlewares/boutiqueFilter.middleware');
 
 router.use(protect);
 
 // Admin: list payments for a boutique
 router.get(
     '/boutique/:boutiqueId',
-    authorize('admin'),
+    authorize('admin', 'boutique'),
+    injectBoutiqueFilter,
     (req, res, next) => {
-        req.query.boutique = req.params.boutiqueId;
+        if (req.user?.role === 'admin') {
+            req.query.boutique = req.params.boutiqueId;
+        }
         next();
     },
     advancedResults(PaiementAbonnement),
