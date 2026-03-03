@@ -5,6 +5,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { AdminKpiComponent } from './admin-kpi/admin-kpi.component';
 import { AdminRecentUsersComponent } from './admin-recent-users/admin-recent-users.component';
 import { AdminRecentSupportComponent } from './admin-recent-support/admin-recent-support.component';
+import { AdminAnalyticsComponent } from './admin-analytics/admin-analytics.component';
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -15,6 +16,7 @@ import { RouterModule } from '@angular/router';
         AdminKpiComponent,
         AdminRecentUsersComponent,
         AdminRecentSupportComponent,
+        AdminAnalyticsComponent,
         RouterModule
     ],
     templateUrl: './dashboard-admin.component.html',

@@ -132,6 +132,9 @@ export class DocsRoutesComponent {
         { path: '/admin/app/subscriptions',         title: 'Abonnements newsletter',          guard: 'AuthGuard · RoleGuard', guardCls: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
         { path: '/admin/app/support-requests',      title: 'Tickets support',                 guard: 'AuthGuard · RoleGuard', guardCls: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
         { path: '/admin/app/support-requests/:id/reply', title: 'Répondre à un ticket',      guard: 'AuthGuard · RoleGuard', guardCls: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
+        { path: '/admin/app/dashboard',                   title: 'Dashboard admin',               guard: 'AuthGuard · RoleGuard', guardCls: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
+        { path: '/admin/app/rent-payments',               title: 'Paiements loyer — vue globale', guard: 'AuthGuard · RoleGuard', guardCls: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
+        { path: '/admin/app/rent-payments/list',          title: 'Historique paiements loyer',    guard: 'AuthGuard · RoleGuard', guardCls: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
       ],
     },
   ];

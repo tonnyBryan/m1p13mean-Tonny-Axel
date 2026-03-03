@@ -7,7 +7,7 @@
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Schéma MongoDB</h2>
         </div>
         <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-2xl">
-            20 collections MongoDB Atlas modélisées avec Mongoose ODM.
+            21 collections MongoDB Atlas modélisées avec Mongoose ODM.
             Les relations entre collections utilisent des
             <code class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono text-orange-500">ObjectId</code>
             comme références. Cliquez sur une collection pour voir son schéma complet.
@@ -100,15 +100,15 @@
                     {{ typeLabel(field.type) }}
                     </span>
 
-                    <!-- Ref -->
-                    <span *ngIf="field.ref"
-                          class="text-orange-400 text-xs px-1.5 py-0.5 bg-orange-900/20 rounded border border-orange-800">
+                        <!-- Ref -->
+                        <span *ngIf="field.ref"
+                              class="text-orange-400 text-xs px-1.5 py-0.5 bg-orange-900/20 rounded border border-orange-800">
                         → {{ field.ref }}
                     </span>
 
-                    <!-- Enum values -->
-                    <span *ngIf="field.enumValues"
-                          class="text-purple-400 text-xs">
+                        <!-- Enum values -->
+                        <span *ngIf="field.enumValues"
+                              class="text-purple-400 text-xs">
                         [ {{ field.enumValues.join(' · ') }} ]
                         </span>
 
@@ -126,9 +126,9 @@
                             = {{ field.default }}
                     </span>
 
-                    <!-- Note -->
-                    <span *ngIf="field.note"
-                          class="text-gray-600 text-xs italic">// {{ field.note }}</span>
+                        <!-- Note -->
+                        <span *ngIf="field.note"
+                              class="text-gray-600 text-xs italic">// {{ field.note }}</span>
 
                         <span *ngIf="!last" class="text-gray-600">{{ ',' }}</span>
                     </div>
@@ -141,13 +141,13 @@
                             <span class="text-gray-600 text-xs group-hover:text-gray-400 transition-colors w-3">
                     {{ isCollapsed(field.key) ? '▶' : '▼' }}
                     </span>
-                    <span class="text-sky-400">"{{ field.key }}"</span>
+                            <span class="text-sky-400">"{{ field.key }}"</span>
                             <span class="text-gray-600">:</span>
                             <span [ngClass]="typeColor(field.type)" class="font-semibold">
                     {{ typeLabel(field.type) }}
                     </span>
-                    <span *ngIf="field.type === 'array'" class="text-yellow-600 text-xs">[ … ]</span>
-                    <span *ngIf="field.type === 'object'" class="text-gray-500 text-xs">&#123; … &#125;</span>
+                            <span *ngIf="field.type === 'array'" class="text-yellow-600 text-xs">[ … ]</span>
+                            <span *ngIf="field.type === 'object'" class="text-gray-500 text-xs">&#123; … &#125;</span>
                             <span *ngIf="field.note" class="text-gray-600 text-xs italic">// {{ field.note }}</span>
                             <span *ngIf="!last" class="text-gray-600">{{ ',' }}</span>
                         </div>
@@ -161,11 +161,11 @@
                                 <span [ngClass]="typeColor(child.type)" class="font-semibold">
                     {{ typeLabel(child.type) }}
                     </span>
-                    <span *ngIf="child.ref"
-                          class="text-orange-400 text-xs px-1.5 py-0.5 bg-orange-900/20 rounded border border-orange-800">
+                                <span *ngIf="child.ref"
+                                      class="text-orange-400 text-xs px-1.5 py-0.5 bg-orange-900/20 rounded border border-orange-800">
                         → {{ child.ref }}
                     </span>
-                    <span *ngIf="child.enumValues" class="text-purple-400 text-xs">
+                                <span *ngIf="child.enumValues" class="text-purple-400 text-xs">
                         [ {{ child.enumValues.join(' · ') }} ]
                                 </span>
                                 <span *ngIf="child.required"

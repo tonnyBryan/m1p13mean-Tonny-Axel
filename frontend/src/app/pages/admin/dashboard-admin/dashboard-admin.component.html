@@ -27,9 +27,9 @@
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Quick Actions</h3>
                     <div class="grid grid-cols-2 gap-4">
                         <button routerLink="/admin/app/boutiques"
-                            class="flex flex-col items-center justify-center p-4 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-xl hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors border border-primary-100 dark:border-primary-800">
+                            class="flex flex-col items-center justify-center p-4 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 rounded-xl hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors border border-primary-100 dark:border-primary-800">
                             <span class="text-2xl mb-2">🏪</span>
-                            <span class="text-sm font-medium">Manage Stores</span>
+                            <span class="text-sm font-medium text-gray-800 dark:text-white/90">Manage Stores</span>
                         </button>
                         <button routerLink="/admin/app/users"
                             class="flex flex-col items-center justify-center p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors border border-blue-100 dark:border-blue-800">
@@ -40,6 +40,16 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- ANALYTICS ZONE -->
+    <div class="space-y-6">
+        <div class="flex items-center gap-3">
+            <div class="h-px flex-1 bg-gray-200 dark:bg-gray-800"></div>
+            <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Analytics</span>
+            <div class="h-px flex-1 bg-gray-200 dark:bg-gray-800"></div>
+        </div>
+        <app-admin-analytics />
     </div>
 
 </div>

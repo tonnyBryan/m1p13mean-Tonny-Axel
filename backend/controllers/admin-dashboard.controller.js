@@ -2,8 +2,9 @@ const User = require('../models/User');
 const Boutique = require('../models/Boutique');
 const Commande = require('../models/Commande');
 const Vente = require('../models/Vente');
-const Subscription = require('../models/Subscription');
 const SupportRequest = require('../models/SupportRequest');
+const PaiementAbonnement = require('../models/PaiementAbonnement');
+const Subscription = require('../models/Subscription');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 
 /**
@@ -29,6 +30,8 @@ exports.getRealtime = async (req, res) => {
         const totalBoutiques = await Boutique.countDocuments();
         const activeBoutiques = await Boutique.countDocuments({ isActive: true, isValidated: true });
         const pendingBoutiques = await Boutique.countDocuments({ isValidated: false });
+        const localBoutiques = await Boutique.countDocuments({ isLocal: true });
+        const externalBoutiques = await Boutique.countDocuments({ isLocal: false });
 
         // 3. Revenue/Sales Stats (Global)
         const caToday = await Vente.aggregate([
@@ -47,19 +50,71 @@ exports.getRealtime = async (req, res) => {
         ]);
         const globalCaToday = caToday.length ? caToday[0].total : 0;
 
-        // 4. Active Subscriptions (Simplified)
-        const activeSubscriptions = await Subscription.countDocuments({
-            status: 'active'
-        });
+        // 3b. Sales today count (direct vs order)
+        const salesTodayAgg = await Vente.aggregate([
+            {
+                $match: {
+                    status: 'paid',
+                    saleDate: { $gte: startOfDay, $lte: endOfDay }
+                }
+            },
+            {
+                $group: {
+                    _id: '$origin',
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+        const salesTodayDirectCount = salesTodayAgg.find(i => i._id === 'direct')?.count || 0;
+        const salesTodayOrderCount = salesTodayAgg.find(i => i._id === 'order')?.count || 0;
+        const salesTodayTotalCount = salesTodayDirectCount + salesTodayOrderCount;
 
-        // 5. Recent Users (Last 5)
-        const recentUsers = await User.find()
+        // 4. Total rent payments (all-time)
+        const rentPaymentsAgg = await PaiementAbonnement.aggregate([
+            { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]);
+        const totalRentPayments = rentPaymentsAgg.length ? rentPaymentsAgg[0].total : 0;
+
+        // 4b. Rent payments (this month)
+        const startOfMonth = new Date(startOfDay.getFullYear(), startOfDay.getMonth(), 1);
+        const rentPaymentsMonthAgg = await PaiementAbonnement.aggregate([
+            { $match: { paidAt: { $gte: startOfMonth, $lte: endOfDay } } },
+            { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]);
+        const rentPaymentsThisMonth = rentPaymentsMonthAgg.length ? rentPaymentsMonthAgg[0].total : 0;
+
+        // 5. Open support requests
+        const openSupportRequests = await SupportRequest.countDocuments({ status: { $ne: 'resolved' } });
+
+        // 5c. Email subscribers
+        const emailSubscribers = await Subscription.countDocuments();
+
+        // 5b. Overdue boutiques (running but no payment covering current period)
+        const runningBoutiques = await Boutique.find({
+            isActive: true,
+            isValidated: true,
+            'plan.startDate': { $ne: null }
+        }).select('_id').lean();
+        const runningIds = runningBoutiques.map(b => b._id);
+
+        let overdueBoutiques = 0;
+        if (runningIds.length) {
+            const paidBoutiqueIds = await PaiementAbonnement.distinct('boutique', {
+                boutique: { $in: runningIds },
+                periodStart: { $lte: new Date() },
+                periodEnd: { $gt: new Date() }
+            });
+            overdueBoutiques = runningIds.length - paidBoutiqueIds.length;
+        }
+
+        // 6. Recent Users (Last 5, role user)
+        const recentUsers = await User.find({ role: 'user' })
             .select('name email createdAt role')
             .sort({ createdAt: -1 })
             .limit(5)
             .lean();
 
-        // 6. Recent Support Requests
+        // 7. Recent Support Requests
         const recentSupportRequests = await SupportRequest.find({ status: { $ne: 'resolved' } })
             .populate('user', 'name')
             .sort({ createdAt: -1 })
@@ -75,8 +130,17 @@ exports.getRealtime = async (req, res) => {
                 totalBoutiques,
                 activeBoutiques,
                 pendingBoutiques,
+                localBoutiques,
+                externalBoutiques,
                 globalCaToday,
-                activeSubscriptions
+                totalRentPayments,
+                rentPaymentsThisMonth,
+                openSupportRequests,
+                overdueBoutiques,
+                salesTodayTotalCount,
+                salesTodayDirectCount,
+                salesTodayOrderCount,
+                emailSubscribers
             },
             recentUsers,
             recentSupportRequests
@@ -127,6 +191,39 @@ exports.getAnalytics = async (req, res) => {
             },
             { $sort: { '_id': 1 } }
         ]);
+
+        // 1b. Sales count by day (direct vs order)
+        const salesCountByDayRaw = await Vente.aggregate([
+            {
+                $match: {
+                    status: 'paid',
+                    saleDate: { $gte: from, $lte: to }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        date: { $dateToString: { format: '%Y-%m-%d', date: '$saleDate' } },
+                        origin: '$origin'
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { '_id.date': 1 } }
+        ]);
+
+        const salesCountMap = new Map();
+        salesCountByDayRaw.forEach(item => {
+            const date = item._id.date;
+            if (!salesCountMap.has(date)) {
+                salesCountMap.set(date, { date, total: 0, direct: 0, order: 0 });
+            }
+            const entry = salesCountMap.get(date);
+            if (item._id.origin === 'direct') entry.direct = item.count;
+            if (item._id.origin === 'order') entry.order = item.count;
+            entry.total = (entry.direct || 0) + (entry.order || 0);
+        });
+        const salesCountByDay = Array.from(salesCountMap.values()).sort((a, b) => a.date.localeCompare(b.date));
 
         // 2. Global Orders by Status
         const ordersByStatus = await Commande.aggregate([
@@ -199,6 +296,7 @@ exports.getAnalytics = async (req, res) => {
         return successResponse(res, 200, 'Admin analytics data retrieved successfully.', {
             period: { from, to },
             revenueByDay,
+            salesCountByDay,
             ordersByStatus,
             userGrowth,
             topBoutiques

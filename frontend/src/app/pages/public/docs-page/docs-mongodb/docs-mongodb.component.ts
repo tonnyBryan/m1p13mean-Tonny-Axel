@@ -72,7 +72,7 @@ export class DocsMongodbComponent {
     {
       id: 'system', label: 'Système', color: '#8b5cf6',
       bgCls: 'bg-purple-50 dark:bg-purple-900/20', textCls: 'text-purple-700 dark:text-purple-300', borderCls: 'border-purple-200 dark:border-purple-800',
-      collections: ['Notification', 'Subscription'],
+      collections: ['Notification', 'Subscription', 'PaiementAbonnement', 'SupportRequest'],
     },
   ];
 
@@ -527,6 +527,47 @@ export class DocsMongodbComponent {
         { key: 'email',     type: 'string',  required: true, unique: true, note: 'lowercase · trim' },
         { key: 'createdAt', type: 'date' },
         { key: 'updatedAt', type: 'date' },
+      ],
+    },
+    {
+      name: 'PaiementAbonnement', icon: '💳', group: 'system',
+      desc: 'Historique des paiements de loyer des boutiques — suivi par période avec montant et méthode.',
+      relations: ['Boutique'],
+      fields: [
+        { key: '_id',         type: 'objectid' },
+        { key: 'boutique',    type: 'objectid', ref: 'Boutique', required: true },
+        { key: 'planType',    type: 'enum',     enumValues: ['A', 'B'], default: 'null' },
+        { key: 'amount',      type: 'number',   required: true, note: 'Min: 0' },
+        { key: 'currency',    type: 'string',   default: 'MGA' },
+        { key: 'periodStart', type: 'date',     required: true },
+        { key: 'periodEnd',   type: 'date',     required: true },
+        { key: 'paidAt',      type: 'date',     default: 'Date.now' },
+        { key: 'method',      type: 'string',   default: 'null', note: 'ex: cash · mobile_money · card' },
+        { key: 'createdAt',   type: 'date' },
+        { key: 'updatedAt',   type: 'date' },
+      ],
+    },
+    {
+      name: 'SupportRequest', icon: '🎫', group: 'system',
+      desc: 'Tickets de support soumis par les visiteurs — avec historique des réponses envoyées par email.',
+      relations: ['User'],
+      fields: [
+        { key: '_id',        type: 'objectid' },
+        { key: 'fullName',   type: 'string',  required: true },
+        { key: 'email',      type: 'string',  required: true },
+        { key: 'subject',    type: 'string',  required: true },
+        { key: 'message',    type: 'string',  required: true },
+        { key: 'isAnswered', type: 'boolean', default: 'false' },
+        { key: 'replies',    type: 'array',   note: 'Historique des réponses envoyées par email',
+          children: [
+            { key: 'subject', type: 'string',   required: true },
+            { key: 'text',    type: 'string',   required: true, note: 'HTML sanitisé' },
+            { key: 'sentAt',  type: 'date',     default: 'Date.now' },
+            { key: 'sentBy',  type: 'objectid', ref: 'User' },
+          ],
+        },
+        { key: 'createdAt',  type: 'date' },
+        { key: 'updatedAt',  type: 'date' },
       ],
     },
   ];
