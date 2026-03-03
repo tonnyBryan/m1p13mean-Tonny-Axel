@@ -52,6 +52,7 @@ export class DocsRolesComponent {
         { icon: '🔑', label: 'Réinitialisation de mot de passe' },
         { icon: '📄', label: 'Pages statiques : Help, Support, Privacy, Terms' },
         { icon: '🏪', label: 'Inscription boutique — /store/register (formulaire + validation admin)' },
+        { icon: '📰', label: 'Magazines & actualités' },
       ],
     },
     {
@@ -106,6 +107,8 @@ export class DocsRolesComponent {
         { icon: '🔒', label: 'Sécurité — sessions actives, mot de passe' },
         { icon: '🤖', label: 'Assistant IA (chatbot intégré)' },
         { icon: '🔔', label: 'Notifications — commandes, stock bas, ventes' },
+        { icon: '📰', label: 'Gestion magazine' },
+        { icon: '✍️', label: 'Création de publication' },
       ],
     },
     {
@@ -130,6 +133,8 @@ export class DocsRolesComponent {
         { icon: '🎫', label: 'Tickets support — lecture et réponse par email' },
         { icon: '💳', label: 'Paiements loyer — suivi des abonnements des boutiques' },
         { icon: '📊', label: 'Dashboard admin — vue globale de la plateforme' },
+        { icon: '📰', label: 'Gestion magazine' },
+        { icon: '✍️', label: 'Création de publication' },
       ],
     },
   ];
