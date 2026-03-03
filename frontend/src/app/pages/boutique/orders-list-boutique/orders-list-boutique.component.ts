@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PageBreadcrumbComponent } from '../../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
-import {ActivatedRoute, Router} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommandeService } from '../../../shared/services/commande.service';
 import { FormsModule } from '@angular/forms';
 import { DatePickerComponent } from '../../../shared/components/form/date-picker/date-picker.component';
 import { SelectComponent } from '../../../shared/components/form/select/select.component';
-import {ToastService} from "../../../shared/services/toast.service";
+import { ToastService } from "../../../shared/services/toast.service";
 
 @Component({
   selector: 'app-orders-list-boutique',
@@ -30,6 +30,7 @@ export class OrdersListBoutiqueComponent implements OnInit {
   // filters
   searchTerm = '';
   statusFilter = 'all';
+  clientName = ''; // Changed from clientFilter to clientName
 
   // date filters
   startDate: string = '';
@@ -46,12 +47,15 @@ export class OrdersListBoutiqueComponent implements OnInit {
     { value: 'totalAmount', label: 'Total (low to high)' }
   ];
 
-  constructor(protected router: Router, private commandeService: CommandeService, private route : ActivatedRoute,  private toast : ToastService){}
+  constructor(protected router: Router, private commandeService: CommandeService, private route: ActivatedRoute, private toast: ToastService) { }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       if (params['status']) {
         this.statusFilter = params['status'];
+      }
+      if (params['clientName']) {
+        this.clientName = params['clientName'];
       }
       this.loadOrders();
     });
@@ -67,7 +71,8 @@ export class OrdersListBoutiqueComponent implements OnInit {
     params.sort = this.sortOption || '-createdAt';
 
     // Request only necessary fields via advancedResults fields param
-    params.fields = 'boutique,deliveryMode,deliveryAddress,paymentMethod,status,totalAmount,createdAt';
+    // ADDED 'user' to fields
+    params.fields = 'user,boutique,deliveryMode,deliveryAddress,paymentMethod,status,totalAmount,createdAt';
 
     if (this.searchTerm) {
       const term = this.searchTerm.trim();
@@ -83,6 +88,10 @@ export class OrdersListBoutiqueComponent implements OnInit {
     } else {
       // exclude drafts and expired by default
       params['status[nin]'] = 'draft,expired';
+    }
+
+    if (this.clientName) {
+      params.clientName = this.clientName.trim();
     }
 
     // date filtering using advancedResults operators
@@ -109,14 +118,22 @@ export class OrdersListBoutiqueComponent implements OnInit {
       error: (err) => {
         this.loading = false;
         const msg = err?.error?.message || 'Error loading orders';
-        this.toast.error('Error',msg, 0);
+        this.toast.error('Error', msg, 0);
         console.error('Error loading boutique orders:', err);
       }
     });
   }
 
-  onSearch(term: string): void {
-    this.searchTerm = term;
+  getClientName(order: any): string {
+    if (!order.user) return 'Walk-in Client';
+    const profile = order.user.profile;
+    if (profile && (profile.firstName || profile.lastName)) {
+      return `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
+    }
+    return order.user.name || order.user.email || 'Anonymous';
+  }
+
+  onSearch(): void {
     this.currentPage = 1;
     this.loadOrders();
   }
