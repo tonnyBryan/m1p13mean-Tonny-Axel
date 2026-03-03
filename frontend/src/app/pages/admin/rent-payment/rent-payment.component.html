@@ -1,0 +1,238 @@
+<div class="mx-auto max-w-7xl">
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-xl font-bold text-gray-800 dark:text-white/90">Rent Payment</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Register a monthly rent payment for a boutique</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <!-- Boutique selection -->
+            <div class="lg:col-span-7 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
+                <div class="mb-5">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Boutique</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Search and select a boutique</p>
+                </div>
+
+                <div class="relative">
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                      d="M13.414 12L17.707 16.293L16.293 17.707L12 13.414C10.8239 14.4191 9.31998 15 7.5 15C3.35786 15 0 11.6421 0 7.50002C0 3.35788 3.35786 0 7.5 0C11.6421 0 15 3.35788 15 7.50002C15 9.31998 14.4191 10.824 13.414 12ZM7.5 13C10.5376 13 13 10.5376 13 7.50002C13 4.46245 10.5376 2 7.5 2C4.46244 2 2 4.46245 2 7.50002C2 10.5376 4.46244 13 7.5 13Z"
+                                      fill="currentColor" />
+                            </svg>
+                        </span>
+                        <input type="text"
+                               (input)="onSearch($event)"
+                               placeholder="Type a boutique name..."
+                               class="w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-12 pr-5 font-medium text-gray-900 outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white dark:focus:border-brand-500" />
+                    </div>
+
+                    <!-- Autocomplete Results -->
+                    <div *ngIf="showResults"
+                         class="absolute left-0 mt-2 w-full z-50 rounded-2xl border border-gray-200 bg-white p-2 shadow-2xl dark:border-white/[0.05] dark:bg-gray-900 transition-all animate-fade-in-down">
+                        <div class="max-h-80 overflow-y-auto">
+                            <div *ngFor="let b of searchResults" (click)="selectBoutique(b)"
+                                 class="flex items-center gap-3 rounded-xl p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors border-b border-gray-100 last:border-0 dark:border-white/[0.05]">
+                                <div class="h-10 w-10 flex-shrink-0">
+                                    <img [src]="b.logo || '/store-placeholder.svg'" alt="logo"
+                                         class="h-full w-full rounded-lg object-cover shadow-sm" />
+                                </div>
+                                <div class="flex-grow min-w-0">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="font-bold text-gray-900 dark:text-white truncate">{{ b.name }}</span>
+                                        <span class="text-xs font-mono text-gray-400 flex-shrink-0">{{ b._id }}</span>
+                                    </div>
+                                    <div class="mt-1 flex items-center gap-2 flex-wrap">
+                                        <span class="text-xs font-semibold px-2 py-0.5 rounded"
+                                              [ngClass]="(b.isActive && b.isValidated && b.plan?.startDate)
+                                                  ? 'bg-green-100 text-green-600 dark:bg-green-500/10 dark:text-green-400'
+                                                  : 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300'">
+                                            {{ (b.isActive && b.isValidated && b.plan?.startDate) ? 'Running' : 'Not running' }}
+                                        </span>
+                                        <span *ngIf="b.plan?.priceToPayPerMonth"
+                                              class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ b.plan.priceToPayPerMonth | number }} Ar / month
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="isSearching" class="px-4 py-3 text-xs text-gray-400">Searching...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected boutique -->
+                <div *ngIf="selectedBoutique" class="mt-4 rounded-xl border border-gray-100 dark:border-white/[0.05] p-4">
+                    <div class="flex items-center gap-3">
+                        <img [src]="selectedBoutique.logo || '/store-placeholder.svg'" alt="logo"
+                             class="h-12 w-12 rounded-lg object-cover" />
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2">
+                                <h4 class="font-bold text-gray-900 dark:text-white truncate">{{ selectedBoutique.name }}</h4>
+                                <button (click)="clearSelection()" class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">Clear</button>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ selectedBoutique._id }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div *ngIf="!isRunning"
+                             class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
+                            This boutique is not running. It must be active, validated, and have a plan start date.
+                        </div>
+                        <div *ngIf="isRunning"
+                             class="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-300">
+                            Running boutique detected. Price has been prefilled.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment form -->
+            <div class="lg:col-span-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/[0.05] dark:bg-white/[0.03]">
+                <div class="mb-5">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Payment Details</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Confirm the amount and payment info</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Amount</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number"
+                                   [(ngModel)]="amount"
+                                   min="0"
+                                   class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white" />
+                            <span class="text-sm font-semibold text-gray-500 dark:text-gray-400">Ar</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Method</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button (click)="method = 'cash'"
+                                    [class]="method === 'cash' ? 'bg-brand-500 text-white' : 'bg-gray-50 text-gray-600 dark:bg-white/[0.05] dark:text-gray-400'"
+                                    class="flex flex-col items-center justify-center gap-1 rounded-xl py-3 text-[10px] font-bold transition-all shadow-sm">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                                    <circle cx="12" cy="12" r="2"></circle>
+                                    <path d="M6 12h.01M18 12h.01"></path>
+                                </svg>
+                                Cash
+                            </button>
+                            <button (click)="method = 'mobile_money'"
+                                    [class]="method === 'mobile_money' ? 'bg-brand-500 text-white' : 'bg-gray-50 text-gray-600 dark:bg-white/[0.05] dark:text-gray-400'"
+                                    class="flex flex-col items-center justify-center gap-1 rounded-xl py-3 text-[10px] font-bold transition-all shadow-sm">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                    <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                                </svg>
+                                Mobile
+                            </button>
+                            <button (click)="method = 'card'"
+                                    [class]="method === 'card' ? 'bg-brand-500 text-white' : 'bg-gray-50 text-gray-600 dark:bg-white/[0.05] dark:text-gray-400'"
+                                    class="flex flex-col items-center justify-center gap-1 rounded-xl py-3 text-[10px] font-bold transition-all shadow-sm">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                                </svg>
+                                Card
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Paid At</label>
+                        <input type="date"
+                               [(ngModel)]="paidAt"
+                               class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-white/[0.05] dark:bg-white/[0.05] dark:text-white" />
+                    </div>
+
+                    <button (click)="pay()"
+                            [disabled]="isSaving || !isFormValid"
+                            class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span *ngIf="!isSaving">Record Payment</span>
+                        <span *ngIf="isSaving">Saving...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payments History -->
+        <div *ngIf="selectedBoutique" class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] overflow-hidden">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Payment History</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Last 10 payments for the selected boutique</p>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div *ngIf="paymentsLoading">
+                <div *ngFor="let i of [1,2,3,4,5]"
+                     class="px-6 py-4 border-b border-gray-50 dark:border-gray-800/50 grid grid-cols-4 gap-4">
+                    <div class="h-4 w-28 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                    <div class="h-4 w-32 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                    <div class="h-4 w-20 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                    <div class="h-4 w-24 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <table *ngIf="!paymentsLoading && payments.length > 0" class="w-full">
+                <thead>
+                <tr class="border-b border-gray-100 dark:border-gray-800">
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 dark:text-gray-500">Period</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 dark:text-gray-500">Amount</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 dark:text-gray-500">Method</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 dark:text-gray-500">Paid At</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let p of payments"
+                    class="border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            {{ formatDate(p.periodStart) }} — {{ formatDate(p.periodEnd) }}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            {{ p.amount | number }} Ar
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="text-xs font-semibold px-2 py-1 rounded-lg"
+                              [ngClass]="p.method === 'cash'
+                                ? 'bg-gray-100 text-gray-600 dark:bg-white/[0.05] dark:text-gray-300'
+                                : p.method === 'mobile_money'
+                                ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300'
+                                : 'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300'">
+                            {{ p.method || 'N/A' }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">{{ formatDateTime(p.paidAt) }}</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- Empty state -->
+            <div *ngIf="!paymentsLoading && payments.length === 0"
+                 class="flex flex-col items-center justify-center py-14 text-center">
+                <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3">
+                    <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <p class="text-sm font-semibold text-gray-600 dark:text-gray-300">No payments yet</p>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Payments will appear here once recorded</p>
+            </div>
+        </div>
+    </div>
+</div>

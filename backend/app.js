@@ -65,6 +65,7 @@ app.use('/api/chat', require('./chatbot/chat.router'));
 app.use('/api/boxes', require('./routes/box.routes'));
 app.use('/api/system', require('./routes/system.routes'));
 app.use('/api/public', require('./routes/public.routes'));
+app.use('/api/paiement-abonnements', require('./routes/paiementAbonnement.routes'));
 
 
 module.exports = app;

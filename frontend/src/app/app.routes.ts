@@ -238,6 +238,14 @@ export const routes: Routes = [
         title: 'Subscriptions | ' + appName,
       },
       {
+        path: 'rent-payments',
+        loadComponent: () => import('./pages/admin/rent-payment/rent-payment.component').then(m => m.RentPaymentComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole] },
+        pathMatch: 'full',
+        title: 'Rent Payments | ' + appName,
+      },
+      {
         path: 'support-requests',
         loadComponent: () => import('./pages/admin/support-request/support-request.component').then(m => m.SupportRequestComponent),
         canActivate: [AuthGuard, RoleGuard],

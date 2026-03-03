@@ -86,6 +86,12 @@ export class AppSidebarComponent implements OnInit {
       path: "/admin/app/subscriptions",
     },
     {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 1C6.477 1 2 5.477 2 11c0 5.523 4.477 10 10 10s10-4.477 10-10c0-5.523-4.477-10-10-10Zm1 5v5h4v2h-6V6h2Z" fill="currentColor"/></svg>`,
+      name: "Rent Payments",
+      roles: [environment.adminRole],
+      path: "/admin/app/rent-payments",
+    },
+    {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H6L4 18V4H20V16ZM12 15H14V17H12V15ZM12 7H14V13H12V7Z" fill="currentColor"/></svg>`,
       name: "Support Requests",
       roles: [environment.adminRole],
