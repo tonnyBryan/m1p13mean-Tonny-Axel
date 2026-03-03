@@ -72,7 +72,7 @@ export class DocsMongodbComponent {
     {
       id: 'system', label: 'Système', color: '#8b5cf6',
       bgCls: 'bg-purple-50 dark:bg-purple-900/20', textCls: 'text-purple-700 dark:text-purple-300', borderCls: 'border-purple-200 dark:border-purple-800',
-      collections: ['Notification', 'Subscription', 'PaiementAbonnement', 'SupportRequest'],
+      collections: ['Notification', 'Subscription', 'PaiementAbonnement', 'SupportRequest', 'Publication'],
     },
   ];
 
@@ -527,6 +527,25 @@ export class DocsMongodbComponent {
         { key: 'email',     type: 'string',  required: true, unique: true, note: 'lowercase · trim' },
         { key: 'createdAt', type: 'date' },
         { key: 'updatedAt', type: 'date' },
+      ],
+    },
+    {
+      name: 'Publication', icon: '📰', group: 'system',
+      desc: 'Publications des boutiques et de l\'admin — annonces, promos, nouveautés, événements. Soumises par les boutiques et validées par l\'admin ; publiées directement par l\'admin.',
+      relations: ['User', 'Boutique'],
+      fields: [
+        { key: '_id',            type: 'objectid' },
+        { key: 'author',         type: 'objectid', ref: 'User',     required: true },
+        { key: 'authorType',     type: 'enum',     enumValues: ['admin', 'boutique'], required: true },
+        { key: 'boutique',       type: 'objectid', ref: 'Boutique', default: 'null', note: 'null si authorType = admin' },
+        { key: 'content',        type: 'string',   required: true },
+        { key: 'images',         type: 'array',    default: '[]', note: 'String[] — URLs Cloudinary' },
+        { key: 'type',           type: 'enum',     enumValues: ['promotion', 'new_arrival', 'event', 'announcement'], default: 'null' },
+        { key: 'status',         type: 'enum',     enumValues: ['published', 'pending', 'rejected'], default: 'pending', note: 'Boutique → pending · Admin valide/rejette ou publie directement' },
+        { key: 'rejectedReason', type: 'string',   default: 'null' },
+        { key: 'publishedAt',    type: 'date',     default: 'null', note: 'Renseigné auto par pre-save hook au passage à published' },
+        { key: 'createdAt',      type: 'date' },
+        { key: 'updatedAt',      type: 'date' },
       ],
     },
     {
