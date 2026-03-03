@@ -80,8 +80,8 @@
                             { value: 'createdAt', label: 'Oldest' },
                             { value: 'regularPrice', label: 'Price: Low to High' },
                             { value: '-regularPrice', label: 'Price: High to Low' },
-                            { value: 'name', label: 'Name A → Z' },
-                            { value: '-name', label: 'Name Z → A' }
+                            { value: 'name', label: 'Name Z → A' },
+                            { value: '-name', label: 'Name A → Z' }
                         ]"
                                 (click)="onSortChange(opt.value)"
                                 [ngClass]="sortBy === opt.value

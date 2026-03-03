@@ -45,6 +45,8 @@ const advancedResults = (model, populate) => async (req, res, next) => {
             if (obj[key] && typeof obj[key] === 'object') {
                 if (obj[key].$in && typeof obj[key].$in === 'string') {
                     obj[key].$in = obj[key].$in.split(',').map(v => v.trim());
+                } else if (obj[key].$nin && typeof obj[key].$nin === 'string') {
+                    obj[key].$nin = obj[key].$nin.split(',').map(v => v.trim());
                 } else {
                     splitInOperators(obj[key]);
                 }
