@@ -62,6 +62,12 @@ export class AppSidebarComponent implements OnInit {
 
     // ADMIN MENU
     {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 13.5L12 3L21 13.5H18V21H14V16H10V21H6V13.5H3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+      name: "Dashboard",
+      roles: [environment.adminRole],
+      path: "/admin/app/dashboard",
+    },
+    {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 13V3H3v10h2v-8h14v8h2zm-4 4v-3h-2v3h-3v2h3v3h2v-3h3v-2h-3z" fill="currentColor"/></svg>`,
       name: "Shops",
       roles: [environment.adminRole],

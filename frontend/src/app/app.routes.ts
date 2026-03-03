@@ -226,8 +226,16 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'boutiques',
+        redirectTo: 'dashboard',
         pathMatch: 'full'
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./pages/admin/dashboard-admin/dashboard-admin.component').then(m => m.DashboardAdminComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: [environment.adminRole] },
+        pathMatch: 'full',
+        title: 'Admin Dashboard | ' + appName,
       },
       {
         path: 'subscriptions',
