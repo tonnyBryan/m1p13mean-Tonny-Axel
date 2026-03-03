@@ -53,6 +53,7 @@ export class DocsRoutesComponent {
         { path: '/reset-password',   title: 'Réinitialiser mot de passe',guard: 'Aucun',                       guardCls: 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500' },
         { path: '/oauth/callback',   title: 'Callback Google OAuth',     guard: 'Aucun',                       guardCls: 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500' },
         { path: '/store/register',   title: 'Inscription boutique',      guard: 'unsavedChangesGuard',         guardCls: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400' },
+        { path: '/news',             title: 'Magazines & actualités',    guard: 'Aucun',                       guardCls: 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500' },
         { path: '/docs',             title: 'Documentation technique',   guard: 'Aucun',                       guardCls: 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500' },
       ],
     },
@@ -110,6 +111,8 @@ export class DocsRoutesComponent {
         { path: '/store/app/chat',                title: 'Assistant IA (chatbot)',          guard: 'AuthGuard · RoleGuard',   guardCls: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' },
         { path: '/store/app/profile',             title: 'Profil boutique',                guard: 'AuthGuard · RoleGuard',   guardCls: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' },
         { path: '/store/app/profile/security',    title: 'Sécurité & sessions',            guard: 'AuthGuard · RoleGuard',   guardCls: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' },
+        { path: '/store/app/publications',        title: 'Publications & magazines',        guard: 'AuthGuard · RoleGuard',   guardCls: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' },
+        { path: '/store/app/publications/add',    title: 'Créer une publication',            guard: 'AuthGuard · RoleGuard',   guardCls: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' },
       ],
     },
     {
@@ -135,6 +138,8 @@ export class DocsRoutesComponent {
         { path: '/admin/app/dashboard',                   title: 'Dashboard admin',               guard: 'AuthGuard · RoleGuard', guardCls: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
         { path: '/admin/app/rent-payments',               title: 'Paiements loyer — vue globale', guard: 'AuthGuard · RoleGuard', guardCls: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
         { path: '/admin/app/rent-payments/list',          title: 'Historique paiements loyer',    guard: 'AuthGuard · RoleGuard', guardCls: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
+        { path: '/admin/app/publications',               title: 'Publications & magazines',        guard: 'AuthGuard · RoleGuard', guardCls: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
+        { path: '/admin/app/publications/add',           title: 'Créer une publication',            guard: 'AuthGuard · RoleGuard', guardCls: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' },
       ],
     },
   ];
