@@ -81,8 +81,8 @@ export class OrdersListBoutiqueComponent implements OnInit {
     if (this.statusFilter !== 'all') {
       params.status = this.statusFilter;
     } else {
-      // exclude drafts by default
-      params['status[ne]'] = 'draft';
+      // exclude drafts and expired by default
+      params['status[nin]'] = 'draft,expired';
     }
 
     // date filtering using advancedResults operators

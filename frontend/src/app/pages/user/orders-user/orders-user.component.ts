@@ -76,7 +76,9 @@ export class OrdersUserComponent implements OnInit {
     if (this.statusFilter !== 'all') {
       params.status = this.statusFilter;
     } else {
-      params['status[ne]'] = 'draft';
+      // Exclude draft and expired when no specific status filter is selected.
+      // Using $nin avoids the "multiple status[ne]" overwrite bug.
+      params['status[nin]'] = 'draft,expired';
     }
 
     // date filtering using advancedResults operators
