@@ -116,7 +116,6 @@ exports.getRealtime = async (req, res) => {
 
         // 7. Recent Support Requests
         const recentSupportRequests = await SupportRequest.find({ status: { $ne: 'resolved' } })
-            .populate('user', 'name')
             .sort({ createdAt: -1 })
             .limit(5)
             .lean();
