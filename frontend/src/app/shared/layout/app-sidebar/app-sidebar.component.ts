@@ -68,6 +68,12 @@ export class AppSidebarComponent implements OnInit {
       path: "/admin/app/dashboard",
     },
     {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM5 19V5H19V19H5ZM7 7H17V9H7V7ZM7 11H17V13H7V11ZM7 15H13V17H7V15Z" fill="currentColor"/></svg>`,
+      name: "Publications",
+      roles: [environment.adminRole],
+      path: "/admin/app/publications",
+    },
+    {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 13V3H3v10h2v-8h14v8h2zm-4 4v-3h-2v3h-3v2h3v3h2v-3h3v-2h-3z" fill="currentColor"/></svg>`,
       name: "Shops",
       roles: [environment.adminRole],
@@ -110,6 +116,12 @@ export class AppSidebarComponent implements OnInit {
       name: "Dashboard",
       roles: [environment.boutiqueRole],
       path: "/store/app/dashboard",
+    },
+    {
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM5 19V5H19V19H5ZM7 7H17V9H7V7ZM7 11H17V13H7V11ZM7 15H13V17H7V15Z" fill="currentColor"/></svg>`,
+      name: "Publications",
+      roles: [environment.boutiqueRole],
+      path: "/store/app/publications",
     },
     {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 7L12 2L3 7V17L12 22L21 17V7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 7L12 12L21 7" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 12V22" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>`,

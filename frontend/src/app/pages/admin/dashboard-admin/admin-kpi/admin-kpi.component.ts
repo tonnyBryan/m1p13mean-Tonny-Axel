@@ -15,7 +15,7 @@ export class AdminKpiComponent {
     formatPrice(price: number): string {
         return new Intl.NumberFormat('fr-FR', {
             style: 'currency',
-            currency: 'MGA',
+            currency: 'Ar',
             minimumFractionDigits: 0
         }).format(price || 0);
     }
