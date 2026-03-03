@@ -111,15 +111,15 @@ export class DocsSecurityComponent {
 }`;
 
   readonly httpCodes = [
-    { code: '200', label: 'OK',                    desc: 'Succès standard (GET, PUT, PATCH)',   cls: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' },
-    { code: '201', label: 'Created',               desc: 'Ressource créée (POST)',              cls: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' },
-    { code: '400', label: 'Bad Request',           desc: 'Données invalides ou manquantes',     cls: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800' },
-    { code: '401', label: 'Unauthorized',          desc: 'Token absent ou invalide',            cls: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800' },
-    { code: '403', label: 'Forbidden',             desc: 'Rôle insuffisant',                    cls: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800' },
-    { code: '404', label: 'Not Found',             desc: 'Ressource introuvable',               cls: 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800' },
-    { code: '409', label: 'Conflict',              desc: 'Doublon (email, SKU…)',               cls: 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800' },
-    { code: '420', label: 'Token Expired',         desc: 'Access token expiré → auto-refresh',  cls: 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800' },
-    { code: '500', label: 'Internal Server Error', desc: 'Erreur serveur non gérée',            cls: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800' },
+    { code: '200', label: 'OK', desc: 'Succès standard (GET, PUT, PATCH)', cls: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' },
+    { code: '201', label: 'Created', desc: 'Ressource créée (POST)', cls: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' },
+    { code: '400', label: 'Bad Request', desc: 'Données invalides ou manquantes', cls: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800' },
+    { code: '401', label: 'Unauthorized', desc: 'Token absent ou invalide', cls: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800' },
+    { code: '403', label: 'Forbidden', desc: 'Rôle insuffisant', cls: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800' },
+    { code: '404', label: 'Not Found', desc: 'Ressource introuvable', cls: 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800' },
+    { code: '409', label: 'Conflict', desc: 'Doublon (email, SKU…)', cls: 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800' },
+    { code: '420', label: 'Token Expired', desc: 'Access token expiré → auto-refresh', cls: 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800' },
+    { code: '500', label: 'Internal Server Error', desc: 'Erreur serveur non gérée', cls: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800' },
   ];
 
   // ── Variables d'environnement ─────────────
@@ -130,70 +130,71 @@ export class DocsSecurityComponent {
     '/api/inventories', '/api/boxes', '/api/subscriptions',
     '/api/support-requests', '/api/search', '/api/email',
     '/api/chat', '/api/public', '/api/store/register',
-    '/api/user-dashboard', '/api/boutique-dashboard',
-    '/api/centre-commercial', '/api/system', '/api-docs',
+    '/api/user-dashboard', '/api/boutique-dashboard', '/api/admin-dashboard',
+    '/api/centre-commercial', '/api/system', '/api/paiement-abonnements',
+    '/api/publications', '/api-docs',
   ];
 
   readonly envGroups: EnvGroup[] = [
     {
       label: 'Base de données', icon: '🍃',
       vars: [
-        { key: 'MONGO_URI',    desc: 'URI de connexion MongoDB Atlas',          required: true,  secret: true,  example: 'mongodb+srv://user:pass@cluster.mongodb.net/db' },
+        { key: 'MONGO_URI', desc: 'URI de connexion MongoDB Atlas', required: true, secret: true, example: 'mongodb+srv://user:pass@cluster.mongodb.net/db' },
       ],
     },
     {
       label: 'Serveur', icon: '🟢',
       vars: [
-        { key: 'PORT',         desc: 'Port d\'écoute du serveur',               required: false, secret: false, example: '3000' },
-        { key: 'NODE_ENV',     desc: 'Environnement (development / production)', required: true,  secret: false, example: 'development' },
-        { key: 'FRONTEND_URL', desc: 'URL(s) Angular autorisées par CORS',      required: true,  secret: false, example: 'http://localhost:4200' },
-        { key: 'APP_NAME',     desc: 'Nom de la plateforme',                    required: false, secret: false, example: 'Shopticus' },
-        { key: 'SUPPORT_URL',  desc: 'URL page support (emails)',               required: false, secret: false, example: 'http://localhost:4200/support' },
-        { key: 'PRIVACY_URL',  desc: 'URL politique confidentialité (emails)',  required: false, secret: false, example: 'http://localhost:4200/privacy' },
+        { key: 'PORT', desc: 'Port d\'écoute du serveur', required: false, secret: false, example: '3000' },
+        { key: 'NODE_ENV', desc: 'Environnement (development / production)', required: true, secret: false, example: 'development' },
+        { key: 'FRONTEND_URL', desc: 'URL(s) Angular autorisées par CORS', required: true, secret: false, example: 'http://localhost:4200' },
+        { key: 'APP_NAME', desc: 'Nom de la plateforme', required: false, secret: false, example: 'Shopticus' },
+        { key: 'SUPPORT_URL', desc: 'URL page support (emails)', required: false, secret: false, example: 'http://localhost:4200/support' },
+        { key: 'PRIVACY_URL', desc: 'URL politique confidentialité (emails)', required: false, secret: false, example: 'http://localhost:4200/privacy' },
       ],
     },
     {
       label: 'JWT', icon: '🎟️',
       vars: [
-        { key: 'JWT_SECRET',          desc: 'Clé secrète access token',          required: true, secret: true,  example: 'super_secret_key' },
-        { key: 'JWT_EXPIRE',          desc: 'TTL access token',                  required: true, secret: false, example: '15m' },
-        { key: 'JWT_REFRESH_SECRET',  desc: 'Clé secrète refresh token',         required: true, secret: true,  example: 'refresh_secret' },
-        { key: 'JWT_REFRESH_EXPIRE',  desc: 'TTL refresh token',                 required: true, secret: false, example: '1d' },
+        { key: 'JWT_SECRET', desc: 'Clé secrète access token', required: true, secret: true, example: 'super_secret_key' },
+        { key: 'JWT_EXPIRE', desc: 'TTL access token', required: true, secret: false, example: '15m' },
+        { key: 'JWT_REFRESH_SECRET', desc: 'Clé secrète refresh token', required: true, secret: true, example: 'refresh_secret' },
+        { key: 'JWT_REFRESH_EXPIRE', desc: 'TTL refresh token', required: true, secret: false, example: '1d' },
       ],
     },
     {
       label: 'Cloudinary', icon: '☁️',
       vars: [
-        { key: 'CLOUDINARY_CLOUD_NAME', desc: 'Nom du cloud Cloudinary',         required: true, secret: false, example: 'dqooludk7' },
-        { key: 'CLOUDINARY_API_KEY',    desc: 'Clé API Cloudinary',              required: true, secret: true  },
-        { key: 'CLOUDINARY_API_SECRET', desc: 'Secret API Cloudinary',           required: true, secret: true  },
+        { key: 'CLOUDINARY_CLOUD_NAME', desc: 'Nom du cloud Cloudinary', required: true, secret: false, example: 'dqooludk7' },
+        { key: 'CLOUDINARY_API_KEY', desc: 'Clé API Cloudinary', required: true, secret: true },
+        { key: 'CLOUDINARY_API_SECRET', desc: 'Secret API Cloudinary', required: true, secret: true },
       ],
     },
     {
       label: 'Emailing (Brevo)', icon: '📧',
       vars: [
-        { key: 'BREVO_API_KEY',               desc: 'Clé API Brevo',                       required: true,  secret: true  },
-        { key: 'MAIL_FROM',                   desc: 'Adresse email expéditeur',             required: true,  secret: false, example: 'shopticus.mall@gmail.com' },
-        { key: 'EMAIL_RESEND_DELAY',          desc: 'Délai avant renvoi OTP (secondes)',    required: false, secret: false, example: '60' },
-        { key: 'EMAIL_CODE_EXPIRES_MIN',      desc: 'TTL du code OTP (minutes)',            required: false, secret: false, example: '15' },
-        { key: 'EMAIL_MAX_ATTEMPTS_BLOCK_MIN',desc: 'Blocage après trop de tentatives (min)',required: false, secret: false, example: '15' },
+        { key: 'BREVO_API_KEY', desc: 'Clé API Brevo', required: true, secret: true },
+        { key: 'MAIL_FROM', desc: 'Adresse email expéditeur', required: true, secret: false, example: 'shopticus.mall@gmail.com' },
+        { key: 'EMAIL_RESEND_DELAY', desc: 'Délai avant renvoi OTP (secondes)', required: false, secret: false, example: '60' },
+        { key: 'EMAIL_CODE_EXPIRES_MIN', desc: 'TTL du code OTP (minutes)', required: false, secret: false, example: '15' },
+        { key: 'EMAIL_MAX_ATTEMPTS_BLOCK_MIN', desc: 'Blocage après trop de tentatives (min)', required: false, secret: false, example: '15' },
       ],
     },
     {
       label: 'Google OAuth', icon: '🔵',
       vars: [
-        { key: 'GOOGLE_CLIENT_ID',      desc: 'Client ID Google OAuth',           required: true, secret: true  },
-        { key: 'GOOGLE_CLIENT_SECRET',  desc: 'Client Secret Google OAuth',       required: true, secret: true  },
-        { key: 'GOOGLE_REDIRECT_URI',   desc: 'URI de callback OAuth',            required: true, secret: false, example: 'http://localhost:3000/api/auth/google/callback' },
+        { key: 'GOOGLE_CLIENT_ID', desc: 'Client ID Google OAuth', required: true, secret: true },
+        { key: 'GOOGLE_CLIENT_SECRET', desc: 'Client Secret Google OAuth', required: true, secret: true },
+        { key: 'GOOGLE_REDIRECT_URI', desc: 'URI de callback OAuth', required: true, secret: false, example: 'http://localhost:3000/api/auth/google/callback' },
       ],
     },
     {
       label: 'IA / Chatbot', icon: '🤖',
       vars: [
-        { key: 'LLM_PROVIDER',   desc: 'Provider LLM utilisé',             required: true,  secret: false, example: 'groq' },
-        { key: 'GROQ_API_KEY',   desc: 'Clé API Groq',                     required: false, secret: true  },
-        { key: 'GEMINI_API_KEY', desc: 'Clé API Google Gemini',            required: false, secret: true  },
-        { key: 'GEMINI_MODEL',   desc: 'Modèle Gemini utilisé',            required: false, secret: false, example: 'gemini-1.5-flash' },
+        { key: 'LLM_PROVIDER', desc: 'Provider LLM utilisé', required: true, secret: false, example: 'groq' },
+        { key: 'GROQ_API_KEY', desc: 'Clé API Groq', required: false, secret: true },
+        { key: 'GEMINI_API_KEY', desc: 'Clé API Google Gemini', required: false, secret: true },
+        { key: 'GEMINI_MODEL', desc: 'Modèle Gemini utilisé', required: false, secret: false, example: 'gemini-1.5-flash' },
       ],
     },
   ];

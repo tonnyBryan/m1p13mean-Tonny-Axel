@@ -13,10 +13,10 @@ export class AdminKpiComponent {
     @Input() isLoading = true;
 
     formatPrice(price: number): string {
-        return new Intl.NumberFormat('fr-FR', {
-            style: 'currency',
-            currency: 'Ar',
-            minimumFractionDigits: 0
-        }).format(price || 0);
+        return new Intl.NumberFormat('ar', {
+            style: 'decimal',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(price || 0) + ' Ar';
     }
 }

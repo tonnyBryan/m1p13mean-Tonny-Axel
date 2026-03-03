@@ -14,22 +14,22 @@
     <!-- ── Onglets ───────────────────────────── -->
     <div class="flex gap-2 border-b border-gray-200 dark:border-gray-800">
         <button type="button" (click)="selectTab('security')"
-                class="px-4 py-2.5 text-sm font-semibold border-b-2 transition-all duration-150"
-                [ngClass]="activeTab === 'security'
+            class="px-4 py-2.5 text-sm font-semibold border-b-2 transition-all duration-150"
+            [ngClass]="activeTab === 'security'
                     ? 'border-brand-500 text-brand-600 dark:text-brand-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'">
             🔒 Sécurité
         </button>
         <button type="button" (click)="selectTab('api')"
-                class="px-4 py-2.5 text-sm font-semibold border-b-2 transition-all duration-150"
-                [ngClass]="activeTab === 'api'
+            class="px-4 py-2.5 text-sm font-semibold border-b-2 transition-all duration-150"
+            [ngClass]="activeTab === 'api'
                     ? 'border-brand-500 text-brand-600 dark:text-brand-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'">
             📡 Uniformité API
         </button>
         <button type="button" (click)="selectTab('env')"
-                class="px-4 py-2.5 text-sm font-semibold border-b-2 transition-all duration-150"
-                [ngClass]="activeTab === 'env'
+            class="px-4 py-2.5 text-sm font-semibold border-b-2 transition-all duration-150"
+            [ngClass]="activeTab === 'env'
                     ? 'border-brand-500 text-brand-600 dark:text-brand-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'">
             ⚙️ Variables d'env
@@ -41,8 +41,9 @@
     <!-- ══════════════════════════════════════ -->
     <div *ngIf="activeTab === 'security'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div *ngFor="let item of securityItems"
-             class="flex items-start gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-colors">
-            <div class="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 text-xl border border-gray-200 dark:border-gray-700">
+            class="flex items-start gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-colors">
+            <div
+                class="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 text-xl border border-gray-200 dark:border-gray-700">
                 {{ item.icon }}
             </div>
             <div class="min-w-0">
@@ -50,7 +51,7 @@
                 <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-2">{{ item.desc }}</p>
                 <div class="flex flex-wrap gap-1">
                     <span *ngFor="let tag of item.tags"
-                          class="text-xs px-2 py-0.5 rounded-md font-mono bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+                        class="text-xs px-2 py-0.5 rounded-md font-mono bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
                         {{ tag }}
                     </span>
                 </div>
@@ -71,27 +72,36 @@
             </h3>
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
                 Toutes les réponses de l'API suivent la même structure via
-                <code class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono text-brand-600 dark:text-brand-400">successResponse</code> et
-                <code class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono text-brand-600 dark:text-brand-400">errorResponse</code>.
+                <code
+                    class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono text-brand-600 dark:text-brand-400">successResponse</code>
+                et
+                <code
+                    class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono text-brand-600 dark:text-brand-400">errorResponse</code>.
             </p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                 <!-- Succès -->
-                <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-                    <div class="px-4 py-2.5 bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-200 dark:border-emerald-800 flex items-center gap-2">
+                <div
+                    class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                    <div
+                        class="px-4 py-2.5 bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-200 dark:border-emerald-800 flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                         <span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">Réponse succès</span>
                     </div>
-                    <pre class="p-4 text-xs font-mono text-gray-700 dark:text-gray-300 overflow-x-auto leading-relaxed bg-gray-950 dark:bg-gray-950">{{ successExample }}</pre>
+                    <pre
+                        class="p-4 text-xs font-mono text-gray-300 dark:text-gray-400 overflow-x-auto leading-relaxed bg-gray-900 dark:bg-gray-950/50">{{ successExample }}</pre>
                 </div>
 
                 <!-- Erreur -->
-                <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-                    <div class="px-4 py-2.5 bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800 flex items-center gap-2">
+                <div
+                    class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                    <div
+                        class="px-4 py-2.5 bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800 flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-red-500"></span>
                         <span class="text-xs font-bold text-red-700 dark:text-red-300">Réponse erreur</span>
                     </div>
-                    <pre class="p-4 text-xs font-mono text-gray-700 dark:text-gray-300 overflow-x-auto leading-relaxed bg-gray-950 dark:bg-gray-950">{{ errorExample }}</pre>
+                    <pre
+                        class="p-4 text-xs font-mono text-gray-300 dark:text-gray-400 overflow-x-auto leading-relaxed bg-gray-900 dark:bg-gray-950/50">{{ errorExample }}</pre>
                 </div>
             </div>
         </div>
@@ -105,27 +115,34 @@
             <div class="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800">
                 <table class="w-full text-sm">
                     <thead>
-                    <tr class="bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700">
-                        <th class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-20">Code</th>
-                        <th class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">Label</th>
-                        <th class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Usage</th>
-                    </tr>
+                        <tr class="bg-gray-50 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700">
+                            <th
+                                class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-20">
+                                Code</th>
+                            <th
+                                class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">
+                                Label</th>
+                            <th
+                                class="text-left px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Usage</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr *ngFor="let code of httpCodes; let odd = odd"
-                        class="border-b border-gray-100 dark:border-gray-800 last:border-0"
-                        [ngClass]="odd ? 'bg-gray-50/30 dark:bg-gray-800/10' : 'bg-white dark:bg-gray-900'">
-                        <td class="px-4 py-3">
+                        <tr *ngFor="let code of httpCodes; let odd = odd"
+                            class="border-b border-gray-100 dark:border-gray-800 last:border-0"
+                            [ngClass]="odd ? 'bg-gray-50/30 dark:bg-gray-800/10' : 'bg-white dark:bg-gray-900'">
+                            <td class="px-4 py-3">
                                 <span class="text-xs font-mono font-bold px-2 py-1 rounded-lg border"
-                                      [ngClass]="code.cls">
+                                    [ngClass]="code.cls">
                                     {{ code.code }}
                                 </span>
-                        </td>
-                        <td class="px-4 py-3 hidden sm:table-cell">
-                            <span class="text-xs font-semibold text-gray-600 dark:text-gray-400 font-mono">{{ code.label }}</span>
-                        </td>
-                        <td class="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{{ code.desc }}</td>
-                    </tr>
+                            </td>
+                            <td class="px-4 py-3 hidden sm:table-cell">
+                                <span class="text-xs font-semibold text-gray-600 dark:text-gray-400 font-mono">{{
+                                    code.label }}</span>
+                            </td>
+                            <td class="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{{ code.desc }}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -139,7 +156,7 @@
             </h3>
             <div class="flex flex-wrap gap-2">
                 <code *ngFor="let route of apiPrefixes"
-                      class="text-xs px-2.5 py-1.5 rounded-lg font-mono bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+                    class="text-xs px-2.5 py-1.5 rounded-lg font-mono bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
                     {{ route }}
                 </code>
             </div>
@@ -155,35 +172,36 @@
         <div *ngFor="let group of envGroups" class="space-y-2">
             <div class="flex items-center gap-2 px-1">
                 <span>{{ group.icon }}</span>
-                <p class="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-600">{{ group.label }}</p>
+                <p class="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-600">{{ group.label
+                    }}</p>
             </div>
             <div class="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800">
                 <table class="w-full text-sm">
                     <tbody>
-                    <tr *ngFor="let v of group.vars; let odd = odd; let last = last"
-                        class="border-b border-gray-100 dark:border-gray-800"
-                        [ngClass]="[last ? 'border-0' : '', odd ? 'bg-gray-50/50 dark:bg-gray-800/20' : 'bg-white dark:bg-gray-900']">
-                        <td class="px-4 py-3 w-64">
-                            <div class="flex items-center gap-2">
-                                <code class="text-xs font-mono font-bold text-brand-600 dark:text-brand-400">{{ v.key }}</code>
-                                <span *ngIf="v.required"
-                                      class="text-xs px-1.5 py-0.5 rounded bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 border border-red-200 dark:border-red-800">
+                        <tr *ngFor="let v of group.vars; let odd = odd; let last = last"
+                            class="border-b border-gray-100 dark:border-gray-800"
+                            [ngClass]="[last ? 'border-0' : '', odd ? 'bg-gray-50/50 dark:bg-gray-800/20' : 'bg-white dark:bg-gray-900']">
+                            <td class="px-4 py-3 w-64">
+                                <div class="flex items-center gap-2">
+                                    <code
+                                        class="text-xs font-mono font-bold text-brand-600 dark:text-brand-400">{{ v.key }}</code>
+                                    <span *ngIf="v.required"
+                                        class="text-xs px-1.5 py-0.5 rounded bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 border border-red-200 dark:border-red-800">
                                         requis
                                     </span>
-                                <span *ngIf="v.secret"
-                                      class="text-xs px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                                    <span *ngIf="v.secret"
+                                        class="text-xs px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
                                         secret
                                     </span>
-                            </div>
-                        </td>
-                        <td class="px-4 py-3">
-                            <p class="text-xs text-gray-600 dark:text-gray-400">{{ v.desc }}</p>
-                            <code *ngIf="v.example"
-                                  class="text-xs text-gray-400 dark:text-gray-600 font-mono">
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <p class="text-xs text-gray-600 dark:text-gray-400">{{ v.desc }}</p>
+                                <code *ngIf="v.example" class="text-xs text-gray-400 dark:text-gray-600 font-mono">
                                 ex: {{ v.example }}
                             </code>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

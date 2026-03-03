@@ -39,7 +39,7 @@ export class RentPaymentComponent implements OnInit {
         private boutiqueService: BoutiqueService,
         private paiementService: PaiementAbonnementService,
         private toast: ToastService
-    ) {}
+    ) { }
 
     ngOnInit(): void {
         this.searchSubject.pipe(
@@ -136,7 +136,7 @@ export class RentPaymentComponent implements OnInit {
         }).subscribe({
             next: (res) => {
                 if (res?.success) {
-                    this.toast.success('Success', 'Payment recorded successfully.', 0);
+                    this.toast.success('Success', 'Payment recorded successfully.');
                     this.loadPayments();
                 } else {
                     this.toast.error('Error', res?.message || 'Failed to record payment.', 0);
