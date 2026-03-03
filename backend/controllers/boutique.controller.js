@@ -8,6 +8,7 @@ const bcrypt = require('bcryptjs'); // Assuming password hashing is needed for u
 const mongoose = require('mongoose');
 const CentreCommercial = require('../models/CentreCommercial');
 const { deleteImage } = require('../utils/cloudinary');
+const { sendNotification } = require('../services/notification.service');
 
 /**
  * POST /api/boutiques
@@ -292,6 +293,19 @@ exports.validateBoutique = async (req, res) => {
         }
 
         await boutique.save();
+
+        // Notify owner about validation
+        sendNotification({
+            recipient: boutique.owner,
+            channel: 'system',
+            type: 'boutique_validated',
+            title: 'Shop Validated!',
+            message: `Congratulations! Your shop "${boutique.name}" has been validated. You can now start using all platform features.`,
+            payload: { boutiqueId: boutique._id },
+            url: '/store/app/dashboard',
+            severity: 'success'
+        }).catch(err => console.error('Notification failed', err));
+
         return successResponse(res, 200, 'Boutique validated successfully.', boutique);
     } catch (error) {
         console.error('Error validating boutique:', error);
